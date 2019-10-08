@@ -418,7 +418,7 @@ class ChromosomeSegmentation(Segmentation): # chrom
 
 
 class GenomeSegmentator:  # seg
-    def __init__(self, file, out, mode):
+    def __init__(self, file, out, mode, extra_states = None):
         chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
                  145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
                  101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
@@ -426,8 +426,10 @@ class GenomeSegmentator:  # seg
         self.chrs, self.chr_lengths = self.construct_chrs(chr_l, from_sys=False)
         
         self.mode = mode
-        
-        self.i_list = [1, 2, 3, 4, 5]
+        if extra_states:
+            self.i_list = [1, 2, 3, 4, 5] + extra_states
+        else:
+            self.i_list = [1, 2, 3, 4, 5]
         
         self.FILE = file  # table
         self.OUT = open(out, 'w')  # ploidy file
@@ -637,17 +639,17 @@ if __name__ == '__main__':
         print("This is the end")
         end = len(keys) - 1
     
-    for i in range(start,end):
+    for i in range(start, end):
         arr = []
         key = keys[i]
-        print('Now on',i,'from',end)
+        print('Now on', i, 'from', end)
         print(key)
-        for path in d[key]:
+        for path in list(set(d[key])):
             if os.path.isfile(path):
                 arr.append(path)
             else:
                 continue
-        if len(arr)==0:
+        if not arr:
             continue
         out_file = "/home/abramov/Ploidy/" + key + ".tsv"
         print(arr)
@@ -662,4 +664,15 @@ if __name__ == '__main__':
         GS = GenomeSegmentator(out_file, "/home/abramov/Ploidy/Corrected/" + key + "_ploidy.tsv", 'corrected')
         GS.estimate_ploidy()
         print('Total time: {} s'.format(time.clock() - t))
+
+        # t = time.clock()
+        # GS = GenomeSegmentator(out_file, "/home/abramov/Ploidy/Corrected-1,5/" + key + "_ploidy.tsv", 'corrected', [1.5])
+        # GS.estimate_ploidy()
+        # print('Total time: {} s'.format(time.clock() - t))
+        #
+        # t = time.clock()
+        # GS = GenomeSegmentator(out_file, "/home/abramov/Ploidy/Binomial-1,5/" + key + "_ploidy.tsv", 'binomial', [1.5])
+        # GS.estimate_ploidy()
+        # print('Total time: {} s'.format(time.clock() - t))
+        
         GS = None

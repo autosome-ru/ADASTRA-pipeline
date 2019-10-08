@@ -39,14 +39,14 @@ class ChromPos:
             return self.chr >= other.chr
     
     def __eq__(self, other):
-        return (self.chr, slef.pos) == (other.chr, other.pos)
+        return (self.chr, self.pos) == (other.chr, other.pos)
     
     def __ne__(self, other):
-        return (self.chr, slef.pos) != (other.chr, other.pos)
+        return (self.chr, self.pos) != (other.chr, other.pos)
     
     def distance(self, other):
         if self.chr != other.chr:
-            return float(inf)
+            return float('inf')
         return abs(self.pos - other.pos)
 
 
