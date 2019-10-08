@@ -206,9 +206,7 @@ class ChromosomeSegmentation(Segmentation): # chrom
             self.i_list = []  # list of ploidys
             for i in range(1, n_max + 1):
                 self.i_list.append(i)
-            self.i_idxs = range(len(self.i_list))
-            # if n_max >= 4:
-            #	self.i_list.append(1.5)
+        self.i_idxs = range(len(self.i_list))
         
         self.LS = None  # likelyhoods of splited segments for each ploidy
         self.ests = []  # estimated ploidys for splited segments
@@ -490,7 +488,7 @@ class GenomeSegmentator:  # seg
         return segments_to_write
 
     @staticmethod
-    def filter_segments(self,segments, snp_number_tr = 10):
+    def filter_segments(self, segments, snp_number_tr = 10):
         is_isolated_left = False
         bad_segments_indexes = set()
         is_zero_ploidy = False
