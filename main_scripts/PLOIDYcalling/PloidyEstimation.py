@@ -627,7 +627,7 @@ def MakeDict(masterList):
 if __name__ == '__main__':
     JSON_path = '/home/abramov/PLOIDYcalling/CELL_LINES.json'
     Ploidy_path = '/home/abramov/Ploidy/'
-    Alignments_path = '/home/Abramov/Alignments/'
+    Alignments_path = '/home/abramov/Alignments/'
     
     if len(sys.argv)<3:
         print("Give me start and end")
@@ -670,14 +670,14 @@ if __name__ == '__main__':
         GS.estimate_ploidy()
         print('Total time: {} s'.format(time.clock() - t))
 
-        # t = time.clock()
-        # GS = GenomeSegmentator(out_file, Ploidy_path + "Corrected-1,5/" + key + "_ploidy.tsv", 'corrected', [1.5])
-        # GS.estimate_ploidy()
-        # print('Total time: {} s'.format(time.clock() - t))
-        #
-        # t = time.clock()
-        # GS = GenomeSegmentator(out_file, Ploidy_path + "Binomial-1,5/" + key + "_ploidy.tsv", 'binomial', [1.5])
-        # GS.estimate_ploidy()
-        # print('Total time: {} s'.format(time.clock() - t))
+        t = time.clock()
+        GS = GenomeSegmentator(out_file, Ploidy_path + "Corrected-1,5/" + key + "_ploidy.tsv", 'corrected', [1.5])
+        GS.estimate_ploidy()
+        print('Total time: {} s'.format(time.clock() - t))
+
+        t = time.clock()
+        GS = GenomeSegmentator(out_file, Ploidy_path + "Binomial-1,5/" + key + "_ploidy.tsv", 'binomial', [1.5])
+        GS.estimate_ploidy()
+        print('Total time: {} s'.format(time.clock() - t))
         
         GS = None
