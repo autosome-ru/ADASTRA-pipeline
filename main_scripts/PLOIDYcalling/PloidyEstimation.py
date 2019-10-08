@@ -619,7 +619,7 @@ def MakeDict(masterList):
         if len(l) > 16:
             add_record(d, l, ctrl=True)
     print("Saving Dictionary")
-    with open("/home/abramov/Ploidy/CELL_LINES.json", "w") as write_file:
+    with open(JSON_path, "w") as write_file:
         json.dump(d, write_file)
     print("Dictionary Saved")
 
