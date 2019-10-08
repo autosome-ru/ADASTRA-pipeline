@@ -464,7 +464,7 @@ class GenomeSegmentator:  # seg
         return chrs, chr_lengths
     
     def append_ploidy_segments(self, chrom):
-        segments_to_write = [[]]
+        segments_to_write = []
         cur = 1
         counter = 0
         if chrom.LINES >= self.NUM_TR:
@@ -487,7 +487,7 @@ class GenomeSegmentator:  # seg
             segments_to_write.append([chrom.CHR, 1, chrom.length, 0, 0, 0, 0, 0])
         return segments_to_write
 
-    @staticmethod
+
     def filter_segments(segments, snp_number_tr = 10):
         is_isolated_left = False
         bad_segments_indexes = set()
