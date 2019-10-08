@@ -11,7 +11,7 @@ import sys
 #from matplotlib import pyplot as plt
 #import random
 import time
-import requests
+
 
 class Segmentation:
     def __init__(self):
@@ -89,7 +89,7 @@ class Segmentation:
                     accum += np.exp(tmp[i] - tmp[-1])
                 L[j, k] += tmp[-1] + np.log1p(accum)
                 if j != k and abs(-L[j,k] + self.L[j,k]) > 1:
-                    print(j, k, L[j,k], round(-L[j,k] + self.L[j,k], 2))
+                    print(j, k, L[j, k], round(-L[j, k] + self.L[j, k], 2))
     
     def get_distance_penalty(self, k):
         if self.positions[k + 1] - self.positions[k] > self.CRITICAL_GAP:
@@ -253,7 +253,7 @@ class ChromosomeSegmentation(Segmentation): # chrom
     
     def split_list(self, length, l, k):
         iterator = []
-        if length < l :
+        if length < l:
             iterator.append((0, length - 1))
             return iterator
         length -= k
@@ -465,27 +465,63 @@ class GenomeSegmentator:  # seg
         
         return chrs, chr_lengths
     
-    def write_ploidy_to_file(self, chrom):
+    def append_ploidy_segments(self, chrom):
+        segments_to_write = [[]]
         cur = 1
         counter = 0
         if chrom.LINES >= self.NUM_TR:
             for border in chrom.bpos + [chrom.length]:
                 if type(border) == type((1, 1)):
-                    self.OUT.write('\t'.join(map(str, [chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
+                    segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
                                                        chrom.quals[counter][0], chrom.quals[counter][1],
-                                                       chrom.counts[counter]])) + '\n')
+                                                       chrom.counts[counter]])
                     cur = border[0] + 1
-                    self.OUT.write('\t'.join(map(str, [chrom.CHR, cur, border[1], 0, 0, 0, 0, 0])) + '\n')
+                    segments_to_write.append([chrom.CHR, cur, border[1], 0, 0, 0, 0, 0])
                     cur = border[1]
                     counter += 1
                 else:
-                    self.OUT.write('\t'.join(map(str, [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter], chrom.Q1[counter],
+                    segments_to_write.append([chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter], chrom.Q1[counter],
                                                        chrom.quals[counter][0], chrom.quals[counter][1],
-                                                       chrom.counts[counter]])) + '\n')
+                                                       chrom.counts[counter]])
                     cur = math.floor(border) + 1
                     counter += 1
         else:
-            self.OUT.write('\t'.join(map(str, [chrom.CHR, 1, chrom.length, 0, 0, 0, 0, 0])) + '\n')
+            segments_to_write.append([chrom.CHR, 1, chrom.length, 0, 0, 0, 0, 0])
+        return segments_to_write
+
+    @staticmethod
+    def filter_segments(self,segments, snp_number_tr = 10):
+        is_isolated_left = False
+        bad_segments_indexes = set()
+        is_zero_ploidy = False
+        for i in range(len(segments)):
+
+            if segments[i][3] == 0:
+                is_zero_ploidy = True
+                if is_isolated_left and segments[i][7] <= snp_number_tr:
+                    bad_segments_indexes.add(potential_index)
+                is_isolated_left = False
+                continue
+
+            if is_zero_ploidy:
+                is_isolated_left = True
+                potential_index = i
+                is_zero_ploidy = False
+
+        filtered_segments = []
+        for i in range(len(segments)):
+            if i in bad_segments_indexes:
+                continue
+            filtered_segments.append(segments[i])
+        return (filtered_segments)
+
+
+    def write_ploidy_to_file(self,chrom):
+        segments = self.append_ploidy_segments(chrom)
+
+        filtered_segments = self.filter_segments(segments)
+        for segment in filtered_segments:
+            self.OUT.write('\t'.join(map(str, segment)) + '\n')
 
     # noinspection PyTypeChecker
     def estimate_ploidy(self):
@@ -499,7 +535,6 @@ class GenomeSegmentator:  # seg
 
 
 Nucleotides = {'A', 'T', 'G', 'C'}
-
 
 def make_dict_from_vcf(vcf, vcf_dict):
     strange = 0
@@ -561,73 +596,9 @@ def merge_vcfs(out_file, in_files):
     
     print('Skipped {0} mismatched SNPS'.format(strange))
 
-
-def findLAB(enc):
-    if enc.find(";") != -1:
-        enc = enc.split(";")[0]
-    if enc.find("wgEncode") == -1:
-        r = requests.get('https://www.encodeproject.org/experiments/' + enc + '/?format=json')
-        return json.loads(r.text)['lab']['@id']
-    else:
-        return 'False'
-
-
-def CreatePath(line, ctrl=False):
-    if ctrl:
-        return Alignments_path + "CTRL/" + line[0] + "/" + line[6] + ".vcf.gz"
-    else:
-        return Alignments_path + "EXP/" + line[1] + "/" + line[0] + "/" + line[6] + ".vcf.gz"
-
-
-def add_to_dict(d, key, value):
-    el = d.get(key, None)
-    if el:
-        d[key] = el + [value]
-    else:
-        d[key] = [value]
-
-
-def add_record(d, line, ctrl=False):
-    if ctrl:
-        idcs = (12, 15, 16)
-    else:
-        idcs = (4, 8, 9)
-    
-    path = CreatePath(line, ctrl)
-    if line[idcs[2]] != "None":
-        Lab = findLAB(line[idcs[2]])
-        if Lab:
-            key = line[idcs[0]] + ';' + Lab
-            add_to_dict(d, key, path)
-    elif line[idcs[1]] != "None":
-        key = line[idcs[0]] + ';' + line[idcs[1]]
-        add_to_dict(d, key, path)
-
-
-def MakeDict(masterList):
-    master = open(masterList, "r")
-    d = dict()
-    count = 0
-    for line in master:
-        count += 1
-        if count % 5 == 0:
-            print("Made {0} Experiments out of ~6500".format(count))
-        l = line.strip().split("\t")
-        if len(l) > 9:
-            add_record(d, l)
-        
-        if len(l) > 16:
-            add_record(d, l, ctrl=True)
-    print("Saving Dictionary")
-    with open(JSON_path, "w") as write_file:
-        json.dump(d, write_file)
-    print("Dictionary Saved")
-
-
 if __name__ == '__main__':
     JSON_path = '/home/abramov/PLOIDYcalling/CELL_LINES.json'
     Ploidy_path = '/home/abramov/Ploidy/'
-    Alignments_path = '/home/abramov/Alignments/'
     
     if len(sys.argv)<3:
         print("Give me start and end")
