@@ -15,6 +15,20 @@ import requests
 
 class Segmentation:
     def __init__(self):
+        self.b = None
+        self.bnum = None
+        self.sc = None
+        self.LINES = None
+        self.length = None
+        self.CRITICAL_GAP = None
+        self.positions = None
+        self.i_idxs = None
+        self.last_snp_number = None
+        self.candidate_numbers = None
+        self.i_list = None
+        self.candidates_count = None
+        self.chrom = None
+        self.mode = None
         self.dtype = np.float64
     
     def loglikelyhood(self, N, X, i):
@@ -157,7 +171,7 @@ class PieceSegmentation(Segmentation):
 
 
 class ChromosomeSegmentation(Segmentation): # chrom
-    def __init__(self, seg, CHR, length=0, n_max=0, CGF=0.0):
+    def __init__(self, seg, CHR, i_list=None, length=0, n_max=0, CGF=0.0):
         super().__init__()
         self.CHR = CHR  # name
         self.COV_TR = seg.COV_TR  # coverage treshold
@@ -186,12 +200,15 @@ class ChromosomeSegmentation(Segmentation): # chrom
         
         self.mode = seg.mode # binomial or corrected
         
-        self.i_list = []  # list of ploidys
-        for i in range(1, n_max + 1):
-            self.i_list.append(i)
-        self.i_idxs = range(len(self.i_list))
-        # if n_max >= 4:
-        #	self.i_list.append(1.5)
+        if i_list:
+            self.i_list = i_list
+        else:
+            self.i_list = []  # list of ploidys
+            for i in range(1, n_max + 1):
+                self.i_list.append(i)
+            self.i_idxs = range(len(self.i_list))
+            # if n_max >= 4:
+            #	self.i_list.append(1.5)
         
         self.LS = None  # likelyhoods of splited segments for each ploidy
         self.ests = []  # estimated ploidys for splited segments
@@ -287,20 +304,6 @@ class ChromosomeSegmentation(Segmentation): # chrom
         self.sc = [0] * (self.candidates_count + 1)  # sc[i] = best log-likelyhood among all segmentations of snps[0,i]
         self.b = [(0, 0)] * self.candidates_count  # borders, len=LINES. b[i]: (0,0) if there is no border after ith snp, (1, x) else, where x is 1 if positions[i+1]-positions[i] > CRITICAL_GAP, 0 else
         self.bnum = [0] * (self.candidates_count + 1)  # bnum[i] = number of borders before ith snp in best segmentation
-        #for i in self.i_idxs:
-        #	for j in range(self.candidates_count + 1):
-        #		for k in range(j, self.candidates_count + 1):
-        #			if k == self.candidates_count:
-        #				last = self.LINES
-        #			else:
-        #				last = self.candidate_numbers[k] + 1
-        #			if j == 0:
-        #				first = 0
-        #			else:
-        #				first = self.candidate_numbers[j-1] + 1
-        #			print('first: {}, last: {}'.format(first, last))
-        #			print('i: {}, j: {}, k: {}, P-SUM: {}'.format(i, j, k, self.P[i][j][k] - sum([self.P_init[i][q] for q in range(first, last)])))
-        #			assert(self.P[i, j, k] - sum([self.P_init[i, q] for q in range(first, last)]) < 10**-8)
         for i in range(self.candidates_count + 1):
             self.sc[i] = self.L[0, i]
             
@@ -328,11 +331,6 @@ class ChromosomeSegmentation(Segmentation): # chrom
             
             self.bnum[i] = [x[0] for x in self.b].count(1)
             assert([x[0] for x in self.b].count(1) == self.bnum[i])
-        #if i != self.candidates_count:
-        #	ni = self.candidate_numbers[i]
-        #else:
-        #	ni = 'ALL'
-        #print(ni, [x[0] for x in self.b], kf, i - 1, self.L[i][i], self.sc[i], lh, current_optimal)
         
         self.bposn = [self.candidate_numbers[i] for i in range(self.candidates_count) if self.b[i][0]]
         self.border_numbers = [-1] + [i for i in range(self.candidates_count) if self.b[i][0]] + [self.candidates_count]
@@ -429,6 +427,7 @@ class GenomeSegmentator:  # seg
         
         self.mode = mode
         
+        self.i_list = [1, 2, 3, 4, 5]
         
         self.FILE = file  # table
         self.OUT = open(out, 'w')  # ploidy file
@@ -442,20 +441,9 @@ class GenomeSegmentator:  # seg
         self.chr_segmentations = []  # chroms
         
         for CHR in self.chrs:
-            chrom = ChromosomeSegmentation(self, CHR, self.chr_lengths[CHR], self.n_max, self.CRITICAL_GAP_FACTOR)
+            chrom = ChromosomeSegmentation(self, CHR, self.i_list, self.chr_lengths[CHR], self.n_max, self.CRITICAL_GAP_FACTOR)
             print('{} total SNP count: {}'.format(CHR, chrom.LINES))
             self.chr_segmentations.append(chrom)
-    
-    def get_cov_tr(self, LINES):
-        #if LINES < 1000:
-        #	return 0
-        #elif LINES < 5000:
-        #	return 4
-        #elif LINES < 10000:
-        #	return 10
-        #else:
-        #	return 20
-        return 10
     
     def construct_chrs(self, chr_l, from_sys=False):
         chrs = []
@@ -496,7 +484,8 @@ class GenomeSegmentator:  # seg
                     counter += 1
         else:
             self.OUT.write('\t'.join(map(str, [chrom.CHR, 1, chrom.length, 0, 0, 0, 0, 0])) + '\n')
-    
+
+    # noinspection PyTypeChecker
     def estimate_ploidy(self):
         groups = []
         for i in range(len(self.chr_segmentations)):
@@ -508,6 +497,7 @@ class GenomeSegmentator:  # seg
 
 
 Nucleotides = {'A', 'T', 'G', 'C'}
+
 
 def make_dict_from_vcf(vcf, vcf_dict):
     strange = 0
@@ -549,6 +539,7 @@ def make_dict_from_vcf(vcf, vcf_dict):
             vcf_dict[(chr, pos)] = (R, A, NAME, REF, ALT)
     
     return strange
+
 
 def merge_vcfs(out_file, in_files):
     vcf_dict = dict()
@@ -666,7 +657,6 @@ if __name__ == '__main__':
         GS = GenomeSegmentator(out_file, "/home/abramov/Ploidy/Binomial/" + key + "_ploidy.tsv", 'binomial')
         GS.estimate_ploidy()
         print('Total time: {} s'.format(time.clock() - t))
-        GS = None
         
         t = time.clock()
         GS = GenomeSegmentator(out_file, "/home/abramov/Ploidy/Corrected/" + key + "_ploidy.tsv", 'corrected')
