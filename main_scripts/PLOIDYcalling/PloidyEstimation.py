@@ -567,16 +567,16 @@ def findLAB(enc):
         enc = enc.split(";")[0]
     if enc.find("wgEncode") == -1:
         r = requests.get('https://www.encodeproject.org/experiments/' + enc + '/?format=json')
-        return (json.loads(r.text)['lab']['@id'])
+        return json.loads(r.text)['lab']['@id']
     else:
-        return ('False')
+        return 'False'
 
 
 def CreatePath(line, ctrl=False):
     if ctrl:
-        return ("/home/Abramov/Alignments/CTRL/" + line[0] + "/" + line[6] + ".vcf.gz")
+        return Alignments_path + "CTRL/" + line[0] + "/" + line[6] + ".vcf.gz"
     else:
-        return ("/home/Abramov/Alignments/EXP/" + line[1] + "/" + line[0] + "/" + line[6] + ".vcf.gz")
+        return Alignments_path + "EXP/" + line[1] + "/" + line[0] + "/" + line[6] + ".vcf.gz"
 
 
 def add_to_dict(d, key, value):
@@ -625,12 +625,16 @@ def MakeDict(masterList):
 
 
 if __name__ == '__main__':
+    JSON_path = '/home/abramov/PLOIDYcalling/CELL_LINES.json'
+    Ploidy_path = '/home/abramov/Ploidy/'
+    Alignments_path = '/home/Abramov/Alignments/'
+    
     if len(sys.argv)<3:
         print("Give me start and end")
     print(sys.argv[1])
     start = int(sys.argv[1])
     end = int(sys.argv[2])
-    with open("/home/abramov/PLOIDYcalling/CELL_LINES.json", "r") as read_file:
+    with open(JSON_path, "r") as read_file:
         d = json.loads(read_file.readline())
     size = []
     keys = sorted(d.keys())
@@ -644,6 +648,7 @@ if __name__ == '__main__':
         key = keys[i]
         print('Now on', i, 'from', end)
         print(key)
+        # list(set) for deduplication
         for path in list(set(d[key])):
             if os.path.isfile(path):
                 arr.append(path)
@@ -651,27 +656,27 @@ if __name__ == '__main__':
                 continue
         if not arr:
             continue
-        out_file = "/home/abramov/Ploidy/" + key + ".tsv"
+        out_file = Ploidy_path + key + ".tsv"
         print(arr)
         merge_vcfs(out_file, arr)
         
         t = time.clock()
-        GS = GenomeSegmentator(out_file, "/home/abramov/Ploidy/Binomial/" + key + "_ploidy.tsv", 'binomial')
+        GS = GenomeSegmentator(out_file, Ploidy_path + "Binomial/" + key + "_ploidy.tsv", 'binomial')
         GS.estimate_ploidy()
         print('Total time: {} s'.format(time.clock() - t))
         
         t = time.clock()
-        GS = GenomeSegmentator(out_file, "/home/abramov/Ploidy/Corrected/" + key + "_ploidy.tsv", 'corrected')
+        GS = GenomeSegmentator(out_file, Ploidy_path + "Corrected/" + key + "_ploidy.tsv", 'corrected')
         GS.estimate_ploidy()
         print('Total time: {} s'.format(time.clock() - t))
 
         # t = time.clock()
-        # GS = GenomeSegmentator(out_file, "/home/abramov/Ploidy/Corrected-1,5/" + key + "_ploidy.tsv", 'corrected', [1.5])
+        # GS = GenomeSegmentator(out_file, Ploidy_path + "Corrected-1,5/" + key + "_ploidy.tsv", 'corrected', [1.5])
         # GS.estimate_ploidy()
         # print('Total time: {} s'.format(time.clock() - t))
         #
         # t = time.clock()
-        # GS = GenomeSegmentator(out_file, "/home/abramov/Ploidy/Binomial-1,5/" + key + "_ploidy.tsv", 'binomial', [1.5])
+        # GS = GenomeSegmentator(out_file, Ploidy_path + "Binomial-1,5/" + key + "_ploidy.tsv", 'binomial', [1.5])
         # GS.estimate_ploidy()
         # print('Total time: {} s'.format(time.clock() - t))
         
