@@ -489,32 +489,37 @@ class GenomeSegmentator:  # seg
             segments_to_write.append([chrom.CHR, 1, chrom.length, 0, 0, 0, 0, 0])
         return segments_to_write
 
+    @staticmethod
+    def filter_segments(self,segments, snp_number_tr = 10):
+        is_isolated_left = False
+        bad_segments_indexes = set()
+        is_zero_ploidy = False
+        for i in range(len(segments)):
+
+            if segments[i][3] == 0:
+                is_zero_ploidy = True
+                if is_isolated_left and segments[i][7] <= snp_number_tr:
+                    bad_segments_indexes.add(potential_index)
+                is_isolated_left = False
+                continue
+
+            if is_zero_ploidy:
+                is_isolated_left = True
+                potential_index = i
+                is_zero_ploidy = False
+
+        filtered_segments = []
+        for i in range(len(segments)):
+            if i in bad_segments_indexes:
+                continue
+            filtered_segments.append(segments[i])
+        return (filtered_segments)
+
+
     def write_ploidy_to_file(self,chrom):
         segments = self.append_ploidy_segments(chrom)
 
-        def filter_segments(segments):
-            is_isolated_left = False
-            bad_segments_indexes = set()
-            is_zero_ploidy = False
-            for i in range(len(segments)):
-                if is_zero_ploidy:
-                    is_isolated_left = True
-                    potential_index = i
-                    is_zero_ploidy = False
-
-                if segments[i][3] == 0:
-                    is_zero_ploidy = True
-                    if is_isolated_left:
-                        bad_segments_indexes.add(potential_index)
-                    is_isolated_left = False
-            filtered_segments = []
-            for i in range(len(segments)):
-                if i in bad_segments_indexes:
-                    continue
-                filtered_segments.append(segments[i])
-            return(filtered_segments)
-
-        filtered_segments = filter_segments(segments)
+        filtered_segments = self.filter_segments(segments)
         for segment in filtered_segments:
             self.OUT.write('\t'.join(map(str, segment)) + '\n')
 
