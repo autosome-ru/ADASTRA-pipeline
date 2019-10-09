@@ -336,11 +336,11 @@ if __name__ == '__main__':
     
     with open(out_path, 'w') as out:
         out.write('\t'.join(map(lambda x: '\t'.join(x),
-            [['#cell_line', 'id(temp)', 'cells', 'aligns', 'total_snps', '#_of_merged_datasets', 'total_regions']],
+            [['#cell_line', 'id(temp)', 'cells', 'aligns', 'total_snps', '#_of_merged_datasets', 'total_regions']] +
             [['segments_' + get_name_by_dir(snp_dir),
               'reg_' + get_name_by_dir(snp_dir),
               'snp_' + get_name_by_dir(snp_dir)]
-             for snp_dir in snp_dirs],
+             for snp_dir in snp_dirs] +
             [['reg_naive', 'snp_naive',
              'reg_CGH', 'probe_CGH']]
                                 )) + '\n')
@@ -407,14 +407,14 @@ if __name__ == '__main__':
             counts[name] += 1
             
             out.write('\t'.join(map(lambda x: '\t'.join(x),
-                                    [[name, index, lab, aligns, N, datas, len(COSMIC_segments.segments)]],
+                                    [[name, index, lab, aligns, N, datas, len(COSMIC_segments.segments)]] +
                                     [[seg_segs[snp_dir],
                                       corr_to_segments[snp_dir],
                                       corr_to_objects[snp_dir]]
-                                     for type in map(lambda x: get_name_by_dir(x), snp_dirs)],
+                                     for type in map(lambda x: get_name_by_dir(x), snp_dirs)] +
                                     [[corr_to_segments[name],
                                       corr_to_objects[name]]
-                                     for name in naive_names],
+                                     for name in naive_names] +
                                     [[corr_to_segments_global[name],
                                       corr_to_objects_global[name]]]
                                     )) + '\n')
