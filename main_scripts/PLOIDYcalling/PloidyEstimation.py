@@ -437,6 +437,7 @@ class GenomeSegmentator:  # seg
         self.COV_TR = 0  # coverage treshold
         self.INTERSECT = 300
         self.SEG_LENGTH = 600
+        self.ISOLATED_SNP_FILTER = 4
         self.chr_segmentations = []  # chroms
         
         for CHR in self.chrs:
@@ -489,7 +490,7 @@ class GenomeSegmentator:  # seg
     def write_ploidy_to_file(self, chrom):
         segments = self.append_ploidy_segments(chrom)
 
-        filtered_segments = filter_segments(segments)
+        filtered_segments = filter_segments(segments, self.ISOLATED_SNP_FILTER)
         for segment in filtered_segments:
             self.OUT.write('\t'.join(map(str, segment)) + '\n')
 
@@ -503,7 +504,7 @@ class GenomeSegmentator:  # seg
             self.chr_segmentations[j] = None
 
 
-def filter_segments(segments, snp_number_tr=10):
+def filter_segments(segments, snp_number_tr=4):
     is_isolated_left = False
     bad_segments_indexes = set()
     potential_index = 0
@@ -644,25 +645,14 @@ if __name__ == '__main__':
         out_file = Ploidy_path + key + ".tsv"
         print(arr)
         merge_vcfs(out_file, arr)
-        
-        t = time.clock()
-        GS = GenomeSegmentator(out_file, Ploidy_path + "Binomial/" + key + "_ploidy.tsv", 'binomial')
-        GS.estimate_ploidy()
-        print('Total time: {} s'.format(time.clock() - t))
-        
-        t = time.clock()
-        GS = GenomeSegmentator(out_file, Ploidy_path + "Corrected/" + key + "_ploidy.tsv", 'corrected')
-        GS.estimate_ploidy()
-        print('Total time: {} s'.format(time.clock() - t))
-
-        t = time.clock()
-        GS = GenomeSegmentator(out_file, Ploidy_path + "Corrected-1,5/" + key + "_ploidy.tsv", 'corrected', [1.5])
-        GS.estimate_ploidy()
-        print('Total time: {} s'.format(time.clock() - t))
-
-        t = time.clock()
-        GS = GenomeSegmentator(out_file, Ploidy_path + "Binomial-1,5/" + key + "_ploidy.tsv", 'binomial', [1.5])
-        GS.estimate_ploidy()
-        print('Total time: {} s'.format(time.clock() - t))
-        
-        GS = None
+        for model, mode, states in (('Binomial/', 'binomial', []),
+                                    ('Binomial-1,5/', 'binomial', [1.5]),
+                                    ('Corrected/', 'corrected', []),
+                                    ('Corrected-1,5/', 'corrected', [1.5]),
+                                    ):
+            t = time.clock()
+            if not os.path.isdir(Ploidy_path + model):
+                os.mkdir(Ploidy_path + model)
+            GS = GenomeSegmentator(out_file, Ploidy_path + model + key + "_ploidy.tsv", mode, states)
+            GS.estimate_ploidy()
+            print('Total time: {} s'.format(time.clock() - t))

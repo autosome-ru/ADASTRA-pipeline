@@ -92,8 +92,12 @@ print(names)
 with open(JSON_path, 'r') as file:
     cl = json.loads(file.readline().strip())
 
-for file_name in os.listdir(Ploidy_path):
-    modes = ('Binomial', 'Corrected', 'Binomial-1,5', 'Corrected-1,5')
+modes = []
+for file_name in sorted(os.listdir(Ploidy_path)):
+    if os.path.isdir(Ploidy_path + file_name):
+        modes.append(file_name)
+
+for file_name in sorted(os.listdir(Ploidy_path)):
     if file_name in modes:
         continue
     name = file_name.split('!')[0]
