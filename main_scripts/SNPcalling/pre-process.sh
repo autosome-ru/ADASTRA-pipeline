@@ -5,8 +5,6 @@ BAMPATH=$2
 OUT=$3
 VCF=$4
 FA=$5
-FD=$6
-WG=$7
 
 source ./Config.cfg
 
@@ -31,7 +29,8 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-$Java $JavaParameters -jar $PICARD \
+# shellcheck disable=SC2154
+$Java "$JavaParameters" -jar "$PICARD" \
 	AddOrReplaceReadGroups \
 	I="$OUT/${BAMNAME}_chop.bam" \
 	O="$OUT/${BAMNAME}_formated.bam" \
@@ -46,7 +45,7 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-$Java $JavaParameters -jar $PICARD \
+$Java "$JavaParameters" -jar "$PICARD" \
 	MarkDuplicates \
 	I="$OUT/${BAMNAME}_formated.bam" \
 	O="$OUT/${BAMNAME}_ready.bam" \
@@ -58,11 +57,11 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-$Java $JavaParameters -jar $GATK \
+$Java "$JavaParameters" -jar "$GATK" \
 	BaseRecalibrator \
-	-R $FA \
+	-R "$FA" \
 	-I "$OUT/${BAMNAME}_ready.bam" \
-	-known-sites $VCF \
+	-known-sites "$VCF" \
 	-O "$OUT/${BAMNAME}.table"
 
 if [ $? != 0 ]; then
@@ -70,9 +69,9 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-$Java $JavaParameters -jar $GATK \
+$Java "$JavaParameters" -jar "$GATK" \
 	ApplyBQSR \
-	-R $FA \
+	-R "$FA" \
 	-I "$OUT/${BAMNAME}_ready.bam" \
 	--bqsr-recal-file "$OUT/${BAMNAME}.table" \
 	-O "$OUT/${BAMNAME}_final.bam"
@@ -82,16 +81,13 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
-if $WG; then
-		$Java $JavaParameters -jar $GATK \
-		HaplotypeCaller \
-		-R $FA \
-		-I "$OUT/${BAMNAME}_final.bam" \
-		--dbsnp $VCF \
-		-O "$OUT/${BAMNAME}.vcf" 
-	else
-		echo "cant be done"
-fi
+$Java "$JavaParameters" -jar "$GATK" \
+	HaplotypeCaller \
+	-R "$FA" \
+	-I "$OUT/${BAMNAME}_final.bam" \
+	--dbsnp "$VCF" \
+	-O "$OUT/${BAMNAME}.vcf"
+
 
 if [ $? != 0 ]; then
     echo "Failed gatk.HaplotypeCaller"

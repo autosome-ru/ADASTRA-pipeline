@@ -5,7 +5,7 @@ GETNAME(){
 	local var=$1
 	local varpath=${var%/*}
 	[ "$varpath" != "$var" ] && local vartmp="${var:${#varpath}}"
-		echo ${vartmp%.*}
+		echo "${vartmp%.*}"
 }
 
 withmacs=false
@@ -17,7 +17,7 @@ sissrs=-1
 cpics=-1
 gem=-1
 
-while [ "`echo $1 | cut -c1`" = "-" ]
+while [ "$(echo "$1" | cut -c1)" = "-" ]
 do
     case "$1" in
 	-Out) OUT=$2
@@ -28,26 +28,26 @@ do
 
 	-macs) withmacs=true
 		macs=$2
-		NAMEM=$(GETNAME $macs)
+		NAMEM=$(GETNAME "$macs")
 		shift 2;;
 
 	-sissrs) withsissrs=true
 		sissrs=$2
-		NAMES=$( GETNAME $sissrs)
+		NAMES=$( GETNAME "$sissrs")
 		shift 2;;
 
 	-cpics) withcpics=true
 		cpics=$2
-		NAMEC=$( GETNAME $cpics)
+		NAMEC=$( GETNAME "$cpics")
 		shift 2;;
 
 	-gem) withgem=true
 		gem=$2
-		NAMEG=$( GETNAME $gem)
+		NAMEG=$( GETNAME "$gem")
 		shift 2;;
 
 	-VCFexp) VCFexp=$2
-		tmp=$( GETNAME $VCFexp )
+		tmp=$( GETNAME "$VCFexp" )
 		EXPNAME=${tmp%.*}
 		shift 2;;
 
@@ -57,9 +57,6 @@ do
 
     esac
 done
-
-FA=$REFERENCE/"genome-norm.fasta"
-FD=$REFERENCE/"genome-norm.dict"
 
 
 $python3 Make_tables.py "$OUT${EXPNAME}.vcf.gz" "$OUT${EXPNAME}_table.txt"

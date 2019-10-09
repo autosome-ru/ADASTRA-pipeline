@@ -7,16 +7,6 @@ GETNAME(){
 		echo ${vartmp%.*}
 }
 
-WG=false
-withmacs=false
-withsissrs=false
-withcpics=false
-withgem=false
-macs=-1
-sissrs=-1
-cpics=-1
-gem=-1
-
 
 while [ "`echo $1 | cut -c1`" = "-" ]
 do
@@ -33,8 +23,6 @@ do
         	shift 2;;
 	-VCF) VCF=$2
               	shift 2;;
-	-WG) WG=true
-		shift 1;;
     *)
         echo "There is no option $1"
 	break;;
@@ -57,8 +45,7 @@ bash pre-process.sh $EXPNAME \
 	$OUT \
 	$VCF \
 	$FA \
-	$FD \
-	$WG
+	$FD
 
 if [ $? != 0 ]; then
     echo "Failed to pre-process exp"
