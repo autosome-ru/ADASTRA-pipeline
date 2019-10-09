@@ -374,6 +374,7 @@ if __name__ == '__main__':
 
                 corr_to_objects[type] = 'nan'
                 corr_to_segments[type] = 'nan'
+                seg_segs[type] = segsegs
 
                 result = COSMIC_segments.merge_with_object_table(SNP_objects)
                 if len(result) != 0:
