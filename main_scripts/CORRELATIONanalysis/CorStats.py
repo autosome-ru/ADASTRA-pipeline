@@ -305,7 +305,7 @@ class Reader:
 def get_name_by_dir(dir_name):
     if dir_name in naive_names:
         return dir_name
-    return dir_name.split('_')[0].split['/'][-1]
+    return dir_name.split('_')[0].split('/')[-1]
 
 
 if __name__ == '__main__':
