@@ -488,7 +488,7 @@ class GenomeSegmentator:  # seg
         return segments_to_write
 
 
-    def filter_segments(segments, snp_number_tr = 10):
+    def filter_segments(self, segments, snp_number_tr = 10):
         is_isolated_left = False
         bad_segments_indexes = set()
         is_zero_ploidy = False
