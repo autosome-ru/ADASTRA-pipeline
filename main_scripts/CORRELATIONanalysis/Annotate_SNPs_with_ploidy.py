@@ -1,6 +1,4 @@
 import os
-import sys
-from statistics import mean, median_grouped
 import json
 
 
@@ -130,7 +128,8 @@ for file_name in sorted(os.listdir(Ploidy_path)):
                     if line[0] == '#':
                         continue
                     line = line.split()
-                    segments.append(Segment(line[0], int(line[1]), int(line[2]), int(line[3]), int(line[4]), int(line[7])))
+                    segments.append(Segment(line[0], int(line[1]), int(line[2]),
+                                            int(line[3]), int(line[4]), int(line[7])))
             
             with open(out_path, 'w') as out:
                 other_current_idx = 0
@@ -138,25 +137,25 @@ for file_name in sorted(os.listdir(Ploidy_path)):
                 other_current_start = segments[other_current_idx].start
                 other_current_end = segments[other_current_idx].end
                 result = []  # Object list
-                for object in objects:
-                    while object.chr_pos >= other_current_end and other_current_idx + 1 <= other_max_idx:
+                for obj in objects:
+                    while obj.chr_pos >= other_current_end and other_current_idx + 1 <= other_max_idx:
                         other_current_idx += 1
                         other_current_start = segments[other_current_idx].start
                         other_current_end = segments[other_current_idx].end
-                    if object.chr_pos < other_current_start or object.chr_pos >= other_current_end:
+                    if obj.chr_pos < other_current_start or obj.chr_pos >= other_current_end:
                         continue
                     result.append((
-                        object.chr_pos.chr,
-                        object.chr_pos.pos,
-                        object.ref,
-                        object.alt,
+                        obj.chr_pos.chr,
+                        obj.chr_pos.pos,
+                        obj.ref,
+                        obj.alt,
                         segments[other_current_idx].value,
                         segments[other_current_idx].qual,
                         segments[other_current_idx].segn,
                     ))
                 result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
-                out.write('##' + str(len(result)) + '!' + str(datasetsn) + '!' + str(len(segments)) + '!'+ lab+ '!' +'>'.join(al_list))
+                out.write('##' + str(len(result)) + '!' + str(datasetsn) + '!' + str(len(segments)) + '!' +
+                          lab + '!' + '>'.join(al_list))
                 out.write('\t'.join(['#chr', 'pos', 'ref', 'alt', 'ploidy', 'qual', 'segn']) + '\n')
                 for line in result:
                     out.write('\t'.join(map(str, line)) + '\n')
-

@@ -2,18 +2,19 @@ import sys
 import numpy as np
 from collections import deque
 
-fasta = open(sys.argv[2],'r')
-table = open(sys.argv[1],'r')
+
+fasta = open(sys.argv[2], 'r')
+table = open(sys.argv[1], 'r')
 
 
-num = dict(zip(['A','a','C','c','G','g','T','t'],[1,1,2,2,3,3,4,4]))
-nuc = dict(zip([1,2,3,4,5],['a','c','g','t','N']))
+num = dict(zip(['A', 'a', 'C', 'c', 'G', 'g', 'T', 't'], [1, 1, 2, 2, 3, 3, 4, 4]))
+nuc = dict(zip([1, 2, 3, 4, 5], ['a', 'c', 'g', 't', 'N']))
 
 positions = dict()
 gen = dict()
 
 
-for i in range(1,23):
+for i in range(1, 23):
     positions['chr'+str(i)] = deque()
     gen['chr'+str(i)] = np.zeros(25*10**7, np.int8)
 positions['chrX'] = deque()
@@ -37,10 +38,10 @@ if not ok:
     print('No snps!')
     exit(0)
 
-out = open(sys.argv[3],'w')
+out = open(sys.argv[3], 'w')
 
 p = 0
-l = 10000000
+l_const = 10000000
 skip_to_next_chr = False
 for line in fasta:
     if line[0] == '>':
@@ -78,21 +79,19 @@ for line in fasta:
     else:
         if skip_to_next_chr:
             continue
-        if p < next_start -110:
+        if p < next_start - 110:
             p += 100
             
-            if p//l > count:
-                count = p//l
+            if p//l_const > count:
+                count = p // l_const
             #print(count*l, '+100', next_start, next_end)
             
             continue
         for sym in line.strip():
             p += 1
-            
-            
-            
-            if p//l > count:
-                count = p//l
+
+            if p//l_const > count:
+                count = p // l_const
             #print(count*l, '+1', next_start, next_end)
             
             if p > next_end:
@@ -118,9 +117,8 @@ for line in fasta:
                     else:
                         skip_to_next_chr = True
                         break
-            if p >= next_start and p<= next_end:
+            if next_start <= p <= next_end:
                 gen[chr][p] = num.get(sym.lower(), 5)
-
 
 
 for line in table:
@@ -139,6 +137,7 @@ for line in table:
     if gen[chr][p] == 0:
         continue
     #print(chr, p, gen[chr][p])
-    if (R.lower() != nuc[gen[chr][p]]): print('Vse ploho', chr, line[1])
-    out.write(chr+'_'+line[1]+' '+''.join([nuc[gen[chr][p-25+i]] for i in range(25)])+'['+R+'/'+A+']'+''.join([nuc[gen[chr][p+1+i]] for i in range(25)])+'\n')
-
+    if R.lower() != nuc[gen[chr][p]]:
+        print('Vse ploho', chr, line[1])
+    out.write(chr + '_' + line[1] + ' ' + ''.join([nuc[gen[chr][p-25+i]] for i in range(25)]) +
+              '[' + R + '/' + A + ']' + ''.join([nuc[gen[chr][p + 1 + i]] for i in range(25)]) + '\n')

@@ -1,8 +1,9 @@
 import sys
-import pandas as pd
+
 
 def Write(line, num, output):
     output.write('\t'.join(line) + '\t' + num + '\n')
+
 
 def less(A, B):
     if A[0] < B[0]:
@@ -11,6 +12,7 @@ def less(A, B):
         return A[1] < B[1]
     else:
         return False
+
 
 def write_peak(in_line, peak_line, output, gem=False):
     chr = in_line[0]
@@ -32,14 +34,15 @@ def write_peak(in_line, peak_line, output, gem=False):
     else:
         return False
 
+
 def add_caller(caller, infile, outfile, gem=False):
-    input = open(infile, "r")
+    input_file = open(infile, "r")
     output = open(outfile, "w")
     
-    in_line = input.readline()
+    in_line = input_file.readline()
     
     while in_line and in_line[0] == '#':
-        in_line = input.readline()
+        in_line = input_file.readline()
     in_line = in_line.split()
     
     peak_line = caller.readline()
@@ -52,12 +55,13 @@ def add_caller(caller, infile, outfile, gem=False):
         if not write_peak(in_line, peak_line, output, gem):
             peak_line = caller.readline().split()
         else:
-            in_line = input.readline().split()
+            in_line = input_file.readline().split()
     while in_line:
         Write(in_line, '0', output)
-        in_line = input.readline().split()
-    input.close()
+        in_line = input_file.readline().split()
+    input_file.close()
     output.close()
+
 
 def add_zeros(name, infile, outfile):
     input = open(infile, "r")
@@ -70,6 +74,7 @@ def add_zeros(name, infile, outfile):
         output.write(line[:-1] + '\t' + '0' + '\n')
     input.close()
     output.close()
+
 
 if __name__ == "__main__":
     o = sys.argv[10]
@@ -86,7 +91,7 @@ if __name__ == "__main__":
     else:
         add_zeros("macs", i, o+".m.txt")
     
-    if withsissrs ==  "true":
+    if withsissrs == "true":
         sissrs = open(sys.argv[3], "r")
         add_caller(sissrs, o+".m.txt", o+".s.txt")
     else:

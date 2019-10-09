@@ -1,10 +1,12 @@
 import sys
 import gzip
 
+
 def write(chr, pos, NAME, REF, ALT, R, A, Q, GQ, output):
     R = str(R)
     A = str(A)
-    output.write(chr + '\t' + pos + '\t' + NAME + '\t' + REF + '\t' + ALT + '\t' + R + '\t' + A + '\t' + Q  + '\t' + GQ + '\n')
+    output.write(chr + '\t' + pos + '\t' + NAME + '\t' + REF + '\t' + ALT + '\t'
+                 + R + '\t' + A + '\t' + Q + '\t' + GQ + '\n')
 
 
 vcf = gzip.open(sys.argv[1], 'rt')
@@ -17,7 +19,6 @@ Nucleotides = {'A', 'T', 'G', 'C'}
 
 def read_from_file(vcf, out):
     for line in vcf:
-#        line = line.decode('UTF-8')
         if line[0] == '#':
             continue
         line = line.split()
@@ -53,4 +54,3 @@ for (chr, pos) in exp_keys:
         write(chr, pos, NAME, REF, ALT, R, A, Q, GQ, output)
 
 print('Skipped {} homozigous SNPs'.format(skipped))
-

@@ -1,9 +1,10 @@
 import json
 import sys
-from numpy import log10
 from scipy.stats import binom_test
 import os.path
-class chrom_pos():
+
+
+class ChromPos:
     def __init__(self, chr, pos):
         self.chr = chr
         self.pos = pos
@@ -33,14 +34,16 @@ class chrom_pos():
             return self.chr >= other.chr
     
     def __eq__(self, other):
-        return (self.chr, slef.pos) == (other.chr, other.pos)
+        return (self.chr, self.pos) == (other.chr, other.pos)
     
     def __ne__(self, other):
-        return (self.chr, slef.pos) != (other.chr, other.pos)
+        return (self.chr, self.pos) != (other.chr, other.pos)
+
 
 def count_p(x, n, p, alternative):
     pv = (binom_test(x, n, p, alternative) + binom_test(x, n, 1-p, alternative))/2
     return pv
+
 
 def unpack(line):
     line = line.split()
@@ -54,19 +57,22 @@ def unpack(line):
     callers = in_macs + in_sissrs + in_cpics + in_gem
     return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers
 
+
 def pack(values):
     return '\t'.join(map(str, values)) + '\n'
 
+
 def create_ploidy(string):
-    path ="/home/abramov/Ploidy/Corrected/" + string + "_ploidy.tsv"
-    return(path)
+    path = "/home/abramov/Ploidy/Corrected/" + string + "_ploidy.tsv"
+    return path
+
 
 key = sys.argv[1]
 
 with open("/home/abramov/PLOIDYcalling/REVERSE_CELL_LINES.json", "r") as read_file:
     d = json.loads(read_file.readline())
 ploidy_file = d.get(key, None)
-if ploidy_file == None:
+if ploidy_file is None:
     print("No ploidy found")
     ploidy = None
 else:
@@ -82,15 +88,15 @@ else:
                 line = line.split()
                 segments.append(line)
         
-        segments = sorted(segments, key = lambda x: int(x[1]))
-        segments = sorted(segments, key = lambda x: x[0])
+        segments = sorted(segments, key=lambda x: int(x[1]))
+        segments = sorted(segments, key=lambda x: x[0])
         
         if len(segments) == 0:
             print('Ploidy file is empty!')
             exit(1)
         
         print('Now doing', table_annotated, '\n', 'with ploidy file', ploidy_file)
-        with open(table_annotated, 'r') as file, open(output,'w') as out:
+        with open(table_annotated, 'r') as file, open(output, 'w') as out:
             current = 0
             for line in file:
                 if line[0] == '#':
@@ -102,17 +108,17 @@ else:
                 chrom, start, end, ploidy, dip_qual, lq, rq, seg_c = segments[current]
                 start = int(start)
                 end = int(end)
-                cur_st = chrom_pos(chrom, start)
-                cur_ed = chrom_pos(chrom, end)
-                now = chrom_pos(chr, pos)
+                cur_st = ChromPos(chrom, start)
+                cur_ed = ChromPos(chrom, end)
+                now = ChromPos(chr, pos)
                 while now >= cur_ed and current+1 < len(segments):
                     current += 1
                     chrom, start, end, ploidy, dip_qual, lq, rq, seg_c = segments[current]
                     start = int(start)
                     end = int(end)
-                    cur_st = chrom_pos(chrom, start)
-                    cur_ed = chrom_pos(chrom, end)
-                    now = chrom_pos(chr, pos)
+                    cur_st = ChromPos(chrom, start)
+                    cur_ed = ChromPos(chrom, end)
+                    now = ChromPos(chr, pos)
                 
                 if now < cur_st or now >= cur_ed:
                     ploidy = 0
