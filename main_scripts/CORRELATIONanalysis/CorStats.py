@@ -310,7 +310,7 @@ def get_name_by_dir(dir_name):
 
 if __name__ == '__main__':
     Correlation_path = '/home/abramov/Correlation/'
-    synonims_path = './synonims.tsv'
+    synonims_path = '/home/abramov/ASB-Project/main_scripts/CORRELATIONanalysis/synonims.tsv'
     out_path = Correlation_path + 'cor_stats.tsv'
     snp_dirs = []
     naive_names = ['naive']
