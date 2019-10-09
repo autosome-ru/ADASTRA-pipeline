@@ -70,7 +70,10 @@ class Segment:
         return self.end.pos - self.start.pos
 
 
-syn_path = '/home/abramov/CORRELATIONanalysis/synonims.tsv'
+syn_path = './synonims.tsv'
+JSON_path = '/home/abramov/PLOIDYcalling/CELL_LINES.json'
+Ploidy_path = '/home/abramov/Ploidy/'
+Correlation_path = '/home/abramov/Correlation'
 names = []
 with open(syn_path, 'r') as syn:
     for line in syn:
@@ -86,18 +89,17 @@ for name in names:
 
 print(names)
 
-mode = sys.argv[1]
-
-with open('/home/abramov/PLOIDYcalling/CELL_LINES.json', 'r') as file:
+with open(JSON_path, 'r') as file:
     cl = json.loads(file.readline().strip())
 
-for file_name in os.listdir('/home/abramov/Ploidy'):
-    if file_name in ('Binomial', 'Corrected'):
+for file_name in os.listdir(Ploidy_path):
+    modes = ('Binomial', 'Corrected', 'Binomial-1,5', 'Corrected-1,5')
+    if file_name in modes:
         continue
     name = file_name.split('!')[0]
     lab = file_name.split('!')[1][:-4]
     try:
-        aligns = cl[file_name[:-4]]
+        aligns = list(set(cl[file_name[:-4]]))
         datasetsn = len(aligns)
         al_list = [align[29:-7] for align in aligns]
     except KeyError:
@@ -106,50 +108,51 @@ for file_name in os.listdir('/home/abramov/Ploidy'):
         print(file_name)
     if name in names:
         count[name] = count[name] + 1
-        table_path = '/home/abramov/Ploidy/' + file_name
-        ploidy_path = '/home/abramov/Ploidy/' + mode + '/' + name + '!' + lab + '_ploidy.tsv'
-        out_path = '/home/abramov/CORRELATIONanalysis/' + mode + '_tables/' + name + '_' + str(count[name]) + '.tsv'
-        print(out_path)
+        table_path = Ploidy_path + file_name
+        for mode in modes:
+            ploidy_path = Ploidy_path + mode + '/' + name + '!' + lab + '_ploidy.tsv'
+            out_path = Correlation_path + mode + '_tables/' + name + '_' + str(count[name]) + '.tsv'
+            print(out_path)
         
-        with open(table_path, 'r') as table, open(ploidy_path, 'r') as ploidy:
-            objects = []
-            segments = []
-            for line in table:
-                if line[0] == '#':
-                    continue
-                line = line.split()
-                objects.append(GObject(line[0], int(line[1]), int(line[5]), int(line[6])))
-            for line in ploidy:
-                if line[0] == '#':
-                    continue
-                line = line.split()
-                segments.append(Segment(line[0], int(line[1]), int(line[2]), int(line[3]), int(line[4]), int(line[7])))
-        
-        with open(out_path, 'w') as out:
-            other_current_idx = 0
-            other_max_idx = len(segments) - 1
-            other_current_start = segments[other_current_idx].start
-            other_current_end = segments[other_current_idx].end
-            result = []  # Object list
-            for object in objects:
-                while object.chr_pos >= other_current_end and other_current_idx + 1 <= other_max_idx:
-                    other_current_idx += 1
-                    other_current_start = segments[other_current_idx].start
-                    other_current_end = segments[other_current_idx].end
-                if object.chr_pos < other_current_start or object.chr_pos >= other_current_end:
-                    continue
-                result.append((
-                    object.chr_pos.chr,
-                    object.chr_pos.pos,
-                    object.ref,
-                    object.alt,
-                    segments[other_current_idx].value,
-                    segments[other_current_idx].qual,
-                    segments[other_current_idx].segn,
-                ))
-            result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
-            out.write('##' + str(len(result)) + '!' + str(datasetsn) + '!' + str(len(segments)) + '!'+ lab+ '!' +'>'.join(al_list))
-            out.write('\t'.join(['#chr', 'pos', 'ref', 'alt', 'ploidy', 'qual', 'segn']) + '\n')
-            for line in result:
-                out.write('\t'.join(map(str, line)) + '\n')
+            with open(table_path, 'r') as table, open(ploidy_path, 'r') as ploidy:
+                objects = []
+                segments = []
+                for line in table:
+                    if line[0] == '#':
+                        continue
+                    line = line.split()
+                    objects.append(GObject(line[0], int(line[1]), int(line[5]), int(line[6])))
+                for line in ploidy:
+                    if line[0] == '#':
+                        continue
+                    line = line.split()
+                    segments.append(Segment(line[0], int(line[1]), int(line[2]), int(line[3]), int(line[4]), int(line[7])))
+            
+            with open(out_path, 'w') as out:
+                other_current_idx = 0
+                other_max_idx = len(segments) - 1
+                other_current_start = segments[other_current_idx].start
+                other_current_end = segments[other_current_idx].end
+                result = []  # Object list
+                for object in objects:
+                    while object.chr_pos >= other_current_end and other_current_idx + 1 <= other_max_idx:
+                        other_current_idx += 1
+                        other_current_start = segments[other_current_idx].start
+                        other_current_end = segments[other_current_idx].end
+                    if object.chr_pos < other_current_start or object.chr_pos >= other_current_end:
+                        continue
+                    result.append((
+                        object.chr_pos.chr,
+                        object.chr_pos.pos,
+                        object.ref,
+                        object.alt,
+                        segments[other_current_idx].value,
+                        segments[other_current_idx].qual,
+                        segments[other_current_idx].segn,
+                    ))
+                result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
+                out.write('##' + str(len(result)) + '!' + str(datasetsn) + '!' + str(len(segments)) + '!'+ lab+ '!' +'>'.join(al_list))
+                out.write('\t'.join(['#chr', 'pos', 'ref', 'alt', 'ploidy', 'qual', 'segn']) + '\n')
+                for line in result:
+                    out.write('\t'.join(map(str, line)) + '\n')
 
