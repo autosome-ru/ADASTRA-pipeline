@@ -118,7 +118,7 @@ if name in names:
         if not os.path.isdir(Ploidy_path + mode + '_tables/'):
             os.mkdir(Ploidy_path + mode + '_tables')
         ploidy_path = Ploidy_path + mode + '/' + name + '!' + lab + '_ploidy.tsv'
-        out_path = Correlation_path + mode + '_tables/' + name + '_' + str(count[name]) + '.tsv'
+        out_path = Correlation_path + mode + '_tables/' + name + '_' + lab.replace('_', '-') + '.tsv'
         print(out_path)
     
         with open(table_path, 'r') as table, open(ploidy_path, 'r') as ploidy:

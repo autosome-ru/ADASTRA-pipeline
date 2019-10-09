@@ -360,7 +360,7 @@ if __name__ == '__main__':
             
             print('reading COSMIC')
             name = file_name[:file_name.rfind('_')]
-            index = int(file_name[file_name.rfind('_') + 1:file_name.rfind('.')])
+            index = file_name[file_name.rfind('_') + 1:file_name.rfind('.')]
             COSMIC_segments = reader.read_Cosmic(cosmic_names[name])
             
             for snp_dir in snp_dirs + naive_names:
