@@ -5,11 +5,9 @@ if __name__ == "__main__":
     out_path = '/home/abramov/ParallelParameters/ASWP_parameters.cfg'
     
     with open(out_path, 'w') as file:
-        print(os.listdir(Ploidy_path))
         for file_name in os.listdir(Ploidy_path):
-            if not os.path.isfile(file_name):
+            if not os.path.isfile(Ploidy_path + file_name):
                 continue
-            print(file_name)
             ### this part is only for correlation
             syn_path = '../CORRELATIONanalysis/synonims.tsv'
             names = []
