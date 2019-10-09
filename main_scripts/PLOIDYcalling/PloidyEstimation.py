@@ -597,6 +597,16 @@ def merge_vcfs(out_file, in_files):
 if __name__ == '__main__':
     JSON_path = '/home/abramov/PLOIDYcalling/CELL_LINES.json'
     Ploidy_path = '/home/abramov/Ploidy/'
+
+    syn_path = '../CORRELATIONanalysis/synonims.tsv'
+    names = []
+    with open(syn_path, 'r') as syn:
+        for line in syn:
+            line = line.strip('\n').split('\t')
+            if line[1] and line[2]:
+                GTRD_name = line[0].replace('(', '').replace(')', '').replace(' ', '_')
+                COSMIC_name = line[1]
+                names.append(GTRD_name)
     
     if len(sys.argv) < 3:
         print("Give me start and end")
@@ -617,6 +627,12 @@ if __name__ == '__main__':
         key = keys[i]
         print('Now on', i, 'from', end)
         print(key)
+        
+        name = key.split('!')[0]
+        if name not in names:
+            print('Skipping, not in synonims..')
+            continue
+        
         # list(set) for deduplication
         for path in list(set(d[key])):
             if os.path.isfile(path):
