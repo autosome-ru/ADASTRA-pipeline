@@ -315,7 +315,7 @@ if __name__ == '__main__':
     snp_dirs = []
     naive_names = ['naive']
     for file_name in os.listdir(Correlation_path):
-        if file_name.endswith('_tables') and os.path.isdir(file_name):
+        if file_name.endswith('_tables') and os.path.isdir(Correlation_path + file_name):
             snp_dirs.append(Correlation_path + file_name + '/')
     
     reader = Reader()
