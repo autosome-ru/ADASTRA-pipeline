@@ -120,8 +120,10 @@ class ObjectTable:
     def print_merged_to_file(self, segment_table, filename):
         with open(filename, 'w') as out:
             out.write('\t'.join(['#chr', 'pos', 'value', 'segment_value', 'segment_length']))
-            for line in self.merge_with_segment_table(segment_table):
+            result = self.merge_with_segment_table(segment_table)
+            for line in result:
                 out.write('\t'.join(map(str, line)) + '\n')
+            return result
 
     @staticmethod
     def correlation_of_merged(result):
@@ -368,6 +370,10 @@ if __name__ == '__main__':
                 if type != snp_dir:
                     reader.SNP_path = snp_dir + file_name
                     method = 'normal'
+                    cosm_dir = '/home/abramov/HeatmapData/' + type + '_tables/'
+                    if not os.path.isdir(cosm_dir):
+                        os.mkdir(cosm_dir)
+                    cosm_path = cosm_dir + file_name
                 else:
                     method = type
                 print('reading SNP ' + type)
@@ -382,7 +388,10 @@ if __name__ == '__main__':
                 result = COSMIC_segments.merge_with_object_table(SNP_objects)
                 if len(result) != 0:
                     corr_to_segments[type] = COSMIC_segments.correlation_of_merged(method='mean', result=result)
-                result = SNP_objects.merge_with_segment_table(COSMIC_segments)
+                if method == 'normal':
+                    result = SNP_objects.print_merged_to_file(COSMIC_segments, cosm_path)
+                else:
+                    result = SNP_objects.merge_with_segment_table(COSMIC_segments)
                 if len(result) != 0:
                     corr_to_objects[type] = SNP_objects.correlation_of_merged(result=result)
 
