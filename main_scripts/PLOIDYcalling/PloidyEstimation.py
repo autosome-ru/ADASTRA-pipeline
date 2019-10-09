@@ -30,6 +30,11 @@ class Segmentation:
         self.chrom = None
         self.mode = None
         self.dtype = np.float64
+        self.bposn = None
+        self.C = None
+        self.S = None
+        self.L = None
+        self.P = None
 
     def loglikelyhood(self, N, X, i):
         p = 1 / (1 + i)
@@ -219,9 +224,13 @@ class ChromosomeSegmentation(Segmentation):  # chrom
 
     # [1017, 1035, 1160, 1442, 1529, 1641, 1857, 2045, 4062][2, 1, 5, 1, 3, 4, 2, 2, 1, 1]
     # self.set_candidates(set(range(5047)) - {1283, 1284})#set(random.sample(range(5047), 500)))
-    # self.set_candidates({1017, 1035, 1160, 1283, 1442, 1641, 1857, 2045, 4062})# - {1283})#| set([54, 114, 368, 979, 992, 1017, 1035, 1095, 1160, 1166, 1282, 1389, 1442, 1641, 1725, 1842, 1857, 2045, 2071, 2710, 2797, 2798, 3030, 3223, 4062, 4345, 4362, 4586, 4589]) | {1283})# | set(random.sample(range(5000), 20)))
+    # self.set_candidates({1017, 1035, 1160, 1283, 1442, 1641, 1857, 2045, 4062})# - {1283})
+    # #| set([54, 114, 368, 979, 992, 1017, 1035, 1095, 1160, 1166, 1282, 1389, 1442, 1641,
+    # 1725, 1842, 1857, 2045, 2071, 2710, 2797, 2798, 3030, 3223, 4062, 4345, 4362, 4586, 4589]) | {1283})#
+    # | set(random.sample(range(5000), 20)))
 
-    def get_params(self, line):
+    @staticmethod
+    def get_params(line):
         line = line.split()
         chr = line[0]
         pos = int(line[1])
@@ -251,7 +260,8 @@ class ChromosomeSegmentation(Segmentation):  # chrom
         self.FILE.seek(0)
         return snps, count
 
-    def split_list(self, length, l, k):
+    @staticmethod
+    def split_list(length, l, k):
         iterator = []
         if length < l:
             iterator.append((0, length - 1))
@@ -323,8 +333,8 @@ class ChromosomeSegmentation(Segmentation):  # chrom
                     self.sc[i] = likelyhood
                     kf = k
             if kf != -1:
-                if self.positions[self.candidate_numbers[kf] + 1] - self.positions[
-                    self.candidate_numbers[kf]] > self.CRITICAL_GAP:
+                if self.positions[self.candidate_numbers[kf] + 1] - self.positions[self.candidate_numbers[kf]] \
+                        > self.CRITICAL_GAP:
                     self.b[kf] = (1, 1)
                 else:
                     self.b[kf] = (1, 0)
@@ -455,7 +465,8 @@ class GenomeSegmentator:  # seg
             print('{} total SNP count: {}'.format(CHR, chrom.LINES))
             self.chr_segmentations.append(chrom)
 
-    def construct_chrs(self, chr_l, from_sys=False):
+    @staticmethod
+    def construct_chrs(chr_l, from_sys=False):
         chrs = []
         chr_lengths = dict()
         if from_sys:
@@ -479,7 +490,7 @@ class GenomeSegmentator:  # seg
         counter = 0
         if chrom.LINES >= self.NUM_TR:
             for border in chrom.bpos + [chrom.length]:
-                if type(border) == type((1, 1)):
+                if type(border) == type(1, 1):
                     segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
                                               chrom.quals[counter][0], chrom.quals[counter][1],
                                               chrom.counts[counter]])
