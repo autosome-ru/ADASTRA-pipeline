@@ -6,23 +6,23 @@ GETNAME(){
 	local var=$1
 	local varpath=${var%/*}
 	[ "$varpath" != "$var" ] && local vartmp="${var:${#varpath}}"
-		echo ${vartmp%_*_*}
+		echo "${vartmp%_*_*}"
 }
 
 REFERENCE="/home/abramov/REFERENCE/"
 PWM="/home/abramov/PERFECTOScalling/pwms"
 FA=$REFERENCE/"genome-norm.fasta"
-FD=$REFERENCE/"genome-norm.dict"
 OUT="/home/abramov/RESULTS/TF_FC/FilteredMaxCover/"
 for file in /home/abramov/RESULTS/TFs_for_PERFECTOS/*
 do
    
-	EXPFILE=$( GETNAME $file )
+	EXPFILE=$( GETNAME "$file" )
 	EXPNAME=${EXPFILE%.*}
-	
-	echo $PWM$EXPNAME/
-	if [ -d $PWM/$EXPNAME/ ]; then 
-		$python3 extract_ape_data.py $file $FA "${OUT}${EXPNAME}_ape_data.txt"
+
+	echo $PWM"$EXPNAME"/
+	if [ -d $PWM/"$EXPNAME"/ ]; then
+		# shellcheck disable=SC2154
+		$python3 extract_ape_data.py "$file" $FA "${OUT}${EXPNAME}_ape_data.txt"
 
 		if [ $? != 0 ]; then
     			echo "Failed to extract adjacent nucleotides"
@@ -31,7 +31,8 @@ do
 
 		if [ -f "${OUT}${EXPNAME}_ape_data.txt" ]; then
 			echo "Make perfectos"
-			$Java -cp ape.jar ru.autosome.perfectosape.SNPScan $PWM/$EXPNAME/ "${OUT}${EXPNAME}_ape_data.txt" -P 1 -F 1 > "${OUT}${EXPNAME}_ape.txt"
+			# shellcheck disable=SC2154
+			$Java -cp ape.jar ru.autosome.perfectosape.SNPScan $PWM/"$EXPNAME"/ "${OUT}${EXPNAME}_ape_data.txt" -P 1 -F 1 > "${OUT}${EXPNAME}_ape.txt"
 
 			if [ $? != 0 ]; then
     				echo "Failed perfectos-ape"

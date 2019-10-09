@@ -1,6 +1,5 @@
 import os
 import sys
-from statistics import mean, median_grouped
 import json
 
 
@@ -118,7 +117,7 @@ if name in names:
         ploidy_path = Ploidy_path + mode + '/' + name + '!' + lab + '_ploidy.tsv'
         out_path = Correlation_path + mode + '_tables/' + name + '_' + lab.replace('_', '-') + '.tsv'
         print(out_path)
-    
+
         with open(table_path, 'r') as table, open(ploidy_path, 'r') as ploidy:
             objects = []
             segments = []
@@ -132,7 +131,7 @@ if name in names:
                     continue
                 line = line.split()
                 segments.append(Segment(line[0], int(line[1]), int(line[2]), int(line[3]), int(line[4]), int(line[7])))
-        
+
         with open(out_path, 'w') as out:
             other_current_idx = 0
             other_max_idx = len(segments) - 1

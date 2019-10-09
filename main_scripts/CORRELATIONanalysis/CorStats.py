@@ -1,48 +1,48 @@
 from statistics import mean, median_grouped
 import os
-from scipy.stats import pearsonr, spearmanr, kendalltau
+from scipy.stats import kendalltau
 
 
 class ChromPos:
     chrs = {'chrX', 'chrY'}
     for i in range(1, 22):
         chrs.add('chr' + str(i))
-    
+
     def __init__(self, chr, pos):
         assert chr in self.chrs
         self.chr = chr
         self.pos = pos
-    
+
     def __lt__(self, other):
         if self.chr == other.chr:
             return self.pos < other.pos
         else:
             return self.chr < other.chr
-    
+
     def __gt__(self, other):
         if self.chr == other.chr:
             return self.pos > other.pos
         else:
             return self.chr > other.chr
-    
+
     def __le__(self, other):
         if self.chr == other.chr:
             return self.pos <= other.pos
         else:
             return self.chr <= other.chr
-    
+
     def __ge__(self, other):
         if self.chr == other.chr:
             return self.pos >= other.pos
         else:
             return self.chr >= other.chr
-    
+
     def __eq__(self, other):
         return (self.chr, self.pos) == (other.chr, other.pos)
-    
+
     def __ne__(self, other):
         return (self.chr, self.pos) != (other.chr, other.pos)
-    
+
     def distance(self, other):
         if self.chr != other.chr:
             return float('inf')
@@ -63,7 +63,7 @@ class Segment:
         self.start = ChromPos(chr, st)
         self.end = ChromPos(chr, ed)
         self.value = value
-    
+
     def length(self):
         return self.end.pos - self.start.pos
 
@@ -75,20 +75,20 @@ class ObjectTable:
             self.sort_items()
         else:
             self.objects = []
-    
+
     def sort_items(self):
         self.objects = sorted(self.objects, key=lambda x: x.chr_pos)
-    
-    def add_object(self, object):
-        self.objects.append(object)
-    
+
+    def add_object(self, obj):
+        self.objects.append(obj)
+
     def add_new_objects(self, objects):
         self.objects += objects
         self.sort_items()
-    
+
     def merge_with_object_table(self, object_table):
         pass
-    
+
     def merge_with_segment_table(self, segment_table):
         print('merging SNP')
         if len(segment_table.segments) == 0:
@@ -98,32 +98,33 @@ class ObjectTable:
         other_current_start = segment_table.segments[other_current_idx].start
         other_current_end = segment_table.segments[other_current_idx].end
         result = []  # Object list
-        for object in self.objects:
-            while object.chr_pos >= other_current_end and other_current_idx + 1 <= other_max_idx:
+        for obj in self.objects:
+            while obj.chr_pos >= other_current_end and other_current_idx + 1 <= other_max_idx:
                 other_current_idx += 1
                 other_current_start = segment_table.segments[other_current_idx].start
                 other_current_end = segment_table.segments[other_current_idx].end
-            if object.chr_pos < other_current_start or object.chr_pos >= other_current_end:
+            if obj.chr_pos < other_current_start or obj.chr_pos >= other_current_end:
                 continue
             result.append((
-                object.chr_pos.chr,
-                object.chr_pos.pos,
-                object.value,
+                obj.chr_pos.chr,
+                obj.chr_pos.pos,
+                obj.value,
                 segment_table.segments[other_current_idx].value,
                 segment_table.segments[other_current_idx].start.distance(
-                        segment_table.segments[other_current_idx].end),
-                ))
+                    segment_table.segments[other_current_idx].end),
+            ))
         result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
         print(len(self.objects), len(result))
         return result
-    
+
     def print_merged_to_file(self, segment_table, filename):
         with open(filename, 'w') as out:
             out.write('\t'.join(['#chr', 'pos', 'value', 'segment_value', 'segment_length']))
             for line in self.merge_with_segment_table(segment_table):
                 out.write('\t'.join(map(str, line)) + '\n')
-    
-    def correlation_of_merged(self, result):
+
+    @staticmethod
+    def correlation_of_merged(result):
         print('calc cor of SNP')
         idx = ['chr', 'pos', 'value', 'segment_value', 'segment_length'].index('segment_value')
         values1 = []
@@ -141,17 +142,17 @@ class SegmentTable:
             self.sort_items()
         else:
             self.segments = []
-    
+
     def sort_items(self):
         self.segments = sorted(self.segments, key=lambda x: x.start)
-    
+
     def add_segment(self, segment):
         self.segments.append(segment)
-    
+
     def add_new_segments(self, segments):
         self.segments += segments
         self.sort_items()
-    
+
     def merge_with_object_table(self, object_table):
         print('merging COSMIC')
         if len(object_table.objects) == 0:
@@ -185,17 +186,18 @@ class SegmentTable:
         result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
         print(len(self.segments), len(result))
         return result
-    
+
     def merge_with_segment_table(self, segment_table):
         pass
-    
+
     def print_merged_to_file(self, object_table, filename):
         with open(filename, 'w') as out:
             out.write('\t'.join(['#chr', 'start', 'end', 'value', 'mean', 'med', 'count']))
             for line in self.merge_with_object_table(object_table):
                 out.write('\t'.join(map(str, line)) + '\n')
-    
-    def correlation_of_merged(self, method, result):
+
+    @staticmethod
+    def correlation_of_merged(method, result):
         print('calc cor of COSMIC')
         idx = ['chr', 'start', 'end', 'value', 'count', 'mean', 'med'].index(method)
         values1 = []
@@ -210,12 +212,13 @@ class Reader:
     CGH_path = ''
     SNP_path = ''
     Cosmic_path = ''
-    
+
     def read_Cosmic(self, name, mode='normal'):
         with open(self.Cosmic_path, 'r') as file:
             result = SegmentTable()
             for line in file:
-                if line[0] == '#': continue
+                if line[0] == '#':
+                    continue
                 line = line.strip().split(',')
                 # if int(line[4]) in {4,6,8} or line[3] == '0': continue
                 if line[0] != name:
@@ -224,20 +227,20 @@ class Reader:
                     continue
                 if int(line[10]) == 0:
                     continue
-                
+
                 if mode == 'normal':
                     value = int(line[11]) / int(line[10]) - 1
                 elif mode == 'total':
                     value = int(line[11])
                 else:
                     raise ValueError(mode)
-                
+
                 result.add_segment(Segment('chr' + line[4], int(line[5]), int(line[6]), value))
             if not result.segments:
                 raise KeyError(name)
             result.sort_items()
             return result
-    
+
     def read_SNPs(self, method='normal'):
         with open(self.SNP_path, 'r') as file:
             result = ObjectTable()
@@ -271,7 +274,7 @@ class Reader:
                     raise KeyError(method)
             result.sort_items()
             return idx, datas, lab, result, aligns, segsegs
-    
+
     def read_CGH(self, cgh_name):
         cgnames = ['BR:MCF7', 'BR:MDA-MB-231', 'BR:HS 578T', 'BR:BT-549', 'BR:T-47D', 'CNS:SF-268', 'CNS:SF-295',
                    'CNS:SF-539', 'CNS:SNB-19', 'CNS:SNB-75', 'CNS:U251', 'CO:COLO 205', 'CO:HCC-2998', 'CO:HCT-116',
@@ -333,7 +336,7 @@ if __name__ == '__main__':
                 cosmic_names[name] = line[1]
                 cgh_names[name] = line[2]
                 counts[name] = 0
-    
+
     with open(out_path, 'w') as out:
         out.write('\t'.join(map(lambda x: '\t'.join(x),
             [['#cell_line', 'cells', 'aligns', 'total_snps', '#_of_merged_datasets', 'total_regions']] +
@@ -344,7 +347,7 @@ if __name__ == '__main__':
             [['reg_naive', 'snp_naive',
              'reg_CGH', 'probe_CGH']]
                                 )) + '\n')
-             
+
         corr_to_objects_global = dict()
         corr_to_segments_global = dict()
         for file_name in os.listdir(snp_dirs[0]):
@@ -354,12 +357,12 @@ if __name__ == '__main__':
             corr_to_objects = dict()
             corr_to_segments = dict()
             seg_segs = dict()
-            
+
             print('reading COSMIC')
             name = file_name[:file_name.rfind('_')]
             index = file_name[file_name.rfind('_') + 1:file_name.rfind('.')]
             COSMIC_segments = reader.read_Cosmic(cosmic_names[name])
-            
+
             for snp_dir in snp_dirs + naive_names:
                 type = get_name_by_dir(snp_dir)
                 if type != snp_dir:
@@ -369,7 +372,7 @@ if __name__ == '__main__':
                     method = type
                 print('reading SNP ' + type)
                 N, datas, lab, SNP_objects, aligns, segsegs = reader.read_SNPs()
-                
+
                 type = get_name_by_dir(snp_dir)
 
                 corr_to_objects[type] = 'nan'
@@ -382,21 +385,19 @@ if __name__ == '__main__':
                 result = SNP_objects.merge_with_segment_table(COSMIC_segments)
                 if len(result) != 0:
                     corr_to_objects[type] = SNP_objects.correlation_of_merged(result=result)
-            
-            # TODO: add 3-5 neighbours naive
-            
 
-            
+            # TODO: add 3-5 neighbours naive
+
             if not counts[name]:
                 print('reading COSMIC total')
                 COSMIC_segments_total = reader.read_Cosmic(cosmic_names[name], mode='total')
-                
+
                 print('reading CGH')
                 N_CGH, CGH_objects = reader.read_CGH(cgh_names[name])
-                
+
                 corr_to_objects_global[name] = 'nan'
                 corr_to_segments_global[name] = 'nan'
-                
+
                 result = COSMIC_segments_total.merge_with_object_table(CGH_objects)
                 if len(result) != 0:
                     corr_to_objects_global[name] = COSMIC_segments_total.correlation_of_merged(method='mean',
@@ -404,7 +405,7 @@ if __name__ == '__main__':
                 result = CGH_objects.merge_with_segment_table(COSMIC_segments_total)
                 if len(result) != 0:
                     corr_to_segments_global[name] = CGH_objects.correlation_of_merged(result=result)
-            
+
             counts[name] += 1
             
             out.write('\t'.join(map(lambda x: '\t'.join(map(str, x)),
