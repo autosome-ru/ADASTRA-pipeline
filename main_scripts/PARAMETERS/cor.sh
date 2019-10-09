@@ -11,6 +11,8 @@ fi
 
 python3 "$ScriptsFolder"PARAMETERS/MakeParametersForASWP.py
 
+echo "made parameters"
+
 parallel --jobs 40 python3 "$ScriptsFolder"CORRELATIONanalysis/Annotate_SNPs_with_ploidy.py :::: "$ParametersListsFolder"/ASWP_parameters.cfg
 
 python3 "$ScriptsFolder"CORRELATIONanalysis/CorStats.py
