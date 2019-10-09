@@ -269,7 +269,7 @@ class Reader:
                     alt = int(line[3])
                     if min(ref, alt) == 0:
                         continue
-                    result.add_object(GObject(line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 100, 100))
+                    result.add_object(GObject(line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 10000, 10000))
                 else:
                     raise KeyError(method)
             result.sort_items()
@@ -318,8 +318,8 @@ if __name__ == '__main__':
     snp_dirs = []
     naive_names = ['naive']
     for file_name in os.listdir(Correlation_path):
-        if file_name.endswith('_tables'):
-            snp_dirs.append(Correlation_path + file_name)
+        if file_name.endswith('_tables') and os.path.isdir(file_name):
+            snp_dirs.append(Correlation_path + file_name + '/')
     
     reader = Reader()
     reader.CGH_path = Correlation_path + 'CHIP_hg38.bed'
