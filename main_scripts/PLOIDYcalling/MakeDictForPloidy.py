@@ -1,6 +1,7 @@
-
 import requests
 import json
+
+
 def findLAB(enc):
     if enc.find(";") != -1:
         enc = enc.split(";")[0]
@@ -8,16 +9,17 @@ def findLAB(enc):
         r = requests.get('https://www.encodeproject.org/experiments/' + enc + '/?format=json')
         lab = json.loads(r.text)['lab']['@id']
         biosample = json.loads(r.text)['replicates'][0]['library']['biosample']['@id']
-        ret=lab + "_"  + biosample
-        return ret.replace("/","_")
+        ret = lab + "_" + biosample
+        return ret.replace("/", "_")
     else:
-        return ('False')
+        return 'False'
+
 
 def CreatePath(line, ctrl=False):
     if ctrl:
-        return ("/home/abramov/Alignments/CTRL/" + line[10] + "/" + line[14] + ".vcf.gz")
+        return "/home/abramov/Alignments/CTRL/" + line[10] + "/" + line[14] + ".vcf.gz"
     else:
-        return ("/home/abramov/Alignments/EXP/" + line[1] + "/" + line[0] + "/" + line[6] + ".vcf.gz")
+        return "/home/abramov/Alignments/EXP/" + line[1] + "/" + line[0] + "/" + line[6] + ".vcf.gz"
 
 
 def add_to_dict(d, key, value):
@@ -35,7 +37,7 @@ def add_record(d, line, ctrl=False):
         idcs = (4, 8, 9)
     
     path = CreatePath(line, ctrl)
-    line[idcs[0]]=line[idcs[0]].replace("(","").replace(")","").replace(" ","_").replace("/","_")
+    line[idcs[0]] = line[idcs[0]].replace("(", "").replace(")", "").replace(" ", "_").replace("/", "_")
     if line[idcs[2]] != "None":
         Lab = findLAB(line[idcs[2]])
         if Lab:
@@ -54,13 +56,15 @@ def MakeDict(masterList):
         count += 1
         if count % 5 == 0:
             print("Made {0} Experiments out of ~6120".format(count))
-        l = line.strip().split("\t")
-        add_record(d, l)
+        ln = line.strip().split("\t")
+        add_record(d, ln)
         
-        if len(l) > 16:
-            add_record(d, l, ctrl=True)
+        if len(ln) > 16:
+            add_record(d, ln, ctrl=True)
     print("Saving Dictionary")
     with open("/home/abramov/PLOIDYcalling/CELL_LINES.json", "w") as write_file:
         json.dump(d, write_file)
     print("Dictionary Saved")
+
+
 MakeDict("/home/abramov/PLOIDYcalling/Master-lines.tsv")
