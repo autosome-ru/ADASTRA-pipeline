@@ -1,9 +1,6 @@
-import sys
 from statistics import mean, median_grouped
 import os
 from scipy.stats import pearsonr, spearmanr, kendalltau
-from matplotlib import pyplot as plt
-from numbers import Number
 
 
 class ChromPos:
