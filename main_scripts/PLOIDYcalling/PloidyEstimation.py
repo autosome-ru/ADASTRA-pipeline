@@ -576,7 +576,7 @@ def make_dict_from_vcf(vcf, vcf_dict):
     return strange
 
 
-def merge_vcfs(out_file, in_files):
+def merge_vcfs(out_file_name, in_files):
     vcf_dict = dict()
     strange = 0
     for file in in_files:
@@ -587,7 +587,7 @@ def merge_vcfs(out_file, in_files):
     vcf_keys.sort(key=lambda cords: cords[1])
     vcf_keys.sort(key=lambda cords: cords[0])
     
-    with open(out_file, 'w') as out:
+    with open(out_file_name, 'w') as out:
         for (chr, pos) in vcf_keys:
             (R, A, NAME, REF, ALT) = vcf_dict.get((chr, pos))
             out.write('\t'.join(map(str, [chr, pos, NAME, REF, ALT, R, A])) + '\n')
