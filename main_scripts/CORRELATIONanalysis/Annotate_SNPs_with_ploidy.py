@@ -113,8 +113,8 @@ if name in names:
     count[name] = count[name] + 1
     table_path = Ploidy_path + file_name
     for mode in modes:
-        if not os.path.isdir(Ploidy_path + mode + '_tables/'):
-            os.mkdir(Ploidy_path + mode + '_tables')
+        if not os.path.isdir(Correlation_path + mode + '_tables/'):
+            os.mkdir(Correlation_path + mode + '_tables')
         ploidy_path = Ploidy_path + mode + '/' + name + '!' + lab + '_ploidy.tsv'
         out_path = Correlation_path + mode + '_tables/' + name + '_' + lab.replace('_', '-') + '.tsv'
         print(out_path)
