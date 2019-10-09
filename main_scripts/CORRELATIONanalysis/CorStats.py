@@ -305,7 +305,7 @@ class Reader:
 def get_name_by_dir(dir_name):
     if dir_name in naive_names:
         return dir_name
-    return dir_name.split('_')[0]
+    return dir_name.split('_')[0].split['/'][-1]
 
 
 if __name__ == '__main__':
@@ -336,7 +336,7 @@ if __name__ == '__main__':
     
     with open(out_path, 'w') as out:
         out.write('\t'.join(map(lambda x: '\t'.join(x),
-            [['#cell_line', 'id(temp)', 'cells', 'aligns', 'total_snps', '#_of_merged_datasets', 'total_regions']] +
+            [['#cell_line', 'cells', 'aligns', 'total_snps', '#_of_merged_datasets', 'total_regions']] +
             [['segments_' + get_name_by_dir(snp_dir),
               'reg_' + get_name_by_dir(snp_dir),
               'snp_' + get_name_by_dir(snp_dir)]
@@ -408,7 +408,7 @@ if __name__ == '__main__':
             counts[name] += 1
             
             out.write('\t'.join(map(lambda x: '\t'.join(map(str, x)),
-                                    [[name, index, lab, aligns, N, datas, len(COSMIC_segments.segments)]] +
+                                    [[name, lab, aligns, N, datas, len(COSMIC_segments.segments)]] +
                                     [[seg_segs[snp_dir],
                                       corr_to_segments[snp_dir],
                                       corr_to_objects[snp_dir]]
