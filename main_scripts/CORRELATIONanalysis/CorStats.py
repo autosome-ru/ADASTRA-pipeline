@@ -407,7 +407,7 @@ if __name__ == '__main__':
             
             counts[name] += 1
             
-            out.write('\t'.join(map(lambda x: '\t'.join(x),
+            out.write('\t'.join(map(lambda x: '\t'.join(map(str, x)),
                                     [[name, index, lab, aligns, N, datas, len(COSMIC_segments.segments)]] +
                                     [[seg_segs[snp_dir],
                                       corr_to_segments[snp_dir],
