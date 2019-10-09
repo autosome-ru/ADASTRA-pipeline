@@ -8,6 +8,7 @@ if __name__ == "__main__":
         for file_name in os.listdir(Ploidy_path):
             if not os.path.isfile(file_name):
                 continue
+            print(file_name)
             ### this part is only for correlation
             syn_path = '../CORRELATIONanalysis/synonims.tsv'
             names = []
