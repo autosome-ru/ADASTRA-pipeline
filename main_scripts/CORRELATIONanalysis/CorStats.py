@@ -119,7 +119,7 @@ class ObjectTable:
 
     def print_merged_to_file(self, segment_table, filename):
         with open(filename, 'w') as out:
-            out.write('\t'.join(['#chr', 'pos', 'value', 'segment_value', 'segment_length']))
+            out.write('\t'.join(['#chr', 'pos', 'value', 'segment_value', 'segment_length']) + "\n")
             result = self.merge_with_segment_table(segment_table)
             for line in result:
                 out.write('\t'.join(map(str, line)) + '\n')
@@ -322,7 +322,7 @@ if __name__ == '__main__':
     for file_name in os.listdir(Correlation_path):
         if file_name.endswith('_tables') and os.path.isdir(Correlation_path + file_name):
             snp_dirs.append(Correlation_path + file_name + '/')
-    
+
     reader = Reader()
     reader.CGH_path = Correlation_path + 'CHIP_hg38.bed'
     reader.Cosmic_path = Correlation_path + 'COSMIC_copy_number.csv'
@@ -416,7 +416,7 @@ if __name__ == '__main__':
                     corr_to_segments_global[name] = CGH_objects.correlation_of_merged(result=result)
 
             counts[name] += 1
-            
+
             out.write('\t'.join(map(lambda x: '\t'.join(map(str, x)),
                                     [[name, lab, aligns, N, datas, len(COSMIC_segments.segments)]] +
                                     [[seg_segs[type],
