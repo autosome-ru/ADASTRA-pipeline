@@ -265,7 +265,7 @@ class Reader:
                 if method == 'normal':
                     if line[4] == 0:
                         continue
-                    result.add_object(GObject(line[0], int(line[1]), int(line[4]), int(line[5]), int(line[6])))
+                    result.add_object(GObject(line[0], int(line[1]), float(line[4]), int(line[5]), int(line[6])))
                 elif method == 'naive':
                     ref = int(line[2])
                     alt = int(line[3])
