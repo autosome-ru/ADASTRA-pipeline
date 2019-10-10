@@ -419,9 +419,9 @@ if __name__ == '__main__':
             
             out.write('\t'.join(map(lambda x: '\t'.join(map(str, x)),
                                     [[name, lab, aligns, N, datas, len(COSMIC_segments.segments)]] +
-                                    [[seg_segs[snp_dir],
-                                      corr_to_segments[snp_dir],
-                                      corr_to_objects[snp_dir]]
+                                    [[seg_segs[type],
+                                      corr_to_segments[type],
+                                      corr_to_objects[type]]
                                      for type in map(lambda x: get_name_by_dir(x), snp_dirs)] +
                                     [[corr_to_segments[name],
                                       corr_to_objects[name]]
