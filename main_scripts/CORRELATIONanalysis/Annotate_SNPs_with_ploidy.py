@@ -130,7 +130,7 @@ if name in names:
                 if line[0] == '#':
                     continue
                 line = line.split()
-                segments.append(Segment(line[0], int(line[1]), int(line[2]), int(line[3]), float(line[4]), int(line[7])))
+                segments.append(Segment(line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[7])))
 
         with open(out_path, 'w') as out:
             other_current_idx = 0
