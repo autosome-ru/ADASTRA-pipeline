@@ -543,15 +543,14 @@ class GenomeSegmentator:  # seg
                     if segments[k][3] < segments[k - 1][3] and segments[k - 2][3] < segments[k - 1][3]:
                         # если CNR k-1 сегмента больше CNR k-2 и k сегментов
                         if segments[k][3] > segments[k - 2][3]:  # если CNR k сегмента больше CNR k-2
-                            segments[k][1] = segments[k-1][1]  # смерджить k-1 сегмент с k сегментом
-                            bad_segments_indexes.add(k - 1)  # убрать k-1
+                            segments[k - 1][3] = segments[k][3]  # присвоить CNR k сегмента
                         elif segments[k][3] < segments[k - 2][3]:  # если CNR k-2 сегмента больше CNR k
-                            segments[k-2][2] = segments[k-1][2]  # смерджить k-1 сегмент с k-2 сегментом
-                            bad_segments_indexes.add(k - 1)  # убрать k-1
+                            segments[k - 1][3] = segments[k - 2][3]  # присвоить CNR k-2 сегмента
                         else:  # CNR равны
-                            segments[k - 2][2] = segments[k][2]
-                            bad_segments_indexes.add(k)
-                            bad_segments_indexes.add(k - 1)
+                            segments[k - 1][3] = segments[k][3]
+
+                        for j in range(4, 7):
+                            segments[k-1][j] = 0
                     is_bad_left = True
                 is_bad_segment = False  # текущий сегмент хороший, следующий шаг цикла
 
