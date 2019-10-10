@@ -126,11 +126,13 @@ if name in names:
                     continue
                 line = line.split()
                 objects.append(GObject(line[0], int(line[1]), int(line[5]), int(line[6])))
+                objects = sorted(objects, key=lambda x: x.chr_pos)
             for line in ploidy:
                 if line[0] == '#':
                     continue
                 line = line.split()
                 segments.append(Segment(line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[7])))
+                segments = sorted(segments, key=lambda x: x.start)
 
         with open(out_path, 'w') as out:
             other_current_idx = 0
