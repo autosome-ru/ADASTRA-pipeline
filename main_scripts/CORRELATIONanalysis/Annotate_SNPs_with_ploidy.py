@@ -126,7 +126,6 @@ if name in names:
                     continue
                 line = line.split()
                 objects.append(GObject(line[0], int(line[1]), int(line[5]), int(line[6])))
-                objects = sorted(objects, key=lambda x: x.chr_pos)
             for line in ploidy:
                 if line[0] == '#':
                     continue
@@ -156,7 +155,7 @@ if name in names:
                     segments[other_current_idx].qual,
                     segments[other_current_idx].segn,
                 ))
-            result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
+            #result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
             out.write('##' + str(len(result)) + '!' + str(datasetsn) + '!' + str(len(segments)) + '!'+ lab+ '!' +'>'.join(al_list))
             out.write('\t'.join(['#chr', 'pos', 'ref', 'alt', 'ploidy', 'qual', 'segn']) + '\n')
             for line in result:
