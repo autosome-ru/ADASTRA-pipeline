@@ -24,9 +24,10 @@ for file_name in os.listdir(parameters_dir):
             lines = []
             for line in file:
                 lines.append(line.strip())
+            f = lambda x: refactor_filename(file_dirs[file_name] + x,
+                            param_file=file_name)
             lines = sorted(lines,
-                            key=lambda x: os.path.getsize(refactor_filename(file_dirs[file_name] + x,
-                            param_file=file_name)),
+                            key=lambda x: os.path.getsize(f(x)) if os.path.isfile(f(x)) else -1,
                             reverse=True)
             for line in lines:
                 tmp.write(line + '\n')
