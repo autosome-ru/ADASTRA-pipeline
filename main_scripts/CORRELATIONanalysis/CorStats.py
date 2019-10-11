@@ -382,7 +382,7 @@ if __name__ == '__main__':
             else:
                 method = type
             print('reading SNP ' + type)
-            N, datas, lab, SNP_objects, aligns, segsegs = reader.read_SNPs()
+            N, datas, lab, SNP_objects, aligns, segsegs = reader.read_SNPs(method=method)
             
             type = get_name_by_dir(snp_dir)
             
