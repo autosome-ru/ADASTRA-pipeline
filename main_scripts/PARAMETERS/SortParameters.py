@@ -20,6 +20,7 @@ def refactor_filename(line, param_file):
 for file_name in os.listdir(parameters_dir):
     if file_name.endswith('.cfg'):
         with open(parameters_dir + file_name, 'r') as file, open(parameters_dir + 'tmp.cfg', 'w') as tmp:
+            assert file_name != 'tmp.cfg'
             lines = []
             for line in file:
                 lines.append(line.strip())
