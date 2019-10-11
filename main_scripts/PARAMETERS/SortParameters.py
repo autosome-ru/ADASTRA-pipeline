@@ -22,8 +22,11 @@ for file_name in os.listdir(parameters_dir):
         with open(parameters_dir + file_name, 'r') as file, open(parameters_dir + 'tmp.cfg', 'w') as tmp:
             lines = []
             for line in file:
-                lines.append(refactor_filename(line.strip(), file_name))
-            lines = sorted(lines, key=lambda x: os.path.getsize(file_dirs[file_name] + x), reverse=True)
+                lines.append(line.strip())
+            lines = sorted(lines,
+                            key=lambda x: os.path.getsize(refactor_filename(file_dirs[file_name] + x,
+                            param_file=file_name)),
+                            reverse=True)
             for line in lines:
                 tmp.write(line + '\n')
         os.remove(parameters_dir + file_name)
