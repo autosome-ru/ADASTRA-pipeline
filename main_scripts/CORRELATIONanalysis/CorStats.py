@@ -356,7 +356,7 @@ if __name__ == '__main__':
         corr_to_objects_global = dict()
         corr_to_segments_global = dict()
         
-        file_name = sys.argv[0]
+        file_name = sys.argv[1]
         
         # print(file_name)
         # if file_name != 'HCT-116_colon_carcinoma_19.tsv': continue
