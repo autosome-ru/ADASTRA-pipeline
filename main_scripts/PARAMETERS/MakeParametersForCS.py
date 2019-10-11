@@ -7,6 +7,7 @@ if __name__ == "__main__":
     with open(out_path, 'w') as file:
         for file_name in os.listdir(Correlation_path):
             if os.path.isdir(Correlation_path + file_name):
+                print(Correlation_path + file_name)
                 ### this part is only for correlation
                 syn_path = '../CORRELATIONanalysis/synonims.tsv'
                 names = []
