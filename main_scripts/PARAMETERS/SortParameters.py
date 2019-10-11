@@ -2,7 +2,7 @@ import os
 
 parameters_dir = '/home/abramov/ParallelParameters/'
 Ploidy_path = '/home/abramov/Ploidy/'
-Corelation_path = '/home/abramov/Correlation'
+Corelation_path = '/home/abramov/Correlation/'
 
 file_dirs = {
     'PE_parameters.cfg': Ploidy_path,
