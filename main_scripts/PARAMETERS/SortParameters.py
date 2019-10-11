@@ -23,7 +23,7 @@ for file_name in os.listdir(parameters_dir):
             lines = []
             for line in file:
                 lines.append(refactor_filename(line.strip(), file_name))
-            lines = sorted(lines, key=lambda x: os.path.getsize(file_dirs[file_name] + x))
+            lines = sorted(lines, key=lambda x: os.path.getsize(file_dirs[file_name] + x), reverse=True)
             for line in lines:
                 tmp.write(line + '\n')
         os.remove(parameters_dir + file_name)
