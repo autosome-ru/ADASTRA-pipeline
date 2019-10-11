@@ -7,7 +7,7 @@ Corelation_path = '/home/abramov/Correlation/'
 file_dirs = {
     'PE_parameters.cfg': Ploidy_path,
     'ASWP_parameters.cfg': Ploidy_path,
-    'CS_parameters.cfg': Corelation_path + 'Binomial/',
+    'CS_parameters.cfg': Corelation_path + 'Binomial_tables/',
 }
 
 
