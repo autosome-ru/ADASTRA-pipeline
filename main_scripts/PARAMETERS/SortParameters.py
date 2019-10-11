@@ -27,4 +27,5 @@ for file_name in os.listdir(parameters_dir):
             for line in lines:
                 tmp.write(line + '\n')
         os.remove(parameters_dir + file_name)
+        print(parameters_dir + file_name)
         os.rename(parameters_dir + 'tmp.cfg', parameters_dir + file_name)
