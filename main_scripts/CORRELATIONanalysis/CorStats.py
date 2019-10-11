@@ -114,7 +114,7 @@ class ObjectTable:
                 segment_table.segments[other_current_idx].start.distance(
                     segment_table.segments[other_current_idx].end),
             ))
-        result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
+        # result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
         print(len(self.objects), len(result))
         return result
     
@@ -186,7 +186,7 @@ class SegmentTable:
                 mean(vals),
                 median_grouped(vals),
             ))
-        result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
+        # result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
         print(len(self.segments), len(result))
         return result
     
@@ -241,7 +241,7 @@ class Reader:
                 result.add_segment(Segment('chr' + line[4], int(line[5]), int(line[6]), value))
             if not result.segments:
                 raise KeyError(name)
-            result.sort_items()
+            # result.sort_items()
             return result
     
     def read_SNPs(self, method='normal'):
@@ -275,7 +275,7 @@ class Reader:
                     result.add_object(GObject(line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 10000, 10000))
                 else:
                     raise KeyError(method)
-            result.sort_items()
+            # result.sort_items()
             return idx, datas, lab, result, aligns, segsegs
     
     def read_CGH(self, cgh_name):
@@ -304,7 +304,7 @@ class Reader:
                     continue
                 N += 1
                 result.add_object(GObject(chr, pos, value, 100, 100))
-            result.sort_items()
+            # result.sort_items()
             return N, result
 
 
