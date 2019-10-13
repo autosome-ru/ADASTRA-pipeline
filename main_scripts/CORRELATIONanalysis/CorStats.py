@@ -315,9 +315,11 @@ def get_name_by_dir(dir_name):
 
 
 if __name__ == '__main__':
+    file_name = sys.argv[1]
+    
     Correlation_path = '/home/abramov/Correlation/'
     synonims_path = '/home/abramov/ASB-Project/main_scripts/CORRELATIONanalysis/synonims.tsv'
-    out_path = Correlation_path + 'cor_stats.tsv'
+    out_path = Correlation_path + file_name + '.thread'
     
     snp_dirs = []
     naive_names = ['naive']
@@ -342,23 +344,10 @@ if __name__ == '__main__':
                 cgh_names[name] = line[2]
     
     with open(out_path, 'w') as out:
-        out.write('\t'.join(map(lambda x: '\t'.join(x),
-                                [['#cell_line', 'cells', 'aligns', 'total_snps', '#_of_merged_datasets',
-                                  'total_regions']] +
-                                [['segments_' + get_name_by_dir(snp_dir),
-                                  'reg_' + get_name_by_dir(snp_dir),
-                                  'snp_' + get_name_by_dir(snp_dir)]
-                                 for snp_dir in snp_dirs] +
-                                [['reg_naive', 'snp_naive',
-                                  'reg_CGH', 'probe_CGH']]
-                                )) + '\n')
         
         corr_to_objects_global = dict()
         corr_to_segments_global = dict()
         
-        file_name = sys.argv[1]
-        
-        print(file_name)
         # if file_name != 'HCT-116_colon_carcinoma_19.tsv': continue
         
         corr_to_objects = dict()
@@ -433,5 +422,5 @@ if __name__ == '__main__':
                                 [[corr_to_segments_global[name],
                                   corr_to_objects_global[name]]]
                                 )) + '\n'
-        print(out_line)
+        print(file_name, N)
         out.write(out_line)
