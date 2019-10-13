@@ -1,4 +1,3 @@
-# import requests
 import json
 import math
 import numpy as np
@@ -99,8 +98,8 @@ class Segmentation:
 
     def get_distance_penalty(self, k):
         if self.positions[k + 1] - self.positions[k] > self.CRITICAL_GAP:
-            d = (self.positions[k + 1] - self.positions[k]) / self.length
-            return -1 * self.chrom.LINES * self.chrom.D_FACTOR * np.log1p(-d)
+            dist = (self.positions[k + 1] - self.positions[k]) / self.length
+            return -1 * self.chrom.LINES * self.chrom.D_FACTOR * np.log1p(-dist)
         return 0
 
     def get_parameter_penalty(self, borders, alphabet):
@@ -203,6 +202,7 @@ class ChromosomeSegmentation(Segmentation):  # chrom
                 1 - 10 ** (-CGF / self.LINES))  # critical distance after which border likelyhood increases
         self.bpos = []  # border positions between snps at x1 and x2: (x1+x2)/2 for x2-x1<=CRITICAL_GAP, (x1, x2) else
         self.bposn = []
+        self.border_numbers = None
         self.chrom = self
 
         self.mode = seg.mode  # binomial or corrected
@@ -245,7 +245,7 @@ class ChromosomeSegmentation(Segmentation):  # chrom
         if line[0] == '#':
             return False
         chr, pos, ID, ref, alt, ref_c, alt_c = self.get_params(line)
-        if chr != self.CHR or ID == '.' or (ref_c + alt_c) < self.COV_TR:
+        if chr != self.CHR or ID == '.':
             return False
         return pos, ref_c, alt_c
 
@@ -312,8 +312,9 @@ class ChromosomeSegmentation(Segmentation):  # chrom
 
     def find_optimal_borders(self):
         self.sc = [0] * (self.candidates_count + 1)  # sc[i] = best log-likelyhood among all segmentations of snps[0,i]
-        self.b = [(0,
-                   0)] * self.candidates_count  # borders, len=LINES. b[i]: (0,0) if there is no border after ith snp, (1, x) else, where x is 1 if positions[i+1]-positions[i] > CRITICAL_GAP, 0 else
+        self.b = [(0, 0)] * self.candidates_count  # borders, len=LINES. b[i]: (0,0) if there is no border after ith snp
+        # (1, x) else,
+        # where x is 1 if positions[i+1]-positions[i] > CRITICAL_GAP, 0 else
         self.bnum = [0] * (self.candidates_count + 1)  # bnum[i] = number of borders before ith snp in best segmentation
         for i in range(self.candidates_count + 1):
             self.sc[i] = self.L[0, i]
@@ -384,7 +385,7 @@ class ChromosomeSegmentation(Segmentation):  # chrom
                                                                                    self.bpos))
 
     def estimate_chr(self):
-        t = time.clock()
+        start_t = time.clock()
 
         if self.LINES == 0:
             return
@@ -413,7 +414,7 @@ class ChromosomeSegmentation(Segmentation):  # chrom
         self.estimate()
         self.estimate_Is()
         print(self.bposn, self.ests, self.counts)
-        print('CHR time: {} s'.format(time.clock() - t))
+        print('CHR time: {} s'.format(time.clock() - start_t))
 
         # self.plot()
 
@@ -434,14 +435,14 @@ class ChromosomeSegmentation(Segmentation):  # chrom
 
 
 class GenomeSegmentator:  # seg
-    def __init__(self, file, out, mode, extra_states=None):
+    def __init__(self, file, out, segm_mode, extra_states=None):
         chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
                  145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
                  101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
                  156040895, 57227415]
         self.chrs, self.chr_lengths = self.construct_chrs(chr_l, from_sys=False)
 
-        self.mode = mode
+        self.mode = segm_mode
         if extra_states:
             self.i_list = [1, 2, 3, 4, 5] + extra_states
         else:
@@ -512,7 +513,7 @@ class GenomeSegmentator:  # seg
     def write_ploidy_to_file(self, chrom):
         segments = self.append_ploidy_segments(chrom)
 
-        filtered_segments = filter_segments(segments, self.ISOLATED_SNP_FILTER)
+        filtered_segments = self.filter_segments(segments, self.ISOLATED_SNP_FILTER)
         for segment in filtered_segments:
             self.OUT.write('\t'.join(map(str, segment)) + '\n')
 
@@ -521,36 +522,44 @@ class GenomeSegmentator:  # seg
         for j in range(len(self.chr_segmentations)):
             chrom = self.chr_segmentations[j]
             chrom.estimate_chr()
-            # chrom.plot()
             self.write_ploidy_to_file(chrom)
             self.chr_segmentations[j] = None
 
+    @staticmethod
+    def filter_segments(segments, snp_number_tr=3):
+        is_bad_left = False
+        bad_segments_indexes = set()
+        is_bad_segment = False
+        for k in range(len(segments)):
+            if segments[k][7] <= snp_number_tr:  # если k сегмент "плохой"
+                if is_bad_segment:  # если k-1 тоже "плохой"
+                    bad_segments_indexes.add(k - 1)  # убрать k-1
+                    is_bad_left = True
+                else:
+                    is_bad_left = False
+                is_bad_segment = True  # текущий сегмент плохой, следующий шаг цикла
+            else:  # k сегмент хороший
+                if is_bad_segment and not is_bad_left and k > 1:  # а k-1 плохой и k-2 хороший
+                    if segments[k][3] < segments[k - 1][3] and segments[k - 2][3] < segments[k - 1][3]:
+                        # если CNR k-1 сегмента больше CNR k-2 и k сегментов
+                        if segments[k][3] > segments[k - 2][3]:  # если CNR k сегмента больше CNR k-2
+                            segments[k - 1][3] = segments[k][3]  # присвоить CNR k сегмента
+                        elif segments[k][3] < segments[k - 2][3]:  # если CNR k-2 сегмента больше CNR k
+                            segments[k - 1][3] = segments[k - 2][3]  # присвоить CNR k-2 сегмента
+                        else:  # CNR равны
+                            segments[k - 1][3] = segments[k][3]
 
-def filter_segments(segments, snp_number_tr=4):
-    is_isolated_left = False
-    bad_segments_indexes = set()
-    potential_index = 0
-    is_zero_ploidy = False
-    for k in range(len(segments)):
+                        for j in range(4, 7):
+                            segments[k-1][j] = 0
+                    is_bad_left = True
+                is_bad_segment = False  # текущий сегмент хороший, следующий шаг цикла
 
-        if segments[k][3] == 0:
-            is_zero_ploidy = True
-            if is_isolated_left and segments[k][7] <= snp_number_tr:
-                bad_segments_indexes.add(potential_index)
-            is_isolated_left = False
-            continue
-
-        if is_zero_ploidy:
-            is_isolated_left = True
-            potential_index = k
-            is_zero_ploidy = False
-
-    filtered_segments = []
-    for k in range(len(segments)):
-        if k in bad_segments_indexes:
-            continue
-        filtered_segments.append(segments[k])
-    return filtered_segments
+        filtered_segments = []
+        for k in range(len(segments)):
+            if k in bad_segments_indexes:
+                continue
+            filtered_segments.append(segments[k])
+        return filtered_segments
 
 
 Nucleotides = {'A', 'T', 'G', 'C'}
@@ -620,7 +629,7 @@ def merge_vcfs(out_file_name, in_files):
 if __name__ == '__main__':
     JSON_path = '/home/abramov/PLOIDYcalling/CELL_LINES.json'
     Ploidy_path = '/home/abramov/Ploidy/'
-    
+
     with open(JSON_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     keys = sorted(d.keys())
