@@ -18,3 +18,5 @@ fi
 python3 "$ScriptsFolder"PARAMETERS/MakeParametersForCS.py
 
 parallel --jobs 40 python3 "$ScriptsFolder"CORRELATIONanalysis/CorStats.py :::: "$ParametersListsFolder"/CS_parameters.cfg
+
+python3 "$ScriptsFolder"CORRELATIONanalysis/JoinThreads.py
