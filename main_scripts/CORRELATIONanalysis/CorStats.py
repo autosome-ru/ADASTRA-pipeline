@@ -91,7 +91,7 @@ class ObjectTable:
         pass
     
     def merge_with_segment_table(self, segment_table):
-        print('merging SNP')
+        # print('merging SNP')
         if len(segment_table.segments) == 0:
             return []
         other_current_idx = 0
@@ -115,7 +115,7 @@ class ObjectTable:
                     segment_table.segments[other_current_idx].end),
             ))
         # result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
-        print(len(self.objects), len(result))
+        # print(len(self.objects), len(result))
         return result
     
     def print_merged_to_file(self, segment_table, filename):
@@ -128,7 +128,7 @@ class ObjectTable:
     
     @staticmethod
     def correlation_of_merged(result):
-        print('calc cor of SNP')
+        # print('calc cor of SNP')
         idx = ['chr', 'pos', 'value', 'segment_value', 'segment_length'].index('segment_value')
         values1 = []
         values2 = []
@@ -157,7 +157,7 @@ class SegmentTable:
         self.sort_items()
     
     def merge_with_object_table(self, object_table):
-        print('merging COSMIC')
+        # print('merging COSMIC')
         if len(object_table.objects) == 0:
             return []
         other_current_idx = 0
@@ -187,7 +187,7 @@ class SegmentTable:
                 median_grouped(vals),
             ))
         # result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
-        print(len(self.segments), len(result))
+        # print(len(self.segments), len(result))
         return result
     
     def merge_with_segment_table(self, segment_table):
@@ -201,7 +201,7 @@ class SegmentTable:
     
     @staticmethod
     def correlation_of_merged(method, result):
-        print('calc cor of COSMIC')
+        # print('calc cor of COSMIC')
         idx = ['chr', 'start', 'end', 'value', 'count', 'mean', 'med'].index(method)
         values1 = []
         values2 = []
@@ -358,14 +358,14 @@ if __name__ == '__main__':
         
         file_name = sys.argv[1]
         
-        # print(file_name)
+        print(file_name)
         # if file_name != 'HCT-116_colon_carcinoma_19.tsv': continue
         
         corr_to_objects = dict()
         corr_to_segments = dict()
         seg_segs = dict()
         
-        print('reading COSMIC')
+        # print('reading COSMIC')
         name = file_name[:file_name.rfind('_')]
         index = file_name[file_name.rfind('_') + 1:file_name.rfind('.')]
         COSMIC_segments = reader.read_Cosmic(cosmic_names[name])
@@ -381,7 +381,7 @@ if __name__ == '__main__':
                 cosm_path = cosm_dir + file_name
             else:
                 method = type
-            print('reading SNP ' + type)
+            # print('reading SNP ' + type)
             N, datas, lab, SNP_objects, aligns, segsegs = reader.read_SNPs(method=method)
             
             type = get_name_by_dir(snp_dir)
@@ -404,10 +404,10 @@ if __name__ == '__main__':
         
         # TODO: add closest chip COR
         
-        print('reading COSMIC total')
+        # print('reading COSMIC total')
         COSMIC_segments_total = reader.read_Cosmic(cosmic_names[name], mode='total')
         
-        print('reading CGH')
+        # print('reading CGH')
         N_CGH, CGH_objects = reader.read_CGH(cgh_names[name])
         
         corr_to_objects_global[name] = 'nan'
@@ -421,7 +421,7 @@ if __name__ == '__main__':
         if len(result) != 0:
             corr_to_segments_global[name] = CGH_objects.correlation_of_merged(result=result)
         
-        out.write('\t'.join(map(lambda x: '\t'.join(map(str, x)),
+        out_line = '\t'.join(map(lambda x: '\t'.join(map(str, x)),
                                 [[name, lab, aligns, N, datas, len(COSMIC_segments.segments)]] +
                                 [[seg_segs[type],
                                   corr_to_segments[type],
@@ -432,4 +432,6 @@ if __name__ == '__main__':
                                  for name in naive_names] +
                                 [[corr_to_segments_global[name],
                                   corr_to_objects_global[name]]]
-                                )) + '\n')
+                                )) + '\n'
+        print(out_line)
+        out.write(out_line)
