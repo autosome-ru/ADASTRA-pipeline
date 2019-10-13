@@ -324,9 +324,9 @@ if __name__ == '__main__':
     snp_dirs = []
     naive_names = ['naive']
     
-    for file_name in os.listdir(Correlation_path):
-        if file_name.endswith('_tables') and os.path.isdir(Correlation_path + file_name):
-            snp_dirs.append(Correlation_path + file_name + '/')
+    for f_name in os.listdir(Correlation_path):
+        if f_name.endswith('_tables') and os.path.isdir(Correlation_path + f_name):
+            snp_dirs.append(Correlation_path + f_name + '/')
     
     reader = Reader()
     reader.CGH_path = Correlation_path + 'CHIP_hg38.bed'
