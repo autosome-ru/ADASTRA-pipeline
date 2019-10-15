@@ -28,10 +28,9 @@ def CreatePath(line, ctrl=False):
 def add_to_dict(d, key, value):
     el = d.get(key, None)
     if el:
-        d[key] = el.add(value)
+        d[key] = el + [value]
     else:
-        d[key] = {value}
-    print(d[key])
+        d[key] = [value]
 
 
 def add_record(d, line, ctrl=False):
@@ -75,4 +74,4 @@ def MakeDict(masterList):
     print("Dictionary Saved")
 
 
-MakeDict("/home/abramov/PLOIDYcalling/Master-lines.tsv")
+MakeDict(dict_path + "Master-lines.tsv")

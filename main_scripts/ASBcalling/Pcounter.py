@@ -63,13 +63,16 @@ def pack(values):
 
 
 def create_ploidy(string):
-    path = "/home/abramov/Ploidy/Corrected/" + string + "_ploidy.tsv"
+    path = ploidy_path + "Corrected-1,5/" + string + "_ploidy.tsv"
     return path
 
 
-key = sys.argv[1]
+ploidy_path = "/home/abramov/Ploidy/"
+dict_path = "/home/abramov/PLOIDYcalling/"
+full_path = sys.argv[1]
+key = full_path + ".vcf.gz"
 
-with open("/home/abramov/PLOIDYcalling/REVERSE_CELL_LINES.json", "r") as read_file:
+with open(dict_path + "REVERSE_CELL_LINES.json", "r") as read_file:
     d = json.loads(read_file.readline())
 ploidy_file = d.get(key, None)
 if ploidy_file is None:
@@ -78,8 +81,8 @@ if ploidy_file is None:
 else:
     ploidy = create_ploidy(ploidy_file)
     if os.path.isfile(ploidy):
-        table_annotated = sys.argv[2]
-        output = sys.argv[3]
+        table_annotated = full_path + "_table_annotated.txt"
+        output = full_path + "_table_p.txt"
         segments = []
         with open(ploidy, 'r') as file:
             for line in file:
