@@ -11,8 +11,7 @@ import sys
 # import random
 import time
 
-sys.path.insert(1, '/home/abramov/ASB-Project/main_scripts')
-print(sys.path)
+sys.path.insert(1, '/home/abramov/ASB-Project')
 
 
 class Segmentation:
