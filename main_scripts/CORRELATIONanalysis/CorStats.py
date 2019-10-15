@@ -215,6 +215,7 @@ class Reader:
     CGH_path = ''
     SNP_path = ''
     Cosmic_path = ''
+    synonims_path = ''
     
     def read_Cosmic(self, name, mode='normal'):
         with open(self.Cosmic_path, 'r') as file:
@@ -306,6 +307,19 @@ class Reader:
                 result.add_object(GObject(chr, pos, value, 100, 100))
             # result.sort_items()
             return N, result
+    
+    def read_synonims(self):
+        cosmic_names = dict()
+        cgh_names = dict()
+        with open(self.synonims_path, 'r') as file:
+            for line in file:
+                line = line.strip('\n').split('\t')
+                if line[1] and line[2]:
+                    name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
+                    cosmic_names[name] = line[1]
+                    cgh_names[name] = line[2]
+        return cosmic_names, cgh_names
+
 
 
 def get_name_by_dir(dir_name):
@@ -318,7 +332,6 @@ if __name__ == '__main__':
     file_name = sys.argv[1]
     
     Correlation_path = '/home/abramov/Correlation/'
-    synonims_path = '/home/abramov/ASB-Project/main_scripts/CORRELATIONanalysis/synonims.tsv'
     out_path = Correlation_path + file_name + '.thread'
     
     snp_dirs = []
@@ -331,17 +344,9 @@ if __name__ == '__main__':
     reader = Reader()
     reader.CGH_path = Correlation_path + 'CHIP_hg38.bed'
     reader.Cosmic_path = Correlation_path + 'COSMIC_copy_number.csv'
-    names = []
-    cosmic_names = dict()
-    cgh_names = dict()
+    reader.synonims_path = '/home/abramov/ASB-Project/main_scripts/CORRELATIONanalysis/synonims.tsv'
     
-    with open(synonims_path, 'r') as file:
-        for line in file:
-            line = line.strip('\n').split('\t')
-            if line[1] and line[2]:
-                name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
-                cosmic_names[name] = line[1]
-                cgh_names[name] = line[2]
+    cosmic_names, cgh_names = reader.read_synonims()
     
     with open(out_path, 'w') as out:
         

@@ -6,7 +6,7 @@ ScriptsFolder="/home/abramov/ASB-Project/main_scripts/"
 flag=$1
 
 if [ "$flag" == --ploidy ]; then
-	parallel --jobs 80 python3 "$ScriptsFolder"PLOIDYcalling/PloidyEstimation.py :::: "$ParametersListsFolder"/PE_parameters.cfg
+	parallel --jobs 45 python3 "$ScriptsFolder"PLOIDYcalling/PloidyEstimation.py :::: "$ParametersListsFolder"/PE_parameters.cfg
 fi
 
 if [ "$flag" == --ploidy ] || [ "$flag" == --aswp ]; then

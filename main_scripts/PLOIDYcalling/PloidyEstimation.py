@@ -34,13 +34,14 @@ class Segmentation:
         self.S = None
         self.L = None
         self.P = None
+        self.prior = None
 
     def loglikelyhood(self, N, X, i):
         p = 1 / (1 + i)
         if (self.mode == 'corrected' and N == 2 * X) or self.mode == 'binomial':
-            return X * np.log(p) + (N - X) * np.log(1 - p)
+            return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.prior[i])
         elif self.mode == 'corrected':
-            return X * np.log(p) + (N - X) * np.log(1 - p) + math.log(1 + i ** (2 * X - N))
+            return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.prior[i]) + math.log(1 + i ** (2 * X - N))
 
     def get_P(self, first, last):
         if last - first == 1:
@@ -171,12 +172,14 @@ class PieceSegmentation(Segmentation):
         self.chrom = chrom
 
         self.mode = chrom.mode  # binomial or corrected
+        
+        self.prior = chrom.prior
 
     # print(self.start, self.end, self.candidates_count, len(self.positions))
 
 
 class ChromosomeSegmentation(Segmentation):  # chrom
-    def __init__(self, seg, CHR, i_list=None, length=0, n_max=0, CGF=0.0):
+    def __init__(self, seg, CHR, prior, i_list=None, length=0, n_max=0, CGF=0.0):
         super().__init__()
         self.CHR = CHR  # name
         self.COV_TR = seg.COV_TR  # coverage treshold
@@ -221,6 +224,8 @@ class ChromosomeSegmentation(Segmentation):  # chrom
         self.Q1 = []
         self.counts = []  # number of snps in segments
         self.second_ests = []
+        
+        self.prior = prior
 
     # [1017, 1035, 1160, 1442, 1529, 1641, 1857, 2045, 4062][2, 1, 5, 1, 3, 4, 2, 2, 1, 1]
     # self.set_candidates(set(range(5047)) - {1283, 1284})#set(random.sample(range(5047), 500)))
@@ -435,7 +440,7 @@ class ChromosomeSegmentation(Segmentation):  # chrom
 
 
 class GenomeSegmentator:  # seg
-    def __init__(self, file, out, segm_mode, extra_states=None):
+    def __init__(self, file, out, segm_mode, extra_states=None, prior=False):
         chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
                  145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
                  101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
@@ -459,9 +464,14 @@ class GenomeSegmentator:  # seg
         self.SEG_LENGTH = 600
         self.ISOLATED_SNP_FILTER = 4
         self.chr_segmentations = []  # chroms
+        
+        if prior:
+            self.prior = self.create_prior_from_COSMIC()
+        else:
+            self.prior = dict(zip(self.i_list, [1]*len(self.i_list)))
 
         for CHR in self.chrs:
-            chrom = ChromosomeSegmentation(self, CHR, self.i_list, self.chr_lengths[CHR], self.n_max,
+            chrom = ChromosomeSegmentation(self, CHR, self.prior, self.i_list, self.chr_lengths[CHR], self.n_max,
                                            self.CRITICAL_GAP_FACTOR)
             print('{} total SNP count: {}'.format(CHR, chrom.LINES))
             self.chr_segmentations.append(chrom)
@@ -484,6 +494,19 @@ class GenomeSegmentator:  # seg
         chr_lengths['chrY'] = chr_l[-1]
 
         return chrs, chr_lengths
+    
+    def create_prior_from_COSMIC(self):
+        sum = 0
+        prior = dict(zip(self.i_list, [0]*len(self.i_list)))
+        for segment in COSMIC_segments:
+            if segment.value in prior:
+                adv = segment.end.pos - segment.start.pos
+                prior[segment.value] += adv
+                sum += adv
+        for i in prior:
+            prior[i] = prior/sum
+        
+        return prior
 
     def append_ploidy_segments(self, chrom):
         segments_to_write = []
@@ -636,6 +659,15 @@ if __name__ == '__main__':
 
     key = sys.argv[1]
     print(key)
+    
+    ### for prior
+    from ..CORRELATIONanalysis.CorStats import Reader
+    r = Reader()
+    r.synonims_path = '/home/abramov/ASB-Project/main_scripts/CORRELATIONanalysis/synonims.tsv'
+    cosmic_names, cgh_names = r.read_synonims()
+    COSMIC_segments = r.read_Cosmic(cosmic_names[key.split('!')[0]]).segments
+    ###
+    
     arr = []
     # list(set) for deduplication
     for path in list(set(d[key])):
@@ -649,10 +681,15 @@ if __name__ == '__main__':
     out_file = Ploidy_path + key + ".tsv"
     print(arr)
     merge_vcfs(out_file, arr)
-    for model, mode, states in (('Binomial/', 'binomial', []),
-                                ('Binomial-1,5/', 'binomial', [1.5]),
-                                ('Corrected/', 'corrected', []),
-                                ('Corrected-1,5/', 'corrected', [1.5]),
+    for model, mode, states, prior in (
+                                ('Binomial/', 'binomial', [], False),
+                                ('Binomial-1,5/', 'binomial', [1.5], False),
+                                ('Corrected/', 'corrected', [], False),
+                                ('Corrected-1,5/', 'corrected', [1.5], False),
+                                ('Binomial-prior/', 'binomial', [], True),
+                                ('Binomial-1,5-prior/', 'binomial', [1.5], True),
+                                ('Corrected-prior/', 'corrected', [], True),
+                                ('Corrected-1,5-prior/', 'corrected', [1.5], True),
                                 ):
         t = time.clock()
         if not os.path.isdir(Ploidy_path + model):
