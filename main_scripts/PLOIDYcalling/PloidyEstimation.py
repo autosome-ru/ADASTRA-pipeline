@@ -654,8 +654,6 @@ def merge_vcfs(out_file_name, in_files):
 if __name__ == '__main__':
     JSON_path = '/home/abramov/PLOIDYcalling/CELL_LINES.json'
     Ploidy_path = '/home/abramov/Ploidy/'
-    from main_scripts.helpers import Reader
-    print(Reader)
     with open(JSON_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     keys = sorted(d.keys())
