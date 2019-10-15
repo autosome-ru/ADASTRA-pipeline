@@ -1,6 +1,9 @@
 import requests
 import json
 
+alignments_path = "/home/abramov/Alignments/"
+dict_path = "/home/abramov/PLOIDYcalling/"
+
 
 def findLAB(enc):
     if enc.find(";") != -1:
@@ -17,17 +20,18 @@ def findLAB(enc):
 
 def CreatePath(line, ctrl=False):
     if ctrl:
-        return "/home/abramov/Alignments/CTRL/" + line[10] + "/" + line[14] + ".vcf.gz"
+        return alignments_path + "CTRL/" + line[10] + "/" + line[14] + ".vcf.gz"
     else:
-        return "/home/abramov/Alignments/EXP/" + line[1] + "/" + line[0] + "/" + line[6] + ".vcf.gz"
+        return alignments_path + "EXP/" + line[1] + "/" + line[0] + "/" + line[6] + ".vcf.gz"
 
 
 def add_to_dict(d, key, value):
     el = d.get(key, None)
     if el:
-        d[key] = el + [value]
+        d[key] = el.add(value)
     else:
-        d[key] = [value]
+        d[key] = {value}
+    print(d[key])
 
 
 def add_record(d, line, ctrl=False):
@@ -35,7 +39,7 @@ def add_record(d, line, ctrl=False):
         idcs = (12, 15, 16)
     else:
         idcs = (4, 8, 9)
-    
+
     path = CreatePath(line, ctrl)
     line[idcs[0]] = line[idcs[0]].replace("(", "").replace(")", "").replace(" ", "_").replace("/", "_")
     if line[idcs[2]] != "None":
@@ -58,11 +62,15 @@ def MakeDict(masterList):
             print("Made {0} Experiments out of ~6120".format(count))
         ln = line.strip().split("\t")
         add_record(d, ln)
-        
+
         if len(ln) > 16:
             add_record(d, ln, ctrl=True)
     print("Saving Dictionary")
-    with open("/home/abramov/PLOIDYcalling/CELL_LINES.json", "w") as write_file:
+    for key in d:
+        value = d[key]
+        sorted_value = sorted(list(value))
+        d[key] = sorted_value
+    with open(dict_path + "CELL_LINES.json", "w") as write_file:
         json.dump(d, write_file)
     print("Dictionary Saved")
 
