@@ -496,19 +496,6 @@ class GenomeSegmentator:  # seg
         chr_lengths['chrY'] = chr_l[-1]
 
         return chrs, chr_lengths
-    
-    def create_prior_from_COSMIC(self):
-        sum = 0
-        prior = dict(zip(self.i_list, [0]*len(self.i_list)))
-        for segment in COSMIC_segments:
-            if segment.value in prior:
-                adv = segment.end.pos - segment.start.pos
-                prior[segment.value] += adv
-                sum += adv
-        for i in prior:
-            prior[i] = prior/sum
-        
-        return prior
 
     def append_ploidy_segments(self, chrom):
         segments_to_write = []
@@ -660,16 +647,6 @@ if __name__ == '__main__':
 
     key = sys.argv[1]
     print(key)
-    
-    ### FIXME: for prior
-    from main_scripts.helpers import Reader
-    Correlation_path = '/home/abramov/Correlation/'
-    r = Reader()
-    r.synonims_path = '/home/abramov/ASB-Project/main_scripts/CORRELATIONanalysis/synonims.tsv'
-    r.Cosmic_path = Correlation_path + 'COSMIC_copy_number.csv'
-    cosmic_names, cgh_names = r.read_synonims()
-    COSMIC_segments = r.read_Cosmic(cosmic_names[key.split('!')[0]]).segments
-    ###
     
     arr = []
     # list(set) for deduplication
