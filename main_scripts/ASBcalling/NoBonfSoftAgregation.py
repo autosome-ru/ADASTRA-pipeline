@@ -28,43 +28,16 @@ def pack(values):
     return '\t'.join(map(str, values)) + '\n'
 
 
-def createpath(line):
-    return "/home/abramov/Alignments/EXP/" + line[1] + "/" + line[0] + "/" + line[3] + "_table_p.txt"
-
-
-def makedict():
-    d = dict()
-    m = open("/home/abramov/ASBcalling/MasterList.tsv", "r")
-    master = m.readlines()
-    for line in master:
-        ln = line.split(";")
-        path = createpath(ln)
-        if os.path.isfile(path):
-            try:
-                d[ln[1]].append(path)
-            except KeyError:
-                d[ln[1]] = [path]
-    return d
-
-
 def correctP(p, BonF):
     p = max(p, 0)
     return min(1, p * BonF)
 
 
-D = makedict()
-K = sorted(list(D.keys()))
-print('Ya sdelal slovar')
-print(len(K))
+results_path = '/home/abramov/RESULTS/TF_NoCorr_P-values/'
 
-for k, v in D.items():
-    if len(v) > 1:
-        print(k, len(v))
 
-for k, TF in enumerate(K):
-    if k < int(sys.argv[1]) or k >= int(sys.argv[2]):
-        continue
-    tables = D[TF]
+
+
     print('Reading ' + TF + ' k = {}'.format(k))
     common_snps = dict()
     for table in tables:
@@ -85,7 +58,7 @@ for k, TF in enumerate(K):
                                                               seg_c, p_ref, p_alt)]
 
     print('Writing', TF)
-    with open('/home/abramov/RESULTS/TF_NoCorr_P-values/' + TF + '_common_table.tsv', 'w') as out:
+    with open(results_path + TF + '_common_table.tsv', 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'm_callers', 'm_ploidy', 'm_q', 'm_dipq',
                         'm_segc', 'm_datasets', 'maxdepth_ref/alt', 'maxdepth_ploidy', 'maxdepth_m1',
                         'maxdepth_m2', 'mostsig_ref/alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
