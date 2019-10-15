@@ -663,8 +663,10 @@ if __name__ == '__main__':
     
     ### FIXME: for prior
     from main_scripts.helpers import Reader
+    Correlation_path = '/home/abramov/Correlation/'
     r = Reader()
     r.synonims_path = '/home/abramov/ASB-Project/main_scripts/CORRELATIONanalysis/synonims.tsv'
+    r.Cosmic_path = Correlation_path + 'COSMIC_copy_number.csv'
     cosmic_names, cgh_names = r.read_synonims()
     COSMIC_segments = r.read_Cosmic(cosmic_names[key.split('!')[0]]).segments
     ###
