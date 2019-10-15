@@ -156,7 +156,7 @@ if name in names:
                     segments[other_current_idx].segn,
                 ))
             #result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
-            out.write('##' + str(len(result)) + '!' + str(datasetsn) + '!' + str(len(segments)) + '!'+ lab+ '!' +'>'.join(al_list))
+            out.write('##' + str(len(result)) + '!' + str(datasetsn) + '!' + str(sum(1 for segment in segments if segment.value >= 1)) + '!'+ lab+ '!' +'>'.join(al_list))
             out.write('\t'.join(['#chr', 'pos', 'ref', 'alt', 'ploidy', 'qual', 'segn']) + '\n')
             for line in result:
                 out.write('\t'.join(map(str, line)) + '\n')
