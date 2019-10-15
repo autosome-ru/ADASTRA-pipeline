@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.path.insert(1, '/home/abramov/ASB-project/')
+sys.path.insert(1, '/home/abramov/ASB-project/main_scripts')
 from main_scripts.helpers import Reader
 
 
