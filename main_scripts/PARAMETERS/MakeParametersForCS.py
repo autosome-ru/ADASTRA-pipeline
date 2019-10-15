@@ -7,7 +7,7 @@ if __name__ == "__main__":
     with open(out_path, 'w') as file:
         for file_name in os.listdir(Correlation_path):
             if os.path.isdir(Correlation_path + file_name):
-                ### this part is only for correlation
+                ### FIXME: this part is only for correlation
                 syn_path = '../CORRELATIONanalysis/synonims.tsv'
                 names = []
                 with open(syn_path, 'r') as syn:
@@ -19,7 +19,7 @@ if __name__ == "__main__":
                             names.append(GTRD_name)
                 ###
                 for file_name2 in os.listdir(Correlation_path + file_name):
-                    ###
+                    ### FIXME: this part is only for correlation
                     name = file_name2[:file_name2.rfind('_')]
                     if name not in names:
                         print('Skipping, not in synonims..')

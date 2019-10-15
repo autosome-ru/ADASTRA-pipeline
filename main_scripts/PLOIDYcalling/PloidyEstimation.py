@@ -660,8 +660,8 @@ if __name__ == '__main__':
     key = sys.argv[1]
     print(key)
     
-    ### for prior
-    from ..CORRELATIONanalysis.CorStats import Reader
+    ### FIXME: for prior
+    from main_scripts.helpers import Reader
     r = Reader()
     r.synonims_path = '/home/abramov/ASB-Project/main_scripts/CORRELATIONanalysis/synonims.tsv'
     cosmic_names, cgh_names = r.read_synonims()

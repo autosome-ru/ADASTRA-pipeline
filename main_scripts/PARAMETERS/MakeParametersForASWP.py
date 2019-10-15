@@ -5,7 +5,7 @@ if __name__ == "__main__":
     out_path = '/home/abramov/ParallelParameters/ASWP_parameters.cfg'
     
     with open(out_path, 'w') as file:
-        ### this part is only for correlation
+        ### FIXME: this part is only for correlation
         syn_path = '../CORRELATIONanalysis/synonims.tsv'
         names = []
         with open(syn_path, 'r') as syn:
@@ -19,7 +19,7 @@ if __name__ == "__main__":
         for file_name in os.listdir(Ploidy_path):
             if not os.path.isfile(Ploidy_path + file_name):
                 continue
-            ###
+            ### FIXME: this part is only for correlation
             name = file_name.split('!')[0]
             if name not in names:
                 print('Skipping, not in synonims..')
