@@ -127,9 +127,9 @@ else:
                     ploidy = 0
                     p_ref = 0
                     p_alt = 0
-                elif int(ploidy) != 0:
+                elif float(ploidy) != 0:
                     #p_value counting
-                    p = 1 / (int(ploidy) + 1)
+                    p = 1 / (float(ploidy) + 1)
                     n = ref_c + alt_c
                     p_ref = count_p(ref_c, n, p, 'greater')
                     p_alt = count_p(ref_c, n, p, 'less')
