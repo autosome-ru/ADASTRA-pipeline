@@ -11,5 +11,3 @@ if __name__ == "__main__":
     with open(out_path, 'w') as file:
         for key in keys:
             file.write(key + '\n')
-    
-    

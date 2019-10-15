@@ -640,7 +640,7 @@ def merge_vcfs(out_file_name, in_files):
 
 if __name__ == '__main__':
     JSON_path = '/home/abramov/PLOIDYcalling/CELL_LINES.json'
-    Ploidy_path = '/home/abramov/Ploidy/'
+    Ploidy_path = '/home/abramov/release1710/'
     with open(JSON_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     keys = sorted(d.keys())
@@ -662,14 +662,7 @@ if __name__ == '__main__':
     print(arr)
     merge_vcfs(out_file, arr)
     for model, mode, states, prior in (
-                                ('Binomial/', 'binomial', [], False),
-                                ('Binomial-1,5/', 'binomial', [1.5], False),
-                                ('Corrected/', 'corrected', [], False),
                                 ('Corrected-1,5/', 'corrected', [1.5], False),
-                                ('Binomial-prior/', 'binomial', [], True),
-                                ('Binomial-1,5-prior/', 'binomial', [1.5], True),
-                                ('Corrected-prior/', 'corrected', [], True),
-                                ('Corrected-1,5-prior/', 'corrected', [1.5], True),
                                 ):
         t = time.clock()
         if not os.path.isdir(Ploidy_path + model):
