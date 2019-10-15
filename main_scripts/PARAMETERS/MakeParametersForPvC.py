@@ -2,7 +2,7 @@ import json
 import os.path
 
 if __name__ == "__main__":
-    JSON_path = '/home/abramov/PLOIDYcalling/REVERSE-CELL_LINES.json'
+    JSON_path = '/home/abramov/PLOIDYcalling/REVERSE_CELL_LINES.json'
     out_path = '/home/abramov/ParallelParameters/PvC_parameters.cfg'
 
     with open(JSON_path, 'r') as read_file:
