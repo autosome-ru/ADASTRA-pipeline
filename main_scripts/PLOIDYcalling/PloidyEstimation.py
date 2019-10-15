@@ -516,7 +516,7 @@ class GenomeSegmentator:  # seg
         counter = 0
         if chrom.LINES >= self.NUM_TR:
             for border in chrom.bpos + [chrom.length]:
-                if type(border) == type(1, 1):
+                if isinstance(border, tuple):
                     segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
                                               chrom.quals[counter][0], chrom.quals[counter][1],
                                               chrom.counts[counter]])
