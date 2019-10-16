@@ -19,8 +19,6 @@ def makedict(what_for):
         ln = line.split("\t")
         path = createpath(ln)
         if what_for == "TF":
-            if d[ln[1]] == "None":
-                continue
             try:
                 d[ln[1]].append(path)
             except KeyError:
