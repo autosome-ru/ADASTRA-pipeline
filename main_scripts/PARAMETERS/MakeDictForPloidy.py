@@ -59,9 +59,10 @@ def MakeDict(masterList):
         if line[0] == "#":
             continue
         count += 1
-        if count == 5:
-            break
+        if count % 10 == 0:
             print("Made {} Experiments out of ~6120".format(count))
+        if count == 20:
+            break
         ln = line.strip().split("\t")
         add_record(d, ln)
 
@@ -72,7 +73,7 @@ def MakeDict(masterList):
         value = d[key]
         sorted_value = sorted(list(value))
         d[key] = sorted_value
-    with open(dict_path + "CELL_LINES.json", "w") as write_file:
+    with open(parameters_path + "CELL_LINES.json", "w") as write_file:
         json.dump(d, write_file)
     print("Dictionary Saved")
 
