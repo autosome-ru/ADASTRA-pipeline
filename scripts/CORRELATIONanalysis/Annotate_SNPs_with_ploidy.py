@@ -70,7 +70,7 @@ class Segment:
 
 
 syn_path = '/home/abramov/ASB-Project/scripts/CORRELATIONanalysis/synonims.tsv'
-JSON_path = '/home/abramov/PLOIDYcalling/CELL_LINES.json'
+JSON_path = '/home/abramov/PARAMETERS/CELL_LINES.json'
 Ploidy_path = '/home/abramov/Ploidy/'
 Correlation_path = '/home/abramov/Correlation/'
 names = []
