@@ -70,7 +70,7 @@ class Segment:
 
 
 syn_path = '/home/abramov/ASB-Project/scripts/CORRELATIONanalysis/synonims.tsv'
-JSON_path = '/home/abramov/PARAMETERS/CELL_LINES.json'
+parameters_path = '/home/abramov/PARAMETERS/'
 Ploidy_path = '/home/abramov/Ploidy/'
 Correlation_path = '/home/abramov/Correlation/'
 names = []
@@ -86,7 +86,7 @@ count = dict()
 for name in names:
     count[name] = 0
 
-with open(JSON_path, 'r') as file:
+with open(parameters_path + 'CELL_LINES.json', 'r') as file:
     cl = json.loads(file.readline().strip())
 
 modes = []
