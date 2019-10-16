@@ -61,8 +61,6 @@ def MakeDict(masterList):
         count += 1
         if count % 10 == 0:
             print("Made {} Experiments out of ~6120".format(count))
-        if count == 20:
-            break
         ln = line.strip().split("\t")
         add_record(d, ln)
 
