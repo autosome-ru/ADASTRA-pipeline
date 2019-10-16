@@ -69,12 +69,12 @@ class Segment:
         return self.end.pos - self.start.pos
 
 
-syn_path = '/home/abramov/ASB-Project/scripts/CORRELATIONanalysis/synonims.tsv'
+scripts_path = '/home/abramov/ASB-Project/scripts'
 parameters_path = '/home/abramov/PARAMETERS/'
 Ploidy_path = '/home/abramov/Ploidy/'
 Correlation_path = '/home/abramov/Correlation/'
 names = []
-with open(syn_path, 'r') as syn:
+with open(scripts_path + '/CORRELATIONanalysis/synonims.tsv', 'r') as syn:
     for line in syn:
         line = line.strip('\n').split('\t')
         if line[1] and line[2]:
