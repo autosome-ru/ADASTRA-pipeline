@@ -68,11 +68,11 @@ def create_ploidy(string):
 
 
 ploidy_path = "/home/abramov/PloidyForRelease/"
-dict_path = "/home/abramov/PLOIDYcalling/"
+parameters_path = "/home/abramov/PARAMETERS/"
 full_path = sys.argv[1]
 key = full_path + ".vcf.gz"
 
-with open(dict_path + "REVERSE_CELL_LINES.json", "r") as read_file:
+with open(parameters_path + "REVERSE_CELL_LINES.json", "r") as read_file:
     d = json.loads(read_file.readline())
 ploidy_file = d.get(key, None)
 if ploidy_file is None:

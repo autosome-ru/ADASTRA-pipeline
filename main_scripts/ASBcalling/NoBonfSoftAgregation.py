@@ -6,9 +6,6 @@ import numpy as np
 import json
 
 
-#TODO make 5% FDR
-
-
 def unpack(line):
     line = line.split()
     chr = line[0]
@@ -33,11 +30,11 @@ def pack(values):
 
 
 results_path = '/home/abramov/TF_P-values/'
-dict_path = "/home/abramov/ASBcalling/"
+parameters_path = "/home/abramov/PARAMETERS/"
 
 what_for = sys.argv[1]
 key = sys.argv[2]
-with open(dict_path + what_for + "_DICT.json", "r") as read_file:
+with open(parameters_path + what_for + "_DICT.json", "r") as read_file:
     d = json.loads(read_file.readline())  # read CL or TF json
 tables = d.get(key, None)
 print('Reading datasets for {} '.format(what_for) + key)

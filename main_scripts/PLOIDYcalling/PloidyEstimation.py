@@ -638,10 +638,12 @@ def merge_vcfs(out_file_name, in_files):
     print('Skipped {0} mismatched SNPS'.format(strange))
 
 
+parameters_path = '/home/abramov/PLOIDYcalling/'
+ploidy_path = "/home/abramov/PloidyForRelease/"
+
 if __name__ == '__main__':
-    JSON_path = '/home/abramov/PLOIDYcalling/CELL_LINES.json'
-    Ploidy_path = '/home/abramov/release1710/'
-    with open(JSON_path, 'r') as read_file:
+
+    with open(parameters_path + 'CELL_LINES.json', 'r') as read_file:
         d = json.loads(read_file.readline())
     keys = sorted(d.keys())
 
@@ -649,8 +651,8 @@ if __name__ == '__main__':
     print(key)
     
     arr = []
-    # list(set) for deduplication
-    for path in list(set(d[key])):
+
+    for path in d[key]:
         if os.path.isfile(path):
             arr.append(path)
         else:
@@ -658,15 +660,15 @@ if __name__ == '__main__':
     if not arr:
         sys.exit(0)
 
-    out_file = Ploidy_path + key + ".tsv"
+    out_file = ploidy_path + key + ".tsv"
     print(arr)
     merge_vcfs(out_file, arr)
     for model, mode, states, prior in (
                                 ('Corrected-1,5/', 'corrected', [1.5], False),
                                 ):
         t = time.clock()
-        if not os.path.isdir(Ploidy_path + model):
-            os.mkdir(Ploidy_path + model)
-        GS = GenomeSegmentator(out_file, Ploidy_path + model + key + "_ploidy.tsv", mode, states)
+        if not os.path.isdir(ploidy_path + model):
+            os.mkdir(ploidy_path + model)
+        GS = GenomeSegmentator(out_file, ploidy_path + model + key + "_ploidy.tsv", mode, states)
         GS.estimate_ploidy()
         print('Total time: {} s'.format(time.clock() - t))

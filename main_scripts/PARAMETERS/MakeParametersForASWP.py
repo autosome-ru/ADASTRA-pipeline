@@ -1,10 +1,11 @@
 import os
 
+Ploidy_path = '/home/abramov/Ploidy/'
+parallel_parameters_path = '/home/abramov/ParallelParameters/'
+
+
 if __name__ == "__main__":
-    Ploidy_path = '/home/abramov/Ploidy/'
-    out_path = '/home/abramov/ParallelParameters/ASWP_parameters.cfg'
-    
-    with open(out_path, 'w') as file:
+    with open(parallel_parameters_path + 'ASWP_parameters.cfg', 'w') as file:
         for file_name in os.listdir(Ploidy_path):
             if not os.path.isfile(Ploidy_path + file_name):
                 continue

@@ -2,8 +2,7 @@ import json
 import sys
 
 alignments_path = "/home/abramov/Alignments/"
-master_path = "/home/abramov/PLOIDYcalling/"
-dict_path = "/home/abramov/ASBcalling/"
+parameters_path = "/home/abramov/PARAMETERS/"
 
 
 def createpath(line):
@@ -12,7 +11,7 @@ def createpath(line):
 
 def makedict(what_for):
     d = dict()
-    with open(master_path + "Master-lines.tsv", "r") as m:
+    with open(parameters_path + "Master-lines.tsv", "r") as m:
         master = m.readlines()
     for line in master:
         if line[0] == "#":
@@ -32,7 +31,7 @@ def makedict(what_for):
                 d[cell_line].append(path)
             except KeyError:
                 d[cell_line] = [path]
-    with open(dict_path + what_for + "_DICT.json", "w") as write_file:
+    with open(parameters_path + what_for + "_DICT.json", "w") as write_file:
         json.dump(d, write_file)
     print("Dictionary Saved")
 

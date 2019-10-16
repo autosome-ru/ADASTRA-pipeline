@@ -2,7 +2,7 @@ import requests
 import json
 
 alignments_path = "/home/abramov/Alignments/"
-dict_path = "/home/abramov/PLOIDYcalling/"
+parameters_path = "/home/abramov/PARAMETERS/"
 
 
 def findLAB(enc):
@@ -72,9 +72,9 @@ def MakeDict(masterList):
         value = d[key]
         sorted_value = sorted(list(value))
         d[key] = sorted_value
-    with open(dict_path + "CCELL_LINES.json", "w") as write_file:
+    with open(dict_path + "CELL_LINES.json", "w") as write_file:
         json.dump(d, write_file)
     print("Dictionary Saved")
 
 
-MakeDict(dict_path + "Master-lines.tsv")
+MakeDict(parameters_path + "Master-lines.tsv")

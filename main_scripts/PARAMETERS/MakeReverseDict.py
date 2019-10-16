@@ -1,6 +1,6 @@
 import json
 
-dict_path = "/home/abramov/PLOIDYcalling/"
+parameters_path = "/home/abramov/PARAMETERS/"
 
 
 def make_reverse_dict(dictionary):
@@ -14,8 +14,8 @@ def make_reverse_dict(dictionary):
     return new_dict
 
 
-with open(dict_path + "CELL_LINES.json", "r") as read_file:
+with open(parameters_path + "CELL_LINES.json", "r") as read_file:
     old_one = json.loads(read_file.readline())
 new_one = make_reverse_dict(old_one)
-with open(dict_path + "REVERSE_CELL_LINES.json", "w") as write_file:
+with open(parameters_path + "REVERSE_CELL_LINES.json", "w") as write_file:
     json.dump(new_one, write_file, sort_keys=True)

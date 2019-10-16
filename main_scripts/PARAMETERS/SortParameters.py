@@ -1,13 +1,13 @@
 import os
 
-parameters_dir = '/home/abramov/ParallelParameters/'
+parallel_parameters_dir = '/home/abramov/ParallelParameters/'
 Ploidy_path = '/home/abramov/Ploidy/'
-Corelation_path = '/home/abramov/Correlation/'
+Correlation_path = '/home/abramov/Correlation/'
 
 file_dirs = {
     'PE_parameters.cfg': Ploidy_path,
     'ASWP_parameters.cfg': Ploidy_path,
-    'CS_parameters.cfg': Corelation_path + 'Binomial_tables/',
+    'CS_parameters.cfg': Correlation_path + 'Binomial_tables/',
 }
 
 
@@ -17,9 +17,10 @@ def refactor_filename(line, param_file):
     return line
 
 
-for file_name in os.listdir(parameters_dir):
+for file_name in os.listdir(parallel_parameters_dir):
     if file_name.endswith('.cfg') and file_name != 'tmp.cfg':
-        with open(parameters_dir + file_name, 'r') as file, open(parameters_dir + 'tmp.cfg', 'w') as tmp:
+        with open(parallel_parameters_dir + file_name, 'r') as file, open(parallel_parameters_dir
+                                                                          + 'tmp.cfg', 'w') as tmp:
             assert file_name != 'tmp.cfg'
             lines = []
             for line in file:
@@ -31,6 +32,6 @@ for file_name in os.listdir(parameters_dir):
                             reverse=True)
             for line in lines:
                 tmp.write(line + '\n')
-        os.remove(parameters_dir + file_name)
-        print(parameters_dir + file_name)
-        os.rename(parameters_dir + 'tmp.cfg', parameters_dir + file_name)
+        os.remove(parallel_parameters_dir + file_name)
+        print(parallel_parameters_dir + file_name)
+        os.rename(parallel_parameters_dir + 'tmp.cfg', parallel_parameters_dir + file_name)

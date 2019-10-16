@@ -1,10 +1,11 @@
 import os
 
+Correlation_path = '/home/abramov/Correlation/'
+parallel_parameters_path = '/home/abramov/ParallelParameters/'
+
+
 if __name__ == "__main__":
-    Correlation_path = '/home/abramov/Correlation/'
-    out_path = '/home/abramov/ParallelParameters/CS_parameters.cfg'
-    
-    with open(out_path, 'w') as file:
+    with open(parallel_parameters_path + 'CS_parameters.cfg', 'w') as file:
         for file_name in os.listdir(Correlation_path):
             if os.path.isdir(Correlation_path + file_name):
                 ### FIXME: this part is only for correlation
