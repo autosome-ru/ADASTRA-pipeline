@@ -24,15 +24,26 @@ def unpack(line):
         p_alt = '.'
     else:
         p_ref, p_alt = map(float, line[19:21])
-    return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt
+
+    return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers, ploidy,\
+           dip_qual, lq, rq, seg_c, p_ref, p_alt
 
 
 def pack(values):
     return '\t'.join(map(str, values)) + '\n'
 
 
+def annotate_snp_with_tables(dictionary, pandas_table):  # return part of the dictionary with fdr from table
+    pass
+
+
+def get_name(path):  # path format */ALIGNS000000_table_p.txt
+    return path.split("/")[-1].split["_"][0]
+
+
 results_path = '/home/abramov/TF_P-values/'
-parameters_path = "/home/abramov/PARAMETERS/"
+parameters_path = '/home/abramov/PARAMETERS/'
+dicts_path = '/home/abramov/DATA/DICTS/'
 
 what_for = sys.argv[1]
 key = sys.argv[2]
@@ -43,6 +54,7 @@ print('Reading datasets for {} '.format(what_for) + key)
 common_snps = dict()
 for table in tables:
     if os.path.isfile(table):
+        table_name = get_name(table)
         with open(table, 'r') as file:
             for line in file:
                 if line[0] == '#':
@@ -54,10 +66,10 @@ for table in tables:
                 cov = ref_c + alt_c
                 try:
                     common_snps[(chr, pos, ID, ref, alt)].append((cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq,
-                                                                  seg_c, p_ref, p_alt))
+                                                                  seg_c, p_ref, p_alt, table_name))
                 except KeyError:
                     common_snps[(chr, pos, ID, ref, alt)] = [(cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq,
-                                                              seg_c, p_ref, p_alt)]
+                                                              seg_c, p_ref, p_alt, table_name)]
 
 print('Writing ', key)
 
@@ -82,6 +94,8 @@ with open(results_path + key + '_common_table.tsv', 'w') as out:
             filtered_snps[key] = SNPs_values
 
     counter = 0
+
+    origin_of_snp_dict = {}
     keys = list(filtered_snps.keys())
     keys = sorted(keys, key=lambda chr_pos: chr_pos[1])
     keys = sorted(keys, key=lambda chr_pos: chr_pos[0])
@@ -101,12 +115,14 @@ with open(results_path + key + '_common_table.tsv', 'w') as out:
         c_cover = []
         c_m1 = []
         c_m2 = []
+        c_table_names = []
 
         for v in value:
-            (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = v
+            (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt, table_name) = v
             if p_ref <= 0 or p_alt <= 0:
                 print('Wrong P!')
                 continue
+            c_table_names.append(table_name)
             c_callers.append(callers)
             c_ploidy.append(ploidy)
             c_dipq.append(dip_qual)
@@ -182,13 +198,20 @@ with open(results_path + key + '_common_table.tsv', 'w') as out:
              maxdepth_p, maxdepth_m1, maxdepth_m2, mostsig_refalt, mostsig_p, mostsig_m1, mostsig_m2, min_cover,
              max_cover, med_cover, mean_cover, mean_cover * m_datasets, m1, m2, m_hpref, m_hpalt, m_fpref, m_fpalt,
              m_stpref, m_stpalt]))
+        origin_of_snp_dict[",".join(map(str, key))] = c_table_names
 out.close()
 print("Counting FDR")
 with open(results_path + key + '_common_table.tsv', 'r') as f:
     table = pd.read_table(f)
     f.close()
     table["m_fdr"] = table[["m_fpref", "m_fpalt"]].min(axis=1)
-    table["m_fdr"] = pd.Series(statsmodels.stats.multitest.multipletests(table["m_fdr"],
-                                                                         alpha=0.05, method='fdr_bh')[1])
+    bool_ar, p_val = statsmodels.stats.multitest.multipletests(table["m_fdr"],
+                                                               alpha=0.05, method='fdr_bh')
+    table["m_fdr"] = pd.Series(p_val)
+    print(bool_ar)
     with open(results_path + key + '_common_table.tsv', "w") as w:
         table.to_csv(w, sep="\t", index=False)
+    table = table.loc(bool_ar)
+    datasets_for_SNPs = annotate_snp_with_tables(origin_of_snp_dict, table)
+    with open(dicts_path + key + '_DICT.json', 'w') as out:
+        json.dump(datasets_for_SNPs, out)

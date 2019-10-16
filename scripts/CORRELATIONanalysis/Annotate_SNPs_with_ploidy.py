@@ -69,7 +69,7 @@ class Segment:
         return self.end.pos - self.start.pos
 
 
-syn_path = '/home/abramov/ASB-Project/main_scripts/CORRELATIONanalysis/synonims.tsv'
+syn_path = '/home/abramov/ASB-Project/scripts/CORRELATIONanalysis/synonims.tsv'
 JSON_path = '/home/abramov/PLOIDYcalling/CELL_LINES.json'
 Ploidy_path = '/home/abramov/Ploidy/'
 Correlation_path = '/home/abramov/Correlation/'

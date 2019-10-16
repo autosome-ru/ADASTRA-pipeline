@@ -6,7 +6,7 @@ def get_name_by_dir(dir_name):
 
 
 Correlation_path = '/home/abramov/Correlation/'
-synonims_path = '/home/abramov/ASB-Project/main_scripts/CORRELATIONanalysis/synonims.tsv'
+synonims_path = '/home/abramov/ASB-Project/scripts/CORRELATIONanalysis/synonims.tsv'
 out_path = Correlation_path + 'cor_stats.tsv'
 
 snp_dirs = []

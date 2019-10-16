@@ -2,7 +2,7 @@ import os
 import sys
 
 sys.path.insert(1, '/home/abramov/ASB-Project')
-from main_scripts.helpers import Reader
+from scripts.helpers import Reader
 
 
 def get_name_by_dir(dir_name):
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     reader = Reader()
     reader.CGH_path = Correlation_path + 'CHIP_hg38.bed'
     reader.Cosmic_path = Correlation_path + 'COSMIC_copy_number.csv'
-    reader.synonims_path = '/home/abramov/ASB-Project/main_scripts/CORRELATIONanalysis/synonims.tsv'
+    reader.synonims_path = '/home/abramov/ASB-Project/scripts/CORRELATIONanalysis/synonims.tsv'
     
     cosmic_names, cgh_names = reader.read_synonims()
     
