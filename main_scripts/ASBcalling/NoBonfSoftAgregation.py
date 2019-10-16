@@ -4,6 +4,8 @@ from statistics import median_grouped
 from scipy import stats
 import numpy as np
 import json
+import statsmodels.stats.multitest
+import pandas as pd
 
 
 def unpack(line):
@@ -167,6 +169,7 @@ with open(results_path + key + '_common_table.tsv', 'w') as out:
         m_fpalt = stats.combine_pvalues(c_palt, method='fisher')[1]
         m_stpref = stats.combine_pvalues(c_pref, method='stouffer')[1]
         m_stpalt = stats.combine_pvalues(c_palt, method='stouffer')[1]
+
         if c_m1 and c_m2:
             m1 = np.round(np.mean(c_m1), 3)
             m2 = np.round(np.mean(c_m2), 3)
@@ -179,3 +182,13 @@ with open(results_path + key + '_common_table.tsv', 'w') as out:
              maxdepth_p, maxdepth_m1, maxdepth_m2, mostsig_refalt, mostsig_p, mostsig_m1, mostsig_m2, min_cover,
              max_cover, med_cover, mean_cover, mean_cover * m_datasets, m1, m2, m_hpref, m_hpalt, m_fpref, m_fpalt,
              m_stpref, m_stpalt]))
+out.close()
+print("Counting FDR")
+with open(results_path + key + '_common_table.tsv', 'r') as f:
+    table = pd.read_table(f)
+    f.close()
+    table["m_fdr"] = table[["m_fpref", "m_fpalt"]].min(axis=1)
+    table["m_fdr"] = pd.Series(statsmodels.stats.multitest.multipletests(table["m_fdr"],
+                                                                         alpha=0.05, method='fdr_bh')[1])
+    with open(results_path + key + '_common_table.tsv', "w") as w:
+        table.to_csv(w, sep="\t", index=False)

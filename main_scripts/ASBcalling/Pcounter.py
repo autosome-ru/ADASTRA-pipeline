@@ -69,6 +69,7 @@ def create_ploidy(string):
 
 ploidy_path = "/home/abramov/PloidyForRelease/"
 parameters_path = "/home/abramov/PARAMETERS/"
+
 full_path = sys.argv[1]
 key = full_path + ".vcf.gz"
 
