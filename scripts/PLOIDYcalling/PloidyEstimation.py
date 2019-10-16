@@ -638,7 +638,7 @@ def merge_vcfs(out_file_name, in_files):
     print('Skipped {0} mismatched SNPS'.format(strange))
 
 
-parameters_path = '/home/abramov/PLOIDYcalling/'
+parameters_path = '/home/abramov/PARAMETERS/'
 ploidy_path = "/home/abramov/PloidyForRelease/"
 
 if __name__ == '__main__':

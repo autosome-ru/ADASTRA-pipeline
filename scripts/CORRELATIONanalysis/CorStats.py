@@ -4,7 +4,8 @@ import sys
 sys.path.insert(1, '/home/abramov/ASB-Project')
 from scripts.helpers import Reader
 
-
+scripts_path = '/home/abramov/ASB-Project/scripts/'
+Correlation_path = '/home/abramov/Correlation/'
 def get_name_by_dir(dir_name):
     if dir_name in naive_names:
         return dir_name
@@ -14,7 +15,6 @@ def get_name_by_dir(dir_name):
 if __name__ == '__main__':
     file_name = sys.argv[1]
 
-    Correlation_path = '/home/abramov/Correlation/'
     out_path = Correlation_path + file_name + '.thread'
 
     snp_dirs = []
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     reader = Reader()
     reader.CGH_path = Correlation_path + 'CHIP_hg38.bed'
     reader.Cosmic_path = Correlation_path + 'COSMIC_copy_number.csv'
-    reader.synonims_path = '/home/abramov/ASB-Project/scripts/CORRELATIONanalysis/synonims.tsv'
+    reader.synonims_path = scripts_path + 'CORRELATIONanalysis/synonims.tsv'
 
     cosmic_names, cgh_names = reader.read_synonims()
 
