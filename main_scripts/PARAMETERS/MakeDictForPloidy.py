@@ -28,9 +28,9 @@ def CreatePath(line, ctrl=False):
 def add_to_dict(d, key, value):
     el = d.get(key, None)
     if el:
-        d[key] = el + [value]
+        d[key] = el | {value}
     else:
-        d[key] = [value]
+        d[key] = {value}
 
 
 def add_record(d, line, ctrl=False):
@@ -56,9 +56,12 @@ def MakeDict(masterList):
     d = dict()
     count = 0
     for line in master:
+        if line[0] == "#":
+            continue
         count += 1
-        if count % 5 == 0:
-            print("Made {0} Experiments out of ~6120".format(count))
+        if count == 5:
+            break
+            print("Made {} Experiments out of ~6120".format(count))
         ln = line.strip().split("\t")
         add_record(d, ln)
 
@@ -69,7 +72,7 @@ def MakeDict(masterList):
         value = d[key]
         sorted_value = sorted(list(value))
         d[key] = sorted_value
-    with open(dict_path + "CELL_LINES.json", "w") as write_file:
+    with open(dict_path + "CCELL_LINES.json", "w") as write_file:
         json.dump(d, write_file)
     print("Dictionary Saved")
 

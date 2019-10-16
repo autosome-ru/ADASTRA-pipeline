@@ -15,6 +15,8 @@ def makedict(what_for):
     with open(master_path + "Master-lines.tsv", "r") as m:
         master = m.readlines()
     for line in master:
+        if line[0] == "#":
+            continue
         ln = line.split("\t")
         path = createpath(ln)
         if what_for == "TF":
