@@ -67,7 +67,7 @@ def create_ploidy(string):
     return path
 
 
-ploidy_path = "/home/abramov/release1710/"
+ploidy_path = "/home/abramov/PloidyForRelease/"
 dict_path = "/home/abramov/PLOIDYcalling/"
 full_path = sys.argv[1]
 key = full_path + ".vcf.gz"
