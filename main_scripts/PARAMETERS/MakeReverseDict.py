@@ -8,7 +8,7 @@ def make_reverse_dict(dictionary):
         for value in values:
             print(value)
             v = value.split("/")
-            if v[4] == "EXP":
+            if v[4] == "EXP" and v[5] != "None":
                 new_dict[value] = key
     return new_dict
 
