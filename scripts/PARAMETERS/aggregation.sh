@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ParametersListsFolder="/home/abramov/ParallelParameters/"
-ScriptsFolder="/home/abramov/ASB-Project/main_scripts/"
+ScriptsFolder="/home/abramov/ASB-Project/scripts/"
 indicator=$1
 njobs=$2
 
