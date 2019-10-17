@@ -56,7 +56,10 @@ def get_name(path):  # path format */ALIGNS000000_table_p.txt
 
 
 def invert(dictionary):
-    inverted_dictionary = {v: k for k, v in dictionary.items()}
+    inverted_dictionary = {}
+    for key in dictionary:
+        for value in dictionary[key]:
+            inverted_dictionary[value] = key
     return inverted_dictionary
 
 
