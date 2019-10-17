@@ -6,6 +6,8 @@ from scripts.helpers import Reader
 
 scripts_path = '/home/abramov/ASB-Project/scripts/'
 Correlation_path = '/home/abramov/Correlation/'
+
+
 def get_name_by_dir(dir_name):
     if dir_name in naive_names:
         return dir_name

@@ -3,7 +3,6 @@ import os
 Correlation_path = '/home/abramov/Correlation/'
 parallel_parameters_path = '/home/abramov/ParallelParameters/'
 
-
 if __name__ == "__main__":
     with open(parallel_parameters_path + 'CS_parameters.cfg', 'w') as file:
         for file_name in os.listdir(Correlation_path):

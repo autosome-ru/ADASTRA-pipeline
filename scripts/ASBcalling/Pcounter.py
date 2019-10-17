@@ -3,6 +3,9 @@ import sys
 from scipy.stats import binom_test
 import os.path
 
+ploidy_path = "/home/abramov/PloidyForRelease/"
+parameters_path = "/home/abramov/PARAMETERS/"
+
 
 class ChromPos:
     def __init__(self, chr, pos):
@@ -66,9 +69,6 @@ def create_ploidy(string):
     path = ploidy_path + "Corrected-1,5/" + string + "_ploidy.tsv"
     return path
 
-
-ploidy_path = "/home/abramov/PloidyForRelease/"
-parameters_path = "/home/abramov/PARAMETERS/"
 
 full_path = sys.argv[1]
 key = full_path + ".vcf.gz"

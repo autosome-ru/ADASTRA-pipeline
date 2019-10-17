@@ -6,7 +6,7 @@ ScriptsFolder="/home/abramov/ASB-Project/scripts/"
 flag=$1
 
 if [ "$flag" == --ploidy ]; then
-	parallel --jobs 45 python3 "$ScriptsFolder"PLOIDYcalling/PloidyEstimation.py :::: "$ParametersListsFolder"/PE_parameters.cfg
+	bash "$ScriptsFolder"PARAMETERS/aggregation.sh "--forTF" 45  # second parameter - number of jobs
 fi
 
 if [ "$flag" == --ploidy ] || [ "$flag" == --aswp ]; then

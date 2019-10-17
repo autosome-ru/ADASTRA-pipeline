@@ -3,7 +3,6 @@ import os
 Ploidy_path = '/home/abramov/Ploidy/'
 parallel_parameters_path = '/home/abramov/ParallelParameters/'
 
-
 if __name__ == "__main__":
     with open(parallel_parameters_path + 'ASWP_parameters.cfg', 'w') as file:
         for file_name in os.listdir(Ploidy_path):

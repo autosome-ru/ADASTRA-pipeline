@@ -104,4 +104,4 @@ for tf in made_tfs:
         exp_name = vcf_file.split("/")[-2]
         if os.path.isfile(vcf_file) and exp_name not in black_list:
             tf_vcfs_counter += 1
-print("Made {} TFs from  {} VCFs".format(tf_counter, tf_vcfs_counter))
+print("Made aggregation for {} TFs from  {} VCFs".format(tf_counter, tf_vcfs_counter))

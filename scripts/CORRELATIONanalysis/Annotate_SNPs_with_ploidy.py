@@ -2,6 +2,11 @@ import os
 import sys
 import json
 
+scripts_path = '/home/abramov/ASB-Project/scripts'
+parameters_path = '/home/abramov/PARAMETERS/'
+Ploidy_path = '/home/abramov/Ploidy/'
+Correlation_path = '/home/abramov/Correlation/'
+
 
 class ChromPos:
     chrs = {'chrX', 'chrY'}
@@ -69,10 +74,6 @@ class Segment:
         return self.end.pos - self.start.pos
 
 
-scripts_path = '/home/abramov/ASB-Project/scripts'
-parameters_path = '/home/abramov/PARAMETERS/'
-Ploidy_path = '/home/abramov/Ploidy/'
-Correlation_path = '/home/abramov/Correlation/'
 names = []
 with open(scripts_path + '/CORRELATIONanalysis/synonims.tsv', 'r') as syn:
     for line in syn:

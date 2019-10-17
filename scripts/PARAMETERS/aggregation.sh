@@ -2,6 +2,7 @@
 
 ParametersListsFolder="/home/abramov/ParallelParameters/"
 ScriptsFolder="/home/abramov/ASB-Project/scripts/"
+
 indicator=$1
 njobs=$2
 

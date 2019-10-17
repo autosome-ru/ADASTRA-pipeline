@@ -23,27 +23,20 @@ do
 	-Out) OUT=$2
 		shift 2;;
 
-	-Ref) REFERENCE=$2
-		shift 2;;
-
 	-macs) withmacs=true
 		macs=$2
-		NAMEM=$(GETNAME "$macs")
 		shift 2;;
 
 	-sissrs) withsissrs=true
 		sissrs=$2
-		NAMES=$( GETNAME "$sissrs")
 		shift 2;;
 
 	-cpics) withcpics=true
 		cpics=$2
-		NAMEC=$( GETNAME "$cpics")
 		shift 2;;
 
 	-gem) withgem=true
 		gem=$2
-		NAMEG=$( GETNAME "$gem")
 		shift 2;;
 
 	-VCFexp) VCFexp=$2
@@ -59,45 +52,56 @@ do
 done
 
 
+# shellcheck disable=SC2154
 $python3 Make_tables.py "$OUT${EXPNAME}.vcf.gz" "$OUT${EXPNAME}_table.txt"
 
 if [ $withgem != false ]; then
-	$python3 CheckPositive.py $gem
-	$Bedtools sort -i $gem > "$gem.sorted"
+	$python3 CheckPositive.py "$gem"
+	# shellcheck disable=SC2154
+	$Bedtools sort -i "$gem" > "$gem.sorted"
+
 	if [ $? != 0 ]; then
 		echo "Failed to sort gem peaks"
 		exit 1
 	fi
+
 fi
 
 if [ $withmacs != false ]; then
-	$python3 CheckPositive.py $macs
-	$Bedtools sort -i $macs > "$macs.sorted"
+	$python3 CheckPositive.py "$macs"
+	$Bedtools sort -i "$macs" > "$macs.sorted"
+
 	if [ $? != 0 ]; then
 		echo "Failed to sort macs peaks"
 		exit 1
 	fi
+
 fi
 
 if [ $withsissrs != false ]; then
-	$python3 CheckPositive.py $sissrs
-	$Bedtools sort -i $sissrs > "$sissrs.sorted"
+	$python3 CheckPositive.py "$sissrs"
+	$Bedtools sort -i "$sissrs" > "$sissrs.sorted"
+
 	if [ $? != 0 ]; then
 		echo "Failed to sort sissrs peaks"
 		exit 1
 	fi
+
 fi
 
 if [ $withcpics != false ]; then
-	$python3 CheckPositive.py $cpics
-	$Bedtools sort -i $cpics > "$cpics.sorted"
+	$python3 CheckPositive.py "$cpics"
+	$Bedtools sort -i "$cpics" > "$cpics.sorted"
+
 	if [ $? != 0 ]; then
 		echo "Failed to sort cpics peaks"
 		exit 1
 	fi
+
 fi
 
-$python3 Annotate.py "$OUT${EXPNAME}_table.txt" "$macs.sorted" "$sissrs.sorted" "$cpics.sorted" "$gem.sorted" $withmacs $withsissrs $withcpics $withgem "$OUT${EXPNAME}_table_annotated.txt"
+$python3 Annotate.py "$OUT${EXPNAME}_table.txt" "$macs.sorted" "$sissrs.sorted" "$cpics.sorted" "$gem.sorted" \
+                      $withmacs $withsissrs $withcpics $withgem "$OUT${EXPNAME}_table_annotated.txt"
 
 rm "$OUT${EXPNAME}_table.txt"
 rm "$OUT${EXPNAME}_table_annotated.txt.m.txt"
