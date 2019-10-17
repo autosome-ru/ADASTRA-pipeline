@@ -39,13 +39,13 @@ def pack(values):
     return '\t'.join(map(str, values)) + '\n'
 
 
-def annotate_snp_with_tables(dictionary, df, bool_ar):  # return part of the dictionary with fdr from table
+def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return part of the dictionary with fdr from table
     keys = list(dictionary.keys())
-    for index, row in df.itterrows():
+    for index in range(len(ps_ref))
         key = keys[index]
         if bool_ar[index]:
-            dictionary[key]['m_fdr_ref'] = row['m_fdr_ref']
-            dictionary[key]['m_fdr_alt'] = row['m_fdr_alt']
+            dictionary[key]['m_fdr_ref'] = ps_ref[index]
+            dictionary[key]['m_fdr_alt'] = ps_alt[index]
         else:
             del dictionary[key]
 
@@ -276,16 +276,16 @@ if __name__ == '__main__':
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
         table = pd.read_table(f)
         f.close()
-        bool_ar_ref, p_val_ref, tmp1, tmp2 = statsmodels.stats.multitest.multipletests(table["m_fpref"],
+        bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["m_fpref"],
                                                                            alpha=0.05, method='fdr_bh')
-        bool_ar_alt, p_val_alt, tmp1, tmp2 = statsmodels.stats.multitest.multipletests(table["m_fpalt"],
+        bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["m_fpalt"],
                                                                            alpha=0.05, method='fdr_bh')
         table["m_fdr_ref"] = pd.Series(p_val_ref)
         table["m_fdr_alt"] = pd.Series(p_val_alt)
         with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', "w") as w:
             table.to_csv(w, sep="\t", index=False)
         bool_ar = bool_ar_ref + bool_ar_alt
-        datasets_for_SNPs = annotate_snp_with_tables(origin_of_snp_dict, table, bool_ar)  # also changes original dict
+        datasets_for_SNPs = annotate_snp_with_tables(origin_of_snp_dict, p_val_ref, p_val_alt, bool_ar)  # also changes original dict
         table = table.loc(bool_ar)  # if at least one of p_values of ref-alt passes FDR
         with open(dicts_path + what_for + '_DICTS/' + key_name + '_DICT.json', 'w') as out:
             json.dump(datasets_for_SNPs, out)
