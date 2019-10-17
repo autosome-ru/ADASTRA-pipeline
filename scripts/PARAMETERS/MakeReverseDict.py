@@ -1,16 +1,15 @@
 import json
 
 parameters_path = "/home/abramov/PARAMETERS/"
-
+alignments_path = "/home/abramov/Alignments/"
 
 def make_reverse_dict(dictionary):
     new_dict = {}
     for key in dictionary:
-        values = dictionary[key]
-        for value in values:
-            v = value.split("/")
-            if v[4] == "EXP" and v[5] != "None":
-                new_dict[value] = key
+        paths = dictionary[key]
+        for path in paths:
+            if path.find("CTRL") == -1:
+                new_dict[path] = key
     return new_dict
 
 
