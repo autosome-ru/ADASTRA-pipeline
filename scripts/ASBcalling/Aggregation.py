@@ -8,6 +8,10 @@ import statsmodels.stats.multitest
 import pandas as pd
 from collections import OrderedDict
 
+results_path = '/home/abramov/DATA/'
+parameters_path = '/home/abramov/PARAMETERS/'
+dicts_path = '/home/abramov/DATA/DICTS/'
+
 
 def unpack(line):
     line = line.split()
@@ -43,7 +47,7 @@ def annotate_snp_with_tables(dictionary, df, bool_ar):  # return part of the dic
             dictionary[key]['m_fdr_alt'] = row['m_fdr_alt']
         else:
             del dictionary[key]
-    
+
     return dictionary
 
 
@@ -51,36 +55,47 @@ def get_name(path):  # path format */ALIGNS000000_table_p.txt
     return path.split("/")[-1].split["_"][0]
 
 
-def get_cells(path):  # Вот это только осталось
-    pass
+def invert(dictionary):
+    inverted_dictionary = {v: k for k, v in dictionary.items()}
+    return inverted_dictionary
+
+
+def get_another_agr(path, what_for):
+    if what_for == "TF":
+        return invert(cell_lines_dict).get(path, "None")
+    if what_for == "CL":
+        return invert(tf_dict).get(path, "None")
 
 
 if __name__ == '__main__':
-    expected_args = {"CL", "TF"}
-    
-    results_path = '/home/abramov/DATA/'
-    parameters_path = '/home/abramov/PARAMETERS/'
-    dicts_path = '/home/abramov/DATA/DICTS/'
-    
+    expected_args = {"CL": "TF", "TF": "CL"}
     what_for = sys.argv[1]  # "TF" or "CL" arguments are expected
     if what_for not in expected_args:
         raise ValueError('{} not in CL, TF'.format(what_for))
+
     key = sys.argv[2]
-    
+
     if not os.path.isdir(results_path + what_for + '_DICTS/'):
         os.mkdir(results_path + what_for + '_DICTS/')
     if not os.path.isdir(results_path + what_for + "_P-values/"):
         os.mkdir(results_path + what_for + "_P-values/")
-    
-    with open(parameters_path + what_for + "_DICT.json", "r") as read_file:
-        d = json.loads(read_file.readline())  # read CL or TF json
-    tables = d.get(key, None)
+
+    with open(parameters_path + "CL_DICT.json", "r") as read_file:
+        cell_lines_dict = json.loads(read_file.readline())
+    with open(parameters_path + "TF_DICT.json", "r") as read_file:
+        tf_dict = json.loads(read_file.readline())
+    tables = []
+    if what_for == "CL":
+        tables = cell_lines_dict.get(key, None)
+    if what_for == "TF":
+        tables = tf_dict.get(key, None)
     print('Reading datasets for {} '.format(what_for) + key)
     common_snps = dict()
     for table in tables:
         if os.path.isfile(table):
             table_name = get_name(table)
-            cells = get_cells(table)
+            another_agr = get_another_agr(table,
+                                          what_for)  # returns name of cell-line for aggregation on TF and vice versa
             with open(table, 'r') as file:
                 for line in file:
                     if line[0] == '#':
@@ -91,14 +106,15 @@ if __name__ == '__main__':
                         continue
                     cov = ref_c + alt_c
                     try:
-                        common_snps[(chr, pos, ID, ref, alt)].append((cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq,
-                                                                      seg_c, p_ref, p_alt, table_name, cells))
+                        common_snps[(chr, pos, ID, ref, alt)].append(
+                            (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq,
+                             seg_c, p_ref, p_alt, table_name, another_agr))
                     except KeyError:
                         common_snps[(chr, pos, ID, ref, alt)] = [(cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq,
-                                                                  seg_c, p_ref, p_alt, table_name, cells)]
-    
+                                                                  seg_c, p_ref, p_alt, table_name, another_agr)]
+
     print('Writing ', key)
-    
+
     with open(results_path + what_for + "_P-values/" + key + '_common_table.tsv', 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'm_callers', 'm_ploidy', 'm_q', 'm_dipq',
                         'm_segc', 'm_datasets', 'maxdepth_ref/alt', 'maxdepth_ploidy', 'maxdepth_m1',
@@ -118,9 +134,9 @@ if __name__ == '__main__':
                     is_greater = True
             if is_greater:
                 filtered_snps[key] = SNPs_values
-    
+
         counter = 0
-    
+
         origin_of_snp_dict = OrderedDict()
         keys = list(filtered_snps.keys())
         keys = sorted(keys, key=lambda chr_pos: chr_pos[1])
@@ -142,17 +158,17 @@ if __name__ == '__main__':
             c_m1 = []
             c_m2 = []
             c_table_names = []
-            c_cells = []
+            c_another_agr = []
             c_ref = []
             c_alt = []
-    
+
             for v in value:
-                (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt, table_name, cells) = v
+                (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt, table_name, another_agr) = v
                 if p_ref <= 0 or p_alt <= 0:
                     print('Wrong P!')
                     continue
                 c_table_names.append(table_name)
-                c_cells.append(cells)
+                c_another_agr.append(another_agr)
                 c_callers.append(callers)
                 c_ploidy.append(ploidy)
                 c_dipq.append(dip_qual)
@@ -166,18 +182,18 @@ if __name__ == '__main__':
                 c_pref.append(p_ref)
                 c_palt.append(p_alt)
                 c_cover.append(cov)
-                
+
                 c_ref.append(ref_c)
                 c_alt.append(alt_c)
-    
+
                 x = ref_c / (ref_c + alt_c)
-    
+
                 p = 1 / (ploidy + 1)
-    
+
                 if x <= p or x >= 1 - p:
                     c_m1.append(-1 * np.math.log(min(x, 1 - x) / p, 2) * np.sign(ref_c - alt_c))
                     c_m2.append(np.math.log(max(x, 1 - x) / (1 - p), 2) * np.sign(ref_c - alt_c))
-    
+
             min_cover = min(c_cover)
             max_cover = max(c_cover)
             med_cover = median_grouped(c_cover)
@@ -194,7 +210,7 @@ if __name__ == '__main__':
             m_fpalt = stats.combine_pvalues(c_palt, method='fisher')[1]
             m_stpref = stats.combine_pvalues(c_pref, method='stouffer')[1]
             m_stpalt = stats.combine_pvalues(c_palt, method='stouffer')[1]
-    
+
             if c_m1 and c_m2:
                 m1 = np.round(np.mean(c_m1), 3)
                 m2 = np.round(np.mean(c_m2), 3)
@@ -204,7 +220,7 @@ if __name__ == '__main__':
 
             try:
                 v = min([valu for valu in value
-                        if np.sign(valu[3] - valu[4]) == np.sign(m_fpalt - m_fpref)],
+                         if np.sign(valu[3] - valu[4]) == np.sign(m_fpalt - m_fpref)],
                         key=lambda x: min(x[-2], x[-1]))
             except ValueError:
                 mostsig_refalt = None
@@ -224,7 +240,7 @@ if __name__ == '__main__':
 
             try:
                 v = min([valu for valu in value
-                        if np.sign(valu[3] - valu[4]) == np.sign(m_fpalt - m_fpref)],
+                         if np.sign(valu[3] - valu[4]) == np.sign(m_fpalt - m_fpref)],
                         key=lambda x: x[0])
             except ValueError:
                 maxdepth_refalt = None
@@ -241,25 +257,25 @@ if __name__ == '__main__':
             else:
                 maxdepth_m1 = 0
                 maxdepth_m2 = 0
-            
+
             out.write(pack(
                 [chr, pos, ID, ref, alt, m_callers, m_ploidy, m_q, m_dipq, m_segc, m_datasets, maxdepth_refalt,
                  maxdepth_p, maxdepth_m1, maxdepth_m2, mostsig_refalt, mostsig_p, mostsig_m1, mostsig_m2, min_cover,
                  max_cover, med_cover, mean_cover, mean_cover * m_datasets, m1, m2, m_hpref, m_hpalt, m_fpref, m_fpalt,
                  m_stpref, m_stpalt]))
-            origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': c_table_names, 'cells': c_cells,
+            origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': c_table_names,
+                                                            expected_args[what_for]: c_another_agr,
                                                             'ref_counts': c_ref, 'alt_counts': c_alt,
                                                             'ref_pvalues': c_pref, 'alt_pvalues': c_palt}
-    
+
     print("Counting FDR")
     with open(results_path + what_for + "_P-values/" + key + '_common_table.tsv', 'r') as f:
         table = pd.read_table(f)
         f.close()
-        table["m_fdr"] = table[["m_fpref", "m_fpalt"]].min(axis=1)
         bool_ar_ref, p_val_ref = statsmodels.stats.multitest.multipletests(table["m_fpref"],
-                                                                   alpha=0.05, method='fdr_bh')
+                                                                           alpha=0.05, method='fdr_bh')
         bool_ar_alt, p_val_alt = statsmodels.stats.multitest.multipletests(table["m_fpralt"],
-                                                                   alpha=0.05, method='fdr_bh')
+                                                                           alpha=0.05, method='fdr_bh')
         table["m_fdr_ref"] = pd.Series(p_val_ref)
         table["m_fdr_alt"] = pd.Series(p_val_alt)
         with open(results_path + what_for + "_P-values/" + key + '_common_table.tsv', "w") as w:
@@ -267,5 +283,5 @@ if __name__ == '__main__':
         bool_ar = bool_ar_ref + bool_ar_alt
         datasets_for_SNPs = annotate_snp_with_tables(origin_of_snp_dict, table, bool_ar)  # also changes original dict
         table = table.loc(bool_ar)  # if at least one of p_values of ref-alt passes FDR
-        with open(results_path + what_for + '_DICTS/' + key + '_DICT.json', 'w') as out:
+        with open(dicts_path + what_for + '_DICTS/' + key + '_DICT.json', 'w') as out:
             json.dump(datasets_for_SNPs, out)
