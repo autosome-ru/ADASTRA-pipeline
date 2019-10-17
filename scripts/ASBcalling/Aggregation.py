@@ -52,7 +52,7 @@ def annotate_snp_with_tables(dictionary, df, bool_ar):  # return part of the dic
 
 
 def get_name(path):  # path format */ALIGNS000000_table_p.txt
-    return path.split("/")[-1].split["_"][0]
+    return path.split("/")[-1].split("_")[0]
 
 
 def invert(dictionary):
