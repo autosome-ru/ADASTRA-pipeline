@@ -79,7 +79,7 @@ for ploidy in cell_lines:
     if os.path.isfile(ploidy_file):
         ploidy_counter += 1
         for vcf_file in cell_lines[ploidy]:
-            exp_name = vcf_file.split("/")[-2:-1]
+            exp_name = vcf_file.split("/")[-2]
             if os.path.isfile(vcf_file) and exp_name not in black_list:
                 ploidy_vcfs_counter += 1
                 if vcf_file.find("CTRL") != -1 and vcf_file not in counted_control_vcfs:
