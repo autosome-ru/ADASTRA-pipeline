@@ -38,9 +38,14 @@ def add_record(d, line, ctrl=False):
         idcs = (12, 15, 16)
     else:
         idcs = (4, 8, 9)
-
+    is_lovo = False
     path = CreatePath(line, ctrl)
+    if line[idcs[0]] == "LoVo (colorectal adenocarcinoma)":
+        is_lovo = True
     line[idcs[0]] = line[idcs[0]].replace("(", "").replace(")", "").replace(" ", "_").replace("/", "_")
+    if is_lovo:
+        add_to_dict(d, line[idcs[0]], path)
+        return 0
     if line[idcs[2]] != "None":
         Lab = findLAB(line[idcs[2]])
         if Lab:
