@@ -33,7 +33,7 @@ def make_black_list():
     return black_list
 
 
-with open(parameters_path + "REVERSE_CELL_LINES.json", "r") as f, open(parameters_path + "Master-lines.tsv", "r") as ml:
+with open(parameters_path + "CELL_LINES.json", "r") as f, open(parameters_path + "Master-lines.tsv", "r") as ml:
     cell_lines = json.loads(f.readline())
     master_list = ml.readlines()
 
