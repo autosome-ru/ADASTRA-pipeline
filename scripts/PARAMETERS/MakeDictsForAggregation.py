@@ -6,7 +6,7 @@ parameters_path = "/home/abramov/PARAMETERS/"
 
 
 def createpath(line):
-    return alignments_path + "EXP/" + line[1] + "/" + line[0] + "/" + line[3] + "_table_p.txt"
+    return alignments_path + "EXP/" + line[1] + "/" + line[0] + "/" + line[6] + "_table_p.txt"
 
 
 def makedict(what_for):
