@@ -4,6 +4,8 @@ import json
 parameters_path = "/home/abramov/PARAMETERS/"
 alignments_path = "/home/abramov/Alignments/"
 ploidy_path = "/home/abramov/PloidyForRelease/"
+results_path = '/home/abramov/DATA/'
+
 
 def create_path(line, for_what, ctrl=False):
     end = ""
@@ -20,8 +22,11 @@ def create_path(line, for_what, ctrl=False):
 
 
 def create_ploidy(string):
-    path = ploidy_path + "Corrected-1,5/" + string + "_ploidy.tsv"
-    return path
+    return ploidy_path + "Corrected-1,5/" + string + "_ploidy.tsv"
+
+
+def create_tf_path(string):
+    return results_path + "TF_P-values/" + string + '_common_table.tsv'
 
 
 def make_black_list():
@@ -33,8 +38,11 @@ def make_black_list():
     return black_list
 
 
-with open(parameters_path + "CELL_LINES.json", "r") as f, open(parameters_path + "Master-lines.tsv", "r") as ml:
-    cell_lines = json.loads(f.readline())
+with open(parameters_path + "CELL_LINES.json", "r") as cl_file, \
+        open(parameters_path + "Master-lines.tsv", "r") as ml, \
+        open(parameters_path + "TF_DICT.json", "r") as tf_file:
+    cell_lines = json.loads(cl_file.readline())
+    made_tfs = json.loads(tf_file.readline())
     master_list = ml.readlines()
 
 made_experiment_vcfs = 0
@@ -68,7 +76,7 @@ for line in master_list:
 print("Made {} experiment VCFs, {} control VCFs, {} annotated tables, {} P-value tables".format(made_experiment_vcfs,
                                                                                                 made_control_vcfs,
                                                                                                 made_annotated_tables,
-                                                                                                made_p_tables,))
+                                                                                                made_p_tables, ))
 ploidy_control_vcfs = 0
 ploidy_vcfs_counter = 0
 ploidy_counter = 0
@@ -86,3 +94,14 @@ for ploidy in cell_lines:
                     counted_control_vcfs.add(vcf_file)
 print("Made {} ploidies from  {} VCFs ({} experiment VCFs)".format(ploidy_counter, ploidy_vcfs_counter,
                                                                    ploidy_vcfs_counter - ploidy_control_vcfs))
+
+tf_vcfs_counter = 0
+tf_counter = 0
+for tf in made_tfs:
+    if os.path.isfile(create_tf_path(tf)):
+        tf_counter += 1
+    for vcf_file in made_tfs[tf]:
+        exp_name = vcf_file.split("/")[-2]
+        if os.path.isfile(vcf_file) and exp_name not in black_list:
+            tf_vcfs_counter += 1
+print("Made {} TFs from  {} VCFs".format(tf_counter, tf_vcfs_counter))
