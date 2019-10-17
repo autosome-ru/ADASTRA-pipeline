@@ -70,12 +70,24 @@ def create_ploidy(string):
     return path
 
 
+def make_reverse_dict(dictionary):
+    new_dict = {}
+    for key in dictionary:
+        paths = dictionary[key]
+        for path in paths:
+            if path.split("/")[-3] != "CTRL":
+                new_dict[path] = key
+    return new_dict
+
+
 full_path = sys.argv[1]
 key = full_path + ".vcf.gz"
 
-with open(parameters_path + "REVERSE_CELL_LINES.json", "r") as read_file:
+with open(parameters_path + "CELL_LINES.json", "r") as read_file:
     d = json.loads(read_file.readline())
-ploidy_file = d.get(key, None)
+    rev_d = make_reverse_dict(d)
+
+ploidy_file = rev_d.get(key, None)
 if ploidy_file is None:
     print("No ploidy found")
     ploidy = None
