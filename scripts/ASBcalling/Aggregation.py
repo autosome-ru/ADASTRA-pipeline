@@ -77,7 +77,7 @@ if __name__ == '__main__':
     if what_for not in expected_args:
         raise ValueError('{} not in CL, TF'.format(what_for))
 
-    key = sys.argv[2]
+    key_name = sys.argv[2]
 
     if not os.path.isdir(results_path + what_for + '_DICTS/'):
         os.mkdir(results_path + what_for + '_DICTS/')
@@ -90,10 +90,10 @@ if __name__ == '__main__':
         tf_dict = json.loads(read_file.readline())
     tables = []
     if what_for == "CL":
-        tables = cell_lines_dict.get(key, None)
+        tables = cell_lines_dict.get(key_name, None)
     if what_for == "TF":
-        tables = tf_dict.get(key, None)
-    print('Reading datasets for {} '.format(what_for) + key)
+        tables = tf_dict.get(key_name, None)
+    print('Reading datasets for {} '.format(what_for) + key_name)
     common_snps = dict()
     for table in tables:
         if os.path.isfile(table):
@@ -117,9 +117,9 @@ if __name__ == '__main__':
                         common_snps[(chr, pos, ID, ref, alt)] = [(cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq,
                                                                   seg_c, p_ref, p_alt, table_name, another_agr)]
 
-    print('Writing ', key)
+    print('Writing ', key_name)
 
-    with open(results_path + what_for + "_P-values/" + key + '_common_table.tsv', 'w') as out:
+    with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'm_callers', 'm_ploidy', 'm_q', 'm_dipq',
                         'm_segc', 'm_datasets', 'maxdepth_ref/alt', 'maxdepth_ploidy', 'maxdepth_m1',
                         'maxdepth_m2', 'mostsig_ref/alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
@@ -273,7 +273,7 @@ if __name__ == '__main__':
                                                             'ref_pvalues': c_pref, 'alt_pvalues': c_palt}
 
     print("Counting FDR")
-    with open(results_path + what_for + "_P-values/" + key + '_common_table.tsv', 'r') as f:
+    with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
         table = pd.read_table(f)
         f.close()
         bool_ar_ref, p_val_ref = statsmodels.stats.multitest.multipletests(table["m_fpref"],
@@ -282,10 +282,10 @@ if __name__ == '__main__':
                                                                            alpha=0.05, method='fdr_bh')
         table["m_fdr_ref"] = pd.Series(p_val_ref)
         table["m_fdr_alt"] = pd.Series(p_val_alt)
-        with open(results_path + what_for + "_P-values/" + key + '_common_table.tsv', "w") as w:
+        with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', "w") as w:
             table.to_csv(w, sep="\t", index=False)
         bool_ar = bool_ar_ref + bool_ar_alt
         datasets_for_SNPs = annotate_snp_with_tables(origin_of_snp_dict, table, bool_ar)  # also changes original dict
         table = table.loc(bool_ar)  # if at least one of p_values of ref-alt passes FDR
-        with open(dicts_path + what_for + '_DICTS/' + key + '_DICT.json', 'w') as out:
+        with open(dicts_path + what_for + '_DICTS/' + key_name + '_DICT.json', 'w') as out:
             json.dump(datasets_for_SNPs, out)
