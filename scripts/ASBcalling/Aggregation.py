@@ -41,7 +41,7 @@ def pack(values):
 
 def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return part of the dictionary with fdr from table
     keys = list(dictionary.keys())
-    for index in range(len(ps_ref))
+    for index in range(len(ps_ref)):
         key = keys[index]
         if bool_ar[index]:
             dictionary[key]['m_fdr_ref'] = ps_ref[index]
