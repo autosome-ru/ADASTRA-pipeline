@@ -52,10 +52,8 @@ do
 done
 
 
-# shellcheck disable=SC2154
-$python3 Make_tables.py "$OUT${EXPNAME}.vcf.gz" "$OUT${EXPNAME}_table.txt"
-
 if [ $withgem != false ]; then
+	# shellcheck disable=SC2154
 	$python3 CheckPositive.py "$gem"
 	# shellcheck disable=SC2154
 	$Bedtools sort -i "$gem" > "$gem.sorted"
@@ -100,13 +98,8 @@ if [ $withcpics != false ]; then
 
 fi
 
-$python3 Annotate.py "$OUT${EXPNAME}_table.txt" "$macs.sorted" "$sissrs.sorted" "$cpics.sorted" "$gem.sorted" \
+$python3 Annotate.py "$OUT${EXPNAME}.vcf.gz" "$macs.sorted" "$sissrs.sorted" "$cpics.sorted" "$gem.sorted" \
                       $withmacs $withsissrs $withcpics $withgem "$OUT${EXPNAME}_table_annotated.txt"
-
-rm "$OUT${EXPNAME}_table.txt"
-rm "$OUT${EXPNAME}_table_annotated.txt.m.txt"
-rm "$OUT${EXPNAME}_table_annotated.txt.c.txt"
-rm "$OUT${EXPNAME}_table_annotated.txt.s.txt"
 
 if [ "$withgem" != false ]; then
 	rm "${gem}.sorted"
