@@ -286,6 +286,6 @@ if __name__ == '__main__':
             table.to_csv(w, sep="\t", index=False)
         bool_ar = bool_ar_ref + bool_ar_alt
         datasets_for_SNPs = annotate_snp_with_tables(origin_of_snp_dict, p_val_ref, p_val_alt, bool_ar)  # also changes original dict
-        table = table.loc(bool_ar)  # if at least one of p_values of ref-alt passes FDR
+        table = table[bool_ar]  # if at least one of p_values of ref-alt passes FDR
         with open(dicts_path + what_for + '_DICTS/' + key_name + '_DICT.json', 'w') as out:
             json.dump(datasets_for_SNPs, out)
