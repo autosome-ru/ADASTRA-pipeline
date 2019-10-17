@@ -100,8 +100,8 @@ tf_counter = 0
 for tf in made_tfs:
     if os.path.isfile(create_tf_path(tf)):
         tf_counter += 1
-    for vcf_file in made_tfs[tf]:
-        exp_name = vcf_file.split("/")[-2]
-        if os.path.isfile(vcf_file) and exp_name not in black_list:
-            tf_vcfs_counter += 1
+        for vcf_file in made_tfs[tf]:
+            exp_name = vcf_file.split("/")[-2]
+            if os.path.isfile(vcf_file) and exp_name not in black_list:
+                tf_vcfs_counter += 1
 print("Made aggregation for {} TFs from  {} VCFs".format(tf_counter, tf_vcfs_counter))
