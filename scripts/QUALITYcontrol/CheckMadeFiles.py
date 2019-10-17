@@ -73,10 +73,9 @@ for line in master_list:
             if os.path.isfile(vcf_path) and vcf_path not in counted_controls:
                 made_control_vcfs += 1
                 counted_controls.add(vcf_path)
-print("Made {} experiment VCFs, {} control VCFs, {} annotated tables, {} P-value tables".format(made_experiment_vcfs,
-                                                                                                made_control_vcfs,
-                                                                                                made_annotated_tables,
-                                                                                                made_p_tables, ))
+print("Made {} VCFS ({} experiment VCFs, {} control VCFs), {} annotated tables, {} P-value tables".format(
+    made_control_vcfs + made_experiment_vcfs, made_experiment_vcfs,
+    made_control_vcfs, made_annotated_tables, made_p_tables))
 ploidy_control_vcfs = 0
 ploidy_vcfs_counter = 0
 ploidy_counter = 0
