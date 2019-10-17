@@ -74,6 +74,7 @@ ploidy_vcfs_counter = 0
 ploidy_counter = 0
 counted_control_vcfs = set()
 for ploidy in cell_lines:
+    print(ploidy)
     ploidy_file = create_ploidy(ploidy)
     if os.path.isfile(ploidy_file):
         ploidy_counter += 1
