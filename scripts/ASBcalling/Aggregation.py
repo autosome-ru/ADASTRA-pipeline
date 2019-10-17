@@ -278,7 +278,7 @@ if __name__ == '__main__':
         f.close()
         bool_ar_ref, p_val_ref, tmp1, tmp2 = statsmodels.stats.multitest.multipletests(table["m_fpref"],
                                                                            alpha=0.05, method='fdr_bh')
-        bool_ar_alt, p_val_alt, tmp1, tmp2 = statsmodels.stats.multitest.multipletests(table["m_fpralt"],
+        bool_ar_alt, p_val_alt, tmp1, tmp2 = statsmodels.stats.multitest.multipletests(table["m_fpalt"],
                                                                            alpha=0.05, method='fdr_bh')
         table["m_fdr_ref"] = pd.Series(p_val_ref)
         table["m_fdr_alt"] = pd.Series(p_val_alt)
