@@ -118,7 +118,8 @@ else:
                 if line[0] == '#':
                     continue
                 
-                chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers = unpack(line)
+                chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers = unpack(
+                                                                                                                line)
                 
                 # ploidy annotation
                 chrom, start, end, ploidy, dip_qual, lq, rq, seg_c = segments[current]
@@ -150,4 +151,5 @@ else:
                     p_ref = '.'
                     p_alt = '.'
                 
-                out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt]))
+                out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics,
+                                in_gem, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt]))
