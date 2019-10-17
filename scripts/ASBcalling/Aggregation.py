@@ -23,7 +23,8 @@ def unpack(line):
     Q = float(line[7])
     ref_c, alt_c, GQ, in_macs, in_sissrs, in_cpics, in_gem = map(int, line[5:7] + line[8:13])
     callers = in_macs + in_sissrs + in_cpics + in_gem
-    ploidy, dip_qual, lq, rq, seg_c = map(int, line[14:19])
+    dip_qual, lq, rq, seg_c = map(int, line[15:19])
+    ploidy = map(float, line[14])
     if line[19] == '.':
         p_ref = '.'
         p_alt = '.'
