@@ -45,7 +45,6 @@ if __name__ == "__main__":
             except ValueError:
                 print(key)
             if name not in names or lab in excluded:
-                print('Skipping, not in list..')
                 continue
             ###
             file.write(key + '\n')
