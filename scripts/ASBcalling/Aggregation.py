@@ -142,7 +142,8 @@ if __name__ == '__main__':
         counter = 0
         print(len(filtered_snps), 'snps')
 
-    if len(filtered_snps) > 0:
+        if len(filtered_snps) == 0:
+            sys.exit(0)
         origin_of_snp_dict = OrderedDict()
         keys = list(filtered_snps.keys())
         keys = sorted(keys, key=lambda chr_pos: chr_pos[1])
