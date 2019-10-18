@@ -6,7 +6,7 @@ import json
 sys.path.insert(1, '/home/abramov/ASB-Project')
 
 parameters_path = '/home/abramov/PARAMETERS/'
-ploidy_path = "/home/abramov/PloidyForRelease/"
+ploidy_path = "/home/abramov/Ploidy/"
 
 Nucleotides = {'A', 'T', 'G', 'C'}
 
