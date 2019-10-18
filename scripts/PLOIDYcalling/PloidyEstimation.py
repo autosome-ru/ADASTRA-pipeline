@@ -258,6 +258,7 @@ class ChromosomeSegmentation(Segmentation):  # chrom
 
     @staticmethod
     def get_params(line):
+        print(line)
         line = line.split()
         chr = line[0]
         pos = int(line[1])
@@ -686,6 +687,8 @@ if __name__ == '__main__':
     d_penalty = sys.argv[5]
     
     model = '-'.join(sys.argv[2:6])
+    
+    print(model)
     
     t = time.clock()
     if not os.path.isdir(ploidy_path + model):
