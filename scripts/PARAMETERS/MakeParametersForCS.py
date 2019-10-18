@@ -1,7 +1,7 @@
 import os
 
 Correlation_path = '/home/abramov/Correlation/'
-parallel_parameters_path = '/home/abramov/ParallelParameters/'
+parallel_parameters_path = '/home/abramov/ParallelParameters/stats/'
 
 if __name__ == "__main__":
     with open(parallel_parameters_path + 'CS_parameters.cfg', 'w') as file:

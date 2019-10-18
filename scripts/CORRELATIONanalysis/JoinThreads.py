@@ -1,7 +1,7 @@
 import os
 
 Correlation_path = '/home/abramov/Correlation/'
-out_path = Correlation_path + 'cor_stats.tsv'
+out_path = Correlation_path + 'cor_stats_test.tsv'
 
 
 def get_name_by_dir(dir_name):

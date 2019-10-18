@@ -107,6 +107,8 @@ class ObjectTable:
                 obj.chr_pos.chr,
                 obj.chr_pos.pos,
                 obj.value,
+                obj.qual,
+                obj.snpn,
                 segment_table.segments[other_current_idx].value,
                 segment_table.segments[other_current_idx].start.distance(
                     segment_table.segments[other_current_idx].end),
@@ -117,7 +119,7 @@ class ObjectTable:
     
     def print_merged_to_file(self, segment_table, filename):
         with open(filename, 'w') as out:
-            out.write('\t'.join(['#chr', 'pos', 'value', 'segment_value', 'segment_length']) + "\n")
+            out.write('\t'.join(['#chr', 'pos', 'value', 'qual', 'snpn', 'segment_value', 'segment_length']) + "\n")
             result = self.merge_with_segment_table(segment_table)
             for line in result:
                 out.write('\t'.join(map(str, line)) + '\n')
@@ -126,7 +128,7 @@ class ObjectTable:
     @staticmethod
     def correlation_of_merged(result):
         # print('calc cor of SNP')
-        idx = ['chr', 'pos', 'value', 'segment_value', 'segment_length'].index('segment_value')
+        idx = ['chr', 'pos', 'value', 'qual', 'snpn', 'segment_value', 'segment_length'].index('segment_value')
         values1 = []
         values2 = []
         for line in result:

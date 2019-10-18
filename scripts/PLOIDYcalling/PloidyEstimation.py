@@ -40,6 +40,7 @@ class Segmentation:
         self.L = None
         self.P = None
         self.prior = None
+        self.penalty = None
 
     def loglikelyhood(self, N, X, i):
         p = 1 / (1 + i)
@@ -179,12 +180,13 @@ class PieceSegmentation(Segmentation):
         self.mode = chrom.mode  # binomial or corrected
         
         self.prior = chrom.prior
+        self.penalty = chrom.penalty
 
     # print(self.start, self.end, self.candidates_count, len(self.positions))
 
 
 class ChromosomeSegmentation(Segmentation):  # chrom
-    def __init__(self, seg, CHR, prior, i_list=None, length=0, n_max=0, CGF=0.0):
+    def __init__(self, seg, CHR, prior, i_list=None, length=0, n_max=0, CGF=0.0, penalty='CAIC'):
         super().__init__()
         self.CHR = CHR  # name
         self.COV_TR = seg.COV_TR  # coverage treshold
@@ -231,6 +233,7 @@ class ChromosomeSegmentation(Segmentation):  # chrom
         self.second_ests = []
         
         self.prior = prior
+        self.penalty = penalty
 
     # [1017, 1035, 1160, 1442, 1529, 1641, 1857, 2045, 4062][2, 1, 5, 1, 3, 4, 2, 2, 1, 1]
     # self.set_candidates(set(range(5047)) - {1283, 1284})#set(random.sample(range(5047), 500)))
@@ -445,7 +448,7 @@ class ChromosomeSegmentation(Segmentation):  # chrom
 
 
 class GenomeSegmentator:  # seg
-    def __init__(self, file, out, segm_mode, extra_states=None, prior=False):
+    def __init__(self, file, out, segm_mode, extra_states=None, penalty='CAIC'):
         chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
                  145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
                  101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
@@ -470,14 +473,12 @@ class GenomeSegmentator:  # seg
         self.ISOLATED_SNP_FILTER = 4
         self.chr_segmentations = []  # chroms
         
-        if prior:
-            self.prior = self.create_prior_from_COSMIC()
-        else:
-            self.prior = dict(zip(self.i_list, [1]*len(self.i_list)))
+        self.penalty = penalty
+        self.prior = dict(zip(self.i_list, [1]*len(self.i_list)))
 
         for CHR in self.chrs:
             chrom = ChromosomeSegmentation(self, CHR, self.prior, self.i_list, self.chr_lengths[CHR], self.n_max,
-                                           self.CRITICAL_GAP_FACTOR)
+                                           self.CRITICAL_GAP_FACTOR, penalty=self.penalty)
             print('{} total SNP count: {}'.format(CHR, chrom.LINES))
             self.chr_segmentations.append(chrom)
 
@@ -663,12 +664,17 @@ if __name__ == '__main__':
     out_file = ploidy_path + key + ".tsv"
     print(arr)
     merge_vcfs(out_file, arr)
-    for model, mode, states, prior in (
-                                ('Corrected-1,5/', 'corrected', [1.5], False),
-                                ):
+    for model, mode, states, penalty in (
+            ('Corrected-1,5/', 'corrected', [1.5], 'CAIC'),
+            ('Corrected-1,5/', 'corrected', [1.5], 'SQRT'),
+            ('Corrected-1,5/', 'corrected', [1.5], 'CONST'),
+            ('Binomial/', 'binomial', 'CAIC'),
+            ('Binomial/', 'binomial', 'SQRT'),
+            ('Binomial/', 'binomial', 'CONST'),
+    ):
         t = time.clock()
         if not os.path.isdir(ploidy_path + model):
             os.mkdir(ploidy_path + model)
-        GS = GenomeSegmentator(out_file, ploidy_path + model + key + "_ploidy.tsv", mode, states)
+        GS = GenomeSegmentator(out_file, ploidy_path + model + key + "_ploidy.tsv", mode, states, penalty)
         GS.estimate_ploidy()
         print('Total time: {} s'.format(time.clock() - t))
