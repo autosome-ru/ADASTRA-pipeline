@@ -40,7 +40,10 @@ if __name__ == "__main__":
         ###
         for key in keys:
             ### FIXME: this part is only for correlation
-            name, lab = key.split('!')
+            try:
+                name, lab = key.split('!')
+            except ValueError:
+                print(key)
             if name not in names or lab in excluded:
                 print('Skipping, not in list..')
                 continue
