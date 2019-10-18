@@ -13,10 +13,11 @@ cell_lines = [
     'LoVo_colorectal_adenocarcinoma',
     'HeLa_S3_cervical_adenocarcinoma',
     ]
-excluded = [
-    '_labs_michael-snyder___biosamples_ENCBS357NWO_',
-    'GSE109481',
-    ]
+# excluded = [
+#    '_labs_michael-snyder___biosamples_ENCBS357NWO_',
+#    'GSE109481',
+#    ]
+excluded = []
 
 if __name__ == "__main__":
     with open(parameters_path + 'CELL_LINES.json', 'r') as read_file:
