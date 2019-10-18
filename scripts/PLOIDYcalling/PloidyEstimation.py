@@ -258,7 +258,6 @@ class ChromosomeSegmentation(Segmentation):  # chrom
 
     @staticmethod
     def get_params(line):
-        print(line)
         line = line.split()
         chr = line[0]
         pos = int(line[1])
@@ -666,7 +665,16 @@ if __name__ == '__main__':
 
     key = sys.argv[1]
     print(key)
+
     
+    mode = sys.argv[2].lower()
+    states = [] if sys.argv[3] == '_' else list(map(float, sys.argv[3].split('_')))
+    b_penalty = sys.argv[4]
+    d_penalty = sys.argv[5]
+    
+    model = '-'.join(sys.argv[2:6])
+    print(model)
+
     arr = []
 
     for path in d[key]:
@@ -679,16 +687,8 @@ if __name__ == '__main__':
 
     out_file = ploidy_path + key + ".tsv"
     print(arr)
+    
     merge_vcfs(out_file, arr)
-    
-    mode = sys.argv[2].lower()
-    states = [] if sys.argv[3] == '_' else list(map(float, sys.argv[3].split('_')))
-    b_penalty = sys.argv[4]
-    d_penalty = sys.argv[5]
-    
-    model = '-'.join(sys.argv[2:6])
-    
-    print(model)
     
     t = time.clock()
     if not os.path.isdir(ploidy_path + model):
