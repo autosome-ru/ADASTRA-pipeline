@@ -117,4 +117,4 @@ for cl in made_cls:
             exp_name = vcf_file.split("/")[-2]
             if os.path.isfile(vcf_file) and exp_name not in black_list:
                 cl_vcfs_counter += 1
-print("Made aggregation for {} CLs from  {} VCFs".format(cl_counter, cl_vcfs_counter))
+print("Made aggregation for {} cell lines from  {} VCFs".format(cl_counter, cl_vcfs_counter))
