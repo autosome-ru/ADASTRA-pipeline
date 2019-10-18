@@ -106,7 +106,7 @@ if __name__ == '__main__':
                         continue
                     (chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers,
                      ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = unpack(line)
-                    if p_ref == '.' or ploidy == 0:
+                    if p_ref == '.' or p_ref == 0 or ploidy == 0:
                         continue
                     cov = ref_c + alt_c
                     try:
