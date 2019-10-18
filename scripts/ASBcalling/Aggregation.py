@@ -125,7 +125,7 @@ if __name__ == '__main__':
                         'maxdepth_m2', 'mostsig_ref/alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
                         'min_cover', 'max_cover', 'med_cover', 'mean_cover', 'total_cover', 'm1', 'm2',
                         'm_hpref', 'm_hpalt', 'm_fpref', 'm_fpalt', 'm_stpref', 'm_stpalt']))
-        print(len(common_snps), 'snps')
+
         filtered_snps = dict()
         for key in common_snps:
             is_greater = False
@@ -140,7 +140,7 @@ if __name__ == '__main__':
                 filtered_snps[key] = SNPs_values
 
         counter = 0
-
+        print(len(filtered_snps), 'snps')
         origin_of_snp_dict = OrderedDict()
         keys = list(filtered_snps.keys())
         keys = sorted(keys, key=lambda chr_pos: chr_pos[1])
@@ -272,7 +272,7 @@ if __name__ == '__main__':
                                                             'ref_counts': c_ref, 'alt_counts': c_alt,
                                                             'ref_pvalues': c_pref, 'alt_pvalues': c_palt}
 
-    if len(common_snps) > 1:
+    if len(filtered_snps) > 0:
         print("Counting FDR")
         with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
             table = pd.read_table(f)
