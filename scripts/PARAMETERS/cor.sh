@@ -7,6 +7,7 @@ flag=$1
 
 if [ "$flag" == --ploidy ]; then
   python3 "$ScriptsFolder"PARAMETERS/SortParameters.py
+  parallel --jobs 80 python3 "$ScriptsFolder"PLOIDYcalling/VCFMerger.py :::: "$ParametersListsFolder"PE_parameters.cfg
 	parallel --jobs 80 python3 "$ScriptsFolder"PLOIDYcalling/PloidyEstimation.py :::: "$ParametersListsFolder"PE_parameters.cfg :::: "$ParametersListsFolder"modes.cfg :::: "$ParametersListsFolder"states.cfg :::: "$ParametersListsFolder"b_pen.cfg :::: "$ParametersListsFolder"d_pen.cfg
 fi
 
