@@ -141,6 +141,8 @@ if __name__ == '__main__':
 
         counter = 0
         print(len(filtered_snps), 'snps')
+
+    if len(filtered_snps) > 0:
         origin_of_snp_dict = OrderedDict()
         keys = list(filtered_snps.keys())
         keys = sorted(keys, key=lambda chr_pos: chr_pos[1])
@@ -272,7 +274,6 @@ if __name__ == '__main__':
                                                             'ref_counts': c_ref, 'alt_counts': c_alt,
                                                             'ref_pvalues': c_pref, 'alt_pvalues': c_palt}
 
-    if len(filtered_snps) > 0:
         print("Counting FDR")
         with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
             table = pd.read_table(f)
