@@ -1,6 +1,8 @@
 import sys
 import gzip
 
+Nucleotides = {'A', 'T', 'G', 'C'}
+
 
 def read_from_file(vcf, out):
     skipped = 0
@@ -22,12 +24,12 @@ def read_from_file(vcf, out):
                 if GT != '0/1':
                     skipped += 1
                     continue
-                out[(line[0], line[1])] = (R, A, NAME, REF, ALT, QUAL, GQ, GT)
+                out[(line[0], line[1])] = [R, A, NAME, REF, ALT, QUAL, GQ, GT]
     print('Skipped {} homozigous SNPs'.format(skipped))
 
 
-def Write(line, num, output):
-    output.write('\t'.join(line) + '\t' + num + '\n')
+def Write(in_key, num, ord_dictionary):
+    ord_dictionary[in_key] = in_key + [num]
 
 
 def less(A, B):
@@ -39,10 +41,10 @@ def less(A, B):
         return False
 
 
-def write_peak(in_line, peak_line, output, gem=False):
-    chr = in_line[0]
+def write_peak(in_key, peak_line, ord_dictionary, gem=False):
+    chr = in_key[0]
     chr_p = "chr" + peak_line[0]
-    pos = int(in_line[1])
+    pos = int(in_key[1])
     start = int(peak_line[1])
     end = int(peak_line[2])
 
@@ -52,57 +54,40 @@ def write_peak(in_line, peak_line, output, gem=False):
 
     if less((chr, pos), (chr_p, end)):
         if not less((chr, pos), (chr_p, start)):
-            Write(in_line, '1', output)
+            Write(in_key, '1', ord_dictionary)
         else:
-            Write(in_line, '0', output)
+            Write(in_key, '0', ord_dictionary)
         return True
     else:
         return False
 
 
-def add_caller(caller, infile, outfile, gem=False):
-    input_file = open(infile, "r")
-    output = open(outfile, "w")
-
-    in_line = input_file.readline()
-
-    while in_line and in_line[0] == '#':
-        in_line = input_file.readline()
-    in_line = in_line.split()
-
+def add_caller(caller, ord_dictionary, gem=False):
     peak_line = caller.readline()
-
     while peak_line and peak_line[0] == "#":
         peak_line = caller.readline()
     peak_line = peak_line.split()
 
-    while in_line and peak_line:
-        if not write_peak(in_line, peak_line, output, gem):
-            peak_line = caller.readline().split()
-        else:
+    i = 0
+    while i < len(ord_dictionary):
+        while peak_line:
+            if not write_peak(key, peak_line, ord_dictionary, gem):
+                peak_line = caller.readline().split()
+            else:
+                in_line = input_file.readline().split()
+        while in_line:
+            Write(in_line, '0', output)
             in_line = input_file.readline().split()
-    while in_line:
-        Write(in_line, '0', output)
-        in_line = input_file.readline().split()
-    input_file.close()
     output.close()
 
 
-def add_zeros(name, infile, outfile):
-    inp = open(infile, "r")
-    output = open(outfile, "w")
-    output.write("#No {} peaks".format(name))
-    for line in inp:
-        if line[0] == '#':
-            output.write(line)
-            continue
-        output.write(line[:-1] + '\t' + '0' + '\n')
-    inp.close()
-    output.close()
+def add_zeros(array):
+    for key in array:
+        array[key] = ord_dictionary[key] + ["0"]
 
 
-Nucleotides = {'A', 'T', 'G', 'C'}
-#TODO FIX Annotate.py
+# TODO FIX Annotate.py
+
 if __name__ == "__main__":
     vcf = gzip.open(sys.argv[1], 'rt')
 
@@ -114,32 +99,32 @@ if __name__ == "__main__":
     exp_keys = sorted(exp_keys, key=lambda x: x[0])
 
     out = sys.argv[10]
-    
-    withmacs = sys.argv[6]
-    withsissrs = sys.argv[7]
-    withcpics = sys.argv[8]
-    withgem = sys.argv[9]
-    
-    if withmacs == "true":
+
+    with_macs = sys.argv[6]
+    with_sissrs = sys.argv[7]
+    with_cpics = sys.argv[8]
+    with_gem = sys.argv[9]
+
+    if with_macs == "true":
         macs = open(sys.argv[2], "r")
-        add_caller(macs, i, out + ".m.txt")
+        add_caller(macs, exp_keys)
     else:
-        add_zeros("macs", i, out + ".m.txt")
-    
-    if withsissrs == "true":
+        add_zeros(exp_keys)
+
+    if with_sissrs == "true":
         sissrs = open(sys.argv[3], "r")
-        add_caller(sissrs, out + ".m.txt", out + ".s.txt")
+        add_caller(sissrs, exp_keys)
     else:
-        add_zeros("sissrs", out + ".m.txt", out + ".s.txt")
-    
-    if withcpics == "true":
+        add_zeros(exp_keys)
+
+    if with_cpics == "true":
         cpics = open(sys.argv[4], "r")
-        add_caller(cpics, out + ".s.txt", out + ".c.txt")
+        add_caller(cpics, exp_keys)
     else:
-        add_zeros("cpics", out + ".s.txt", out + ".c.txt")
-    
-    if withgem == "true":
+        add_zeros(exp_keys)
+
+    if with_gem == "true":
         gem = open(sys.argv[5], "r")
-        add_caller(gem, out + ".c.txt", out, gem=True)
+        add_caller(gem, exp_keys, gem=True)
     else:
-        add_zeros("gem", out + ".c.txt", out)
+        add_zeros(exp_keys)

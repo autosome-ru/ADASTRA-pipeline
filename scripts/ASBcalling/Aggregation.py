@@ -272,7 +272,7 @@ if __name__ == '__main__':
                                                             'ref_counts': c_ref, 'alt_counts': c_alt,
                                                             'ref_pvalues': c_pref, 'alt_pvalues': c_palt}
 
-    if len(common_snps) > 0:
+    if len(common_snps) > 1:
         print("Counting FDR")
         with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
             table = pd.read_table(f)
