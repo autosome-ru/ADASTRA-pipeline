@@ -173,6 +173,8 @@ if __name__ == '__main__':
                 (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt, table_name, another_agr) = v
                 if p_ref <= 0 or p_alt <= 0:
                     print('Wrong P!')
+                    print(zip(('cov', 'ref_c', 'alt_c', 'callers', 'ploidy', 'dip_qual', 'lq', 'rq', 'seg_c', 'p_ref',
+                               'p_alt', 'table_name', 'another_agr'), v))
                     continue
                 c_table_names.append(table_name)
                 c_another_agr.append(another_agr)
