@@ -278,7 +278,6 @@ if __name__ == '__main__':
     print("Counting FDR")
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
         table = pd.read_table(f)
-        f.close()
     bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["m_fpref"],
                                                                              alpha=0.05, method='fdr_bh')
     bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["m_fpalt"],
