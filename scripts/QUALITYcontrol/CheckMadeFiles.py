@@ -40,9 +40,11 @@ def make_black_list():
 
 with open(parameters_path + "CELL_LINES.json", "r") as cl_file, \
         open(parameters_path + "Master-lines.tsv", "r") as ml, \
-        open(parameters_path + "TF_DICT.json", "r") as tf_file:
+        open(parameters_path + "TF_DICT.json", "r") as tfs, \
+        open(parameters_path + "CL_DICT.json", "r") as cls:
     cell_lines = json.loads(cl_file.readline())
-    made_tfs = json.loads(tf_file.readline())
+    made_tfs = json.loads(tfs.readline())
+    made_cls = json.loads(cls.readline())
     master_list = ml.readlines()
 
 made_experiment_vcfs = 0
@@ -104,3 +106,15 @@ for tf in made_tfs:
             if os.path.isfile(vcf_file) and exp_name not in black_list:
                 tf_vcfs_counter += 1
 print("Made aggregation for {} TFs from  {} VCFs".format(tf_counter, tf_vcfs_counter))
+
+
+cl_vcfs_counter = 0
+cl_counter = 0
+for cl in made_cls:
+    if os.path.isfile(create_tf_path(cl)):
+        cl_counter += 1
+        for vcf_file in made_cls[cl]:
+            exp_name = vcf_file.split("/")[-2]
+            if os.path.isfile(vcf_file) and exp_name not in black_list:
+                cl_vcfs_counter += 1
+print("Made aggregation for {} CLs from  {} VCFs".format(cl_counter, cl_vcfs_counter))
