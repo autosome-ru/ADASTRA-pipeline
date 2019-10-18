@@ -25,7 +25,7 @@ def create_ploidy(string):
     return ploidy_path + "Corrected-1,5/" + string + "_ploidy.tsv"
 
 
-def create_path(string, agr_name):
+def create_path_for_agr_name(string, agr_name):
     return results_path + agr_name + "_P-values/" + string + '_common_table.tsv'
 
 
@@ -99,7 +99,7 @@ print("Made {} ploidies from  {} VCFs ({} experiment VCFs)".format(ploidy_counte
 tf_vcfs_counter = 0
 tf_counter = 0
 for tf in made_tfs:
-    if os.path.isfile(create_path(tf, "TF")):
+    if os.path.isfile(create_path_for_agr_name(tf, "TF")):
         tf_counter += 1
         for vcf_file in made_tfs[tf]:
             exp_name = vcf_file.split("/")[-2]
@@ -111,7 +111,7 @@ print("Made aggregation for {} TFs from  {} VCFs".format(tf_counter, tf_vcfs_cou
 cl_vcfs_counter = 0
 cl_counter = 0
 for cl in made_cls:
-    if os.path.isfile(create_path(cl, "CL")):
+    if os.path.isfile(create_path_for_agr_name(cl, "CL")):
         cl_counter += 1
         for vcf_file in made_cls[cl]:
             exp_name = vcf_file.split("/")[-2]
