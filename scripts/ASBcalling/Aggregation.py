@@ -230,7 +230,7 @@ if __name__ == '__main__':
 
             try:
                 v = min([valu for valu in value
-                         if np.sign(valu[3] - valu[4]) == np.sign(m_fpalt - m_fpref)],
+                         if np.sign(valu[1] - valu[2]) == np.sign(m_fpalt - m_fpref)],
                         key=lambda x: min(x[-2], x[-1]))
             except ValueError:
                 mostsig_refalt = None
@@ -250,7 +250,7 @@ if __name__ == '__main__':
 
             try:
                 v = min([valu for valu in value
-                         if np.sign(valu[3] - valu[4]) == np.sign(m_fpalt - m_fpref)],
+                         if np.sign(valu[1] - valu[2]) == np.sign(m_fpalt - m_fpref)],
                         key=lambda x: x[0])
             except ValueError:
                 maxdepth_refalt = None
