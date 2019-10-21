@@ -49,8 +49,6 @@ def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return par
         else:
             del dictionary[key]
 
-    return dictionary
-
 
 def get_name(path):  # path format */ALIGNS000000_table_p.txt
     return path.split("/")[-1].split("_")[0]
@@ -171,14 +169,14 @@ if __name__ == '__main__':
 
             for v in value:
                 (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt, table_name, another_agr) = v
-                
+
                 # if p_ref <= 0 or p_alt <= 0:
                 #     print('Wrong P!')
                 #     print(dict(zip(('chr', 'pos', 'ID', 'ref', 'alt', 'cov', 'ref_c', 'alt_c', 'callers', 'ploidy',
                 #                     'dip_qual', 'lq', 'rq', 'seg_c', 'p_ref',
                 #                'p_alt', 'table_name', 'another_agr'), list(key) + list(v))))
                 #     continue
-                
+
                 c_table_names.append(table_name)
                 c_another_agr.append(another_agr)
                 c_callers.append(callers)
@@ -234,13 +232,13 @@ if __name__ == '__main__':
             m2_dict = dict()
             p_dict = dict()
             refalt_dict = dict()
-            
+
             for method, key in (('maxdepth', lambda j: c_cover[j]),
                                 ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
                 try:
                     i_most = min([i for i in range(len(c_cover))
-                             if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_fpalt - m_fpref)],
-                            key=key)
+                                  if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_fpalt - m_fpref)],
+                                 key=key)
                 except ValueError:
                     refalt_dict[method] = None
                     p_dict[method] = None
@@ -283,11 +281,9 @@ if __name__ == '__main__':
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', "w") as w:
         table.to_csv(w, sep="\t", index=False)
     bool_ar = bool_ar_ref + bool_ar_alt
-    datasets_for_SNPs = annotate_snp_with_tables(origin_of_snp_dict, p_val_ref, p_val_alt,
-                                                 bool_ar)  # also changes original dict
-    table = table[bool_ar]  # if at least one of p_values of ref-alt passes FDR
+    annotate_snp_with_tables(origin_of_snp_dict, p_val_ref, p_val_alt, bool_ar)
 
     if not os.path.isdir(dicts_path + what_for + '_DICTS/'):
         os.mkdir(dicts_path + what_for + '_DICTS/')
     with open(dicts_path + what_for + '_DICTS/' + key_name + '_DICT.json', 'w') as out:
-        json.dump(datasets_for_SNPs, out)
+        json.dump(origin_of_snp_dict, out)
