@@ -171,12 +171,14 @@ if __name__ == '__main__':
 
             for v in value:
                 (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt, table_name, another_agr) = v
-                if p_ref <= 0 or p_alt <= 0:
-                    print('Wrong P!')
-                    print(dict(zip(('chr', 'pos', 'ID', 'ref', 'alt', 'cov', 'ref_c', 'alt_c', 'callers', 'ploidy',
-                                    'dip_qual', 'lq', 'rq', 'seg_c', 'p_ref',
-                               'p_alt', 'table_name', 'another_agr'), list(key) + list(v))))
-                    continue
+                
+                # if p_ref <= 0 or p_alt <= 0:
+                #     print('Wrong P!')
+                #     print(dict(zip(('chr', 'pos', 'ID', 'ref', 'alt', 'cov', 'ref_c', 'alt_c', 'callers', 'ploidy',
+                #                     'dip_qual', 'lq', 'rq', 'seg_c', 'p_ref',
+                #                'p_alt', 'table_name', 'another_agr'), list(key) + list(v))))
+                #     continue
+                
                 c_table_names.append(table_name)
                 c_another_agr.append(another_agr)
                 c_callers.append(callers)
@@ -228,50 +230,41 @@ if __name__ == '__main__':
                 m1 = 0
                 m2 = 0
 
-            try:
-                v = min([valu for valu in value
-                         if np.sign(valu[1] - valu[2]) == np.sign(m_fpalt - m_fpref)],
-                        key=lambda x: min(x[-2], x[-1]))
-            except ValueError:
-                mostsig_refalt = None
-                mostsig_p = None
-                mostsig_m1 = None
-                mostsig_m2 = None
-            mostsig_refalt = str(v[1]) + '/' + str(v[2])
-            mostsig_p = str(v[4])
-            x = v[1] / (v[1] + v[2])
-            p = 1 / (v[4] + 1)
-            if x <= p or x >= 1 - p:
-                mostsig_m1 = -1 * np.math.log(min(x, 1 - x) / p, 2) * np.sign(v[1] - v[2])
-                mostsig_m2 = np.math.log(max(x, 1 - x) / (1 - p), 2) * np.sign(v[1] - v[2])
-            else:
-                mostsig_m1 = 0
-                mostsig_m2 = 0
-
-            try:
-                v = min([valu for valu in value
-                         if np.sign(valu[1] - valu[2]) == np.sign(m_fpalt - m_fpref)],
-                        key=lambda x: x[0])
-            except ValueError:
-                maxdepth_refalt = None
-                maxdepth_p = None
-                maxdepth_m1 = None
-                maxdepth_m2 = None
-            maxdepth_refalt = str(v[1]) + '/' + str(v[2])
-            maxdepth_p = str(v[4])
-            x = v[1] / (v[1] + v[2])
-            p = 1 / (v[4] + 1)
-            if x <= p or x >= 1 - p:
-                maxdepth_m1 = -1 * np.math.log(min(x, 1 - x) / p, 2) * np.sign(v[1] - v[2])
-                maxdepth_m2 = np.math.log(max(x, 1 - x) / (1 - p), 2) * np.sign(v[1] - v[2])
-            else:
-                maxdepth_m1 = 0
-                maxdepth_m2 = 0
+            m1_dict = dict()
+            m2_dict = dict()
+            p_dict = dict()
+            refalt_dict = dict()
+            
+            for method, key in (('maxdepth', lambda j: c_cover[j]),
+                                ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
+                try:
+                    i_most = min([i for i in range(len(c_cover))
+                             if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_fpalt - m_fpref)],
+                            key=key)
+                except ValueError:
+                    refalt_dict[method] = None
+                    p_dict[method] = None
+                    m1_dict[method] = None
+                    m2_dict[method] = None
+                refalt_dict[method] = str(c_ref[i_most]) + '/' + str(c_alt[i_most])
+                p_dict[method] = c_ploidy[i_most]
+                x = c_ref[i_most] / (c_ref[i_most] + c_alt[i_most])
+                p = 1 / (c_ploidy[i_most] + 1)
+                if x <= p or x >= 1 - p:
+                    m1_dict[method] = -1 * np.math.log(min(x, 1 - x) / p, 2) * np.sign(c_ref[i_most] - c_alt[i_most])
+                    m2_dict[method] = np.math.log(max(x, 1 - x) / (1 - p), 2) * np.sign(c_ref[i_most] - c_alt[i_most])
+                else:
+                    m1_dict[method] = 0
+                    m2_dict[method] = 0
 
             out.write(pack(
-                [chr, pos, ID, ref, alt, m_callers, m_ploidy, m_q, m_dipq, m_segc, m_datasets, maxdepth_refalt,
-                 maxdepth_p, maxdepth_m1, maxdepth_m2, mostsig_refalt, mostsig_p, mostsig_m1, mostsig_m2, min_cover,
-                 max_cover, med_cover, mean_cover, mean_cover * m_datasets, m1, m2, m_hpref, m_hpalt, m_fpref, m_fpalt,
+                [chr, pos, ID, ref, alt, m_callers, m_ploidy, m_q, m_dipq, m_segc, m_datasets,
+                 refalt_dict['maxdepth'], p_dict['maxdepth'], m1_dict['maxdepth'], m2_dict['maxdepth'],
+                 refalt_dict['mostsig'], p_dict['mostsig'], m1_dict['mostsig'], m2_dict['mostsig'],
+                 min_cover, max_cover, med_cover, mean_cover, mean_cover * m_datasets,
+                 m1, m2,
+                 m_hpref, m_hpalt,
+                 m_fpref, m_fpalt,
                  m_stpref, m_stpalt]))
             origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': c_table_names,
                                                             expected_args[what_for]: c_another_agr,
