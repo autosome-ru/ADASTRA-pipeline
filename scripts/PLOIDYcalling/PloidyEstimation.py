@@ -384,6 +384,13 @@ class ChromosomeSegmentation(Segmentation):  # chrom
                 else:
                     self.bpos.append(
                         (self.positions[self.candidate_numbers[i]] + self.positions[self.candidate_numbers[i] + 1]) / 2)
+        
+        # Border pos after last snp
+        if self.length - self.positions[-1] <= self.CRITICAL_GAP:
+            self.bpos.append(self.length)
+        else:
+            self.bpos.append((self.positions[-1], self.length))
+        
 
     def estimate_Is(self):
         self.LS = np.zeros(len(self.i_list), dtype=self.dtype)
@@ -520,7 +527,7 @@ class GenomeSegmentator:  # seg
         cur = 1
         counter = 0
         if chrom.LINES >= self.NUM_TR:
-            for border in chrom.bpos + [chrom.length]:
+            for border in chrom.bpos:
                 if isinstance(border, tuple):
                     segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
                                               chrom.quals[counter][0], chrom.quals[counter][1],
