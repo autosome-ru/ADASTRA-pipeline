@@ -8,9 +8,9 @@ import statsmodels.stats.multitest
 import pandas as pd
 from collections import OrderedDict
 
-results_path = '/home/abramov/DATA/'
+results_path = '/home/abramov/DATAForHotFix/'
 parameters_path = '/home/abramov/PARAMETERS/'
-dicts_path = '/home/abramov/DATA/'
+dicts_path = '/home/abramov/DATAForHotFix/'
 
 
 def unpack(line):
