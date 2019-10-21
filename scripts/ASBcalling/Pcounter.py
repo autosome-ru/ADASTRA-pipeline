@@ -3,7 +3,7 @@ import sys
 from scipy.stats import binom_test
 import os.path
 
-ploidy_path = "/home/abramov/PloidyForHotFix/"
+ploidy_path = "/home/abramov/PloidyForHotFix2/"
 parameters_path = "/home/abramov/PARAMETERS/"
 
 
