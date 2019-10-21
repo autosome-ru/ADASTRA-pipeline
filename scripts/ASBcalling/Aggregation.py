@@ -244,7 +244,7 @@ if __name__ == '__main__':
                     p_dict[method] = None
                     m1_dict[method] = None
                     m2_dict[method] = None
-                print(i_most, c_ref, c_cover)
+                print(i_most, c_ref, c_alt, c_cover, method, m_fpalt, m_fpref)
                 refalt_dict[method] = str(c_ref[i_most]) + '/' + str(c_alt[i_most])
                 p_dict[method] = c_ploidy[i_most]
                 x = c_ref[i_most] / (c_ref[i_most] + c_alt[i_most])
