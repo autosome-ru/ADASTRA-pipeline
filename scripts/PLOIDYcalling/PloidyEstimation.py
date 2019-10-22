@@ -376,6 +376,10 @@ class ChromosomeSegmentation(Segmentation):  # chrom
         acum_counts = [0] + self.bposn + [self.last_snp_number]
         self.counts = [acum_counts[i + 1] - acum_counts[i] for i in range(len(acum_counts) - 1)]
 
+        if self.positions[0] <= self.CRITICAL_GAP:
+            self.bpos.append(self.positions[0])
+        else:
+            self.bpos.append((1, self.positions[0]))
         for i in range(len(self.b)):
             if self.b[i][0]:
                 if self.b[i][1]:
@@ -389,7 +393,7 @@ class ChromosomeSegmentation(Segmentation):  # chrom
         if self.length - self.positions[-1] <= self.CRITICAL_GAP:
             self.bpos.append(self.length)
         else:
-            self.bpos.append((self.positions[-1], self.length))
+            self.bpos.append((self.positions[-1] + 1, self.length))
         
 
     def estimate_Is(self):
@@ -524,10 +528,16 @@ class GenomeSegmentator:  # seg
 
     def append_ploidy_segments(self, chrom):
         segments_to_write = []
-        cur = 1
+        cur = None
         counter = 0
         if chrom.LINES >= self.NUM_TR:
             for border in chrom.bpos:
+                if cur is None:
+                    if isinstance(border, tuple):
+                        cur = border[1]
+                    else:
+                        cur = 1
+                    continue
                 if isinstance(border, tuple):
                     segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
                                               chrom.quals[counter][0], chrom.quals[counter][1],
