@@ -8,9 +8,14 @@ import statsmodels.stats.multitest
 import pandas as pd
 from collections import OrderedDict
 
-results_path = '/home/abramov/DATAForHotFix/'
+results_path = '/home/abramov/DATAForHotFix2/'
 parameters_path = '/home/abramov/PARAMETERS/'
-dicts_path = '/home/abramov/DATAForHotFix/'
+dicts_path = '/home/abramov/DATAForHotFix2/'
+
+grasp = [384814, 1884467, 3122049, 3735402, 4146016, 4650150, 7546930, 10210631]
+grasp_rs = set()
+for id in grasp:
+    grasp_rs.add(id)
 
 
 def unpack(line):
@@ -107,6 +112,8 @@ if __name__ == '__main__':
                     if p_ref == '.' or p_ref == 0 or p_alt == 0 or ploidy == 0:
                         continue
                     cov = ref_c + alt_c
+                    if ID in grasp_rs:
+                        print(line)
                     try:
                         common_snps[(chr, pos, ID, ref, alt)].append(
                             (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq,
