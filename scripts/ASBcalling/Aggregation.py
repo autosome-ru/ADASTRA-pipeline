@@ -15,7 +15,7 @@ dicts_path = '/home/abramov/DATAForHotFix2/'
 grasp = [384814, 1884467, 3122049, 3735402, 4146016, 4650150, 7546930, 10210631]
 grasp_rs = set()
 for id in grasp:
-    grasp_rs.add(id)
+    grasp_rs.add("rs" + str(id))
 
 
 def unpack(line):
