@@ -66,7 +66,7 @@ def pack(values):
 
 
 def create_ploidy(string):
-    path = ploidy_path + "Corrected-1,5/" + string + "_ploidy.tsv"
+    path = ploidy_path + "Corrected/" + string + "_ploidy.tsv"
     return path
 
 
@@ -94,6 +94,8 @@ if ploidy_file is None:
 else:
     ploidy = create_ploidy(ploidy_file)
     if os.path.isfile(ploidy):
+        if "ANDR_HUMAN" not in full_path:
+            exit(0)
         table_annotated = full_path + "_table_annotated.txt"
         output = full_path + "_table_p.txt"
         segments = []
