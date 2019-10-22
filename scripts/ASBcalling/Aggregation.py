@@ -109,11 +109,12 @@ if __name__ == '__main__':
                         continue
                     (chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers,
                      ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = unpack(line)
+                    if ID in grasp_rs:
+                        print(line)
                     if p_ref == '.' or p_ref == 0 or p_alt == 0 or ploidy == 0:
                         continue
                     cov = ref_c + alt_c
-                    if ID in grasp_rs:
-                        print(line)
+
                     try:
                         common_snps[(chr, pos, ID, ref, alt)].append(
                             (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq,
