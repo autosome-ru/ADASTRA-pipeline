@@ -655,7 +655,7 @@ if __name__ == '__main__':
     print(arr)
     merge_vcfs(out_file, arr)
     for model, mode, states, prior in (
-            ('Corrected-1,5/', 'corrected', [1.5], False),
+            ('Corrected/', 'corrected', [], False),
     ):
         t = time.clock()
         if not os.path.isdir(ploidy_path + model):

@@ -112,7 +112,7 @@ if __name__ == '__main__':
                     if p_ref == '.' or p_ref == 0 or p_alt == 0 or ploidy == 0:
                         continue
                     cov = ref_c + alt_c
-                    if ID not in grasp_rs:
+                    if ID in grasp_rs:
                         print(line)
                     try:
                         common_snps[(chr, pos, ID, ref, alt)].append(
