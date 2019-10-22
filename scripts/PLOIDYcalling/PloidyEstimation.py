@@ -321,6 +321,7 @@ class ChromosomeSegmentation:  # chrom
         self.b_penalty = seg.b_penalty
         self.FILE = open(seg.FILE, 'r')
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
+        self.CRITICAL_GAP_FACTOR = seg.CRITICAL_GAP_FACTOR
         
         self.bpos = []  # border positions, tuples or ints
         self.ests = []  # estimated BADs for split segments
@@ -330,9 +331,8 @@ class ChromosomeSegmentation:  # chrom
         
         if self.LINES == 0:
             return
+
         self.effective_length = self.positions[-1] - self.positions[0]
-        self.CRITICAL_GAP = self.effective_length * (1 - 10 ** (-seg.CRITICAL_GAP_FACTOR / self.LINES))
-        
 
 
     def read_file_len(self):
@@ -370,6 +370,25 @@ class ChromosomeSegmentation:  # chrom
         alt_c = int(line[6])
         return chr, pos, ID, ref, alt, ref_c, alt_c
     
+    def adjust_critical_gap(self):
+        condition = True
+        length_difference = 0
+        black_list_i = set()
+        while condition:
+            self.effective_length -= length_difference
+            self.CRITICAL_GAP = self.effective_length * (1 - 10 ** (-self.CRITICAL_GAP_FACTOR / self.LINES))
+            length_difference = 0
+            
+            for i in range(self.LINES - 1):
+                if i in black_list_i:
+                    continue
+                difference = self.positions[i + 1] - self.positions[i]
+                if difference > self.CRITICAL_GAP:
+                    length_difference += difference
+                    black_list_i.add(i)
+                
+            condition = length_difference != 0
+
     def get_subchromosomes_slices(self):
         tuples = []
         current_tuple_start = 0
@@ -385,6 +404,7 @@ class ChromosomeSegmentation:  # chrom
             return
         
         start_t = time.clock()
+        self.adjust_critical_gap()
 
         #  border for first snp
         if self.positions[0] <= self.CRITICAL_GAP:
