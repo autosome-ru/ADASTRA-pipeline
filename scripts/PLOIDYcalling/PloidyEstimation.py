@@ -41,6 +41,7 @@ class Segmentation:
         self.prior = None
         self.b_penalty = None
         self.d_penalty = None
+        self.effective_length = None
 
     def loglikelyhood(self, N, X, i):
         p = 1 / (1 + i)
@@ -106,7 +107,7 @@ class Segmentation:
     def get_distance_penalty(self, k):
         if self.d_penalty == 'NOTR' or \
                     (self.d_penalty == 'TR' and self.positions[k + 1] - self.positions[k] > self.CRITICAL_GAP):
-            dist = (self.positions[k + 1] - self.positions[k]) / self.length
+            dist = (self.positions[k + 1] - self.positions[k]) / self.effective_length
             return -1 * self.chrom.LINES * self.chrom.D_FACTOR * np.log1p(-dist)
         elif self.d_penalty == 'NONE' or self.d_penalty == 'TR':
             return 0
@@ -123,33 +124,9 @@ class Segmentation:
             return -1 / 2 * k * (np.sqrt(self.LINES) + 1)
         else:
             raise ValueError(self.b_penalty)
-        
+
     def find_optimal_borders(self):
-        # print('Constructing borders')
-        for i in range(self.candidates_count + 1):
-            self.sc[i] = self.L[0, i]
-
-            kf = -1
-            current_optimal = self.sc[i]
-
-            for k in range(i):
-                distance_penalty = self.get_distance_penalty(self.candidate_numbers[k] - self.candidate_numbers[0])
-                parameter_penalty = self.get_parameter_penalty(self.bnum[k] + 1, len(self.i_list))
-
-                likelyhood = self.sc[k] + self.L[k + 1, i] + distance_penalty
-                candidate = likelyhood + parameter_penalty
-                if candidate > current_optimal:
-                    current_optimal = candidate
-                    self.sc[i] = likelyhood
-                    kf = k
-            if kf != -1:
-                self.b[kf] = True
-            for j in range(kf + 1, i):
-                self.b[j] = False
-
-            self.bnum[i] = self.b.count(True)
-
-        self.bposn = [self.candidate_numbers[i] for i in range(self.candidates_count) if self.b[i]]
+        pass
 
     def estimate(self):
         self.construct_probs()
@@ -177,6 +154,7 @@ class PieceSegmentation(Segmentation):
         else:
             self.last_snp_number = chrom.candidate_numbers[end + 1] - 1
         self.length = chrom.length  # (end - start + 1)/chrom.LINES*chrom.length
+        self.effective_length = chrom.effective_length
         self.CRITICAL_GAP = chrom.CRITICAL_GAP
         self.bposn = []  # border positions, snip numbers, border after
         self.sc = [0] * (self.candidates_count + 1)  # sc[i] = best log-likelyhood among all segmentations of snps[0,i]
@@ -195,6 +173,33 @@ class PieceSegmentation(Segmentation):
         self.d_penalty = chrom.d_penalty
 
     # print(self.start, self.end, self.candidates_count, len(self.positions))
+    
+    def find_optimal_borders(self):
+        # print('Constructing borders')
+        for i in range(self.candidates_count + 1):
+            self.sc[i] = self.L[0, i]
+
+            kf = -1
+            current_optimal = self.sc[i]
+
+            for k in range(i):
+                distance_penalty = self.get_distance_penalty(self.candidate_numbers[k] - self.candidate_numbers[0])
+                parameter_penalty = self.get_parameter_penalty(self.bnum[k] + 1, len(self.i_list))
+
+                likelyhood = self.sc[k] + self.L[k + 1, i] + distance_penalty
+                candidate = likelyhood + parameter_penalty
+                if candidate > current_optimal:
+                    current_optimal = candidate
+                    self.sc[i] = likelyhood
+                    kf = k
+            if kf != -1:
+                self.b[kf] = True
+            for j in range(kf + 1, i):
+                self.b[j] = False
+
+            self.bnum[i] = self.b.count(True)
+
+        self.bposn = [self.candidate_numbers[i] for i in range(self.candidates_count) if self.b[i]]
 
 
 class ChromosomeSegmentation(Segmentation):  # chrom
@@ -208,6 +213,7 @@ class ChromosomeSegmentation(Segmentation):  # chrom
         self.FILE = open(seg.FILE, 'r')
         self.SNPS, self.LINES = self.read_file_len()  # number of snps
         self.length = length  # length, bp
+        self.effective_length = None  # Effective length in distance penalty
         if self.LINES == 0:
             return
         self.start = 0
@@ -220,8 +226,8 @@ class ChromosomeSegmentation(Segmentation):  # chrom
         self.P = None  # segment-wise log-likelyhoods for each ploidy
         self.P_init = None  # snp-wise log0likelyhoods for each ploidy
         self.L = None  # segment-wise marginal log-likelyhoods
-        self.CRITICAL_GAP = self.length * (
-                1 - 10 ** (-CGF / self.LINES))  # critical distance after which border likelyhood increases
+        self.CGF = CGF
+        self.CRITICAL_GAP = None  # critical distance after which border likelyhood increases
         self.bpos = []  # border positions between snps at x1 and x2: (x1+x2)/2 for x2-x1<=CRITICAL_GAP, (x1, x2) else
         self.bposn = []
         self.border_numbers = None
@@ -335,6 +341,8 @@ class ChromosomeSegmentation(Segmentation):  # chrom
                 assert (self.i_list[i] > 0)
                 S[i, current_snip] = self.loglikelyhood(N, X, self.i_list[i])
         self.P_init = S
+        self.effective_length = self.positions[-1] - self.positions[0]
+        self.CRITICAL_GAP = self.effective_length * (1 - 10 ** (-self.CGF / self.LINES))
 
     def find_optimal_borders(self):
         self.sc = [0] * (self.candidates_count + 1)  # sc[i] = best log-likelyhood among all segmentations of snps[0,i]
