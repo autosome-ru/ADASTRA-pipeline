@@ -1,14 +1,9 @@
-import json
 import math
 import numpy as np
-# import operator as op
-# from functools import reduce
 import os.path
 import sys
-# from multiprocessing import Process
-# from matplotlib import pyplot as plt
-# import random
 import time
+from abc import ABC, abstractmethod
 
 sys.path.insert(1, '/home/abramov/ASB-Project')
 
@@ -16,49 +11,45 @@ parameters_path = '/home/abramov/PARAMETERS/'
 ploidy_path = "/home/abramov/Ploidy/"
 
 
-class Segmentation:
+class Segmentation(ABC):
     def __init__(self):
-        self.b = None
-        self.bnum = None
-        self.sc = None
+        self.dtype = np.float64
+        self.bpos = []  # border positions between snps at x1 and x2: (x1+x2)/2 for x2-x1<=CRITICAL_GAP, (x1, x2) else
+        self.C = None
+        self.S = None
+        self.L = None  # segment-wise marginal log-likelyhoods
+        self.P = None  # segment-wise log-likelyhoods for each ploidy
+        self.bposn = None
+        self.border_numbers = None
+        self.positions = []
+        
+        # TODO: make abstract
         self.LINES = None
-        self.length = None
-        self.CRITICAL_GAP = None
-        self.positions = None
-        self.i_idxs = None
         self.last_snp_number = None
         self.candidate_numbers = None
         self.i_list = None
         self.candidates_count = None
-        self.chrom = None
-        self.mode = None
-        self.dtype = np.float64
-        self.bposn = None
-        self.C = None
-        self.S = None
-        self.L = None
-        self.P = None
-        self.prior = None
-        self.b_penalty = None
-        self.d_penalty = None
-        self.effective_length = None
+        self.sub_chrom = None
+        self.sc = None  # sc[i] = best log-likelyhood among all segmentations of snps[0,i]
+        self.b = None  # bool borders, len=LINES.
+        self.bnum = None  # bnum[i] = number of borders before ith snp in best segmentation
 
     def loglikelyhood(self, N, X, i):
         p = 1 / (1 + i)
-        if (self.chrom.mode == 'corrected' and N == 2 * X) or self.chrom.mode == 'binomial':
-            return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.chrom.prior[i])
-        elif self.chrom.mode == 'corrected':
-            return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.chrom.prior[i]) + math.log(1 + i ** (2 * X - N))
+        if (self.sub_chrom.chrom.mode == 'corrected' and N == 2 * X) or self.sub_chrom.chrom.mode == 'binomial':
+            return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.sub_chrom.chrom.prior[i])
+        elif self.sub_chrom.chrom.mode == 'corrected':
+            return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.sub_chrom.chrom.prior[i]) + math.log(1 + i ** (2 * X - N))
 
     def get_P(self, first, last):
         if last - first == 1:
-            return self.chrom.P_init[:, last]
+            return self.sub_chrom.P_init[:, last]
         else:
-            return np.sum(self.chrom.P_init[:, first + 1:last + 1], axis=1)
+            return np.sum(self.sub_chrom.P_init[:, first + 1:last + 1], axis=1)
 
     def construct_probs(self):
-        P = np.zeros((len(self.chrom.i_list), self.candidates_count + 1, self.candidates_count + 1), dtype=self.dtype)
-        S = np.zeros((len(self.chrom.i_list), self.candidates_count + 1), dtype=self.dtype)
+        P = np.zeros((len(self.sub_chrom.chrom.i_list), self.candidates_count + 1, self.candidates_count + 1), dtype=self.dtype)
+        S = np.zeros((len(self.sub_chrom.chrom.i_list), self.candidates_count + 1), dtype=self.dtype)
         self.L = np.zeros((self.candidates_count + 1, self.candidates_count + 1),
                           dtype=self.dtype)  # if in init -> -memory
         for j in range(0, self.candidates_count + 1):
@@ -91,40 +82,18 @@ class Segmentation:
         Q = np.sort(self.P, axis=0)
         self.L[:, :] = Q[-1, :, :] + np.log1p(np.sum(np.exp(Q[:-2, :, :] - Q[-1, :, :]), axis=0))
 
-    def check_L(self):
-        L = np.zeros((self.candidates_count + 1, self.candidates_count + 1), dtype=self.dtype)
-        for j in range(self.candidates_count + 1):
-            for k in range(j, self.candidates_count + 1):
-                L[j, k] = 0
-                accum = self.dtype(0)
-                tmp = sorted([self.P[i, j, k] for i in self.chrom.i_idxs])
-                for i in range(len(tmp) - 1):
-                    accum += np.exp(tmp[i] - tmp[-1])
-                L[j, k] += tmp[-1] + np.log1p(accum)
-                if j != k and abs(-L[j, k] + self.L[j, k]) > 1:
-                    print(j, k, L[j, k], round(-L[j, k] + self.L[j, k], 2))
-
-    def get_distance_penalty(self, k):
-        if self.chrom.d_penalty == 'NOTR' or \
-                    (self.chrom.d_penalty == 'TR' and self.positions[k + 1] - self.positions[k] > self.chrom.CRITICAL_GAP):
-            dist = (self.positions[k + 1] - self.positions[k]) / self.chrom.effective_length
-            return -1 * self.chrom.LINES * self.chrom.D_FACTOR * np.log1p(-dist)
-        elif self.chrom.d_penalty == 'NONE' or self.chrom.d_penalty == 'TR':
-            return 0
-        else:
-            raise ValueError(self.chrom.d_penalty)
-
     def get_parameter_penalty(self, borders, alphabet):
         k = borders * alphabet
-        if self.chrom.b_penalty == 'CAIC':
+        if self.sub_chrom.chrom.b_penalty == 'CAIC':
             return -1 / 2 * k * (np.log(self.LINES) + 1)
-        elif self.chrom.b_penalty == 'AIC':
+        elif self.sub_chrom.chrom.b_penalty == 'AIC':
             return -1 / 2 * k
-        elif self.chrom.b_penalty == 'SQRT':
+        elif self.sub_chrom.chrom.b_penalty == 'SQRT':
             return -1 / 2 * k * (np.sqrt(self.LINES) + 1)
         else:
-            raise ValueError(self.chrom.b_penalty)
+            raise ValueError(self.sub_chrom.b_penalty)
 
+    @abstractmethod
     def find_optimal_borders(self):
         pass
 
@@ -132,35 +101,29 @@ class Segmentation:
         self.construct_probs()
         self.modify_P()
         self.modify_L()
-        # self.check_L()
         self.find_optimal_borders()
 
 
 class PieceSegmentation(Segmentation):
-    def __init__(self, chrom, start, end):
+    def __init__(self, sub_chrom, start, end):
         super().__init__()
         self.start = start
         self.end = end
         self.LINES = end - start + 1
-        self.positions = chrom.positions[
-                         chrom.candidate_numbers[start]:chrom.candidate_numbers[end - 1] + 2]  # positions of snps
-        self.candidate_numbers = chrom.candidate_numbers[start:end + 1]
+        self.positions = sub_chrom.positions[
+                         sub_chrom.candidate_numbers[start]:sub_chrom.candidate_numbers[end - 1] + 2]
+        self.candidate_numbers = sub_chrom.candidate_numbers[start:end + 1]
         self.candidates_count = end - start
-        if self.end == chrom.candidates_count:
-            self.last_snp_number = chrom.LINES - 1
+        if self.end == sub_chrom.candidates_count:
+            self.last_snp_number = sub_chrom.LINES - 1
         else:
-            self.last_snp_number = chrom.candidate_numbers[end + 1] - 1
+            self.last_snp_number = sub_chrom.candidate_numbers[end + 1] - 1
         
-        self.bposn = []  # border positions, snip numbers, border after
         self.sc = [0] * (self.candidates_count + 1)  # sc[i] = best log-likelyhood among all segmentations of snps[0,i]
         self.b = [False] * self.candidates_count  # bool borders, len=LINES.
         self.bnum = [0] * (self.candidates_count + 1)  # bnum[i] = number of borders before ith snp in best segmentation
-        self.S = None
-        self.C = None
-        self.P = None  # segment-wise log-likelyhoods for each ploidy
-        self.L = None
         
-        self.chrom = chrom
+        self.sub_chrom = sub_chrom
 
     # print(self.start, self.end, self.candidates_count, len(self.positions))
     
@@ -173,10 +136,9 @@ class PieceSegmentation(Segmentation):
             current_optimal = self.sc[i]
 
             for k in range(i):
-                distance_penalty = self.get_distance_penalty(self.candidate_numbers[k] - self.candidate_numbers[0])
-                parameter_penalty = self.get_parameter_penalty(self.bnum[k] + 1, len(self.chrom.i_list))
+                parameter_penalty = self.get_parameter_penalty(self.bnum[k] + 1, len(self.sub_chrom.chrom.i_list))
 
-                likelyhood = self.sc[k] + self.L[k + 1, i] + distance_penalty
+                likelyhood = self.sc[k] + self.L[k + 1, i]
                 candidate = likelyhood + parameter_penalty
                 if candidate > current_optimal:
                     current_optimal = candidate
@@ -192,96 +154,33 @@ class PieceSegmentation(Segmentation):
         self.bposn = [self.candidate_numbers[i] for i in range(self.candidates_count) if self.b[i]]
 
 
-class ChromosomeSegmentation(Segmentation):  # chrom
-    def __init__(self, seg, CHR, prior, i_list=None, length=0, n_max=0, CGF=0.0, d_penalty='CAIC', b_penalty='TR'):
+class SubChromosomeSegmentation(Segmentation):  # sub_chrom
+    def __init__(self, chrom, SNPS, LINES):
         super().__init__()
-        self.CHR = CHR  # name
-        self.COV_TR = seg.COV_TR  # coverage treshold
-        self.SEG_LENGTH = seg.SEG_LENGTH  # length of segment
-        self.D_FACTOR = seg.D_FACTOR  # Multiplier in distance penalty
-        self.INTERSECT = seg.INTERSECT  # length of intersection
-        self.FILE = open(seg.FILE, 'r')
-        self.SNPS, self.LINES = self.read_file_len()  # number of snps
-        self.length = length  # length, bp
-        if self.LINES == 0:
-            return
-        self.effective_length = None  # Effective length in distance penalty
+        
+        self.SNPS, self.LINES = SNPS, LINES
+
         self.start = 0
-        self.end = self.LINES - 2
+        self.end = (self.LINES - 1) - 1  # index from 0 and #borders = #snps - 1
         self.candidate_numbers = [i for i in range(self.LINES - 1)]
         self.candidates_count = self.LINES - 1
         self.last_snp_number = self.LINES - 1
-        self.positions = []  # positions of snps
-        self.ploidys = []  # max(ref, alt)/min(ref, alt)
-        self.P = None  # segment-wise log-likelyhoods for each ploidy
-        self.P_init = None  # snp-wise log0likelyhoods for each ploidy
-        self.L = None  # segment-wise marginal log-likelyhoods
-        self.CGF = CGF
-        self.CRITICAL_GAP = None  # critical distance after which border likelyhood increases
-        self.bpos = []  # border positions between snps at x1 and x2: (x1+x2)/2 for x2-x1<=CRITICAL_GAP, (x1, x2) else
-        self.bposn = []
-        self.border_numbers = None
-        self.chrom = self
 
-        self.mode = seg.mode  # binomial or corrected
-
-        if i_list:
-            self.i_list = i_list
-        else:
-            self.i_list = []  # list of ploidys
-            for i in range(1, n_max + 1):
-                self.i_list.append(i)
-        self.i_idxs = range(len(self.i_list))
+        self.P_init = None  # snp-wise log-likelyhoods for each ploidy
+        
+        self.chrom = chrom
+        self.sub_chrom = self
+        
+        self.sc = [0] * (self.candidates_count + 1)  # sc[i] = best log-likelyhood among all segmentations of snps[0,i]
+        self.b = [False] * self.candidates_count  # borders, len=LINES. b[i]: (0,0) if there is no border after ith snp
+        self.bnum = [0] * (self.candidates_count + 1)  # bnum[i] = number of borders before ith snp in best segmentation
 
         self.LS = None  # likelyhoods of splited segments for each ploidy
         self.ests = []  # estimated ploidys for splited segments
         self.quals = []  # qualities of estimations
-        self.Q1 = []
+        self.Q1 = []  # diploid quality
         self.counts = []  # number of snps in segments
-        self.second_ests = []
         
-        self.prior = prior
-        self.b_penalty = b_penalty
-        self.d_penalty = d_penalty
-
-    # [1017, 1035, 1160, 1442, 1529, 1641, 1857, 2045, 4062][2, 1, 5, 1, 3, 4, 2, 2, 1, 1]
-    # self.set_candidates(set(range(5047)) - {1283, 1284})#set(random.sample(range(5047), 500)))
-    # self.set_candidates({1017, 1035, 1160, 1283, 1442, 1641, 1857, 2045, 4062})# - {1283})
-    # #| set([54, 114, 368, 979, 992, 1017, 1035, 1095, 1160, 1166, 1282, 1389, 1442, 1641,
-    # 1725, 1842, 1857, 2045, 2071, 2710, 2797, 2798, 3030, 3223, 4062, 4345, 4362, 4586, 4589]) | {1283})#
-    # | set(random.sample(range(5000), 20)))
-
-    @staticmethod
-    def get_params(line):
-        line = line.split()
-        chr = line[0]
-        pos = int(line[1])
-        ID = line[2]
-        ref = line[3]
-        alt = line[4]
-        ref_c = int(line[5])
-        alt_c = int(line[6])
-        return chr, pos, ID, ref, alt, ref_c, alt_c
-
-    def line_is_ok(self, line):
-        if line[0] == '#':
-            return False
-        chr, pos, ID, ref, alt, ref_c, alt_c = self.get_params(line)
-        if chr != self.CHR or ID == '.':
-            return False
-        return pos, ref_c, alt_c
-
-    def read_file_len(self):
-        count = 0
-        snps = []
-        for line in self.FILE:
-            if not self.line_is_ok(line):
-                continue
-            count += 1
-            snps.append(line)
-        self.FILE.seek(0)
-        return snps, count
-
     @staticmethod
     def split_list(length, l, k):
         iterator = []
@@ -308,38 +207,20 @@ class ChromosomeSegmentation(Segmentation):  # chrom
 
         S = np.zeros((len(self.i_list), self.LINES), dtype=self.dtype)
         for j in range(0, self.LINES):
-            line = self.chrom.SNPS[self.start + j]
-
-            result = self.chrom.line_is_ok(line)
-
-            if not result:
-                continue
-
-            pos, ref_c, alt_c = result
+            
+            pos, ref_c, alt_c = self.chrom.SNPS[self.start + j]
             current_snip += 1
             N = ref_c + alt_c
             X = min(ref_c, alt_c)
 
             self.positions.append(pos)
 
-            if X == 0:
-                self.ploidys.append(0)
-            else:
-                self.ploidys.append(N / X - 1)
-
-            for i in self.i_idxs:
+            for i in range(len(self.chrom.i_list)):
                 assert (self.i_list[i] > 0)
                 S[i, current_snip] = self.loglikelyhood(N, X, self.i_list[i])
         self.P_init = S
-        self.effective_length = self.positions[-1] - self.positions[0]
-        self.CRITICAL_GAP = self.effective_length * (1 - 10 ** (-self.CGF / self.LINES))
 
     def find_optimal_borders(self):
-        self.sc = [0] * (self.candidates_count + 1)  # sc[i] = best log-likelyhood among all segmentations of snps[0,i]
-        self.b = [(0, 0)] * self.candidates_count  # borders, len=LINES. b[i]: (0,0) if there is no border after ith snp
-        # (1, x) else,
-        # where x is 1 if positions[i+1]-positions[i] > CRITICAL_GAP, 0 else
-        self.bnum = [0] * (self.candidates_count + 1)  # bnum[i] = number of borders before ith snp in best segmentation
         for i in range(self.candidates_count + 1):
             self.sc[i] = self.L[0, i]
 
@@ -348,36 +229,27 @@ class ChromosomeSegmentation(Segmentation):  # chrom
 
             for k in range(i):
 
-                distance_penalty = self.get_distance_penalty(self.candidate_numbers[k])
                 parameter_penalty = self.get_parameter_penalty(self.bnum[k] + 1, len(self.i_list))
 
-                likelyhood = self.sc[k] + self.L[k + 1, i] + distance_penalty
+                likelyhood = self.sc[k] + self.L[k + 1, i]
                 candidate = likelyhood + parameter_penalty
                 if candidate > current_optimal:
                     current_optimal = candidate
                     self.sc[i] = likelyhood
                     kf = k
             if kf != -1:
-                if self.positions[self.candidate_numbers[kf] + 1] - self.positions[self.candidate_numbers[kf]] \
-                        > self.CRITICAL_GAP:
-                    self.b[kf] = (1, 1)
-                else:
-                    self.b[kf] = (1, 0)
+                self.b[kf] = True
             for j in range(kf + 1, i):
-                self.b[j] = (0, 0)
+                self.b[j] = False
 
-            self.bnum[i] = [x[0] for x in self.b].count(1)
-            assert ([x[0] for x in self.b].count(1) == self.bnum[i])
+            self.bnum[i] = [int(x) for x in self.b].count(1)
+            assert ([int(x) for x in self.b].count(1) == self.bnum[i])
 
-        self.bposn = [self.candidate_numbers[i] for i in range(self.candidates_count) if self.b[i][0]]
-        self.border_numbers = [-1] + [i for i in range(self.candidates_count) if self.b[i][0]] + [self.candidates_count]
+        self.bposn = [self.candidate_numbers[i] for i in range(self.candidates_count) if self.b[i]]
+        self.border_numbers = [-1] + [i for i in range(self.candidates_count) if self.b[i]] + [self.candidates_count]
         acum_counts = [0] + self.bposn + [self.last_snp_number]
         self.counts = [acum_counts[i + 1] - acum_counts[i] for i in range(len(acum_counts) - 1)]
 
-        if self.positions[0] <= self.CRITICAL_GAP:
-            self.bpos.append(self.positions[0])
-        else:
-            self.bpos.append((1, self.positions[0]))
         for i in range(len(self.b)):
             if self.b[i][0]:
                 if self.b[i][1]:
@@ -386,13 +258,6 @@ class ChromosomeSegmentation(Segmentation):  # chrom
                 else:
                     self.bpos.append(
                         (self.positions[self.candidate_numbers[i]] + self.positions[self.candidate_numbers[i] + 1]) / 2)
-        
-        # Border pos after last snp
-        if self.length - self.positions[-1] <= self.CRITICAL_GAP:
-            self.bpos.append(self.length)
-        else:
-            self.bpos.append((self.positions[-1] + 1, self.length))
-        
 
     def estimate_Is(self):
         self.LS = np.zeros(len(self.i_list), dtype=self.dtype)
@@ -416,26 +281,21 @@ class ChromosomeSegmentation(Segmentation):  # chrom
             self.quals.append((left_qual, right_qual))
             self.Q1.append(Q1)
 
-        print('Total SNPs: {}, estimated ploidys: {}, border positions: {}'.format(len(self.positions), self.ests,
-                                                                                   self.bpos))
-
-    def estimate_chr(self):
-        start_t = time.clock()
-
+    def estimate_sub_chr(self):
         if self.LINES == 0:
             return
 
         self.construct_probs_initial()
 
-        if self.candidates_count > self.SEG_LENGTH:
-            tuples = self.split_list(self.candidates_count + 1, self.SEG_LENGTH, self.INTERSECT)
+        if self.candidates_count > self.chrom.SEG_LENGTH:
+            tuples = self.split_list(self.candidates_count + 1, self.chrom.SEG_LENGTH, self.chrom.INTERSECT)
             border_set = set()
             print("{} segments: {}".format(len(tuples), tuples))
             counter = 0
             for first, last in tuples:
                 counter += 1
                 print('Making {} out of {} segments from {} to {} for {}.'.format(counter, len(tuples), first, last,
-                                                                                  self.CHR))
+                                                                                  self.chrom.CHR))
                 PS = PieceSegmentation(self, first, last)
                 PS.estimate()
                 # print(PS.bposn)
@@ -444,33 +304,114 @@ class ChromosomeSegmentation(Segmentation):  # chrom
             self.candidates_count = len(self.candidate_numbers)
         print(len(self.positions))
         print('{} candidates'.format(self.candidates_count))
-        #		print('{} candidates: {}'.format(self.candidates_count, [x for x in self.candidate_numbers]))
 
         self.estimate()
         self.estimate_Is()
-        print(self.bposn, self.ests, self.counts)
+        print(self.ests, self.counts)
+
+
+class ChromosomeSegmentation:  # chrom
+    def __init__(self, seg, CHR, length=0):
+        super().__init__()
+        self.CHR = CHR  # name
+        self.length = length  # length, bp
+        
+        self.COV_TR = seg.COV_TR  # coverage treshold
+        self.SEG_LENGTH = seg.SEG_LENGTH  # length of segment
+        self.INTERSECT = seg.INTERSECT  # length of intersection
+        self.i_list = seg.i_list
+        self.prior = seg.prior
+        self.mode = seg.mode  # binomial or corrected
+        self.b_penalty = seg.b_penalty
+        self.FILE = open(seg.FILE, 'r')
+        self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
+        if self.LINES == 0:
+            return
+        self.effective_length = self.positions[-1] - self.positions[0]
+        self.CRITICAL_GAP = self.effective_length * (1 - 10 ** (-seg.CRITICAL_GAP_FACTOR / self.LINES))
+        
+        self.bpos = []  # border positions, tuples or ints
+        self.ests = []  # estimated BADs for split segments
+        self.quals = []  # qualities of estimations
+        self.Q1 = []  # diploid quality
+        self.counts = []  # number of SNPs in segments
+
+    def read_file_len(self):
+        count = 0
+        snps = []
+        positions = []
+        for line in self.FILE:
+            line_tuple = self.unpack_line_or_false(line)
+            if not line_tuple:
+                continue
+            count += 1
+            pos, _, _ = line_tuple
+            snps.append(line_tuple)
+            positions.append(pos)
+        self.FILE.seek(0)
+        return snps, count, positions
+
+    def unpack_line_or_false(self, line):
+        if line[0] == '#':
+            return False
+        chr, pos, ID, ref, alt, ref_c, alt_c = self.get_params(line)
+        if chr != self.CHR or ID == '.':
+            return False
+        return pos, ref_c, alt_c
+    
+    @staticmethod
+    def get_params(line):
+        line = line.split()
+        chr = line[0]
+        pos = int(line[1])
+        ID = line[2]
+        ref = line[3]
+        alt = line[4]
+        ref_c = int(line[5])
+        alt_c = int(line[6])
+        return chr, pos, ID, ref, alt, ref_c, alt_c
+    
+    def get_subchromosomes_slices(self):
+        tuples = []
+        current_tuple_start = 0
+        for i in range(self.LINES - 1):
+            if self.positions[i + 1] - self.positions[i] > self.CRITICAL_GAP:
+                tuples.append((current_tuple_start, i + 1))
+                current_tuple_start = i + 1
+        tuples.append((current_tuple_start, self.LINES))
+        return tuples
+    
+    def estimate_chr(self):
+        start_t = time.clock()
+
+        for st, ed in self.get_subchromosomes_slices():
+            sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st)
+            sub_chrom.estimate_sub_chr()
+            self.bpos.append(sub_chrom.bpos)
+            self.ests.append(sub_chrom.ests)
+            self.quals.append(sub_chrom.quals)
+            self.Q1.append(sub_chrom.Q1)
+            self.counts.append(sub_chrom.counts)
+        
+        #  border for first snp
+        if self.positions[0] <= self.CRITICAL_GAP:
+            self.bpos.append(self.positions[0])
+        else:
+            self.bpos.append((1, self.positions[0]))
+
+        #  border for last snp
+        if self.length - self.positions[-1] <= self.CRITICAL_GAP:
+            self.bpos.append(self.length)
+        else:
+            self.bpos.append((self.positions[-1] + 1, self.length))
+        
+        print('Total SNPs: {}, estimated ploidys: {}, border positions: {}'.format(len(self.positions), self.ests,
+                                                                                   self.bpos))
         print('CHR time: {} s'.format(time.clock() - start_t))
-
-        # self.plot()
-
-    def score_segmentation(self, bposn, ests):
-        if len(ests) - len(bposn) != 1:
-            print('Invalid segmentation')
-            return 0
-        score = 0
-        bposn = [-1] + bposn + [self.LINES - 1]
-        for i in range(len(bposn) - 1):
-            first = bposn[i] + 1
-            last = bposn[i + 1] + 1
-            score += sum([self.P_init[ests[i]][j] for j in range(first, last)])
-            for k in bposn[1:-1]:
-                score += self.get_distance_penalty(k)
-            score += self.get_parameter_penalty(len(bposn) - 2, len(self.i_list))
-        return score
 
 
 class GenomeSegmentator:  # seg
-    def __init__(self, file, out, segm_mode, extra_states=None, b_penalty='CAIC', d_penalty='TR'):
+    def __init__(self, file, out, segm_mode, extra_states=None, b_penalty='CAIC'):
         chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
                  145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
                  101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
@@ -486,7 +427,6 @@ class GenomeSegmentator:  # seg
         self.FILE = file  # table
         self.OUT = open(out, 'w')  # ploidy file
         self.n_max = 5  # max ploidy
-        self.D_FACTOR = 0.25
         self.CRITICAL_GAP_FACTOR = 16.5
         self.NUM_TR = 100  # minimal number of snps in chromosome to start segmentation
         self.COV_TR = 0  # coverage treshold
@@ -496,12 +436,10 @@ class GenomeSegmentator:  # seg
         self.chr_segmentations = []  # chroms
         
         self.b_penalty = b_penalty
-        self.d_penalty = d_penalty
         self.prior = dict(zip(self.i_list, [1]*len(self.i_list)))
 
         for CHR in self.chrs:
-            chrom = ChromosomeSegmentation(self, CHR, self.prior, self.i_list, self.chr_lengths[CHR], self.n_max,
-                                           self.CRITICAL_GAP_FACTOR, b_penalty=self.b_penalty, d_penalty=self.d_penalty)
+            chrom = ChromosomeSegmentation(self, CHR, self.chr_lengths[CHR])
             print('{} total SNP count: {}'.format(CHR, chrom.LINES))
             self.chr_segmentations.append(chrom)
 
@@ -614,7 +552,6 @@ if __name__ == '__main__':
     mode = sys.argv[2].lower()
     states = [] if sys.argv[3] == '_' else list(map(float, sys.argv[3].split('_')))
     b_penalty = sys.argv[4]
-    d_penalty = sys.argv[5]
     
     model = '-'.join(sys.argv[2:6])
     print(model)
@@ -624,6 +561,6 @@ if __name__ == '__main__':
     t = time.clock()
     if not os.path.isdir(ploidy_path + model):
         os.mkdir(ploidy_path + model)
-    GS = GenomeSegmentator(out_file, ploidy_path + model + '/' + key + "_ploidy.tsv", mode, states, b_penalty, d_penalty)
+    GS = GenomeSegmentator(out_file, ploidy_path + model + '/' + key + "_ploidy.tsv", mode, states, b_penalty)
     GS.estimate_ploidy()
     print('Total time: {} s'.format(time.clock() - t))
