@@ -205,10 +205,10 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
     def construct_probs_initial(self):
         current_snip = -1
 
-        S = np.zeros((len(self.i_list), self.LINES), dtype=self.dtype)
+        S = np.zeros((len(self.chrom.i_list), self.LINES), dtype=self.dtype)
         for j in range(0, self.LINES):
             
-            pos, ref_c, alt_c = self.chrom.SNPS[self.start + j]
+            pos, ref_c, alt_c = self.SNPS[self.start + j]
             current_snip += 1
             N = ref_c + alt_c
             X = min(ref_c, alt_c)
@@ -216,8 +216,8 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
             self.positions.append(pos)
 
             for i in range(len(self.chrom.i_list)):
-                assert (self.i_list[i] > 0)
-                S[i, current_snip] = self.loglikelyhood(N, X, self.i_list[i])
+                assert (self.chrom.i_list[i] > 0)
+                S[i, current_snip] = self.loglikelyhood(N, X, self.chrom.i_list[i])
         self.P_init = S
 
     def find_optimal_borders(self):
@@ -229,7 +229,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
 
             for k in range(i):
 
-                parameter_penalty = self.get_parameter_penalty(self.bnum[k] + 1, len(self.i_list))
+                parameter_penalty = self.get_parameter_penalty(self.bnum[k] + 1, len(self.chrom.i_list))
 
                 likelyhood = self.sc[k] + self.L[k + 1, i]
                 candidate = likelyhood + parameter_penalty
@@ -251,16 +251,12 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         self.counts = [acum_counts[i + 1] - acum_counts[i] for i in range(len(acum_counts) - 1)]
 
         for i in range(len(self.b)):
-            if self.b[i][0]:
-                if self.b[i][1]:
-                    self.bpos.append(
-                        (self.positions[self.candidate_numbers[i]], self.positions[self.candidate_numbers[i] + 1]))
-                else:
-                    self.bpos.append(
-                        (self.positions[self.candidate_numbers[i]] + self.positions[self.candidate_numbers[i] + 1]) / 2)
+            if self.b[i]:
+                self.bpos.append(
+                    (self.positions[self.candidate_numbers[i]] + self.positions[self.candidate_numbers[i] + 1]) / 2)
 
     def estimate_Is(self):
-        self.LS = np.zeros(len(self.i_list), dtype=self.dtype)
+        self.LS = np.zeros(len(self.chrom.i_list), dtype=self.dtype)
         for n in range(len(self.border_numbers) - 1):
             first = self.border_numbers[n] + 1
             last = self.border_numbers[n + 1]
@@ -272,12 +268,12 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
             else:
                 left_qual = -1 * int(round(self.LS[i_max - 1] - self.LS[i_max]))
                 Q1 = -1 * int(round(self.LS[i_max] - self.LS[0]))
-            if i_max == len(self.i_list) - 1:
+            if i_max == len(self.chrom.i_list) - 1:
                 right_qual = 0
             else:
                 right_qual = -1 * int(round(self.LS[i_max + 1] - self.LS[i_max]))
             # noinspection PyTypeChecker
-            self.ests.append(self.i_list[i_max])
+            self.ests.append(self.chrom.i_list[i_max])
             self.quals.append((left_qual, right_qual))
             self.Q1.append(Q1)
 
@@ -325,16 +321,19 @@ class ChromosomeSegmentation:  # chrom
         self.b_penalty = seg.b_penalty
         self.FILE = open(seg.FILE, 'r')
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
-        if self.LINES == 0:
-            return
-        self.effective_length = self.positions[-1] - self.positions[0]
-        self.CRITICAL_GAP = self.effective_length * (1 - 10 ** (-seg.CRITICAL_GAP_FACTOR / self.LINES))
         
         self.bpos = []  # border positions, tuples or ints
         self.ests = []  # estimated BADs for split segments
         self.quals = []  # qualities of estimations
         self.Q1 = []  # diploid quality
         self.counts = []  # number of SNPs in segments
+        
+        if self.LINES == 0:
+            return
+        self.effective_length = self.positions[-1] - self.positions[0]
+        self.CRITICAL_GAP = self.effective_length * (1 - 10 ** (-seg.CRITICAL_GAP_FACTOR / self.LINES))
+        
+
 
     def read_file_len(self):
         count = 0
@@ -382,23 +381,28 @@ class ChromosomeSegmentation:  # chrom
         return tuples
     
     def estimate_chr(self):
+        if not self.LINES:
+            return
+        
         start_t = time.clock()
 
-        for st, ed in self.get_subchromosomes_slices():
-            sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st)
-            sub_chrom.estimate_sub_chr()
-            self.bpos.append(sub_chrom.bpos)
-            self.ests.append(sub_chrom.ests)
-            self.quals.append(sub_chrom.quals)
-            self.Q1.append(sub_chrom.Q1)
-            self.counts.append(sub_chrom.counts)
-        
         #  border for first snp
         if self.positions[0] <= self.CRITICAL_GAP:
             self.bpos.append(self.positions[0])
         else:
             self.bpos.append((1, self.positions[0]))
 
+        for st, ed in self.get_subchromosomes_slices():
+            sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st)
+            sub_chrom.estimate_sub_chr()
+            self.bpos += sub_chrom.bpos
+            if ed != self.LINES:
+                self.bpos += [(self.positions[ed - 1], self.positions[ed])]
+            self.ests += sub_chrom.ests
+            self.quals += sub_chrom.quals
+            self.Q1 += sub_chrom.Q1
+            self.counts += sub_chrom.counts
+        
         #  border for last snp
         if self.length - self.positions[-1] <= self.CRITICAL_GAP:
             self.bpos.append(self.length)
