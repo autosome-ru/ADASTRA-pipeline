@@ -66,7 +66,7 @@ def pack(values):
 
 
 def create_ploidy(string):
-    path = ploidy_path + "Corrected/" + string + "_ploidy.tsv"
+    path = ploidy_path + "Corrected-1,5/" + string + "_ploidy.tsv"
     return path
 
 
