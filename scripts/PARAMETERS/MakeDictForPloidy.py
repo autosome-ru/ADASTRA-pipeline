@@ -3,7 +3,7 @@ import json
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import alignments_path, ploidy_dict_path, GTRD_slice_path
+from scripts.HELPERS.paths import ploidy_dict_path, GTRD_slice_path, create_path_from_GTRD_function
 
 
 def findLAB(enc):
@@ -17,13 +17,6 @@ def findLAB(enc):
         return ret.replace("/", "_")
     else:
         return 'False'
-
-
-def CreatePath(line, ctrl=False):
-    if ctrl:
-        return alignments_path + "CTRL/" + line[10] + "/" + line[14] + ".vcf.gz"
-    else:
-        return alignments_path + "EXP/" + line[1] + "/" + line[0] + "/" + line[6] + ".vcf.gz"
 
 
 def add_to_dict(d, key, value):
@@ -40,7 +33,7 @@ def add_record(d, line, ctrl=False):
     else:
         idcs = (4, 8, 9)
     is_lovo = False
-    path = CreatePath(line, ctrl)
+    path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=ctrl)
     if line[idcs[0]] == "LoVo (colorectal adenocarcinoma)":
         is_lovo = True
     line[idcs[0]] = line[idcs[0]].replace("(", "").replace(")", "").replace(" ", "_").replace("/", "_")

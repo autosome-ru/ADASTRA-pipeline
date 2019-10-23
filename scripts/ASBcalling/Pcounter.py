@@ -4,35 +4,13 @@ from scipy.stats import binom_test
 import os.path
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_path, ploidy_dict_path
-from scripts.HELPERS.helpers import ChromPos
+from scripts.HELPERS.paths import ploidy_dict_path, create_ploidy_path_function
+from scripts.HELPERS.helpers import ChromPos, callers_names, unpack, pack
 
 
 def count_p(x, n, p, alternative):
-    pv = (binom_test(x, n, p, alternative) + binom_test(x, n, 1-p, alternative))/2
+    pv = (binom_test(x, n, p, alternative) + binom_test(x, n, 1 - p, alternative)) / 2
     return pv
-
-
-def unpack(line):
-    line = line.split()
-    chr = line[0]
-    pos = int(line[1])
-    ID = line[2]
-    ref = line[3]
-    alt = line[4]
-    Q = float(line[7])
-    (ref_c, alt_c, GQ, in_macs, in_sissrs, in_cpics, in_gem) = map(int, line[5:7]+line[8:13])
-    callers = in_macs + in_sissrs + in_cpics + in_gem
-    return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers
-
-
-def pack(values):
-    return '\t'.join(map(str, values)) + '\n'
-
-
-def create_ploidy(string):
-    path = ploidy_path + "Corrected-1,5/" + string + "_ploidy.tsv"
-    return path
 
 
 def make_reverse_dict(dictionary):
@@ -57,7 +35,7 @@ if ploidy_file is None:
     print("No ploidy found")
     ploidy = None
 else:
-    ploidy = create_ploidy(ploidy_file)
+    ploidy = create_ploidy_path_function(ploidy_file)
     if os.path.isfile(ploidy):
         table_annotated = full_path + "_table_annotated.txt"
         output = full_path + "_table_p.txt"
@@ -68,29 +46,21 @@ else:
                     continue
                 line = line.split()
                 segments.append(line)
-        
+
         segments = sorted(segments, key=lambda x: int(x[1]))
         segments = sorted(segments, key=lambda x: x[0])
         if len(segments) == 0:
             print('Ploidy file is empty!')
             exit(1)
 
-        snps = []  # sorting snps
-        with open(table_annotated, 'r') as file:
+        print('Now doing', table_annotated, '\n', 'with ploidy file', ploidy_file)
+        with open(output, 'w') as out, open(table_annotated, 'r') as file:
+            current = 0
             for line in file:
                 if line[0] == '#':
                     continue
-                snps.append(unpack(line))
-        snps = sorted(snps, key=lambda x: x[1])
-        snps = sorted(snps, key=lambda x: x[0])
+                chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers = unpack(line, use_in="Pcounter")
 
-        print('Now doing', table_annotated, '\n', 'with ploidy file', ploidy_file)
-        with open(output, 'w') as out:
-            current = 0
-            for snp in snps:
-
-                chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers = snp
-                
                 # ploidy annotation
                 chrom, start, end, ploidy, dip_qual, lq, rq, seg_c = segments[current]
                 start = int(start)
@@ -98,7 +68,7 @@ else:
                 cur_st = ChromPos(chrom, start)
                 cur_ed = ChromPos(chrom, end)
                 now = ChromPos(chr, pos)
-                while now >= cur_ed and current+1 < len(segments):
+                while now >= cur_ed and current + 1 < len(segments):
                     current += 1
                     chrom, start, end, ploidy, dip_qual, lq, rq, seg_c = segments[current]
                     start = int(start)
@@ -106,13 +76,13 @@ else:
                     cur_st = ChromPos(chrom, start)
                     cur_ed = ChromPos(chrom, end)
                     now = ChromPos(chr, pos)
-                
+
                 if now < cur_st or now >= cur_ed:
                     ploidy = 0
                     p_ref = 0
                     p_alt = 0
                 elif float(ploidy) != 0:
-                    #p_value counting
+                    # p_value counting
                     p = 1 / (float(ploidy) + 1)
                     n = ref_c + alt_c
                     p_ref = count_p(ref_c, n, p, 'greater')
@@ -120,6 +90,7 @@ else:
                 else:
                     p_ref = '.'
                     p_alt = '.'
-                
-                out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics,
-                                in_gem, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt]))
+
+                out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ] +
+                               [in_callers[name] for name in callers_names] +
+                               [ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt]))

@@ -2,11 +2,7 @@ import json
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path, alignments_path, GTRD_slice_path
-
-
-def createpath(line):
-    return alignments_path + "EXP/" + line[1] + "/" + line[0] + "/" + line[6] + "_table_p.txt"
+from scripts.HELPERS.paths import parameters_path, GTRD_slice_path, create_path_from_GTRD_function
 
 
 def makedict(what_for):
@@ -17,7 +13,7 @@ def makedict(what_for):
         if line[0] == "#":
             continue
         ln = line.split("\t")
-        path = createpath(ln)
+        path = create_path_from_GTRD_function(ln, for_what="p-value_table")
         if what_for == "TF":
             try:
                 d[ln[1]].append(path)

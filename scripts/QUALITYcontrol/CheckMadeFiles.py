@@ -1,28 +1,10 @@
 import os.path
 import json
+import sys
 
-parameters_path = "/home/abramov/PARAMETERS/"
-alignments_path = "/home/abramov/Alignments/"
-ploidy_path = "/home/abramov/PloidyForRelease/"
-results_path = '/home/abramov/DATA/'
-
-
-def create_path(line, for_what, ctrl=False):
-    end = ""
-    if for_what == "vcf":
-        end = ".vcf.gz"
-    if for_what == "annotated_table":
-        end = "_table_annotated.txt"
-    if for_what == "p-value_table":
-        end = "_table_p.txt"
-    if ctrl:
-        return alignments_path + "CTRL/" + line[10] + "/" + line[14] + end
-    else:
-        return alignments_path + "EXP/" + line[1] + "/" + line[0] + "/" + line[6] + end
-
-
-def create_ploidy(string):
-    return ploidy_path + "Corrected-1,5/" + string + "_ploidy.tsv"
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.paths import ploidy_dict_path, create_path_from_GTRD_function, \
+    results_path, parameters_path, GTRD_slice_path, create_ploidy_path_function
 
 
 def create_path_for_agr_name(string, agr_name):
@@ -38,8 +20,8 @@ def make_black_list():
     return black_list
 
 
-with open(parameters_path + "CELL_LINES.json", "r") as cl_file, \
-        open(parameters_path + "Master-lines.tsv", "r") as ml, \
+with open(ploidy_dict_path, "r") as cl_file, \
+        open(GTRD_slice_path, "r") as ml, \
         open(parameters_path + "TF_DICT.json", "r") as tfs, \
         open(parameters_path + "CL_DICT.json", "r") as cls:
     cell_lines = json.loads(cl_file.readline())
@@ -58,20 +40,20 @@ for line in master_list:
     line = line.split("\t")
     if line[0] not in black_list:
 
-        vcf_path = create_path(line, for_what="vcf")
+        vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
         if os.path.isfile(vcf_path):
             made_experiment_vcfs += 1
 
-        p_value_table_path = create_path(line, for_what="p-value_table")
+        p_value_table_path = create_path_from_GTRD_function(line, for_what="p-value_table")
         if os.path.isfile(p_value_table_path):
             made_p_tables += 1
 
-        annotated_table_path = create_path(line, for_what="annotated_table")
+        annotated_table_path = create_path_from_GTRD_function(line, for_what="annotated_table")
         if os.path.isfile(annotated_table_path):
             made_annotated_tables += 1
 
         if len(line) > 10 and line[10] not in black_list:
-            vcf_path = create_path(line, for_what="vcf", ctrl=True)
+            vcf_path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)
             if os.path.isfile(vcf_path) and vcf_path not in counted_controls:
                 made_control_vcfs += 1
                 counted_controls.add(vcf_path)
@@ -83,7 +65,7 @@ ploidy_vcfs_counter = 0
 ploidy_counter = 0
 counted_control_vcfs = set()
 for ploidy in cell_lines:
-    ploidy_file = create_ploidy(ploidy)
+    ploidy_file = create_ploidy_path_function(ploidy)
     if os.path.isfile(ploidy_file):
         ploidy_counter += 1
         for vcf_file in cell_lines[ploidy]:

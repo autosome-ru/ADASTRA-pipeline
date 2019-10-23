@@ -27,13 +27,10 @@ def merge_vcfs(out_file_name, in_files):
 if __name__ == '__main__':
     with open(ploidy_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
-    keys = sorted(d.keys())
-    
     key = sys.argv[1]
     print(key)
     
     arr = []
-    
     for path in d[key]:
         if os.path.isfile(path):
             arr.append(path)

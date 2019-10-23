@@ -10,33 +10,7 @@ from collections import OrderedDict
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import results_path, parameters_path
-from scripts.HELPERS.helpers import callers_names
-
-
-def unpack(line):
-    line = line.split()
-    chr = line[0]
-    pos = int(line[1])
-    ID = line[2]
-    ref = line[3]
-    alt = line[4]
-    Q = float(line[7])
-    ref_c, alt_c, GQ, in_macs, in_sissrs, in_cpics, in_gem = map(int, line[5:7] + line[8:13])
-    dip_qual, lq, rq, seg_c = map(int, line[15:19])
-    ploidy = float(line[14])
-    if line[19] == '.':
-        p_ref = '.'
-        p_alt = '.'
-    else:
-        p_ref, p_alt = map(float, line[19:21])
-    in_callers = dict(zip(callers_names, [in_macs, in_sissrs, in_cpics, in_gem]))
-
-    return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers, ploidy, \
-           dip_qual, lq, rq, seg_c, p_ref, p_alt
-
-
-def pack(values):
-    return '\t'.join(map(str, values)) + '\n'
+from scripts.HELPERS.helpers import callers_names, unpack, pack
 
 
 def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return part of the dictionary with fdr from table
@@ -103,7 +77,7 @@ if __name__ == '__main__':
                     if line[0] == '#':
                         continue
                     (chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers,
-                     ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = unpack(line)
+                     ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = unpack(line, use_in="Aggregation")
                     
                     if p_ref == '.' or p_ref == 0 or p_alt == 0 or ploidy == 0:
                         continue
