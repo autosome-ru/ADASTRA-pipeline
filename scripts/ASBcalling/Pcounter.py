@@ -112,16 +112,20 @@ else:
         if len(segments) == 0:
             print('Ploidy file is empty!')
             exit(1)
-        
-        print('Now doing', table_annotated, '\n', 'with ploidy file', ploidy_file)
-        with open(table_annotated, 'r') as file, open(output, 'w') as out:
-            current = 0
+        snps = []
+        with open(table_annotated, 'r') as file:
             for line in file:
                 if line[0] == '#':
                     continue
-                
-                chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers = unpack(
-                                                                                                                line)
+                snps.append(unpack(line))
+        snps = sorted(snps, key=lambda x: x[1])
+        snps = sorted(snps, key=lambda x: x[0])
+        print('Now doing', table_annotated, '\n', 'with ploidy file', ploidy_file)
+        with open(output, 'w') as out:
+            current = 0
+            for snp in snps:
+
+                chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers = snp
                 
                 # ploidy annotation
                 chrom, start, end, ploidy, dip_qual, lq, rq, seg_c = segments[current]
