@@ -8,9 +8,8 @@ import statsmodels.stats.multitest
 import pandas as pd
 from collections import OrderedDict
 
-results_path = '/home/abramov/DATAForHotFix/'
-parameters_path = '/home/abramov/PARAMETERS/'
-dicts_path = '/home/abramov/DATAForHotFix/'
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.paths import results_path, parameters_path
 
 
 def unpack(line):
@@ -285,7 +284,7 @@ if __name__ == '__main__':
     bool_ar = bool_ar_ref + bool_ar_alt
     annotate_snp_with_tables(origin_of_snp_dict, p_val_ref, p_val_alt, bool_ar)
 
-    if not os.path.isdir(dicts_path + what_for + '_DICTS/'):
-        os.mkdir(dicts_path + what_for + '_DICTS/')
-    with open(dicts_path + what_for + '_DICTS/' + key_name + '_DICT.json', 'w') as out:
+    if not os.path.isdir(results_path + what_for + '_DICTS/'):
+        os.mkdir(results_path + what_for + '_DICTS/')
+    with open(results_path + what_for + '_DICTS/' + key_name + '_DICT.json', 'w') as out:
         json.dump(origin_of_snp_dict, out)

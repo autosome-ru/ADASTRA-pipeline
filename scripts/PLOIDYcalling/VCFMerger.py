@@ -3,10 +3,8 @@ import os
 import sys
 import json
 
-sys.path.insert(1, '/home/abramov/ASB-Project')
-
-parameters_path = '/home/abramov/PARAMETERS/'
-ploidy_path = "/home/abramov/Ploidy/"
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.paths import parameters_path, ploidy_path
 
 Nucleotides = {'A', 'T', 'G', 'C'}
 

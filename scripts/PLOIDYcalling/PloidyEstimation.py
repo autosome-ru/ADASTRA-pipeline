@@ -5,10 +5,8 @@ import sys
 import time
 from abc import ABC, abstractmethod
 
-sys.path.insert(1, '/home/abramov/ASB-Project')
-
-parameters_path = '/home/abramov/PARAMETERS/'
-ploidy_path = "/home/abramov/Ploidy/"
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.paths import ploidy_path
 
 
 class Segmentation(ABC):

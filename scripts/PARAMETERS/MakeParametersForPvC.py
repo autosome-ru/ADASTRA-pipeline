@@ -1,8 +1,9 @@
 import json
 import os.path
+import sys
 
-parameters_path = '/home/abramov/PARAMETERS/'
-parallel_parameters_path = '/home/abramov/ParallelParameters/'
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.paths import parameters_path, parallel_parameters_path
 
 
 def make_reverse_dict(dictionary):

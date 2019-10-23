@@ -3,44 +3,9 @@ import sys
 from scipy.stats import binom_test
 import os.path
 
-ploidy_path = "/home/abramov/PloidyForHotFix/"
-parameters_path = "/home/abramov/PARAMETERS/"
-
-
-class ChromPos:
-    def __init__(self, chr, pos):
-        self.chr = chr
-        self.pos = pos
-    
-    def __lt__(self, other):
-        if self.chr == other.chr:
-            return self.pos < other.pos
-        else:
-            return self.chr < other.chr
-    
-    def __gt__(self, other):
-        if self.chr == other.chr:
-            return self.pos > other.pos
-        else:
-            return self.chr > other.chr
-    
-    def __le__(self, other):
-        if self.chr == other.chr:
-            return self.pos <= other.pos
-        else:
-            return self.chr <= other.chr
-    
-    def __ge__(self, other):
-        if self.chr == other.chr:
-            return self.pos >= other.pos
-        else:
-            return self.chr >= other.chr
-    
-    def __eq__(self, other):
-        return (self.chr, self.pos) == (other.chr, other.pos)
-    
-    def __ne__(self, other):
-        return (self.chr, self.pos) != (other.chr, other.pos)
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.paths import ploidy_path, parameters_path
+from scripts.HELPERS.helpers import ChromPos
 
 
 def count_p(x, n, p, alternative):

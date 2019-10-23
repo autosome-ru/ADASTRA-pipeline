@@ -1,13 +1,11 @@
 import os
+import sys
 
-parallel_parameters_dir = '/home/abramov/ParallelParameters/stats/'
-Ploidy_path = '/home/abramov/PloidyForRelease/'
-Correlation_path = '/home/abramov/Correlation/'
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.paths import parallel_parameters_path, ploidy_path
 
 file_dirs = {
-    'PE_parameters.cfg': Ploidy_path,
-    'ASWP_parameters.cfg': Ploidy_path,
-    'CS_parameters.cfg': Correlation_path + 'Binomial_tables/',
+    'PE_parameters.cfg': ploidy_path,
 }
 
 
@@ -17,10 +15,10 @@ def refactor_filename(line, param_file):
     return line
 
 
-for file_name in os.listdir(parallel_parameters_dir):
+for file_name in os.listdir(parallel_parameters_path):
     if file_name in file_dirs:
-        with open(parallel_parameters_dir + file_name, 'r') as file, open(parallel_parameters_dir
-                                                                          + 'tmp.cfg', 'w') as tmp:
+        with open(parallel_parameters_path + file_name, 'r') as file, open(parallel_parameters_path
+                                                                           + 'tmp.cfg', 'w') as tmp:
             assert file_name != 'tmp.cfg'
             lines = []
             for line in file:
@@ -32,6 +30,6 @@ for file_name in os.listdir(parallel_parameters_dir):
                             reverse=True)
             for line in lines:
                 tmp.write(line + '\n')
-        os.remove(parallel_parameters_dir + file_name)
-        print(parallel_parameters_dir + file_name)
-        os.rename(parallel_parameters_dir + 'tmp.cfg', parallel_parameters_dir + file_name)
+        os.remove(parallel_parameters_path + file_name)
+        print(parallel_parameters_path + file_name)
+        os.rename(parallel_parameters_path + 'tmp.cfg', parallel_parameters_path + file_name)

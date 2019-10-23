@@ -1,8 +1,9 @@
 import requests
 import json
+import sys
 
-alignments_path = "/home/abramov/Alignments/"
-parameters_path = "/home/abramov/PARAMETERS/"
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.paths import parameters_path, alignments_path
 
 
 def findLAB(enc):

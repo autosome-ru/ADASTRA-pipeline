@@ -1,7 +1,8 @@
 import json
+import sys
 
-parameters_path = '/home/abramov/PARAMETERS/'
-parallel_parameters_path = '/home/abramov/ParallelParameters/stats/'
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.paths import parameters_path, parallel_parameters_path
 
 out_path = parallel_parameters_path + 'PE_parameters.cfg'
 
