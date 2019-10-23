@@ -10,12 +10,7 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
 
 
 class ChromPos:
-    chrs = []
-    for i in range(1, 22):
-        chrs.append('chr' + str(i))
-    chrs += ['chrX', 'chrY']
-
-    chrs = dict(zip(chrs, chr_l))
+    chrs = dict(zip(['chr' + str(i) for i in range(1, 22)] + ['chrX', 'chrY'], chr_l))
     
     def __init__(self, chr, pos):
         assert chr in self.chrs
