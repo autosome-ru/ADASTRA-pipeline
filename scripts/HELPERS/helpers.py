@@ -127,7 +127,7 @@ def pack(values):
     return '\t'.join(map(str, values)) + '\n'
 
 
-class GObject:
+class GenomeObject:
     def __init__(self, chr, pos, value, qual, snpn):
         self.chr_pos = ChromPos(chr, pos)
         self.value = value
@@ -346,13 +346,13 @@ class Reader:
                 if method == 'normal':
                     if line[4] == 0:
                         continue
-                    result.add_object(GObject(line[0], int(line[1]), float(line[4]), int(line[5]), int(line[6])))
+                    result.add_object(GenomeObject(line[0], int(line[1]), float(line[4]), int(line[5]), int(line[6])))
                 elif method == 'naive':
                     ref = int(line[2])
                     alt = int(line[3])
                     if min(ref, alt) == 0:
                         continue
-                    result.add_object(GObject(line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 10000, 10000))
+                    result.add_object(GenomeObject(line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 10000, 10000))
                 else:
                     raise KeyError(method)
             # result.sort_items()
@@ -383,7 +383,7 @@ class Reader:
                 except ValueError:
                     continue
                 N += 1
-                result.add_object(GObject(chr, pos, value, 100, 100))
+                result.add_object(GenomeObject(chr, pos, value, 100, 100))
             # result.sort_items()
             return N, result
     
