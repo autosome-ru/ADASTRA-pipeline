@@ -59,6 +59,8 @@ def make_dict_from_vcf(vcf, vcf_dict):
             continue
         line = line.split()
         chr = line[0]
+        if chr not in ChromPos.chrs:
+            raise ValueError('{} not in valid chrs'.format(chr))
         pos = int(line[1])
         if not len(line[3]) == 1 or not len(line[4]) == 1:
             continue
