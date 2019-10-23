@@ -1,7 +1,7 @@
 import os
 
 Correlation_path = '/home/abramov/Correlation/'
-parallel_parameters_path = '/home/abramov/ParallelParameters/'
+parallel_parameters_path = '/home/abramov/ParallelParameters/stats/'
 
 if __name__ == "__main__":
     with open(parallel_parameters_path + 'CS_parameters.cfg', 'w') as file:
@@ -13,7 +13,7 @@ if __name__ == "__main__":
                 with open(syn_path, 'r') as syn:
                     for line in syn:
                         line = line.strip('\n').split('\t')
-                        if line[1] and line[2]:
+                        if line[1]:
                             GTRD_name = line[0].replace('(', '').replace(')', '').replace(' ', '_')
                             COSMIC_name = line[1]
                             names.append(GTRD_name)

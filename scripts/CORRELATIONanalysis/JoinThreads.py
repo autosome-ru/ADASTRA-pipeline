@@ -1,11 +1,11 @@
 import os
 
 Correlation_path = '/home/abramov/Correlation/'
-out_path = Correlation_path + 'cor_stats.tsv'
+out_path = Correlation_path + 'cor_stats_test.tsv'
 
 
 def get_name_by_dir(dir_name):
-    return dir_name.split('_')[0].split('/')[-1]
+    return dir_name[:dir_name.rfind('_')].split('/')[-1]
 
 
 snp_dirs = []

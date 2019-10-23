@@ -1,7 +1,7 @@
 import os
 
-parallel_parameters_dir = '/home/abramov/ParallelParameters/'
-Ploidy_path = '/home/abramov/Ploidy/'
+parallel_parameters_dir = '/home/abramov/ParallelParameters/stats/'
+Ploidy_path = '/home/abramov/PloidyForRelease/'
 Correlation_path = '/home/abramov/Correlation/'
 
 file_dirs = {
@@ -18,7 +18,7 @@ def refactor_filename(line, param_file):
 
 
 for file_name in os.listdir(parallel_parameters_dir):
-    if file_name.endswith('.cfg') and file_name != 'tmp.cfg':
+    if file_name in file_dirs:
         with open(parallel_parameters_dir + file_name, 'r') as file, open(parallel_parameters_dir
                                                                           + 'tmp.cfg', 'w') as tmp:
             assert file_name != 'tmp.cfg'
