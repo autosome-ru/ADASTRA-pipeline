@@ -140,7 +140,3 @@ rm "$OUT${BAMNAME}_ready.bam"
 rm "$OUT${BAMNAME}_formated.bam"
 
 echo "Total intermediate .bam size: $bam_size"
-
-exit 0
-
-exit 0
