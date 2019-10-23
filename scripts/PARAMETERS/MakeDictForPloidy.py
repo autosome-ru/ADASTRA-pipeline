@@ -3,7 +3,7 @@ import json
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path, alignments_path
+from scripts.HELPERS.paths import alignments_path, ploidy_dict_path, GTRD_slice_path
 
 
 def findLAB(enc):
@@ -77,9 +77,9 @@ def MakeDict(masterList):
         value = d[key]
         sorted_value = sorted(list(value))
         d[key] = sorted_value
-    with open(parameters_path + "CELL_LINES.json", "w") as write_file:
+    with open(ploidy_dict_path, "w") as write_file:
         json.dump(d, write_file)
     print("Dictionary Saved")
 
 
-MakeDict(parameters_path + "Master-lines.tsv")
+MakeDict(GTRD_slice_path)

@@ -4,6 +4,7 @@ import sys
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import parameters_path, parallel_parameters_path
 
+out_path = parallel_parameters_path + 'Agr_parameters.cfg'
 
 if __name__ == "__main__":
     expected_args = {"CL": "TF", "TF": "CL"}
@@ -14,6 +15,6 @@ if __name__ == "__main__":
         d = json.loads(read_file.readline())
 
     keys = sorted(d.keys())
-    with open(parallel_parameters_path + 'Agr_parameters.cfg', 'w') as file:
+    with open(out_path, 'w') as file:
         for key in keys:
             file.write(key + '\n')

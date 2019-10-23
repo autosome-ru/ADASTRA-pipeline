@@ -4,7 +4,7 @@ from scipy.stats import binom_test
 import os.path
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_path, parameters_path
+from scripts.HELPERS.paths import ploidy_path, ploidy_dict_path
 from scripts.HELPERS.helpers import ChromPos
 
 
@@ -48,7 +48,7 @@ def make_reverse_dict(dictionary):
 full_path = sys.argv[1]
 key = full_path + ".vcf.gz"
 
-with open(parameters_path + "CELL_LINES.json", "r") as read_file:
+with open(ploidy_dict_path, "r") as read_file:
     d = json.loads(read_file.readline())
     rev_d = make_reverse_dict(d)
 

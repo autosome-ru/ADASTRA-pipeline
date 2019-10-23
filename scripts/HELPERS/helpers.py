@@ -49,6 +49,47 @@ class ChromPos:
         return abs(self.pos - other.pos)
 
 
+Nucleotides = {'A', 'T', 'G', 'C'}
+
+
+def make_dict_from_vcf(vcf, vcf_dict):
+    strange = 0
+    for line in vcf:
+        if line[0] == '#':
+            continue
+        line = line.split()
+        chr = line[0]
+        pos = int(line[1])
+        if not len(line[3]) == 1 or not len(line[4]) == 1:
+            continue
+        if line[3] not in Nucleotides or line[4] not in Nucleotides:
+            continue
+        Inf = line[-1].split(':')
+        R = int(Inf[1].split(',')[0])
+        if Inf[1].split(",")[1] == "":
+            print(line)
+            print(vcf)
+        A = int(Inf[1].split(',')[1])
+        if min(R, A) < 3:
+            continue
+        GT = Inf[0]
+        if GT != '0/1':
+            continue
+        NAME = line[2]
+        REF = line[3]
+        ALT = line[4]
+        prev_value = vcf_dict.get((chr, pos), None)
+        if prev_value:
+            if NAME != prev_value[2] or REF != prev_value[3] or ALT != prev_value[4]:
+                strange += 1
+                continue
+            vcf_dict[(chr, pos)] = (R + prev_value[0], A + prev_value[1], NAME, REF, ALT)
+        else:
+            vcf_dict[(chr, pos)] = (R, A, NAME, REF, ALT)
+    
+    return strange
+
+
 class GObject:
     def __init__(self, chr, pos, value, qual, snpn):
         self.chr_pos = ChromPos(chr, pos)

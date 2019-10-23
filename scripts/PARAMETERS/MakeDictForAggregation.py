@@ -2,7 +2,7 @@ import json
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path, alignments_path
+from scripts.HELPERS.paths import parameters_path, alignments_path, GTRD_slice_path
 
 
 def createpath(line):
@@ -11,7 +11,7 @@ def createpath(line):
 
 def makedict(what_for):
     d = dict()
-    with open(parameters_path + "Master-lines.tsv", "r") as m:
+    with open(GTRD_slice_path, "r") as m:
         master = m.readlines()
     for line in master:
         if line[0] == "#":
