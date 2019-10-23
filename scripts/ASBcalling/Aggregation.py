@@ -235,7 +235,7 @@ if __name__ == '__main__':
             refalt_dict = dict()
 
             for method, sort_key in (('maxdepth', lambda j: c_cover[j]),
-                                ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
+                                     ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
                 try:
                     i_most = min([i for i in range(len(c_cover))
                                   if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_fpalt - m_fpref)],
