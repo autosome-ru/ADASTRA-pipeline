@@ -107,6 +107,7 @@ if __name__ == '__main__':
                     if p_ref == '.' or p_ref == 0 or p_alt == 0 or ploidy == 0:
                         continue
                     cov = ref_c + alt_c
+
                     try:
                         common_snps[(chr, pos, ID, ref, alt)].append(
                             (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq,
@@ -234,7 +235,7 @@ if __name__ == '__main__':
             refalt_dict = dict()
 
             for method, sort_key in (('maxdepth', lambda j: c_cover[j]),
-                                ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
+                                     ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
                 try:
                     i_most = min([i for i in range(len(c_cover))
                                   if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_fpalt - m_fpref)],
