@@ -1,6 +1,8 @@
 from statistics import mean, median_grouped
 from scipy.stats import kendalltau
 
+callers_names = ['macs', 'sissrs', 'cpics', 'gem']
+
 class ChromPos:
     chrs = {'chrX', 'chrY'}
     for i in range(1, 22):

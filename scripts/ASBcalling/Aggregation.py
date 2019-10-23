@@ -10,6 +10,7 @@ from collections import OrderedDict
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import results_path, parameters_path
+from scripts.HELPERS.helpers import callers_names
 
 
 def unpack(line):
@@ -21,7 +22,6 @@ def unpack(line):
     alt = line[4]
     Q = float(line[7])
     ref_c, alt_c, GQ, in_macs, in_sissrs, in_cpics, in_gem = map(int, line[5:7] + line[8:13])
-    callers = in_macs + in_sissrs + in_cpics + in_gem
     dip_qual, lq, rq, seg_c = map(int, line[15:19])
     ploidy = float(line[14])
     if line[19] == '.':
@@ -29,8 +29,9 @@ def unpack(line):
         p_alt = '.'
     else:
         p_ref, p_alt = map(float, line[19:21])
+    in_callers = dict(zip(callers_names, [in_macs, in_sissrs, in_cpics, in_gem]))
 
-    return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers, ploidy, \
+    return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers, ploidy, \
            dip_qual, lq, rq, seg_c, p_ref, p_alt
 
 
@@ -101,24 +102,25 @@ if __name__ == '__main__':
                 for line in file:
                     if line[0] == '#':
                         continue
-                    (chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers,
+                    (chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers,
                      ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = unpack(line)
+                    
                     if p_ref == '.' or p_ref == 0 or p_alt == 0 or ploidy == 0:
                         continue
                     cov = ref_c + alt_c
 
                     try:
                         common_snps[(chr, pos, ID, ref, alt)].append(
-                            (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq,
+                            (cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq,
                              seg_c, p_ref, p_alt, table_name, another_agr))
                     except KeyError:
-                        common_snps[(chr, pos, ID, ref, alt)] = [(cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq,
-                                                                  seg_c, p_ref, p_alt, table_name, another_agr)]
+                        common_snps[(chr, pos, ID, ref, alt)] = [(cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq,
+                                                                  rq, seg_c, p_ref, p_alt, table_name, another_agr)]
 
     print('Writing ', key_name)
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'w') as out:
-        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'm_callers', 'm_ploidy', 'm_q', 'm_dipq',
+        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'total_callers', 'unique_callers', 'm_ploidy', 'm_q', 'm_dipq',
                         'm_segc', 'm_datasets', 'maxdepth_ref/alt', 'maxdepth_ploidy', 'maxdepth_m1',
                         'maxdepth_m2', 'mostsig_ref/alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
                         'min_cover', 'max_cover', 'med_cover', 'mean_cover', 'total_cover', 'm1', 'm2',
@@ -126,16 +128,10 @@ if __name__ == '__main__':
 
         filtered_snps = dict()
         for key in common_snps:
-            is_greater = False
-            SNPs_values = []
             for value in common_snps[key]:
-                if value[1] < 3 or value[2] < 3:
-                    continue
-                SNPs_values.append(value)
                 if value[0] >= 10:
-                    is_greater = True
-            if is_greater:
-                filtered_snps[key] = SNPs_values
+                    filtered_snps[key] = common_snps[key]
+                    break
 
         counter = 0
         print(len(filtered_snps), 'snps')
@@ -152,7 +148,8 @@ if __name__ == '__main__':
             counter += 1
             if counter % 10000 == 0:
                 print(counter, 'done')
-            c_callers = []
+            c_uniq_callers = dict(zip(callers_names, [False]*len(callers_names)))
+            m_total_callers = 0
             c_ploidy = []
             c_dipq = []
             c_q = []
@@ -168,18 +165,13 @@ if __name__ == '__main__':
             c_alt = []
 
             for v in value:
-                (cov, ref_c, alt_c, callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt, table_name, another_agr) = v
-
-                # if p_ref <= 0 or p_alt <= 0:
-                #     print('Wrong P!')
-                #     print(dict(zip(('chr', 'pos', 'ID', 'ref', 'alt', 'cov', 'ref_c', 'alt_c', 'callers', 'ploidy',
-                #                     'dip_qual', 'lq', 'rq', 'seg_c', 'p_ref',
-                #                'p_alt', 'table_name', 'another_agr'), list(key) + list(v))))
-                #     continue
+                cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt, table_name, another_agr = v
 
                 c_table_names.append(table_name)
                 c_another_agr.append(another_agr)
-                c_callers.append(callers)
+                for caller in callers_names:
+                    c_uniq_callers[caller] = c_uniq_callers[caller] or in_callers[caller]
+                    m_total_callers += in_callers[caller]
                 c_ploidy.append(ploidy)
                 c_dipq.append(dip_qual)
                 if ploidy == 1:
@@ -208,7 +200,7 @@ if __name__ == '__main__':
             max_cover = max(c_cover)
             med_cover = median_grouped(c_cover)
             mean_cover = np.round(np.mean(c_cover), 1)
-            m_callers = np.round(np.mean(c_callers), 2)
+            m_unique_callers = sum(c_uniq_callers[caller] for caller in callers_names)
             m_ploidy = np.round(np.mean(c_ploidy), 2)
             m_dipq = np.round(np.mean(c_dipq), 1)
             m_q = np.round(np.mean(c_q), 1)
@@ -257,7 +249,7 @@ if __name__ == '__main__':
                     m2_dict[method] = 0
 
             out.write(pack(
-                [chr, pos, ID, ref, alt, m_callers, m_ploidy, m_q, m_dipq, m_segc, m_datasets,
+                [chr, pos, ID, ref, alt, m_total_callers, m_unique_callers, m_ploidy, m_q, m_dipq, m_segc, m_datasets,
                  refalt_dict['maxdepth'], p_dict['maxdepth'], m1_dict['maxdepth'], m2_dict['maxdepth'],
                  refalt_dict['mostsig'], p_dict['mostsig'], m1_dict['mostsig'], m2_dict['mostsig'],
                  min_cover, max_cover, med_cover, mean_cover, mean_cover * m_datasets,
