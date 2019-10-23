@@ -323,6 +323,7 @@ class ChromosomeSegmentation:  # chrom
         self.FILE = open(seg.FILE, 'r')
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
         self.CRITICAL_GAP_FACTOR = seg.CRITICAL_GAP_FACTOR
+        self.CRITICAL_GAP = None
 
         self.bpos = []  # border positions, tuples or ints
         self.ests = []  # estimated BADs for split segments

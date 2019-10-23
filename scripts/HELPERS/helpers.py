@@ -1,6 +1,3 @@
-from statistics import mean, median_grouped
-from scipy.stats import kendalltau
-
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
 chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
@@ -13,42 +10,42 @@ Nucleotides = {'A', 'T', 'G', 'C'}
 
 class ChromPos:
     chrs = dict(zip(['chr' + str(i) for i in range(1, 22)] + ['chrX', 'chrY'], chr_l))
-    
+
     def __init__(self, chr, pos):
         assert chr in self.chrs
         self.chr = chr
         self.pos = int(pos)
-    
+
     def __lt__(self, other):
         if self.chr == other.chr:
             return self.pos < other.pos
         else:
             return self.chr < other.chr
-    
+
     def __gt__(self, other):
         if self.chr == other.chr:
             return self.pos > other.pos
         else:
             return self.chr > other.chr
-    
+
     def __le__(self, other):
         if self.chr == other.chr:
             return self.pos <= other.pos
         else:
             return self.chr <= other.chr
-    
+
     def __ge__(self, other):
         if self.chr == other.chr:
             return self.pos >= other.pos
         else:
             return self.chr >= other.chr
-    
+
     def __eq__(self, other):
         return (self.chr, self.pos) == (other.chr, other.pos)
-    
+
     def __ne__(self, other):
         return (self.chr, self.pos) != (other.chr, other.pos)
-    
+
     def distance(self, other):
         if self.chr != other.chr:
             return float('inf')
@@ -76,15 +73,15 @@ class Intersection:
         self.segment_start = None
         self.segment_end = None
         self.has_segments = True
-        
+
     def __iter__(self):
         return self
-    
+
     def return_snp(self, intersect):
         return (self.snp_coordinate.chr, self.snp_coordinate.pos, self.snp_args) \
                + (int(intersect),) * self.write_intersect \
                + tuple(arg * intersect for arg in self.seg_args) * self.write_segment_args
-    
+
     def get_next_snp(self):
         try:
             snp_chr, pos, *self.snp_args = self.unpack_snp_function(next(self.snps))
@@ -94,7 +91,7 @@ class Intersection:
             self.snp_coordinate = ChromPos(snp_chr, pos)
         except ValueError:
             raise StopIteration
-    
+
     def get_next_segment(self):
         try:
             seg_chr, start_pos, end_pos, *self.seg_args = self.unpack_segments_function(next(self.segments))
@@ -105,16 +102,16 @@ class Intersection:
             self.segment_end = ChromPos(seg_chr, end_pos)
         except (StopIteration, ValueError):
             self.has_segments = False
-        
+
     def __next__(self):
         if self.snp_coordinate is None:
             self.get_next_snp()
         if self.segment_start is None:
             self.get_next_segment()
-        
+
         while self.has_segments and self.snp_coordinate >= self.segment_end:
             self.get_next_segment()
-            
+
         if self.has_segments and self.snp_coordinate >= self.segment_start:
             x = self.return_snp(True)
             self.get_next_snp()
@@ -160,38 +157,38 @@ def make_dict_from_vcf(vcf, vcf_dict):
 
 
 def unpack(line, use_in):
-    if use_in == "Pcounter" and line[0] == '#':
-        return [None] * 3
-    line = line.strip().split('\t')
-    chr = line[0]
-    pos = int(line[1])
-    ID = line[2]
-    ref = line[3]
-    alt = line[4]
-    ref_c, alt_c = map(int, line[5:7])
+    line_split = line.strip().split('\t')
+    chr = line_split[0]
+    pos = int(line_split[1])
+    ID = line_split[2]
+    ref = line_split[3]
+    alt = line_split[4]
+    ref_c, alt_c = map(int, line_split[5:7])
     if use_in == "PloidyEstimation":
         return chr, pos, ID, ref, alt, ref_c, alt_c
-    Q = float(line[7])
-    GQ = int(line[8])
+    Q = float(line_split[7])
+    GQ = int(line_split[8])
     difference = len(callers_names)
 
-    peaks = map(int, line[9:9 + difference])
+    peaks = map(int, line_split[9:9 + difference])
     in_callers = dict(zip(callers_names, [peaks]))
     if use_in == "Pcounter":
-        return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers
+        if line[0] == '#':
+            return [None] * 3
+        else:
+            return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers
 
     if use_in == "Aggregation":
-        dip_qual, lq, rq, seg_c = map(int, line[10 + difference:14 + difference])
-        ploidy = float(line[9 + difference])
-        if line[19] == '.':
+        dip_qual, lq, rq, seg_c = map(int, line_split[10 + difference:14 + difference])
+        ploidy = float(line_split[9 + difference])
+        if line_split[19] == '.':
             p_ref = '.'
             p_alt = '.'
         else:
-            p_ref, p_alt = map(float, line[14 + difference:16 + difference])
-        return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers, ploidy, \
-               dip_qual, lq, rq, seg_c, p_ref, p_alt
+            p_ref, p_alt = map(float, line_split[14 + difference:16 + difference])
+        return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt
 
-    raise ValueError('{} not in Aggregation, P-value, PloidyEstimation options for function usage'.format(use_in))
+    raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
 
 
 def pack(values):
