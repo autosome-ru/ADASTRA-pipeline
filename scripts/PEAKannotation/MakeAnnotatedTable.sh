@@ -95,7 +95,7 @@ if [ $withcpics != false ]; then
 
 fi
 
-$python3 Annotate.py "$VCFexp.vcf.gz"  "$OUT${EXPNAME}_table.txt"
+$python3 Annotate.py "$VCFexp"  "$OUT${EXPNAME}_table.txt"
 # TODO: make intersect great again
 $Bedtools intersect ///  > "$OUT${EXPNAME}_table_annotated.txt"
 

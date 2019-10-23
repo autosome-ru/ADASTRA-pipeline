@@ -4,9 +4,6 @@ import gzip
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import make_dict_from_vcf
 
-
-# TODO FIX Annotate.py
-
 if __name__ == "__main__":
     vcf = gzip.open(sys.argv[1], 'rt')
 
