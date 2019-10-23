@@ -10,21 +10,18 @@ from scripts.HELPERS.helpers import make_dict_from_vcf
 
 def merge_vcfs(out_file_name, in_files):
     vcf_dict = dict()
-    strange = 0
     for file in in_files:
         with gzip.open(file, 'rt') as vcf:
-            strange += make_dict_from_vcf(vcf, vcf_dict)
+            make_dict_from_vcf(vcf, vcf_dict)
     
     vcf_keys = list(vcf_dict.keys())
     vcf_keys.sort(key=lambda cords: cords[1])
     vcf_keys.sort(key=lambda cords: cords[0])
     
     with open(out_file_name, 'w') as out:
-        for (chr, pos) in vcf_keys:
-            (R, A, NAME, REF, ALT) = vcf_dict.get((chr, pos))
-            out.write('\t'.join(map(str, [chr, pos, NAME, REF, ALT, R, A])) + '\n')
-    
-    print('Skipped {0} mismatched SNPS'.format(strange))
+        for (chr, pos, ID, REF, ALT) in vcf_keys:
+            (R, A) = vcf_dict[(chr, pos, ID, REF, ALT)]
+            out.write('\t'.join(map(str, [chr, pos, ID, REF, ALT, R, A])) + '\n')
 
 
 if __name__ == '__main__':

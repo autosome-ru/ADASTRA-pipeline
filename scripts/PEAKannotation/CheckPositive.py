@@ -7,6 +7,7 @@ from scripts.HELPERS.helpers import ChromPos
 
 file = sys.argv[1]
 out = sys.argv[2]
+peak_type = sys.argv[3]
 
 name = ".".join(file.split(".")[-3:-1]).split("/")[-1]
 with zipfile.ZipFile(file, "r") as archive:
@@ -24,4 +25,7 @@ with open(out, 'w') as o:
             continue
         if int(split_line[1]) < 0 or int(split_line[2]) < 0:
             continue
+        if peak_type == "gem":
+            split_line[1] = str(max(int(split_line[1]) - 150, 0))
+            split_line[2] = str(min(int(split_line[2]) + 150, ChromPos.chrs[split_line[0]]))
         o.write('\t'.join(split_line[:3]) + '\n')

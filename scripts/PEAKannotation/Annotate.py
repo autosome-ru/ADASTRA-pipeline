@@ -17,4 +17,5 @@ if __name__ == "__main__":
     exp_keys = sorted(exp_keys, key=lambda x: x[1])
     exp_keys = sorted(exp_keys, key=lambda x: x[0])
 
-    out = sys.argv[10]
+    # TODO: check if in repeat regions
+    out = sys.argv[2]

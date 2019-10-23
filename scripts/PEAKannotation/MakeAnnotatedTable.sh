@@ -12,51 +12,48 @@ withmacs=false
 withsissrs=false
 withcpics=false
 withgem=false
-macs=-1
-sissrs=-1
-cpics=-1
-gem=-1
+
 
 while [ "$(echo "$1" | cut -c1)" = "-" ]
 do
-    case "$1" in
-	-Out) OUT=$2
-		shift 2;;
+  case "$1" in
 
-	-macs) withmacs=true
-		macs=$2
-		shift 2;;
+	  -Out) OUT=$2
+		  shift 2;;
 
-	-sissrs) withsissrs=true
-		sissrs=$2
-		shift 2;;
+	  -macs) withmacs=true
+		  macs=$2
+		  shift 2;;
 
-	-cpics) withcpics=true
-		cpics=$2
-		shift 2;;
+	  -sissrs) withsissrs=true
+		  sissrs=$2
+		  shift 2;;
 
-	-gem) withgem=true
-		gem=$2
-		shift 2;;
+	  -cpics) withcpics=true
+		  cpics=$2
+		  shift 2;;
 
-	-VCFexp) VCFexp=$2
-		tmp=$( GETNAME "$VCFexp" )
-		EXPNAME=${tmp%.*}
-		shift 2;;
+	  -gem) withgem=true
+		  gem=$2
+		  shift 2;;
 
-	*)
-		echo "There is no option $1"
-		break;;
+	  -VCFexp) VCFexp=$2
+		  tmp=$( GETNAME "$VCFexp" )
+		  EXPNAME=${tmp%.*}
+		  shift 2;;
 
-    esac
+	  *)
+		  echo "There is no option $1"
+		  break;;
+
+  esac
 done
-
 
 if [ $withgem != false ]; then
 	# shellcheck disable=SC2154
-	$python3 CheckPositive.py "$gem"
+	$python3 CheckPositive.py "$gem" "$OUT${EXPNAME}_gem.bed" 'gem'
 	# shellcheck disable=SC2154
-	$Bedtools sort -i "$gem" > "$gem.sorted"
+	$Bedtools sort -i "$OUT${EXPNAME}_gem.bed" > "$OUT${EXPNAME}_gem.bed.sorted"
 
 	if [ $? != 0 ]; then
 		echo "Failed to sort gem peaks"
@@ -66,8 +63,8 @@ if [ $withgem != false ]; then
 fi
 
 if [ $withmacs != false ]; then
-	$python3 CheckPositive.py "$macs"
-	$Bedtools sort -i "$macs" > "$macs.sorted"
+	$python3 CheckPositive.py "$macs" "$OUT${EXPNAME}_macs.bed" 'macs'
+	$Bedtools sort -i "$OUT${EXPNAME}_macs.bed" > "$OUT${EXPNAME}_macs.bed.sorted"
 
 	if [ $? != 0 ]; then
 		echo "Failed to sort macs peaks"
@@ -77,8 +74,8 @@ if [ $withmacs != false ]; then
 fi
 
 if [ $withsissrs != false ]; then
-	$python3 CheckPositive.py "$sissrs"
-	$Bedtools sort -i "$sissrs" > "$sissrs.sorted"
+	$python3 CheckPositive.py "$sissrs" "$OUT${EXPNAME}_sissrs.bed" 'sissrs'
+	$Bedtools sort -i "$OUT${EXPNAME}_sissrs.bed" > "$OUT${EXPNAME}_sissrs.bed.sorted"
 
 	if [ $? != 0 ]; then
 		echo "Failed to sort sissrs peaks"
@@ -88,8 +85,8 @@ if [ $withsissrs != false ]; then
 fi
 
 if [ $withcpics != false ]; then
-	$python3 CheckPositive.py "$cpics"
-	$Bedtools sort -i "$cpics" > "$cpics.sorted"
+	$python3 CheckPositive.py "$cpics" "$OUT${EXPNAME}_cpics.bed" 'cpics'
+	$Bedtools sort -i "$OUT${EXPNAME}_cpics.bed" > "$OUT${EXPNAME}_cpics.bed.sorted"
 
 	if [ $? != 0 ]; then
 		echo "Failed to sort cpics peaks"
@@ -98,23 +95,31 @@ if [ $withcpics != false ]; then
 
 fi
 
-$python3 Annotate.py "$OUT${EXPNAME}.vcf.gz" "$macs.sorted" "$sissrs.sorted" "$cpics.sorted" "$gem.sorted" \
-                      $withmacs $withsissrs $withcpics $withgem "$OUT${EXPNAME}_table_annotated.txt"
+$python3 Annotate.py "$OUT${EXPNAME}.vcf.gz"  "$OUT${EXPNAME}_table.txt"
+
+$Bedtools intersect ///  > "$OUT${EXPNAME}_table_annotated.txt"
+
+
+rm "$OUT${EXPNAME}_table.txt"
 
 if [ "$withgem" != false ]; then
-	rm "${gem}.sorted"
+	rm "$OUT${EXPNAME}_gem.bed"
+	rm "$OUT${EXPNAME}_gem.bed.sorted"
 fi
 
 if [ "$withcpics" != false ]; then
-	rm "${cpics}.sorted"
+	rm "$OUT${EXPNAME}_cpics.bed"
+	rm "$OUT${EXPNAME}_cpics.bed.sorted"
 fi
 
 if [ "$withmacs" != false ]; then
-	rm "${macs}.sorted"
+	rm "$OUT${EXPNAME}_macs.bed"
+  rm "$OUT${EXPNAME}_macs.bed.sorted"
 fi
 
 if [ "$withsissrs" != false ]; then
-	rm "${sissrs}.sorted"
+	rm "$OUT${EXPNAME}_sissrs.bed"
+  rm "$OUT${EXPNAME}_sissrs.bed.sorted"
 fi
 
 

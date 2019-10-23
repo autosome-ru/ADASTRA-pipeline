@@ -3,10 +3,18 @@ from scipy.stats import kendalltau
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
+chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
+         145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
+         101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
+         156040895, 57227415]
+
 class ChromPos:
-    chrs = {'chrX', 'chrY'}
+    chrs = []
     for i in range(1, 22):
-        chrs.add('chr' + str(i))
+        chrs.append('chr' + str(i))
+    chrs += ['chrX', 'chrY']
+
+    chrs = dict(zip(chrs, chr_l))
     
     def __init__(self, chr, pos):
         assert chr in self.chrs
@@ -53,7 +61,6 @@ Nucleotides = {'A', 'T', 'G', 'C'}
 
 
 def make_dict_from_vcf(vcf, vcf_dict):
-    strange = 0
     for line in vcf:
         if line[0] == '#':
             continue
@@ -77,19 +84,14 @@ def make_dict_from_vcf(vcf, vcf_dict):
         GT = Inf[0]
         if GT != '0/1':
             continue
-        NAME = line[2]
+        ID = line[2]
         REF = line[3]
         ALT = line[4]
-        prev_value = vcf_dict.get((chr, pos), None)
-        if prev_value:
-            if NAME != prev_value[2] or REF != prev_value[3] or ALT != prev_value[4]:
-                strange += 1
-                continue
-            vcf_dict[(chr, pos)] = (R + prev_value[0], A + prev_value[1], NAME, REF, ALT)
-        else:
-            vcf_dict[(chr, pos)] = (R, A, NAME, REF, ALT)
-    
-    return strange
+        try:
+            prev_value = vcf_dict[(chr, pos, ID, REF, ALT)]
+            vcf_dict[(chr, pos, ID, REF, ALT)] = (R + prev_value[0], A + prev_value[1])
+        except KeyError:
+            vcf_dict[(chr, pos, ID, REF, ALT)] = (R, A)
 
 
 class GObject:
