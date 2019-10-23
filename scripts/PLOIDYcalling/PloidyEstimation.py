@@ -518,6 +518,8 @@ class GenomeSegmentator:  # seg
     
     def write_ploidy_to_file(self, chrom):
         segments = self.append_ploidy_segments(chrom)
+        segments = sorted(segments, key=lambda x: x[1])
+        segments = sorted(segments, key=lambda x: x[0])
         
         filtered_segments = self.filter_segments(segments, self.ISOLATED_SNP_FILTER)
         for segment in filtered_segments:
@@ -534,12 +536,10 @@ class GenomeSegmentator:  # seg
     @staticmethod
     def filter_segments(segments, snp_number_tr=3):
         is_bad_left = False
-        bad_segments_indexes = set()
         is_bad_segment = False
         for k in range(len(segments)):
-            if segments[k][7] <= snp_number_tr:  # если k сегмент "плохой"
+            if segments[k][7] < snp_number_tr and segments[k][3] != 0:  # если k сегмент "плохой"
                 if is_bad_segment:  # если k-1 тоже "плохой"
-                    bad_segments_indexes.add(k - 1)  # убрать k-1
                     is_bad_left = True
                 else:
                     is_bad_left = False
@@ -550,22 +550,15 @@ class GenomeSegmentator:  # seg
                         # если CNR k-1 сегмента больше CNR k-2 и k сегментов
                         if segments[k][3] > segments[k - 2][3]:  # если CNR k сегмента больше CNR k-2
                             segments[k - 1][3] = segments[k][3]  # присвоить CNR k сегмента
-                        elif segments[k][3] < segments[k - 2][3]:  # если CNR k-2 сегмента больше CNR k
+                        else:  # если CNR k-2 сегмента больше CNR k
                             segments[k - 1][3] = segments[k - 2][3]  # присвоить CNR k-2 сегмента
-                        else:  # CNR равны
-                            segments[k - 1][3] = segments[k][3]
-                        
+
                         for j in range(4, 7):
                             segments[k - 1][j] = 0
                     is_bad_left = True
                 is_bad_segment = False  # текущий сегмент хороший, следующий шаг цикла
-        
-        filtered_segments = []
-        for k in range(len(segments)):
-            if k in bad_segments_indexes:
-                continue
-            filtered_segments.append(segments[k])
-        return filtered_segments
+
+        return segments
 
 
 if __name__ == '__main__':
