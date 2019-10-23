@@ -542,28 +542,28 @@ class GenomeSegmentator:  # seg
 
     @staticmethod
     def filter_segments(segments, snp_number_tr=3):
-        # is_bad_left = False
-        # is_bad_segment = False
-        # for k in range(len(segments)):
-        #     if segments[k][7] < snp_number_tr and segments[k][3] != 0:  # если k сегмент "плохой"
-        #         if is_bad_segment:  # если k-1 тоже "плохой"
-        #             is_bad_left = True
-        #         else:
-        #             is_bad_left = False
-        #         is_bad_segment = True  # текущий сегмент плохой, следующий шаг цикла
-        #     else:  # k сегмент хороший
-        #         if is_bad_segment and not is_bad_left and k > 1:  # а k-1 плохой и k-2 хороший
-        #             if segments[k][3] < segments[k - 1][3] and segments[k - 2][3] < segments[k - 1][3]:
-        #                 # если CNR k-1 сегмента больше CNR k-2 и k сегментов
-        #                 if segments[k][3] > segments[k - 2][3]:  # если CNR k сегмента больше CNR k-2
-        #                     segments[k - 1][3] = segments[k][3]  # присвоить CNR k сегмента
-        #                 else:  # если CNR k-2 сегмента больше CNR k
-        #                     segments[k - 1][3] = segments[k - 2][3]  # присвоить CNR k-2 сегмента
-        #
-        #                 for j in range(4, 7):
-        #                     segments[k - 1][j] = 0
-        #             is_bad_left = True
-        #         is_bad_segment = False  # текущий сегмент хороший, следующий шаг цикла
+        is_bad_left = False
+        is_bad_segment = False
+        for k in range(len(segments)):
+            if segments[k][7] < snp_number_tr and segments[k][3] != 0:  # если k сегмент "плохой"
+                if is_bad_segment:  # если k-1 тоже "плохой"
+                    is_bad_left = True
+                else:
+                    is_bad_left = False
+                is_bad_segment = True  # текущий сегмент плохой, следующий шаг цикла
+            else:  # k сегмент хороший
+                if is_bad_segment and not is_bad_left and k > 1:  # а k-1 плохой и k-2 хороший
+                    if segments[k][3] < segments[k - 1][3] and segments[k - 2][3] < segments[k - 1][3]:
+                        # если CNR k-1 сегмента больше CNR k-2 и k сегментов
+                        if segments[k][3] > segments[k - 2][3]:  # если CNR k сегмента больше CNR k-2
+                            segments[k - 1][3] = segments[k][3]  # присвоить CNR k сегмента
+                        else:  # если CNR k-2 сегмента больше CNR k
+                            segments[k - 1][3] = segments[k - 2][3]  # присвоить CNR k-2 сегмента
+
+                        for j in range(4, 7):
+                            segments[k - 1][j] = 0
+                    is_bad_left = True
+                is_bad_segment = False  # текущий сегмент хороший, следующий шаг цикла
 
         return segments
 
@@ -655,7 +655,7 @@ if __name__ == '__main__':
     print(arr)
     merge_vcfs(out_file, arr)
     for model, mode, states, prior in (
-            ('Corrected/', 'corrected', [], False),
+            ('Corrected-1,5/', 'corrected', [1.5], False),
     ):
         t = time.clock()
         if not os.path.isdir(ploidy_path + model):

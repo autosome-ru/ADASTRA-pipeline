@@ -3,7 +3,7 @@ import sys
 from scipy.stats import binom_test
 import os.path
 
-ploidy_path = "/home/abramov/PloidyForHotFix2/"
+ploidy_path = "/home/abramov/PloidyForHotFix/"
 parameters_path = "/home/abramov/PARAMETERS/"
 
 
@@ -94,8 +94,6 @@ if ploidy_file is None:
 else:
     ploidy = create_ploidy(ploidy_file)
     if os.path.isfile(ploidy):
-        if "ANDR_HUMAN" not in full_path:
-            exit(0)
         table_annotated = full_path + "_table_annotated.txt"
         output = full_path + "_table_p.txt"
         segments = []
@@ -108,11 +106,11 @@ else:
         
         segments = sorted(segments, key=lambda x: int(x[1]))
         segments = sorted(segments, key=lambda x: x[0])
-        
         if len(segments) == 0:
             print('Ploidy file is empty!')
             exit(1)
-        snps = []
+
+        snps = []  # sorting snps
         with open(table_annotated, 'r') as file:
             for line in file:
                 if line[0] == '#':
@@ -120,6 +118,7 @@ else:
                 snps.append(unpack(line))
         snps = sorted(snps, key=lambda x: x[1])
         snps = sorted(snps, key=lambda x: x[0])
+
         print('Now doing', table_annotated, '\n', 'with ploidy file', ploidy_file)
         with open(output, 'w') as out:
             current = 0

@@ -8,14 +8,9 @@ import statsmodels.stats.multitest
 import pandas as pd
 from collections import OrderedDict
 
-results_path = '/home/abramov/DATAForHotFix2/'
+results_path = '/home/abramov/DATAForHotFix/'
 parameters_path = '/home/abramov/PARAMETERS/'
-dicts_path = '/home/abramov/DATAForHotFix2/'
-
-grasp = [384814, 1884467, 3122049, 3735402, 4146016, 4650150, 7546930, 10210631]
-grasp_rs = set()
-for id in grasp:
-    grasp_rs.add("rs" + str(id))
+dicts_path = '/home/abramov/DATAForHotFix/'
 
 
 def unpack(line):
@@ -109,8 +104,6 @@ if __name__ == '__main__':
                         continue
                     (chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_macs, in_sissrs, in_cpics, in_gem, callers,
                      ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = unpack(line)
-                    if ID in grasp_rs:
-                        print(line)
                     if p_ref == '.' or p_ref == 0 or p_alt == 0 or ploidy == 0:
                         continue
                     cov = ref_c + alt_c
