@@ -240,10 +240,10 @@ if __name__ == '__main__':
                                   if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_fpalt - m_fpref)],
                                  key=sort_key)
                 except ValueError:
-                    refalt_dict[method] = None
-                    p_dict[method] = None
-                    m1_dict[method] = None
-                    m2_dict[method] = None
+                    refalt_dict[method] = 'NaN'
+                    p_dict[method] = 'NaN'
+                    m1_dict[method] = 'NaN'
+                    m2_dict[method] = 'NaN'
                     continue
                 refalt_dict[method] = str(c_ref[i_most]) + '/' + str(c_alt[i_most])
                 p_dict[method] = c_ploidy[i_most]
