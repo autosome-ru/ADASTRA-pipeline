@@ -6,13 +6,6 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import pack, make_dict_from_vcf, Intersection, callers_names
 
 
-def unpack_repeats(line):
-    if line[0] == '#':
-        return []
-    line = line.strip().split("\t")
-    return line[5:8] + [line[11]]
-
-
 def make_sorted_caller_path(path, name):
     return path.strip().split("table_annotated.txt")[0] + name + ".bed.sorted"
 
@@ -30,8 +23,7 @@ if __name__ == "__main__":
     with open(sys.argv[3], "r") as repeats_file:
         new_arr = []
         for chr, pos, ID, REF, ALT, R, A, in_repeats, repeat_type \
-                in Intersection(sorted_lines, repeats_file, write_intersect=True, write_segment_args=True,
-                                unpack_segments_function=unpack_repeats):
+                in Intersection(sorted_lines, repeats_file, write_intersect=True, write_segment_args=True):
             if in_repeats and ID == ".":
                 continue
             new_arr.append([chr, pos, ID, REF, ALT, R, A, repeat_type])
