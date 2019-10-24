@@ -12,7 +12,9 @@ read -ra ADDR <<< "$LINE"
 	TF=${ADDR[1]}
 	AlignName=${ADDR[6]}
 	PeaksName=${ADDR[7]}
-
+if [ "$ExpName" == "#*" ]; then
+  exit 1
+fi
 VCFPath="${AlignmentsPath}EXP/$TF/$ExpName/$AlignName.vcf.gz"
 echo "$VCFPath"
 
