@@ -39,7 +39,7 @@ if __name__ == '__main__':
     
     with open(ploidy, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
 
-        for chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers, ploidy, dip_qual, lq, rq, seg_c in \
+        for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, ploidy, dip_qual, lq, rq, seg_c in \
                 Intersection(table_file, ploidy_file, write_segment_args=True,
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter')):
             if ploidy == '':
@@ -56,6 +56,6 @@ if __name__ == '__main__':
                 p_ref = '.'
                 p_alt = '.'
             
-            out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ] +
+            out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type] +
                            [in_callers[name] for name in callers_names] +
                            [ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt]))

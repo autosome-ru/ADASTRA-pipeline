@@ -166,27 +166,26 @@ def unpack(line, use_in):
     ref_c, alt_c = map(int, line_split[5:7])
     if use_in == "PloidyEstimation":
         return chr, pos, ID, ref, alt, ref_c, alt_c
-    Q = float(line_split[7])
-    GQ = int(line_split[8])
+    repeat = line_split[7]
     difference = len(callers_names)
-
-    peaks = map(int, line_split[9:9 + difference])
+    peaks = map(int, line_split[8:8 + difference])
     in_callers = dict(zip(callers_names, [peaks]))
     if use_in == "Pcounter":
         if line[0] == '#':
             return []
         else:
-            return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers
+            return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
 
+    ploidy = float(line_split[8 + difference])
+    dip_qual, lq, rq, seg_c = map(int, line_split[9 + difference:13 + difference])
+
+    if line_split[13 + difference] == '.':
+        p_ref = '.'
+        p_alt = '.'
+    else:
+        p_ref, p_alt = map(float, line_split[13 + difference:15 + difference])
     if use_in == "Aggregation":
-        dip_qual, lq, rq, seg_c = map(int, line_split[10 + difference:14 + difference])
-        ploidy = float(line_split[9 + difference])
-        if line_split[19] == '.':
-            p_ref = '.'
-            p_alt = '.'
-        else:
-            p_ref, p_alt = map(float, line_split[14 + difference:16 + difference])
-        return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt
+        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt
 
     raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
 

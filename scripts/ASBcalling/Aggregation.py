@@ -76,7 +76,7 @@ if __name__ == '__main__':
                 for line in file:
                     if line[0] == '#':
                         continue
-                    (chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers,
+                    (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
                      ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = unpack(line, use_in="Aggregation")
                     
                     if p_ref == '.' or p_ref == 0 or p_alt == 0 or ploidy == 0:
@@ -84,18 +84,19 @@ if __name__ == '__main__':
                     cov = ref_c + alt_c
 
                     try:
-                        common_snps[(chr, pos, ID, ref, alt)].append(
+                        common_snps[(chr, pos, ID, ref, alt, repeat)].append(
                             (cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq,
                              seg_c, p_ref, p_alt, table_name, another_agr))
                     except KeyError:
-                        common_snps[(chr, pos, ID, ref, alt)] = [(cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq,
-                                                                  rq, seg_c, p_ref, p_alt, table_name, another_agr)]
+                        common_snps[(chr, pos, ID, ref, alt, repeat)] = [(cov, ref_c, alt_c, in_callers, ploidy,
+                                                                          dip_qual, lq, rq, seg_c, p_ref, p_alt,
+                                                                          table_name, another_agr)]
 
     print('Writing ', key_name)
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'w') as out:
-        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'total_callers', 'unique_callers', 'm_ploidy', 'm_q', 'm_dipq',
-                        'm_segc', 'm_datasets', 'maxdepth_ref/alt', 'maxdepth_ploidy', 'maxdepth_m1',
+        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'total_callers', 'unique_callers', 'm_ploidy',
+                        'm_q', 'm_dipq', 'm_segc', 'm_datasets', 'maxdepth_ref/alt', 'maxdepth_ploidy', 'maxdepth_m1',
                         'maxdepth_m2', 'mostsig_ref/alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
                         'min_cover', 'max_cover', 'med_cover', 'mean_cover', 'total_cover', 'm1_ref', 'm1_alt',
                         'm2_ref', 'm2_alt',
@@ -118,7 +119,7 @@ if __name__ == '__main__':
         keys = sorted(keys, key=lambda chr_pos: chr_pos[1])
         keys = sorted(keys, key=lambda chr_pos: chr_pos[0])
         for key in keys:
-            chr, pos, ID, ref, alt = key
+            chr, pos, ID, ref, alt, repeat = key
             value = filtered_snps[key]
             counter += 1
             if counter % 10000 == 0:
@@ -241,7 +242,8 @@ if __name__ == '__main__':
                     m2_dict[method] = 0
 
             out.write(pack(
-                [chr, pos, ID, ref, alt, m_total_callers, m_unique_callers, m_ploidy, m_q, m_dipq, m_segc, m_datasets,
+                [chr, pos, ID, ref, alt, repeat, m_total_callers, m_unique_callers,
+                 m_ploidy, m_q, m_dipq, m_segc, m_datasets,
                  refalt_dict['maxdepth'], p_dict['maxdepth'], m1_dict['maxdepth'], m2_dict['maxdepth'],
                  refalt_dict['mostsig'], p_dict['mostsig'], m1_dict['mostsig'], m2_dict['mostsig'],
                  min_cover, max_cover, med_cover, mean_cover, mean_cover * m_datasets,
