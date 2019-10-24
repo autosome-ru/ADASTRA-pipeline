@@ -10,10 +10,10 @@ from scripts.HELPERS.helpers import pack, make_dict_from_vcf, Intersection, call
 def unpack_repeats(line):
     if line[0] == '#':
         return []
-    return line.strip().split("\t")
+    line = line.strip().split("\t")
+    return line[5:8] + [line[11]]
 
 
-#FIXME
 def make_sorted_caller_path(path, name):
     return path.strip().split("table_annotated.txt")[0] + name + ".bed.sorted"
 
