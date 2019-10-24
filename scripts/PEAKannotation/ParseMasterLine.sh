@@ -10,7 +10,8 @@ read -ra ADDR <<< "$LINE"
 	TF=${ADDR[1]}
 	AlignName=${ADDR[6]}
 	PeaksName=${ADDR[7]}
-echo $ADDR
+echo $ExpName
+echo $AlignName
 echo "Making $ExpName"
 echo "Checking exp VCF"
 if ! [ -f "${AlignmentsPath}EXP/$TF/$ExpName/$AlignName.vcf.gz" ]; then
