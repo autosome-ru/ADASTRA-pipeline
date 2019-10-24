@@ -14,14 +14,15 @@ def unpack_repeats(line):
 
 
 #FIXME
-def make_sorted_caller_path(line):
-    return line
+def make_sorted_caller_path(path, name):
+    return path.strip().split("table_annotated.txt")[0] + name + ".bed.sorted"
 
 
 if __name__ == "__main__":
     exp = dict()
     with gzip.open(sys.argv[1], 'rt') as f:
         make_dict_from_vcf(f, exp)
+    table_annotated_path = sys.argv[2]
 
     sorted_lines = [[chr, pos, ID, REF, ALT, R, A] for ((chr, pos, ID, REF, ALT), (R, A)) in exp.items()]
     sorted_lines = sorted(sorted_lines, key=lambda x: x[1])
@@ -39,7 +40,7 @@ if __name__ == "__main__":
 
     for peak_type in callers_names:
         new_arr = []
-        caller_path = make_sorted_caller_path(callers_names)
+        caller_path = make_sorted_caller_path(table_annotated_path, callers_names)
         if os.path.isfile(caller_path):
             peak_file = open(caller_path, "r")
         else:
@@ -49,6 +50,6 @@ if __name__ == "__main__":
             new_arr.append([chr, pos, ID, REF, ALT, R, A, repeat_type] + in_peaks)
         sorted_lines = new_arr
 
-    with open(sys.argv[2], "w") as out:
+    with open(table_annotated_path, "w") as out:
         for split_line in sorted_lines:
             out.write(pack(split_line))
