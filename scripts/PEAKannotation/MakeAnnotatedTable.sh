@@ -39,8 +39,8 @@ do
     -Rep) RepFile=$2
       shift 2;;
 
-	  -VCFexp) VCFexp=$2
-		  tmp=$( GETNAME "$VCFexp" )
+	  -VCF) VCF=$2
+		  tmp=$( GETNAME "$VCF" )
 		  EXPNAME=${tmp%.*}
 		  shift 2;;
 
@@ -102,7 +102,7 @@ if [ $withcpics != false ]; then
 
 fi
 
-$python3 Annotate.py "$VCFexp" "$OUT${EXPNAME}_table_annotated.txt" "$RepFile"
+$python3 Annotate.py "$VCF" "$OUT${EXPNAME}_table_annotated.txt" "$RepFile"
 
 
 if [ "$withgem" != false ]; then
