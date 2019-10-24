@@ -52,10 +52,10 @@ do
 done
 
 if [ $withgem != false ]; then
+
+	python3 CheckPositive.py "$gem" "$OUT${EXPNAME}_gem.bed" 'gem'
 	# shellcheck disable=SC2154
-	$python3 CheckPositive.py "$gem" "$OUT${EXPNAME}_gem.bed" 'gem'
-	# shellcheck disable=SC2154
-	$Bedtools sort -i "$OUT${EXPNAME}_gem.bed" > "$OUT${EXPNAME}_gem.bed.sorted"
+	bedtools sort -i "$OUT${EXPNAME}_gem.bed" > "$OUT${EXPNAME}_gem.bed.sorted"
 
 	rm "$OUT${EXPNAME}_gem.bed"
 
@@ -67,8 +67,8 @@ if [ $withgem != false ]; then
 fi
 
 if [ $withmacs != false ]; then
-	$python3 CheckPositive.py "$macs" "$OUT${EXPNAME}_macs.bed" 'macs'
-	$Bedtools sort -i "$OUT${EXPNAME}_macs.bed" > "$OUT${EXPNAME}_macs.bed.sorted"
+	python3 CheckPositive.py "$macs" "$OUT${EXPNAME}_macs.bed" 'macs'
+	bedtools sort -i "$OUT${EXPNAME}_macs.bed" > "$OUT${EXPNAME}_macs.bed.sorted"
   rm "$OUT${EXPNAME}_macs.bed"
 
 	if [ $? != 0 ]; then
@@ -79,8 +79,8 @@ if [ $withmacs != false ]; then
 fi
 
 if [ $withsissrs != false ]; then
-	$python3 CheckPositive.py "$sissrs" "$OUT${EXPNAME}_sissrs.bed" 'sissrs'
-	$Bedtools sort -i "$OUT${EXPNAME}_sissrs.bed" > "$OUT${EXPNAME}_sissrs.bed.sorted"
+	python3 CheckPositive.py "$sissrs" "$OUT${EXPNAME}_sissrs.bed" 'sissrs'
+	bedtools sort -i "$OUT${EXPNAME}_sissrs.bed" > "$OUT${EXPNAME}_sissrs.bed.sorted"
   rm "$OUT${EXPNAME}_sissrs.bed"
 
 	if [ $? != 0 ]; then
@@ -91,8 +91,8 @@ if [ $withsissrs != false ]; then
 fi
 
 if [ $withcpics != false ]; then
-	$python3 CheckPositive.py "$cpics" "$OUT${EXPNAME}_cpics.bed" 'cpics'
-	$Bedtools sort -i "$OUT${EXPNAME}_cpics.bed" > "$OUT${EXPNAME}_cpics.bed.sorted"
+	python3 CheckPositive.py "$cpics" "$OUT${EXPNAME}_cpics.bed" 'cpics'
+	bedtools sort -i "$OUT${EXPNAME}_cpics.bed" > "$OUT${EXPNAME}_cpics.bed.sorted"
 
 	rm "$OUT${EXPNAME}_cpics.bed"
 	if [ $? != 0 ]; then
@@ -102,7 +102,7 @@ if [ $withcpics != false ]; then
 
 fi
 
-$python3 Annotate.py "$VCF" "$OUT${EXPNAME}_table_annotated.txt" "$RepFile"
+python3 Annotate.py "$VCF" "$OUT${EXPNAME}_table_annotated.txt" "$RepFile"
 
 
 if [ "$withgem" != false ]; then
