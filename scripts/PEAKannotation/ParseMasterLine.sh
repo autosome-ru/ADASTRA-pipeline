@@ -20,7 +20,7 @@ echo "Making $ExpName"
 echo "Checking exp VCF"
 if ! [ -f "$VCFPath" ]; then
   echo "There is no VCF for exp $ExpName ($TF)"
-  exit
+  exit 1
 fi
 
 if  [ -f "${AlignmentsPath}EXP/$TF/$ExpName/${AlignName}_table_annotated.txt" ]; then
@@ -61,7 +61,7 @@ else
   PEAKS=""
 fi
 
-bash ${PEAKannotationScriptsPath}MakeAnnotatedTable.sh -Out $AlignmentsPath/ExpName/"$TF/$ExpName" \
+bash ${PEAKannotationScriptsPath}MakeAnnotatedTable.sh -Out $AlignmentsPath/EXP/"$TF/$ExpName" \
 		-Rep "$RepPath" \
 		$PeakM $PEAKM $PeakS $PEAKS $PeakG $PEAKG $PeakC $PEAKC\
 		-VCF "$VCFPath"
