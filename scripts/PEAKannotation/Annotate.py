@@ -6,7 +6,6 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import pack, make_dict_from_vcf, Intersection, callers_names
 
 
-# FIXME: change return
 def unpack_repeats(line):
     if line[0] == '#':
         return []
