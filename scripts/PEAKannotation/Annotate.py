@@ -19,7 +19,7 @@ if __name__ == "__main__":
     sorted_lines = [[chr, pos, ID, REF, ALT, R, A] for ((chr, pos, ID, REF, ALT), (R, A)) in exp.items()]
     sorted_lines = sorted(sorted_lines, key=lambda x: x[1])
     sorted_lines = sorted(sorted_lines, key=lambda x: x[0])
-
+    print(sorted_lines)
     with open(sys.argv[3], "r") as repeats_file:
         new_arr = []
         for chr, pos, ID, REF, ALT, R, A, in_repeats, repeat_type \
