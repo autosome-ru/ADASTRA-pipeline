@@ -9,8 +9,8 @@ IFS=$'\t'
 read -ra ADDR <<< "$LINE"
 	ExpName=${ADDR[0]}
 	TF=${ADDR[1]}
-	AlignName=${ADDR[3]}
-	PeaksName=${ADDR[5]}
+	AlignName=${ADDR[6]}
+	PeaksName=${ADDR[7]}
 
 echo "Making $ExpName"
 echo "Checking exp VCF"
