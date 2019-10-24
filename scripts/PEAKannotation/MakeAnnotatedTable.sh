@@ -8,6 +8,9 @@ GETNAME(){
 		echo "${vartmp%.*}"
 }
 
+ScriptsPath="/home/abramov/ASB-Project/scripts/"
+PEAKannotationScriptsPath=${ScriptsPath}PEAKannotation/
+
 withmacs=false
 withsissrs=false
 withcpics=false
@@ -53,7 +56,7 @@ done
 
 if [ $withgem != false ]; then
 
-	python3 CheckPositive.py "$gem" "$OUT${EXPNAME}_gem.bed" 'gem'
+	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$gem" "$OUT${EXPNAME}_gem.bed" 'gem'
 	# shellcheck disable=SC2154
 	bedtools sort -i "$OUT${EXPNAME}_gem.bed" > "$OUT${EXPNAME}_gem.bed.sorted"
 
@@ -67,7 +70,7 @@ if [ $withgem != false ]; then
 fi
 
 if [ $withmacs != false ]; then
-	python3 CheckPositive.py "$macs" "$OUT${EXPNAME}_macs.bed" 'macs'
+	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$macs" "$OUT${EXPNAME}_macs.bed" 'macs'
 	bedtools sort -i "$OUT${EXPNAME}_macs.bed" > "$OUT${EXPNAME}_macs.bed.sorted"
   rm "$OUT${EXPNAME}_macs.bed"
 
@@ -79,7 +82,7 @@ if [ $withmacs != false ]; then
 fi
 
 if [ $withsissrs != false ]; then
-	python3 CheckPositive.py "$sissrs" "$OUT${EXPNAME}_sissrs.bed" 'sissrs'
+	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$sissrs" "$OUT${EXPNAME}_sissrs.bed" 'sissrs'
 	bedtools sort -i "$OUT${EXPNAME}_sissrs.bed" > "$OUT${EXPNAME}_sissrs.bed.sorted"
   rm "$OUT${EXPNAME}_sissrs.bed"
 
@@ -91,7 +94,7 @@ if [ $withsissrs != false ]; then
 fi
 
 if [ $withcpics != false ]; then
-	python3 CheckPositive.py "$cpics" "$OUT${EXPNAME}_cpics.bed" 'cpics'
+	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$cpics" "$OUT${EXPNAME}_cpics.bed" 'cpics'
 	bedtools sort -i "$OUT${EXPNAME}_cpics.bed" > "$OUT${EXPNAME}_cpics.bed.sorted"
 
 	rm "$OUT${EXPNAME}_cpics.bed"
@@ -102,7 +105,7 @@ if [ $withcpics != false ]; then
 
 fi
 
-python3 Annotate.py "$VCF" "$OUT${EXPNAME}_table_annotated.txt" "$RepFile"
+python3 ${PEAKannotationScriptsPath}Annotate.py "$VCF" "$OUT${EXPNAME}_table_annotated.txt" "$RepFile"
 
 
 if [ "$withgem" != false ]; then

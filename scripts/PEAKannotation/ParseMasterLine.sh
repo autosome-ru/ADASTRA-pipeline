@@ -3,8 +3,8 @@
 AlignmentsPath="/home/abramov/Alignments/"
 IntervalsPath="/home/abramov/intervals/"
 RepPath="/home/abramov/Repeats/repeats_regions.tsv"
-ScriptsFolder="/home/abramov/ASB-Project/scripts/"
-
+ScriptsPath="/home/abramov/ASB-Project/scripts/"
+PEAKannotationScriptsPath=${ScriptsPath}PEAKannotation/
 LINE=$1
 IFS=$'\t'
 read -ra ADDR <<< "$LINE"
@@ -60,7 +60,7 @@ else
   PEAKS=""
 fi
 
-bash ${ScriptsFolder}PEAKannotation/MakeAnnotatedTable.sh -Out $AlignmentsPath/ExpName/"$TF/$ExpName" \
+bash ${PEAKannotationScriptsPath}MakeAnnotatedTable.sh -Out $AlignmentsPath/ExpName/"$TF/$ExpName" \
 		-Rep "$RepPath" \
 		$PeakM $PEAKM $PeakS $PEAKS $PeakG $PEAKG $PeakC $PEAKC\
 		-VCF $AlignmentsPath/ExpName/"$TF/$ExpName/$AlignName.vcf.gz"
