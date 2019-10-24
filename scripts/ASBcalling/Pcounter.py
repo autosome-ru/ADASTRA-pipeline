@@ -38,24 +38,9 @@ if __name__ == '__main__':
     print('Now doing {} \n with ploidy file {}'.format(table_annotated, rev_d[key]))
     
     with open(ploidy, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
-        segments = []
-        for line in ploidy_file:
-            if line[0] == "#":
-                continue
-            segments.append(line)
-        segments = sorted(segments, key=lambda x: int(x.strip().split("\t")[1]))
-        segments = sorted(segments, key=lambda x: x.strip().split("\t")[0])
-
-        snps = []
-        for line in table_file:
-            if line[0] == "#":
-                continue
-            snps.append(line)
-        snps = sorted(snps, key=lambda x: int(x.strip().split("\t")[1]))
-        snps = sorted(snps, key=lambda x: x.strip().split("\t")[0])
 
         for chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers, ploidy, dip_qual, lq, rq, seg_c in \
-                Intersection(snps, segments, write_segment_args=True,
+                Intersection(table_file, ploidy_file, write_segment_args=True,
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter')):
             if ploidy == '':
                 ploidy = 0
