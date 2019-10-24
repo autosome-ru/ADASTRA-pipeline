@@ -97,7 +97,8 @@ if __name__ == '__main__':
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'total_callers', 'unique_callers', 'm_ploidy', 'm_q', 'm_dipq',
                         'm_segc', 'm_datasets', 'maxdepth_ref/alt', 'maxdepth_ploidy', 'maxdepth_m1',
                         'maxdepth_m2', 'mostsig_ref/alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
-                        'min_cover', 'max_cover', 'med_cover', 'mean_cover', 'total_cover', 'm1', 'm2',
+                        'min_cover', 'max_cover', 'med_cover', 'mean_cover', 'total_cover', 'm1_ref', 'm1_alt',
+                        'm2_ref', 'm2_alt',
                         'm_hpref', 'm_hpalt', 'm_fpref', 'm_fpalt', 'm_stpref', 'm_stpalt']))
 
         filtered_snps = dict()
@@ -187,12 +188,29 @@ if __name__ == '__main__':
             m_stpref = stats.combine_pvalues(c_pref, method='stouffer')[1]
             m_stpalt = stats.combine_pvalues(c_palt, method='stouffer')[1]
 
-            if c_m1 and c_m2:
-                m1 = np.round(np.mean(c_m1), 3)
-                m2 = np.round(np.mean(c_m2), 3)
+            c_m1_ref = [x for x in c_m1 if x > 0]
+            if c_m1_ref:
+                m1_ref = np.round(np.mean(c_m1_ref), 3)
             else:
-                m1 = 0
-                m2 = 0
+                m1_ref = 0
+
+            c_m1_alt = [x for x in c_m1 if x < 0]
+            if c_m1_alt:
+                m1_alt = np.round(np.mean(c_m1_alt), 3)
+            else:
+                m1_alt = 0
+
+            c_m2_ref = [x for x in c_m2 if x > 0]
+            if c_m2_ref:
+                m2_ref = np.round(np.mean(c_m2_ref), 3)
+            else:
+                m2_ref = 0
+
+            c_m2_alt = [x for x in c_m2 if x < 0]
+            if c_m2_alt:
+                m2_alt = np.round(np.mean(c_m2_alt), 3)
+            else:
+                m2_alt = 0
 
             m1_dict = dict()
             m2_dict = dict()
@@ -227,7 +245,7 @@ if __name__ == '__main__':
                  refalt_dict['maxdepth'], p_dict['maxdepth'], m1_dict['maxdepth'], m2_dict['maxdepth'],
                  refalt_dict['mostsig'], p_dict['mostsig'], m1_dict['mostsig'], m2_dict['mostsig'],
                  min_cover, max_cover, med_cover, mean_cover, mean_cover * m_datasets,
-                 m1, m2,
+                 m1_ref, m1_alt, m2_ref, m2_alt,
                  m_hpref, m_hpalt,
                  m_fpref, m_fpalt,
                  m_stpref, m_stpalt]))
