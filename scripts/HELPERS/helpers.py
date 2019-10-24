@@ -54,7 +54,7 @@ class ChromPos:
 
 def unpack_segments(line):
     if line[0] == '#':
-        return [None] * 3
+        return []
     return line.strip().split('\t')
 
 
