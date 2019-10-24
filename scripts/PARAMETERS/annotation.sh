@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ParametersPath="/home/abramov/Parameters/"
+ParametersPath="/home/abramov/PARAMETERS/"
 ScriptsFolder="/home/abramov/ASB-Project/scripts/"
 
 njobs=$1

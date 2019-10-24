@@ -2,7 +2,7 @@
 
 AlignmentsPath="/home/abramov/Alignments"
 IntervalsPath="/home/abramov/intervals/"
-
+RepPath="/home/abramov/Repeats/repeats_regions.tsv"
 LINE=$1
 IFS=$'\t'
 read -ra ADDR <<< "$LINE"
@@ -56,7 +56,7 @@ else
 fi
 
 bash MakeAnnotatedTable.sh -Out $AlignmentsPath/ExpName/"$TF/$ExpName" \
-		-Rep "$2" \
+		-Rep "$RepPath" \
 		$PeakM $PEAKM $PeakS $PEAKS $PeakG $PEAKG $PeakC $PEAKC\
 		-VCF $AlignmentsPath/ExpName/"$TF/$ExpName/$AlignName.vcf.gz"
 if [ $? != 0 ]; then
