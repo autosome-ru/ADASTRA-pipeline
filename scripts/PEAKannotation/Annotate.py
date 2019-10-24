@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     for peak_type in callers_names:
         new_arr = []
-        caller_path = make_sorted_caller_path(table_annotated_path, callers_names)
+        caller_path = make_sorted_caller_path(table_annotated_path, peak_type)
         if os.path.isfile(caller_path):
             peak_file = open(caller_path, "r")
         else:
