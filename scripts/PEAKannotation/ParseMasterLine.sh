@@ -3,7 +3,6 @@
 AlignmentsPath="/home/abramov/Alignments"
 IntervalsPath="/home/abramov/intervals/"
 
-
 LINE=$1
 IFS=$'\t'
 read -ra ADDR <<< "$LINE"

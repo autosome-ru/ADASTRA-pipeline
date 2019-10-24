@@ -1,5 +1,5 @@
 #!/bin/bash
-source ./Config.cfg
+source ../HELPERS/Config.cfg
 
 while [ "$(echo "$1" | cut -c1)" = "-" ]
 do

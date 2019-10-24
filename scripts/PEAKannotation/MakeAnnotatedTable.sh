@@ -1,5 +1,5 @@
 #!/bin/bash
-source ./Config.cfg
+source ../HELPERS/Config.cfg
 
 GETNAME(){
 	local var=$1
