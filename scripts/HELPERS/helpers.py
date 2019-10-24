@@ -13,8 +13,7 @@ class ChromPos:
 
     def __init__(self, chr, pos):
         if chr not in self.chrs:
-            print(chr)
-        assert chr in self.chrs
+            raise ValueError("Not in valid chromosomes {}".format(chr))
         self.chr = chr
         self.pos = int(pos)
 
