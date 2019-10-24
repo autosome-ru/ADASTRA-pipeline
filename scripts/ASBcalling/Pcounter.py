@@ -35,7 +35,7 @@ if __name__ == '__main__':
     
     ploidy = create_ploidy_path_function(rev_d[key])
     
-    print('Now doing', table_annotated, '\n', 'with ploidy file', rev_d[key])  # FIXME format
+    print('Now doing {} \n with ploidy file {}'.format(table_annotated, rev_d[key]))
     
     with open(ploidy, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
         
