@@ -4,14 +4,13 @@ AlignmentsPath="/home/abramov/Alignments"
 IntervalsPath="/home/abramov/intervals/"
 RepPath="/home/abramov/Repeats/repeats_regions.tsv"
 LINE=$1
-echo $LINE
 IFS=$'\t'
 read -ra ADDR <<< "$LINE"
 	ExpName=${ADDR[0]}
 	TF=${ADDR[1]}
 	AlignName=${ADDR[6]}
 	PeaksName=${ADDR[7]}
-
+echo $ADDR
 echo "Making $ExpName"
 echo "Checking exp VCF"
 if ! [ -f "${AlignmentsPath}EXP/$TF/$ExpName/$AlignName.vcf.gz" ]; then
