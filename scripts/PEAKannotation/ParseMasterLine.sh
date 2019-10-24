@@ -31,7 +31,7 @@ fi
 
 if [ -f "$IntervalsPath/macs/${PeaksName}.interval.zip" ];then
 	PeakM="-macs"
-	PEAKM="$IntervalsPath/intervals/macs/${PeaksName}.interval.zip"
+	PEAKM="$IntervalsPath/macs/${PeaksName}.interval.zip"
 else
   PeakM=""
   PEAKM=""
