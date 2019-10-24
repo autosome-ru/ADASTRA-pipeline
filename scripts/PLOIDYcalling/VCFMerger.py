@@ -40,6 +40,5 @@ if __name__ == '__main__':
         sys.exit(0)
     
     out_file = ploidy_path + key + ".tsv"
-    print(arr)
     
     merge_vcfs(out_file, arr)
