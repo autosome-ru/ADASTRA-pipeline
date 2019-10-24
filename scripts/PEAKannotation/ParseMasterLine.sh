@@ -10,12 +10,14 @@ read -ra ADDR <<< "$LINE"
 	TF=${ADDR[1]}
 	AlignName=${ADDR[6]}
 	PeaksName=${ADDR[7]}
-echo $ExpName
-echo $AlignName
+
+echo "${AlignmentsPath}EXP/$TF/$ExpName/$AlignName.vcf.gz"
+
 echo "Making $ExpName"
 echo "Checking exp VCF"
 if ! [ -f "${AlignmentsPath}EXP/$TF/$ExpName/$AlignName.vcf.gz" ]; then
   echo "There is no VCF for exp $ExpName ($TF)"
+  exit
 fi
 
 if  [ -f "${AlignmentsPath}EXP/$TF/$ExpName/${AlignName}_table_annotated.txt" ]; then
