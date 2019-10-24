@@ -13,11 +13,12 @@ read -ra ADDR <<< "$LINE"
 	AlignName=${ADDR[6]}
 	PeaksName=${ADDR[7]}
 
-echo "${AlignmentsPath}EXP/$TF/$ExpName/$AlignName.vcf.gz"
+VCFPath="${AlignmentsPath}EXP/$TF/$ExpName/$AlignName.vcf.gz"
+echo "$VCFPath"
 
 echo "Making $ExpName"
 echo "Checking exp VCF"
-if ! [ -f "${AlignmentsPath}EXP/$TF/$ExpName/$AlignName.vcf.gz" ]; then
+if ! [ -f "$VCFPath" ]; then
   echo "There is no VCF for exp $ExpName ($TF)"
   exit
 fi
@@ -63,7 +64,7 @@ fi
 bash ${PEAKannotationScriptsPath}MakeAnnotatedTable.sh -Out $AlignmentsPath/ExpName/"$TF/$ExpName" \
 		-Rep "$RepPath" \
 		$PeakM $PEAKM $PeakS $PEAKS $PeakG $PEAKG $PeakC $PEAKC\
-		-VCF $AlignmentsPath/ExpName/"$TF/$ExpName/$AlignName.vcf.gz"
+		-VCF "$VCFPath"
 if [ $? != 0 ]; then
   echo "Failed to make tables"
 
