@@ -13,7 +13,6 @@ withsissrs=false
 withcpics=false
 withgem=false
 
-
 while [ "$(echo "$1" | cut -c1)" = "-" ]
 do
   case "$1" in
@@ -37,6 +36,9 @@ do
 		  gem=$2
 		  shift 2;;
 
+    -Rep) RepFile=$2
+      shift 2;;
+
 	  -VCFexp) VCFexp=$2
 		  tmp=$( GETNAME "$VCFexp" )
 		  EXPNAME=${tmp%.*}
@@ -55,6 +57,8 @@ if [ $withgem != false ]; then
 	# shellcheck disable=SC2154
 	$Bedtools sort -i "$OUT${EXPNAME}_gem.bed" > "$OUT${EXPNAME}_gem.bed.sorted"
 
+	rm "$OUT${EXPNAME}_gem.bed"
+
 	if [ $? != 0 ]; then
 		echo "Failed to sort gem peaks"
 		exit 1
@@ -65,6 +69,7 @@ fi
 if [ $withmacs != false ]; then
 	$python3 CheckPositive.py "$macs" "$OUT${EXPNAME}_macs.bed" 'macs'
 	$Bedtools sort -i "$OUT${EXPNAME}_macs.bed" > "$OUT${EXPNAME}_macs.bed.sorted"
+  rm "$OUT${EXPNAME}_macs.bed"
 
 	if [ $? != 0 ]; then
 		echo "Failed to sort macs peaks"
@@ -76,6 +81,7 @@ fi
 if [ $withsissrs != false ]; then
 	$python3 CheckPositive.py "$sissrs" "$OUT${EXPNAME}_sissrs.bed" 'sissrs'
 	$Bedtools sort -i "$OUT${EXPNAME}_sissrs.bed" > "$OUT${EXPNAME}_sissrs.bed.sorted"
+  rm "$OUT${EXPNAME}_sissrs.bed"
 
 	if [ $? != 0 ]; then
 		echo "Failed to sort sissrs peaks"
@@ -88,6 +94,7 @@ if [ $withcpics != false ]; then
 	$python3 CheckPositive.py "$cpics" "$OUT${EXPNAME}_cpics.bed" 'cpics'
 	$Bedtools sort -i "$OUT${EXPNAME}_cpics.bed" > "$OUT${EXPNAME}_cpics.bed.sorted"
 
+	rm "$OUT${EXPNAME}_cpics.bed"
 	if [ $? != 0 ]; then
 		echo "Failed to sort cpics peaks"
 		exit 1
@@ -95,30 +102,22 @@ if [ $withcpics != false ]; then
 
 fi
 
-$python3 Annotate.py "$VCFexp"  "$OUT${EXPNAME}_table.txt"
-# TODO: make intersect great again
-$Bedtools intersect ///  > "$OUT${EXPNAME}_table_annotated.txt"
+$python3 Annotate.py "$VCFexp" "$OUT${EXPNAME}_table_annotated.txt" "$RepFile"
 
-
-rm "$OUT${EXPNAME}_table.txt"
 
 if [ "$withgem" != false ]; then
-	rm "$OUT${EXPNAME}_gem.bed"
 	rm "$OUT${EXPNAME}_gem.bed.sorted"
 fi
 
 if [ "$withcpics" != false ]; then
-	rm "$OUT${EXPNAME}_cpics.bed"
 	rm "$OUT${EXPNAME}_cpics.bed.sorted"
 fi
 
 if [ "$withmacs" != false ]; then
-	rm "$OUT${EXPNAME}_macs.bed"
   rm "$OUT${EXPNAME}_macs.bed.sorted"
 fi
 
 if [ "$withsissrs" != false ]; then
-	rm "$OUT${EXPNAME}_sissrs.bed"
   rm "$OUT${EXPNAME}_sissrs.bed.sorted"
 fi
 
