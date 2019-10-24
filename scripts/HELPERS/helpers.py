@@ -70,8 +70,8 @@ class Intersection:
         self.unpack_segments_function = unpack_segments_function
         self.write_segment_args = write_segment_args
         self.write_intersect = write_intersect
-        self.snp_args = None
-        self.seg_args = None
+        self.snp_args = []
+        self.seg_args = []
         self.snp_coordinate = None
         self.segment_start = None
         self.segment_end = None
