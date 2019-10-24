@@ -2,7 +2,7 @@
 
 AlignmentsPath="/home/abramov/Alignments/"
 IntervalsPath="/home/abramov/intervals/"
-RepPath="/home/abramov/Repeats/repeats_regions.tsv"
+RepPath="/home/abramov/Repeats/repeats_regions.sorted.tsv"
 ScriptsPath="/home/abramov/ASB-Project/scripts/"
 PEAKannotationScriptsPath=${ScriptsPath}PEAKannotation/
 LINE=$1
