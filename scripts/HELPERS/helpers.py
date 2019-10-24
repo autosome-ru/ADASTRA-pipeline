@@ -12,6 +12,8 @@ class ChromPos:
     chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], chr_l))
 
     def __init__(self, chr, pos):
+        if chr not in self.chrs:
+            print(chr)
         assert chr in self.chrs
         self.chr = chr
         self.pos = int(pos)
@@ -80,9 +82,6 @@ class Intersection:
         return self
 
     def return_snp(self, intersect):
-        print([self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
-               + [int(intersect)] * self.write_intersect \
-               + [arg * intersect for arg in self.seg_args] * self.write_segment_args)
         return [self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
                + [int(intersect)] * self.write_intersect \
                + [arg * intersect for arg in self.seg_args] * self.write_segment_args
