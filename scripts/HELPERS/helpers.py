@@ -85,23 +85,20 @@ class Intersection:
     def get_next_snp(self):
         try:
             snp_chr, pos, *self.snp_args = self.unpack_snp_function(next(self.snps))
-            if snp_chr is None:
-                self.get_next_snp()
-                return
             self.snp_coordinate = ChromPos(snp_chr, pos)
         except ValueError:
-            raise StopIteration
+            self.get_next_snp()
 
     def get_next_segment(self):
         try:
             seg_chr, start_pos, end_pos, *self.seg_args = self.unpack_segments_function(next(self.segments))
-            if seg_chr is None:
-                self.get_next_segment()
-                return
+
             self.segment_start = ChromPos(seg_chr, start_pos)
             self.segment_end = ChromPos(seg_chr, end_pos)
-        except (StopIteration, ValueError):
+        except StopIteration:
             self.has_segments = False
+        except ValueError:
+            self.get_next_segment()
 
     def __next__(self):
         if self.snp_coordinate is None:
@@ -174,7 +171,7 @@ def unpack(line, use_in):
     in_callers = dict(zip(callers_names, [peaks]))
     if use_in == "Pcounter":
         if line[0] == '#':
-            return [None] * 3
+            return []
         else:
             return chr, pos, ID, ref, alt, ref_c, alt_c, Q, GQ, in_callers
 
