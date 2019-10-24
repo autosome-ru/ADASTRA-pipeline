@@ -4,6 +4,7 @@ AlignmentsPath="/home/abramov/Alignments"
 IntervalsPath="/home/abramov/intervals/"
 RepPath="/home/abramov/Repeats/repeats_regions.tsv"
 LINE=$1
+echo $LINE
 IFS=$'\t'
 read -ra ADDR <<< "$LINE"
 	ExpName=${ADDR[0]}
@@ -13,11 +14,11 @@ read -ra ADDR <<< "$LINE"
 
 echo "Making $ExpName"
 echo "Checking exp VCF"
-if ! [ -f "${AlignmentsPath}ExpName/$TF/$ExpName/$AlignName.vcf.gz" ]; then
+if ! [ -f "${AlignmentsPath}EXP/$TF/$ExpName/$AlignName.vcf.gz" ]; then
   echo "There is no VCF for exp $ExpName ($TF)"
 fi
 
-if  [ -f "$AlignmentsPath/ExpName/$TF/$ExpName/${AlignName}_table_annotated.txt" ]; then
+if  [ -f "${AlignmentsPath}EXP/$TF/$ExpName/${AlignName}_table_annotated.txt" ]; then
 	echo "Remaking $ExpName"
 else
 	echo "Making $ExpName first time"
