@@ -9,7 +9,7 @@ Nucleotides = {'A', 'T', 'G', 'C'}
 
 
 class ChromPos:
-    chrs = dict(zip(['chr' + str(i) for i in range(1, 22)] + ['chrX', 'chrY'], chr_l))
+    chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], chr_l))
 
     def __init__(self, chr, pos):
         assert chr in self.chrs
