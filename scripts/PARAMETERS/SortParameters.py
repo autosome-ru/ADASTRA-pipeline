@@ -31,5 +31,5 @@ for file_name in os.listdir(parallel_parameters_path):
             for line in lines:
                 tmp.write(line + '\n')
         os.remove(parallel_parameters_path + file_name)
-        print(parallel_parameters_path + file_name)
+        print("Made parameters {}".format(file_name))
         os.rename(parallel_parameters_path + 'tmp.cfg', parallel_parameters_path + file_name)
