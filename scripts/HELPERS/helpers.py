@@ -80,10 +80,10 @@ class Intersection:
         return self
 
     def return_snp(self, intersect):
-        print([self.snp_coordinate.chr, self.snp_coordinate.pos, self.snp_args] \
+        print([self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
                + [int(intersect)] * self.write_intersect \
                + [arg * intersect for arg in self.seg_args] * self.write_segment_args)
-        return [self.snp_coordinate.chr, self.snp_coordinate.pos, self.snp_args] \
+        return [self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
                + [int(intersect)] * self.write_intersect \
                + [arg * intersect for arg in self.seg_args] * self.write_segment_args
 
