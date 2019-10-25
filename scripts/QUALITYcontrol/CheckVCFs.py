@@ -54,6 +54,7 @@ if __name__ == "__main__":
                 if vcf_path in counted_controls:
                     continue
                 counted_controls.add(vcf_path)
+                print(vcf_path)
                 if os.path.isfile(vcf_path):
                     print(check_vcf(vcf_path))
                     if check_vcf(vcf_path):
