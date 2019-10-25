@@ -76,7 +76,7 @@ print("Made {} VCFS ({} experiment VCFs, {} control VCFs), {} annotated tables, 
     made_control_vcfs, made_annotated_tables, made_p_tables))
 
 print("Total of {} SNPs in experiment VCFs".format(SNP_counter))
-d = sorted(list(dict_SNP_statistics.items()), key=lambda x: x[1])
+d = sorted(list(dict_SNP_statistics.items()), key=lambda x: x[1], reverse=True)
 print(d[:5])
 
 ploidy_control_vcfs = 0
