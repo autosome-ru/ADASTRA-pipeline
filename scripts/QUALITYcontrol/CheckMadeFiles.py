@@ -4,20 +4,11 @@ import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import ploidy_dict_path, create_path_from_GTRD_function, \
-    results_path, parameters_path, GTRD_slice_path, create_ploidy_path_function
+    results_path, parameters_path, GTRD_slice_path, create_ploidy_path_function, make_black_list
 
 
 def create_path_for_agr_name(string, agr_name):
     return results_path + agr_name + "_P-values/" + string + '_common_table.tsv'
-
-
-def make_black_list():
-    with open(parameters_path + "blacklisted_exps.tsv") as bl:
-        black_list = set()
-        for line in bl:
-            exp_name = line.split(";")[0]
-            black_list.add(exp_name)
-    return black_list
 
 
 with open(ploidy_dict_path, "r") as cl_file, \
