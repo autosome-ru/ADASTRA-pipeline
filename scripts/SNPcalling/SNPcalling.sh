@@ -1,19 +1,17 @@
 #!/bin/bash
 source ../HELPERS/Config.cfg
 
+VCF="/home/abramov/REFERENCE/00-common_all.vcf.gz"
+REFERENCE="/home/abramov/REFERENCE/"
 while [ "$(echo "$1" | cut -c1)" = "-" ]
 do
     case "$1" in
     -Out) OUT=$2
         shift 2;;
-    -Ref) REFERENCE=$2
-        shift 2;;
 	  -Exp) BAM=$2
 		    BAMPATH=${BAM%/*}
 		    [ "$BAMPATH" != "$BAM" ] && TMP="${BAM:${#BAMPATH}}"
         BAMNAME=${TMP%.*}
-        shift 2;;
-	  -VCF) VCF=$2
         shift 2;;
     *)
         echo "There is no option $1"
@@ -30,7 +28,7 @@ if [ ! -f "$VCF.tbi" ]; then
 fi
 
 
-FA=$REFERENCE/"genome-norm.fasta"
+FA=${REFERENCE}"genome-norm.fasta"
 
 if [  -f "$BAMPATH/$BAMNAME.bam.bai" ]; then
 	rm "$BAMPATH/$BAMNAME.bam.bai"
@@ -128,10 +126,10 @@ fi
 
 bam_size=0
 
-bam_size=$(($bam_size+$(wc -c <"$OUT${BAMNAME}_formated.bam")))
-bam_size=$(($bam_size+$(wc -c <"$OUT${BAMNAME}_ready.bam")))
-bam_size=$(($bam_size+$(wc -c <"$OUT${BAMNAME}_chop.bam")))
-bam_size=$(($bam_size+$(wc -c <"$OUT${BAMNAME}_final.bam")))
+bam_size=$((bam_size + $(wc -c <"$OUT${BAMNAME}_formated.bam")))
+bam_size=$((bam_size + $(wc -c <"$OUT${BAMNAME}_ready.bam")))
+bam_size=$((bam_size + $(wc -c <"$OUT${BAMNAME}_chop.bam")))
+bam_size=$((bam_size + $(wc -c <"$OUT${BAMNAME}_final.bam")))
 
 rm "$OUT${BAMNAME}_final.bam"
 rm "$OUT${BAMNAME}_final.bai"
