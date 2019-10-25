@@ -9,6 +9,7 @@ if [ "${ADDR[2]}" = "Homo sapiens" ]; then
 	ExpName=${ADDR[0]}
 	TF=${ADDR[1]}
 	AlignName=${ADDR[6]}
+	AlignmentsDownloadPath=${ADDR[7]}
 fi
 
 if [ "$TF" != "None" ]; then
@@ -17,6 +18,7 @@ if [ "$TF" != "None" ]; then
     rm ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.vcf"
   fi
 
+  bash DownloadBam.sh "$AlignmentsDownloadPath" ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.bam"
 	echo "Doing SNPcalling for CTRL $ExpName"
 	bash SNPcalling.sh -Exp ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.bam" \
 	-Out ${AlignmentsPath}"EXP/$TF/$ExpName"
@@ -36,6 +38,8 @@ if [ "$TF" != "None" ]; then
 	fi
 
 else
+  bash DownloadBam.sh "$AlignmentsDownloadPath" ${AlignmentsPath}"CTRL/$ExpName/$AlignName.bam"
+
 	if [ -f ${AlignmentsPath}"CTRL/$ExpName/$AlignName.vcf.gz" ];then
     rm ${AlignmentsPath}"CTRL/$ExpName/$AlignName.vcf.gz"
   fi
