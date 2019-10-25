@@ -24,6 +24,7 @@ def check_vcf(path, missing_chromosomes_threshold=3):
 
     is_bad_vcf = False
     number_of_bad_chromosomes = 0
+    print(path)
     print(a)
     for chr_index in reversed(a):
         if not chr_index:
