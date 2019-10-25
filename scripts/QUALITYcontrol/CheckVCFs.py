@@ -15,5 +15,15 @@ if __name__ == "__main__":
             chr = line[0]
             if not a[chrs[chr]]:
                 a[chrs[chr]] = True
-#TODO: make it works
+
+    is_bad_vcf = False
+    number_of_bad_chromosomes = 0
+    for chr_index in reversed(a):
+        print(chr_index)
+        if chr_index:
+            number_of_bad_chromosomes += 1
+        else:
+            if number_of_bad_chromosomes > 3:
+                is_bad_vcf = True
+                break
 
