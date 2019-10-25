@@ -34,6 +34,8 @@ made_control_vcfs = 0
 made_p_tables = 0
 made_annotated_tables = 0
 counted_controls = set()
+SNP_counter = 0
+dict_SNP_statistics = {}
 
 black_list = make_black_list()
 for line in master_list:
@@ -51,6 +53,18 @@ for line in master_list:
         annotated_table_path = create_path_from_GTRD_function(line, for_what="annotated_table")
         if os.path.isfile(annotated_table_path):
             made_annotated_tables += 1
+            with open(annotated_table_path, "r") as an_table:
+                local_counter = 0
+                for SNP in an_table:
+                    if SNP[0] == "#":
+                        continue
+                    local_counter += 1
+                    SNP_counter += 1
+                try:
+                    el = dict_SNP_statistics[line[1]]
+                    dict_SNP_statistics[line[1]] = el + local_counter
+                except KeyError:
+                    dict_SNP_statistics[line[1]] = local_counter
 
         if len(line) > 10 and line[10] not in black_list:
             vcf_path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)
@@ -60,6 +74,11 @@ for line in master_list:
 print("Made {} VCFS ({} experiment VCFs, {} control VCFs), {} annotated tables, {} P-value tables".format(
     made_control_vcfs + made_experiment_vcfs, made_experiment_vcfs,
     made_control_vcfs, made_annotated_tables, made_p_tables))
+
+print("Total of {} SNPs in experiment VCFs".format(SNP_counter))
+d = sorted(list(dict_SNP_statistics.items()), key=lambda x: x[1])
+print(d[:5])
+
 ploidy_control_vcfs = 0
 ploidy_vcfs_counter = 0
 ploidy_counter = 0
