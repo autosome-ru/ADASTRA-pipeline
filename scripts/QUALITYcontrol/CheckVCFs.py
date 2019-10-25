@@ -54,7 +54,7 @@ if __name__ == "__main__":
                 if vcf_path in counted_controls:
                     continue
                 counted_controls.add(vcf_path)
-                print("g")
                 if os.path.isfile(vcf_path):
+                    print("g")
                     if check_vcf(vcf_path):
                         out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
