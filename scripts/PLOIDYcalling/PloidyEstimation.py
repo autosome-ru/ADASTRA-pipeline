@@ -562,6 +562,8 @@ if __name__ == '__main__':
     out_file = ploidy_path + key + ".tsv"
 
     model = 'Corrected-1,5'
+    if os.path.isfile(out_file):
+        sys.exit(0)
 
     t = time.clock()
     if not os.path.isdir(ploidy_path + model):
