@@ -1,6 +1,6 @@
-import sys
 import gzip
 import os.path
+import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import create_path_from_GTRD_function, make_black_list, GTRD_slice_path, parameters_path, \
@@ -41,20 +41,20 @@ if __name__ == "__main__":
     with open(GTRD_slice_path, "r") as ml, open(out_path, "w") as out:
 
         master_list = ml.readlines()
-    for line in master_list:
-        if line[0] == "#":
-            continue
-        split_line = line.strip().split("\t")
-        if split_line[0] not in black_list:
-            vcf_path = create_path_from_GTRD_function(split_line, for_what="vcf")
-            if os.path.isfile(vcf_path):
-                if check_vcf(vcf_path):
-                    out.write(create_line_for_snp_calling(split_line))
-        if len(split_line) > 10 and split_line[10] not in black_list:
-            vcf_path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)
-            if vcf_path in counted_controls:
+        for line in master_list:
+            if line[0] == "#":
                 continue
-            counted_controls.add(vcf_path)
-            if os.path.isfile(vcf_path):
-                if check_vcf(vcf_path):
-                    out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
+            split_line = line.strip().split("\t")
+            if split_line[0] not in black_list:
+                vcf_path = create_path_from_GTRD_function(split_line, for_what="vcf")
+                if os.path.isfile(vcf_path):
+                    if check_vcf(vcf_path):
+                        out.write(create_line_for_snp_calling(split_line))
+            if len(split_line) > 10 and split_line[10] not in black_list:
+                vcf_path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)
+                if vcf_path in counted_controls:
+                    continue
+                counted_controls.add(vcf_path)
+                if os.path.isfile(vcf_path):
+                    if check_vcf(vcf_path):
+                        out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
