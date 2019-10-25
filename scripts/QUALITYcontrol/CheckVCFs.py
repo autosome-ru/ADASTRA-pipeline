@@ -25,5 +25,6 @@ if __name__ == "__main__":
         else:
             if number_of_bad_chromosomes > 3:
                 is_bad_vcf = True
-                break
+            break
 
+    #TODO: create vcf name from masterlist and write to file in is_bad_vcf
