@@ -13,7 +13,7 @@ chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], [i fo
 
 
 def check_vcf(path, missing_chromosomes_threshold=3):
-    a = [False for i in range(24)]
+    a = [False] * 23
     with gzip.open(path, 'rt') as vcf:
         for line in vcf:
             if line[0] == '#':
