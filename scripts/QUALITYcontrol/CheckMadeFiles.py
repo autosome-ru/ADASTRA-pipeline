@@ -45,6 +45,8 @@ for line in master_list:
     if line[0] == "#":
         continue
     line = line.split("\t")
+    if line[0] in black_list:
+        print(line)
     if line[0] not in black_list:
         not_blacklisted_exps += 1
         vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
