@@ -3,6 +3,8 @@ source ../HELPERS/Config.cfg
 
 VCF="/home/abramov/REFERENCE/00-common_all.vcf.gz"
 REFERENCE="/home/abramov/REFERENCE/"
+
+
 while [ "$(echo "$1" | cut -c1)" = "-" ]
 do
     case "$1" in

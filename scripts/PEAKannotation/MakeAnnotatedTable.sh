@@ -1,6 +1,9 @@
 #!/bin/bash
 source ../HELPERS/Config.cfg
 
+ScriptsPath="/home/abramov/ASB-Project/scripts/"
+PEAKannotationScriptsPath=${ScriptsPath}PEAKannotation/
+
 GETNAME(){
 	local var=$1
 	local varpath=${var%/*}
@@ -8,8 +11,6 @@ GETNAME(){
 		echo "${vartmp%.*}"
 }
 
-ScriptsPath="/home/abramov/ASB-Project/scripts/"
-PEAKannotationScriptsPath=${ScriptsPath}PEAKannotation/
 
 withmacs=false
 withsissrs=false
