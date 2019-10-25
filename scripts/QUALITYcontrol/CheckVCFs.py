@@ -39,9 +39,7 @@ def check_vcf(path, missing_chromosomes_threshold=3):
 black_list = make_black_list()
 counted_controls = set()
 if __name__ == "__main__":
-    with open(GTRD_slice_path, "r") as ml, open(out_path, "w") as out:
-
-        master_list = ml.readlines()
+    with open(GTRD_slice_path, "r") as master_list, open(out_path, "w") as out:
         for line in master_list:
             if line[0] == "#":
                 continue
