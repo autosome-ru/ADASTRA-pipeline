@@ -36,8 +36,6 @@ if __name__ == '__main__':
             arr.append(path)
         else:
             continue
-    if not arr:
-        sys.exit(0)
     
     out_file = ploidy_path + key + ".tsv"
     
