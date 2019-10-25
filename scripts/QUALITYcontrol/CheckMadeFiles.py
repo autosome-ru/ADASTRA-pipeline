@@ -40,6 +40,7 @@ SNP_counter = 0
 dict_SNP_TF_statistics = {}
 
 black_list = make_black_list()
+print(len(master_list))
 for line in master_list:
     if line[0] == "#":
         continue
@@ -76,9 +77,10 @@ for line in master_list:
             if vcf_path in counted_controls:
                 continue
             not_blacklisted_ctrl += 1
+            counted_controls.add(vcf_path)
             if os.path.isfile(vcf_path):
                 made_control_vcfs += 1
-                counted_controls.add(vcf_path)
+
 print("Made {}/{} VCFS ({}/{} experiment VCFs, {}/{} control VCFs), {} annotated tables, {} P-value tables".format(
     made_control_vcfs + made_experiment_vcfs, not_blacklisted_ctrl + not_blacklisted_exps,
     made_experiment_vcfs, not_blacklisted_exps,
