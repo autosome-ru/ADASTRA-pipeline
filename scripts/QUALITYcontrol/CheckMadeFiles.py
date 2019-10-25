@@ -15,7 +15,7 @@ def make_black_list():
     with open(parameters_path + "blacklisted_exps.tsv") as bl:
         black_list = set()
         for line in bl:
-            exp_name = line.split("\t")[0]
+            exp_name = line.split(";")[0]
             black_list.add(exp_name)
     return black_list
 
