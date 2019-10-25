@@ -34,8 +34,6 @@ if __name__ == '__main__':
     for path in d[key]:
         if os.path.isfile(path):
             arr.append(path)
-        else:
-            continue
     
     out_file = ploidy_path + key + ".tsv"
     
