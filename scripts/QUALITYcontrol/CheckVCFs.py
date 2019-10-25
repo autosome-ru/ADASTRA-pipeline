@@ -49,12 +49,12 @@ if __name__ == "__main__":
                 if os.path.isfile(vcf_path):
                     if check_vcf(vcf_path):
                         out.write(create_line_for_snp_calling(split_line))
-            print(black_list, split_line[10], split_line[10] not in black_list)
             if len(split_line) > 10 and split_line[10] not in black_list:
                 vcf_path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)
                 if vcf_path in counted_controls:
                     continue
                 counted_controls.add(vcf_path)
+                print("g")
                 if os.path.isfile(vcf_path):
                     if check_vcf(vcf_path):
                         out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
