@@ -16,8 +16,8 @@ if [ "$TF" != "None" ]; then
   if [ -f ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.vcf" ];then
     rm ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.vcf"
   fi
-  
-	echo "Doing SNPcalling "
+
+	echo "Doing SNPcalling for CTRL $ExpName"
 	bash SNPcalling.sh -Exp ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.bam" \
 	-Out ${AlignmentsPath}"EXP/$TF/$ExpName"
 	if [ $? != 0 ]; then
@@ -40,7 +40,7 @@ else
     rm ${AlignmentsPath}"CTRL/$ExpName/$AlignName.vcf.gz"
   fi
 
-	echo "Doing SNPcalling"
+	echo "Doing SNPcalling for $TF $ExpName"
 	bash SNPcalling.sh -Exp ${AlignmentsPath}"CTRL/$ExpName/$AlignName.bam" \
 		-Out ${AlignmentsPath}"CTRL/$ExpName"
 	if [ $? != 0 ]; then
