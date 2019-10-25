@@ -8,11 +8,12 @@ from scripts.HELPERS.paths import create_path_from_GTRD_function, make_black_lis
 
 
 out_path = parameters_path + "BadVCFs.tsv"
-a = [False for i in range(24)]
+
 chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], [i for i in range(24)]))
 
 
 def check_vcf(path, missing_chromosomes_threshold=3):
+    a = [False for i in range(24)]
     with gzip.open(path, 'rt') as vcf:
         for line in vcf:
             if line[0] == '#':
