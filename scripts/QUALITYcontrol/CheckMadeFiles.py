@@ -29,19 +29,23 @@ with open(ploidy_dict_path, "r") as cl_file, \
     made_cls = json.loads(cls.readline())
     master_list = ml.readlines()
 
+not_blacklisted_exps = 0
+not_blacklisted_ctrl = 0
 made_experiment_vcfs = 0
 made_control_vcfs = 0
 made_p_tables = 0
 made_annotated_tables = 0
 counted_controls = set()
 SNP_counter = 0
-dict_SNP_statistics = {}
+dict_SNP_TF_statistics = {}
 
 black_list = make_black_list()
 for line in master_list:
+    if line[0] == "#":
+        continue
     line = line.split("\t")
     if line[0] not in black_list:
-
+        not_blacklisted_exps += 1
         vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
         if os.path.isfile(vcf_path):
             made_experiment_vcfs += 1
@@ -60,24 +64,30 @@ for line in master_list:
                         continue
                     local_counter += 1
                     SNP_counter += 1
-                try:
-                    el = dict_SNP_statistics[line[1]]
-                    dict_SNP_statistics[line[1]] = el + local_counter
-                except KeyError:
-                    dict_SNP_statistics[line[1]] = local_counter
+                if local_counter != 0:
+                    try:
+                        el = dict_SNP_TF_statistics[line[1]]
+                        dict_SNP_TF_statistics[line[1]] = el + local_counter
+                    except KeyError:
+                        dict_SNP_TF_statistics[line[1]] = local_counter
 
         if len(line) > 10 and line[10] not in black_list:
             vcf_path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)
-            if os.path.isfile(vcf_path) and vcf_path not in counted_controls:
+            if vcf_path in counted_controls:
+                continue
+            not_blacklisted_ctrl += 1
+            if os.path.isfile(vcf_path):
                 made_control_vcfs += 1
                 counted_controls.add(vcf_path)
-print("Made {} VCFS ({} experiment VCFs, {} control VCFs), {} annotated tables, {} P-value tables".format(
-    made_control_vcfs + made_experiment_vcfs, made_experiment_vcfs,
-    made_control_vcfs, made_annotated_tables, made_p_tables))
+print("Made {}/{} VCFS ({}/{} experiment VCFs, {}/{} control VCFs), {} annotated tables, {} P-value tables".format(
+    made_control_vcfs + made_experiment_vcfs, not_blacklisted_ctrl + not_blacklisted_exps,
+    made_experiment_vcfs, not_blacklisted_exps,
+    made_control_vcfs, not_blacklisted_ctrl,
+    made_annotated_tables, made_p_tables))
 
 print("Total of {} SNPs in experiment VCFs".format(SNP_counter))
-d = sorted(list(dict_SNP_statistics.items()), key=lambda x: x[1], reverse=True)
-print(d[:5])
+SNP_TF_statistics = sorted(list(dict_SNP_TF_statistics.items()), key=lambda x: x[1], reverse=True)
+print(SNP_TF_statistics[:5])
 
 ploidy_control_vcfs = 0
 ploidy_vcfs_counter = 0
