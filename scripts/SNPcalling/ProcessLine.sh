@@ -8,16 +8,14 @@ SNPcallingScriptsPath=${ScriptsPath}"SNPcalling/"
 LINE=$1
 IFS=$'\t'
 read -ra ADDR <<< "$LINE"
-if [ "${ADDR[2]}" = "Homo sapiens" ]; then
-	ExpName=${ADDR[0]}
-	TF=${ADDR[1]}
-	ReadGroups=${ADDR[5]}
-	AlignName=${ADDR[6]}
-	AlignmentDownloadPath=${ADDR[7]}
-fi
+
+ExpName=${ADDR[0]}
+TF=${ADDR[1]}
+ReadGroups=${ADDR[5]}
+AlignName=${ADDR[6]}
+AlignmentDownloadPath=${ADDR[7]}
 
 if [ "$TF" != "None" ]; then
-
   if [ -f ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.vcf" ];then
     rm ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.vcf"
   fi
@@ -30,6 +28,7 @@ else
   AlignmentFullPath=${AlignmentsPath}"CTRL/$ExpName/$AlignName.bam"
   OutPath=${AlignmentsPath}"CTRL/$ExpName/"
 fi
+
 bash ${SNPcallingScriptsPath}DownloadBam.sh "$AlignmentDownloadPath" "$AlignmentFullPath"
 
 bash ${SNPcallingScriptsPath}AddReadGroups.sh "$AlignmentFullPath" "$ReadGroups"
