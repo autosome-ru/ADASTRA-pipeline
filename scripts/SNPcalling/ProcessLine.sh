@@ -32,7 +32,7 @@ if [ "$TF" != "None" ]; then
   if ! [ -d ${AlignmentsPath}"EXP/$TF/$ExpName" ]; then
     if ! mkdir ${AlignmentsPath}"EXP/$TF/$ExpName"
     then
-      echo "Failed to make dir $EXP"
+      echo "Failed to make dir $ExpName"
       exit 1
     fi
   else
@@ -48,11 +48,11 @@ else
   if ! [ -d /home/abramov/Alignments/CTRL/"$EXP" ]; then
     if ! mkdir /home/abramov/Alignments/CTRL/"$EXP"
     then
-      echo "Failed to make dir $EXP"
+      echo "Failed to make dir $ExpName"
       exit 1
     fi
   else
-    echo "Directory for $EXP already exists"
+    echo "Directory for $ExpName already exists"
   fi
 
   if [ -f ${AlignmentsPath}"CTRL/$ExpName/$AlignName.vcf.gz" ];then
