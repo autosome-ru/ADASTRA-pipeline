@@ -23,11 +23,14 @@ def check_vcf(path, missing_chromosomes_threshold=2):
             chr = line[0]
             if chr not in ChromPos.chrs:
                 is_bad_vcf = True
+                break
             if not a[chrs[chr]]:
                 a[chrs[chr]] = True
 
     number_of_bad_chromosomes = 0
     print(path)
+    if is_bad_vcf:
+        return is_bad_vcf
     for chr_index in reversed(a):
         print(chr_index)
         if not chr_index:
