@@ -12,7 +12,7 @@ out_path = parameters_path + "BadVCFs.tsv"
 chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], [i for i in range(24)]))
 
 
-def check_vcf(path, missing_chromosomes_threshold=3):
+def check_vcf(path, missing_chromosomes_threshold=2):
     a = [False] * 24
     with gzip.open(path, 'rt') as vcf:
         for line in vcf:
