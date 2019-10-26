@@ -5,7 +5,7 @@ import sys
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import create_path_from_GTRD_function, make_black_list, GTRD_slice_path, parameters_path, \
     create_line_for_snp_calling
-
+from scripts.HELPERS.helpers import ChromPos
 
 out_path = parameters_path + "BadVCFs.tsv"
 
@@ -14,16 +14,18 @@ chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], [i fo
 
 def check_vcf(path, missing_chromosomes_threshold=2):
     a = [False] * 24
+    is_bad_vcf = False
     with gzip.open(path, 'rt') as vcf:
         for line in vcf:
             if line[0] == '#':
                 continue
             line = line.split()
             chr = line[0]
+            if chr not in ChromPos.chrs:
+                is_bad_vcf = True
             if not a[chrs[chr]]:
                 a[chrs[chr]] = True
 
-    is_bad_vcf = False
     number_of_bad_chromosomes = 0
     print(path)
     for chr_index in reversed(a):
