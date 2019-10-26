@@ -15,13 +15,46 @@ ReadGroups=${ADDR[5]}
 AlignName=${ADDR[6]}
 AlignmentDownloadPath=${ADDR[7]}
 
+if [ "$AlignmentDownloadPath" = "None" ];then
+    echo "There is no Path for exp $ExpName"
+    exit 1
+fi
+
 if [ "$TF" != "None" ]; then
+  if ! [ -d ${AlignmentsPath}"EXP/$TF" ]; then
+    if ! mkdir ${AlignmentsPath}"EXP/$TF"
+    then
+      echo "Failed to make dir $TF"
+      exit 1
+    fi
+  fi
+
+  if ! [ -d ${AlignmentsPath}"EXP/$TF/$ExpName" ]; then
+    if ! mkdir ${AlignmentsPath}"EXP/$TF/$ExpName"
+    then
+      echo "Failed to make dir $EXP"
+      exit 1
+    fi
+  else
+    echo "Directory for $ExpName already exists"
+  fi
+
   if [ -f ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.vcf" ];then
     rm ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.vcf"
   fi
   AlignmentFullPath=${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.bam"
   OutPath=${AlignmentsPath}"EXP/$TF/$ExpName/"
 else
+  if ! [ -d /home/abramov/Alignments/CTRL/"$EXP" ]; then
+    if ! mkdir /home/abramov/Alignments/CTRL/"$EXP"
+    then
+      echo "Failed to make dir $EXP"
+      exit 1
+    fi
+  else
+    echo "Directory for $EXP already exists"
+  fi
+
   if [ -f ${AlignmentsPath}"CTRL/$ExpName/$AlignName.vcf.gz" ];then
     rm ${AlignmentsPath}"CTRL/$ExpName/$AlignName.vcf.gz"
   fi
