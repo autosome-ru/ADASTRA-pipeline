@@ -56,54 +56,47 @@ do
 done
 
 if [ $withgem != false ]; then
-
 	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$gem" "$OUT${EXPNAME}_gem.bed" 'gem'
 	# shellcheck disable=SC2154
-	bedtools sort -i "$OUT${EXPNAME}_gem.bed" > "$OUT${EXPNAME}_gem.bed.sorted"
-
-	rm "$OUT${EXPNAME}_gem.bed"
-
-	if [ $? != 0 ]; then
+	if ! bedtools sort -i "$OUT${EXPNAME}_gem.bed" > "$OUT${EXPNAME}_gem.bed.sorted"
+	then
 		echo "Failed to sort gem peaks"
 		exit 1
 	fi
-
+	rm "$OUT${EXPNAME}_gem.bed"
 fi
 
 if [ $withmacs != false ]; then
 	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$macs" "$OUT${EXPNAME}_macs.bed" 'macs'
-	bedtools sort -i "$OUT${EXPNAME}_macs.bed" > "$OUT${EXPNAME}_macs.bed.sorted"
-  rm "$OUT${EXPNAME}_macs.bed"
 
-	if [ $? != 0 ]; then
+	if ! bedtools sort -i "$OUT${EXPNAME}_macs.bed" > "$OUT${EXPNAME}_macs.bed.sorted"
+	then
 		echo "Failed to sort macs peaks"
 		exit 1
 	fi
-
+  rm "$OUT${EXPNAME}_macs.bed"
 fi
 
 if [ $withsissrs != false ]; then
 	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$sissrs" "$OUT${EXPNAME}_sissrs.bed" 'sissrs'
-	bedtools sort -i "$OUT${EXPNAME}_sissrs.bed" > "$OUT${EXPNAME}_sissrs.bed.sorted"
-  rm "$OUT${EXPNAME}_sissrs.bed"
 
-	if [ $? != 0 ]; then
+	if ! bedtools sort -i "$OUT${EXPNAME}_sissrs.bed" > "$OUT${EXPNAME}_sissrs.bed.sorted"
+	then
 		echo "Failed to sort sissrs peaks"
 		exit 1
 	fi
-
+  rm "$OUT${EXPNAME}_sissrs.bed"
 fi
 
 if [ $withcpics != false ]; then
 	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$cpics" "$OUT${EXPNAME}_cpics.bed" 'cpics'
-	bedtools sort -i "$OUT${EXPNAME}_cpics.bed" > "$OUT${EXPNAME}_cpics.bed.sorted"
 
-	rm "$OUT${EXPNAME}_cpics.bed"
-	if [ $? != 0 ]; then
+	if ! bedtools sort -i "$OUT${EXPNAME}_cpics.bed" > "$OUT${EXPNAME}_cpics.bed.sorted"
+	then
 		echo "Failed to sort cpics peaks"
 		exit 1
 	fi
-
+  rm "$OUT${EXPNAME}_cpics.bed"
 fi
 
 python3 ${PEAKannotationScriptsPath}Annotate.py "$VCF" "$OUT${EXPNAME}_table_annotated.txt" "$RepFile"
@@ -124,6 +117,3 @@ fi
 if [ "$withsissrs" != false ]; then
   rm "$OUT${EXPNAME}_sissrs.bed.sorted"
 fi
-
-
-exit 0
