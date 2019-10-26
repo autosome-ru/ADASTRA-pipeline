@@ -5,7 +5,8 @@ ScriptsPath="/home/abramov/ASB-Project/scripts/"
 SNPcallingScriptsPath=${ScriptsPath}"SNPcalling/"
 
 
-LINE=$1
+LINE=$2
+to_download=$1
 IFS=$'\t'
 read -ra ADDR <<< "$LINE"
 
@@ -61,11 +62,12 @@ else
   AlignmentFullPath=${AlignmentsPath}"CTRL/$ExpName/$AlignName.bam"
   OutPath=${AlignmentsPath}"CTRL/$ExpName/"
 fi
-
-if ! bash ${SNPcallingScriptsPath}DownloadBam.sh "$AlignmentDownloadPath" "$AlignmentFullPath"
-then
-  echo "Download failed for $ExpName"
-  exit 1
+if [ "$to_download" == "-d" ]; then
+  if ! bash ${SNPcallingScriptsPath}DownloadBam.sh "$AlignmentDownloadPath" "$AlignmentFullPath"
+  then
+    echo "Download failed for $ExpName"
+    exit 1
+  fi
 fi
 
 if ! bash ${SNPcallingScriptsPath}AddReadGroups.sh "$AlignmentFullPath" "$ReadGroups"
