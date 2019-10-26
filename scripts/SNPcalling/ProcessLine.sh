@@ -29,15 +29,21 @@ else
   OutPath=${AlignmentsPath}"CTRL/$ExpName/"
 fi
 
-bash ${SNPcallingScriptsPath}DownloadBam.sh "$AlignmentDownloadPath" "$AlignmentFullPath"
+if ! bash ${SNPcallingScriptsPath}DownloadBam.sh "$AlignmentDownloadPath" "$AlignmentFullPath"
+then
+  echo "Download failed for $ExpName"
+  exit 1
+fi
 
-bash ${SNPcallingScriptsPath}AddReadGroups.sh "$AlignmentFullPath" "$ReadGroups"
+if ! bash ${SNPcallingScriptsPath}AddReadGroups.sh "$AlignmentFullPath" "$ReadGroups"
+then
+  echo "Failed AddReadGroups $ExpName"
+  exit 1
+fi
 
 echo "Doing SNPcalling for $TF $ExpName"
-bash ${SNPcallingScriptsPath}SNPcalling.sh -Exp "$AlignmentFullPath" \
-	-Out "$OutPath"
-
-if [ $? != 0 ]; then
+if ! bash ${SNPcallingScriptsPath}SNPcalling.sh -Exp "$AlignmentFullPath" -Out "$OutPath"
+then
   echo "Failed SNPcalling $ExpName"
   exit 1
 fi
@@ -45,9 +51,8 @@ fi
 rm "$AlignmentFullPath"
 rm "$AlignmentFullPath.bai"
 
-gzip "$OutPath$AlignName.vcf"
-
-if [ $? != 0 ]; then
+if ! gzip "$OutPath$AlignName.vcf"
+then
 	echo "Failed gzip vcf $ExpName"
 	exit 1
 fi
