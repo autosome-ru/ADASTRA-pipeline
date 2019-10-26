@@ -64,11 +64,12 @@ else
   PEAKS=""
 fi
 
-bash ${PEAKannotationScriptsPath}MakeAnnotatedTable.sh -Out $AlignmentsPath/EXP/"$TF/$ExpName" \
+
+if ! bash ${PEAKannotationScriptsPath}MakeAnnotatedTable.sh -Out $AlignmentsPath/EXP/"$TF/$ExpName" \
 		-Rep "$RepPath" \
 		$PeakM $PEAKM $PeakS $PEAKS $PeakG $PEAKG $PeakC $PEAKC\
 		-VCF "$VCFPath"
-if [ $? != 0 ]; then
+then
   echo "Failed to make tables"
 
 fi
