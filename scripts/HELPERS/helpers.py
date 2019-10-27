@@ -1,3 +1,8 @@
+import sys
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function, GTRD_slice_path, \
+    create_line_for_snp_calling
+
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
 chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
@@ -192,3 +197,25 @@ def unpack(line, use_in):
 
 def pack(values):
     return '\t'.join(map(str, values)) + '\n'
+
+
+def make_list_for_VCFs(out_path, condition_function):
+    black_list = make_black_list()
+    counted_controls = set()
+
+    with open(GTRD_slice_path, "r") as master_list, open(out_path, "w") as out:
+        for line in master_list:
+            if line[0] == "#":
+                continue
+            split_line = line.strip().split("\t")
+            if split_line[0] not in black_list:
+                vcf_path = create_path_from_GTRD_function(split_line, for_what="vcf")
+                if condition_function(vcf_path):
+                    out.write(create_line_for_snp_calling(split_line))
+            if len(split_line) > 10 and split_line[10] not in black_list:
+                vcf_path = create_path_from_GTRD_function(split_line, for_what="vcf", ctrl=True)
+                if vcf_path in counted_controls:
+                    continue
+                counted_controls.add(vcf_path)
+                if condition_function(vcf_path):
+                    out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
