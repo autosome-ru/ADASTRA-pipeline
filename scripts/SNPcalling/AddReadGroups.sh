@@ -1,7 +1,7 @@
 #!/bin/bash
 
 samtools view -H "$1" > "$1.header.txt"
-IFS=";"
+IFS="; "
 read -ra A <<< "$2"
 if [ ${#A[@]} -le 1 ]; then
   exit 0
