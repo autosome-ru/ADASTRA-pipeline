@@ -49,7 +49,9 @@ then
     exit 1
 fi
 # shellcheck disable=SC2154
-if ! $Java "$JavaParameters" -jar "$PICARD" \
+echo $Java
+echo $JavaParameters
+if ! $Java $JavaParameters -jar "$PICARD" \
 	AddOrReplaceReadGroups \
 	I="$OUT/${BAMNAME}_chop.bam" \
 	O="$OUT/${BAMNAME}_formated.bam" \
@@ -74,7 +76,7 @@ then
     exit 1
 fi
 
-if ! $Java "$JavaParameters" -jar "$GATK" \
+if ! $Java $JavaParameters -jar "$GATK" \
 	BaseRecalibrator \
 	-R "$FA" \
 	-I "$OUT/${BAMNAME}_ready.bam" \
