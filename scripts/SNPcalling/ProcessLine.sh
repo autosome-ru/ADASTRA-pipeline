@@ -62,6 +62,7 @@ else
   AlignmentFullPath=${AlignmentsPath}"CTRL/$ExpName/$AlignName.bam"
   OutPath=${AlignmentsPath}"CTRL/$ExpName/"
 fi
+echo "Downloading $ExpName"
 if [ "$to_download" == "-d" ]; then
   if ! bash ${HelpersScriptsPath}DownloadFile.sh "$AlignmentDownloadPath" "$AlignmentFullPath"
   then
@@ -70,6 +71,7 @@ if [ "$to_download" == "-d" ]; then
   fi
 fi
 
+echo "Addong ReadGroups for $ExpName"
 if ! bash ${SNPcallingScriptsPath}AddReadGroups.sh "$AlignmentFullPath" "$ReadGroups"
 then
   echo "Failed AddReadGroups $ExpName"
