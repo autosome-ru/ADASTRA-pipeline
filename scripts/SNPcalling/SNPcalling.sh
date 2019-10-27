@@ -24,7 +24,7 @@ done
 if [ ! -f "$VCF.tbi" ]; then
 	echo "Index file for VCF not found, indexing.."
 	# shellcheck disable=SC2154
-	$Java "$JavaParameters"  -jar "$GATK" \
+	$Java $JavaParameters  -jar "$GATK" \
 		IndexFeatureFile \
        		"-F $VCF"
 fi
@@ -48,9 +48,7 @@ then
     echo "Failed to cut bam"
     exit 1
 fi
-# shellcheck disable=SC2154
-echo $Java
-echo $JavaParameters
+
 if ! $Java $JavaParameters -jar "$PICARD" \
 	AddOrReplaceReadGroups \
 	I="$OUT/${BAMNAME}_chop.bam" \
@@ -65,7 +63,7 @@ then
     exit 1
 fi
 
-if ! $Java "$JavaParameters" -jar "$PICARD" \
+if ! $Java $JavaParameters -jar "$PICARD" \
 	MarkDuplicates \
 	I="$OUT/${BAMNAME}_formated.bam" \
 	O="$OUT/${BAMNAME}_ready.bam" \
@@ -87,7 +85,7 @@ then
     exit 1
 fi
 
-if ! $Java "$JavaParameters" -jar "$GATK" \
+if ! $Java $JavaParameters -jar "$GATK" \
 	ApplyBQSR \
 	-R "$FA" \
 	-I "$OUT/${BAMNAME}_ready.bam" \
@@ -98,7 +96,7 @@ then
     exit 1
 fi
 
-if ! $Java "$JavaParameters" -jar "$GATK" \
+if ! $Java $JavaParameters -jar "$GATK" \
 	HaplotypeCaller \
 	-R "$FA" \
 	-I "$OUT/${BAMNAME}_final.bam" \
