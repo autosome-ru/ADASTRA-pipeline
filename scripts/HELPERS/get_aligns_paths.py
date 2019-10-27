@@ -25,6 +25,8 @@ def extract_aligns(aligns):
 def get_files(lines):
     aligns = {}
     for line in lines:
+        if line[0] == "#":
+            continue
         line = line.strip().split("\t")
         aligns[line[6]] = line
     aligns_paths = extract_aligns(aligns)

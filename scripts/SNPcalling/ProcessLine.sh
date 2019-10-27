@@ -3,7 +3,7 @@
 AlignmentsPath="/home/abramov/Alignments/"
 ScriptsPath="/home/abramov/ASB-Project/scripts/"
 SNPcallingScriptsPath=${ScriptsPath}"SNPcalling/"
-HelpersScriptsPath=${ScriptsPath}"HELPERS"
+HelpersScriptsPath=${ScriptsPath}"HELPERS/"
 
 LINE=$2
 to_download=$1
