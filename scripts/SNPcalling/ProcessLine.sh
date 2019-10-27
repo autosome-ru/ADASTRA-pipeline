@@ -71,7 +71,7 @@ if [ "$to_download" == "-d" ]; then
   fi
 fi
 
-echo "Addong ReadGroups for $ExpName"
+echo "Adding ReadGroups for $ExpName"
 if ! bash ${SNPcallingScriptsPath}AddReadGroups.sh "$AlignmentFullPath" "$ReadGroups"
 then
   echo "Failed AddReadGroups $ExpName"
