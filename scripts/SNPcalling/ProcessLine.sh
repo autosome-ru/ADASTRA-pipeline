@@ -3,7 +3,7 @@
 AlignmentsPath="/home/abramov/Alignments/"
 ScriptsPath="/home/abramov/ASB-Project/scripts/"
 SNPcallingScriptsPath=${ScriptsPath}"SNPcalling/"
-
+HelpersScriptsPath=${ScriptsPath}"HELPERS"
 
 LINE=$2
 to_download=$1
@@ -63,7 +63,7 @@ else
   OutPath=${AlignmentsPath}"CTRL/$ExpName/"
 fi
 if [ "$to_download" == "-d" ]; then
-  if ! bash ${SNPcallingScriptsPath}DownloadBam.sh "$AlignmentDownloadPath" "$AlignmentFullPath"
+  if ! bash ${HelpersScriptsPath}DownloadFile.sh "$AlignmentDownloadPath" "$AlignmentFullPath"
   then
     echo "Download failed for $ExpName"
     exit 1
