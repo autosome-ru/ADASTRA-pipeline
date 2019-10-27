@@ -219,3 +219,4 @@ def make_list_for_VCFs(out_path, condition_function):  # condition function must
                 counted_controls.add(vcf_path)
                 if condition_function(vcf_path):
                     out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
+                    
