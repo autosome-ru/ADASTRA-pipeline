@@ -4,7 +4,7 @@ import json
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import ploidy_dict_path, ploidy_path
-from scripts.HELPERS.helpers import Intersection
+from scripts.HELPERS.helpers import Intersection, pack
 
 scripts_path = '/home/abramov/ASB-Project/scripts'
 Correlation_path = '/home/abramov/Correlation/'
@@ -40,7 +40,7 @@ modes = []
 for file_name in sorted(os.listdir(ploidy_path)):
     if os.path.isdir(ploidy_path + file_name):
         modes.append(file_name)
-        
+
 file_name = sys.argv[1]
 
 assert os.path.isfile(ploidy_path + file_name)
@@ -67,22 +67,12 @@ if name in names:
         print(out_path)
 
         with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
-            objects = []
-            segments = []
-            for line in table:
-                if line[0] == '#':
+            out.write('##' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list))
+            out.write(pack(['#chr', 'pos', 'ref', 'alt', 'ploidy', 'qual', 'segn']))
+            for chr, pos, ref, alt, in_intersection, ploidy, qual, segn \
+                    in Intersection(table, ploidy,
+                                    unpack_segments_function=unpack_ploidy_segments, unpack_snp_function=unpack_snps,
+                                    write_intersect=True, write_segment_args=True):
+                if not in_intersection or ploidy == 0:
                     continue
-                line = line.split()
-                objects.append(GObject(line[0], int(line[1]), int(line[5]), int(line[6])))
-            for line in ploidy:
-                if line[0] == '#':
-                    continue
-                line = line.split()
-                segments.append(Segment(line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[7])))
-                segments = sorted(segments, key=lambda x: x.start)
-
-            out.write('##' + str(len(result)) + '!' + str(datasetsn) + '!' + str(sum(1 for segment in segments if segment.value >= 1)) + '!'+ lab+ '!' +'>'.join(al_list))
-            out.write('\t'.join(['#chr', 'pos', 'ref', 'alt', 'ploidy', 'qual', 'segn']) + '\n')
-            for line in result:
-                out.write('\t'.join(map(str, line)) + '\n')
-
+                out.write(pack([chr, pos, ref, alt, ploidy, qual, segn]))
