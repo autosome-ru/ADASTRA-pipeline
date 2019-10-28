@@ -19,7 +19,7 @@ def check_vcf(path, missing_chromosomes_threshold=2):
         for line in vcf:
             if line[0] == '#':
                 continue
-            line = line.split()
+            line = line.strip().split("\t")
             chr = line[0]
             if chr not in ChromPos.chrs:
                 is_bad_vcf = True
