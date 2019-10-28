@@ -14,6 +14,9 @@ results_path = "/home/abramov/DATA/"
 
 ploidy_dict_path = parameters_path + "CELL_LINES.json"
 GTRD_slice_path = parameters_path + "Master-lines.tsv"
+blacklisted_exps_path = parameters_path + "blacklisted_exps.tsv"
+tf_dict_path = parameters_path + "TF_DICT.json"
+cl_dict_path = parameters_path + "CL_DICT.json"
 
 
 def create_path_from_GTRD_function(line, for_what, ctrl=False):
@@ -43,9 +46,21 @@ def create_line_for_snp_calling(split_line, is_ctrl=False):
 
 
 def make_black_list():
-    with open(parameters_path + "blacklisted_exps.tsv") as bl:
+    with open(blacklisted_exps_path) as bl:
         black_list = set()
         for line in bl:
             exp_name = line.split(";")[0]
             black_list.add(exp_name)
     return black_list
+
+
+def open_aggregation_dict(what_for):
+    aggregation_dict_path = None
+    if what_for == "TF":
+        aggregation_dict_path = tf_dict_path
+    if what_for == "CL":
+        aggregation_dict_path = cl_dict_path
+    if aggregation_dict_path is None:
+        raise ValueError("Incorrect usage of open_aggregation_dict function")
+    return aggregation_dict_path
+

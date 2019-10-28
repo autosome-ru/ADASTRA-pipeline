@@ -1,20 +1,19 @@
-import json
 import sys
+import json
 import os.path
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path, parallel_parameters_path
+from scripts.HELPERS.paths import parallel_parameters_path, open_aggregation_dict
+from scripts.HELPERS.helpers import check_if_in_expected_args
 
 out_path = parallel_parameters_path + 'Agr_parameters.cfg'
 
 if __name__ == "__main__":
-    expected_args = {"CL": "TF", "TF": "CL"}
-    what_for = sys.argv[1]  # "TF" or "CL" arguments are expected
-    if what_for not in expected_args:
-        raise ValueError('{} not in CL, TF'.format(what_for))
-    with open(parameters_path + what_for + '_DICT.json', 'r') as read_file:
+    what_for = sys.argv[1]
+    check_if_in_expected_args(what_for)
+    aggregation_dict_path = open_aggregation_dict(what_for)
+    with open(aggregation_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
-
     keys = sorted(d.keys())
     with open(out_path, 'w') as file:
         for key in keys:

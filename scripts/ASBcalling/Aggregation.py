@@ -9,8 +9,8 @@ import pandas as pd
 from collections import OrderedDict
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import results_path, parameters_path
-from scripts.HELPERS.helpers import callers_names, unpack, pack
+from scripts.HELPERS.paths import results_path, cl_dict_path, tf_dict_path
+from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, expected_args
 
 
 def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return part of the dictionary with fdr from table
@@ -44,11 +44,8 @@ def get_another_agr(path, what_for):
 
 
 if __name__ == '__main__':
-    expected_args = {"CL": "TF", "TF": "CL"}
     what_for = sys.argv[1]  # "TF" or "CL" arguments are expected
-    if what_for not in expected_args:
-        raise ValueError('{} not in CL, TF'.format(what_for))
-
+    check_if_in_expected_args(what_for)
     key_name = sys.argv[2]
 
     if not os.path.isdir(results_path + what_for + '_DICTS/'):
@@ -56,13 +53,13 @@ if __name__ == '__main__':
     if not os.path.isdir(results_path + what_for + "_P-values/"):
         os.mkdir(results_path + what_for + "_P-values/")
 
-    with open(parameters_path + "CL_DICT.json", "r") as read_file:
+    with open(cl_dict_path, "r") as read_file:
         cell_lines_dict = json.loads(read_file.readline())
-    with open(parameters_path + "TF_DICT.json", "r") as read_file:
+    with open(tf_dict_path, "r") as read_file:
         tf_dict = json.loads(read_file.readline())
     tables = []
     if what_for == "CL":
-        tables = cell_lines_dict.get(key_name, None)
+        tables = cell_lines_dict[key_name]
     if what_for == "TF":
         tables = tf_dict[key_name]
     print('Reading datasets for {} '.format(what_for) + key_name)
@@ -78,7 +75,7 @@ if __name__ == '__main__':
                         continue
                     (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
                      ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = unpack(line, use_in="Aggregation")
-                    
+
                     if p_ref == '.' or p_ref == 0 or p_alt == 0 or ploidy == 0:
                         continue
                     cov = ref_c + alt_c
@@ -141,7 +138,8 @@ if __name__ == '__main__':
             c_alt = []
 
             for v in value:
-                cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt, table_name, another_agr = v
+                cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt, table_name, another_agr \
+                    = v
 
                 c_table_names.append(table_name)
                 c_another_agr.append(another_agr)

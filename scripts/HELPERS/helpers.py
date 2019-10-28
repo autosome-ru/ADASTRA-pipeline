@@ -11,6 +11,7 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
          156040895, 57227415]
 
 Nucleotides = {'A', 'T', 'G', 'C'}
+expected_args = {"CL": "TF", "TF": "CL"}
 
 
 class ChromPos:
@@ -219,3 +220,8 @@ def make_list_for_VCFs(out_path, condition_function=lambda x: True):  # conditio
                 counted_controls.add(vcf_path)
                 if condition_function(vcf_path):
                     out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
+
+
+def check_if_in_expected_args(what_for):
+    if what_for not in expected_args:
+        raise ValueError('{} not in CL, TF'.format(what_for))

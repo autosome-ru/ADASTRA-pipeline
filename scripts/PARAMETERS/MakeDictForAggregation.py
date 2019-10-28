@@ -3,10 +3,12 @@ import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import parameters_path, GTRD_slice_path, create_path_from_GTRD_function
+from scripts.HELPERS.helpers import check_if_in_expected_args
 
 
 def makedict(what_for):
     d = dict()
+    check_if_in_expected_args(what_for)
     with open(GTRD_slice_path, "r") as m:
         master = m.readlines()
     for line in master:
@@ -19,7 +21,7 @@ def makedict(what_for):
                 d[ln[1]].append(path)
             except KeyError:
                 d[ln[1]] = [path]
-        elif what_for == "CL":
+        if what_for == "CL":
             cell_line = ln[4].replace("(", "").replace(")", "").replace(" ", "_").replace("/", "_")
             try:
                 d[cell_line].append(path)
