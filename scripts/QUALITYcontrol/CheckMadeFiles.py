@@ -3,8 +3,8 @@ import json
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_dict_path, create_path_from_GTRD_function, \
-    results_path, parameters_path, GTRD_slice_path, create_ploidy_path_function, make_black_list
+from scripts.HELPERS.paths import ploidy_dict_path, create_path_from_GTRD_function, results_path, \
+    GTRD_slice_path, create_ploidy_path_function, make_black_list, cl_dict_path, tf_dict_path
 
 
 def create_path_for_agr_name(string, agr_name):
@@ -13,8 +13,8 @@ def create_path_for_agr_name(string, agr_name):
 
 with open(ploidy_dict_path, "r") as cl_file, \
         open(GTRD_slice_path, "r") as ml, \
-        open(parameters_path + "TF_DICT.json", "r") as tfs, \
-        open(parameters_path + "CL_DICT.json", "r") as cls:
+        open(tf_dict_path, "r") as tfs, \
+        open(cl_dict_path, "r") as cls:
     cell_lines = json.loads(cl_file.readline())
     made_tfs = json.loads(tfs.readline())
     made_cls = json.loads(cls.readline())
