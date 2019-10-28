@@ -40,11 +40,11 @@ if [ "$TF" != "None" ]; then
     echo "Directory for $ExpName already exists"
   fi
 
-  if [ -f ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.vcf" ];then
-    rm ${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.vcf"
+    OutPath=${AlignmentsPath}"EXP/$TF/$ExpName/"
+  if [ -f ${OutPath}"$AlignName.vcf.gz" ];then
+    rm ${OutPath}"$AlignName.vcf.gz"
   fi
   AlignmentFullPath=${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.bam"
-  OutPath=${AlignmentsPath}"EXP/$TF/$ExpName/"
 else
   if ! [ -d /home/abramov/Alignments/CTRL/"$EXP" ]; then
     if ! mkdir /home/abramov/Alignments/CTRL/"$EXP"
@@ -56,11 +56,11 @@ else
     echo "Directory for $ExpName already exists"
   fi
 
-  if [ -f ${AlignmentsPath}"CTRL/$ExpName/$AlignName.vcf.gz" ];then
-    rm ${AlignmentsPath}"CTRL/$ExpName/$AlignName.vcf.gz"
+  OutPath=${AlignmentsPath}"CTRL/$ExpName/"
+  if [ -f ${OutPath}"$AlignName.vcf.gz" ];then
+    rm ${OutPath}"$AlignName.vcf.gz"
   fi
   AlignmentFullPath=${AlignmentsPath}"CTRL/$ExpName/$AlignName.bam"
-  OutPath=${AlignmentsPath}"CTRL/$ExpName/"
 fi
 echo "Downloading $ExpName"
 if [ "$to_download" == "-d" ]; then
