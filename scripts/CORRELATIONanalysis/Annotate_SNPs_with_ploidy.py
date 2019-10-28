@@ -2,83 +2,29 @@ import os
 import sys
 import json
 
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.paths import ploidy_dict_path, ploidy_path
+from scripts.HELPERS.helpers import Intersection
+
 scripts_path = '/home/abramov/ASB-Project/scripts'
-parameters_path = '/home/abramov/PARAMETERS/'
-Ploidy_path = '/home/abramov/Ploidy/'
 Correlation_path = '/home/abramov/Correlation/'
 
 
-class ChromPos:
-    chrs = {'chrX', 'chrY'}
-    for i in range(1, 23):
-        chrs.add('chr' + str(i))
-    
-    def __init__(self, chr, pos):
-        assert chr in self.chrs
-        self.chr = chr
-        self.pos = pos
-    
-    def __lt__(self, other):
-        if self.chr == other.chr:
-            return self.pos < other.pos
-        else:
-            return self.chr < other.chr
-    
-    def __gt__(self, other):
-        if self.chr == other.chr:
-            return self.pos > other.pos
-        else:
-            return self.chr > other.chr
-    
-    def __le__(self, other):
-        if self.chr == other.chr:
-            return self.pos <= other.pos
-        else:
-            return self.chr <= other.chr
-    
-    def __ge__(self, other):
-        if self.chr == other.chr:
-            return self.pos >= other.pos
-        else:
-            return self.chr >= other.chr
-    
-    def __eq__(self, other):
-        return (self.chr, self.pos) == (other.chr, other.pos)
-    
-    def __ne__(self, other):
-        return (self.chr, self.pos) != (other.chr, other.pos)
-    
-    def distance(self, other):
-        if self.chr != other.chr:
-            return float('inf')
-        return abs(self.pos - other.pos)
+def unpack_ploidy_segments(line):
+    line = line.strip().split('\t')
+    return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[7])]
 
 
-class GObject:
-    def __init__(self, chr, pos, ref, alt):
-        self.chr_pos = ChromPos(chr, pos)
-        self.ref = ref
-        self.alt = alt
-
-
-class Segment:
-    def __init__(self, chr, st, ed, value, qual, segn):
-        assert (ed > st)
-        self.start = ChromPos(chr, st)
-        self.end = ChromPos(chr, ed)
-        self.value = value
-        self.qual = qual
-        self.segn = segn
-    
-    def length(self):
-        return self.end.pos - self.start.pos
+def unpack_snps(line):
+    line = line.strip().split('\t')
+    return [line[0], int(line[1]), int(line[5]), int(line[6])]
 
 
 names = []
 with open(scripts_path + '/CORRELATIONanalysis/synonims.tsv', 'r') as syn:
     for line in syn:
         line = line.strip('\n').split('\t')
-        if line[1] and line[2]:
+        if line[1]:
             GTRD_name = line[0].replace('(', '').replace(')', '').replace(' ', '_')
             COSMIC_name = line[1]
             names.append(GTRD_name)
@@ -87,20 +33,21 @@ count = dict()
 for name in names:
     count[name] = 0
 
-with open(parameters_path + 'CELL_LINES.json', 'r') as file:
+with open(ploidy_dict_path, 'r') as file:
     cl = json.loads(file.readline().strip())
 
 modes = []
-for file_name in sorted(os.listdir(Ploidy_path)):
-    if os.path.isdir(Ploidy_path + file_name):
+for file_name in sorted(os.listdir(ploidy_path)):
+    if os.path.isdir(ploidy_path + file_name):
         modes.append(file_name)
         
 file_name = sys.argv[1]
 
-assert os.path.isfile(Ploidy_path + file_name)
+assert os.path.isfile(ploidy_path + file_name)
 
 name = file_name.split('!')[0]
 lab = file_name.split('!')[1][:-4]
+
 try:
     aligns = list(set(cl[file_name[:-4]]))
     datasetsn = len(aligns)
@@ -111,15 +58,15 @@ except KeyError:
     print(file_name)
 if name in names:
     count[name] = count[name] + 1
-    table_path = Ploidy_path + file_name
+    table_path = ploidy_path + file_name
     for mode in modes:
         if not os.path.isdir(Correlation_path + mode + '_tables/'):
             os.mkdir(Correlation_path + mode + '_tables')
-        ploidy_path = Ploidy_path + mode + '/' + name + '!' + lab + '_ploidy.tsv'
+        ploidy_file_path = ploidy_path + mode + '/' + name + '!' + lab + '_ploidy.tsv'
         out_path = Correlation_path + mode + '_tables/' + name + '_' + lab.replace('_', '-') + '.tsv'
         print(out_path)
 
-        with open(table_path, 'r') as table, open(ploidy_path, 'r') as ploidy:
+        with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
             objects = []
             segments = []
             for line in table:
@@ -134,29 +81,6 @@ if name in names:
                 segments.append(Segment(line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[7])))
                 segments = sorted(segments, key=lambda x: x.start)
 
-        with open(out_path, 'w') as out:
-            other_current_idx = 0
-            other_max_idx = len(segments) - 1
-            other_current_start = segments[other_current_idx].start
-            other_current_end = segments[other_current_idx].end
-            result = []  # Object list
-            for object in objects:
-                while object.chr_pos >= other_current_end and other_current_idx + 1 <= other_max_idx:
-                    other_current_idx += 1
-                    other_current_start = segments[other_current_idx].start
-                    other_current_end = segments[other_current_idx].end
-                if object.chr_pos < other_current_start or object.chr_pos >= other_current_end:
-                    continue
-                result.append((
-                    object.chr_pos.chr,
-                    object.chr_pos.pos,
-                    object.ref,
-                    object.alt,
-                    segments[other_current_idx].value,
-                    segments[other_current_idx].qual,
-                    segments[other_current_idx].segn,
-                ))
-            #result = sorted(result, key=lambda x: ChromPos(x[0], x[1]))
             out.write('##' + str(len(result)) + '!' + str(datasetsn) + '!' + str(sum(1 for segment in segments if segment.value >= 1)) + '!'+ lab+ '!' +'>'.join(al_list))
             out.write('\t'.join(['#chr', 'pos', 'ref', 'alt', 'ploidy', 'qual', 'segn']) + '\n')
             for line in result:

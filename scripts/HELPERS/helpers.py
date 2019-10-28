@@ -1,4 +1,6 @@
 import sys
+from typing import List, Union
+
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function, GTRD_slice_path, \
     create_line_for_snp_calling
@@ -219,4 +221,113 @@ def make_list_for_VCFs(out_path, condition_function):  # condition function must
                 counted_controls.add(vcf_path)
                 if condition_function(vcf_path):
                     out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
-                    
+
+
+class Reader:
+    CGH_path = ''
+    SNP_path = ''
+    Cosmic_path = ''
+    synonims_path = ''
+    
+    def read_Cosmic(self, name, mode='normal'):
+        with open(self.Cosmic_path, 'r') as file:
+            result = []
+            for line in file:
+                if line[0] == '#':
+                    continue
+                line = line.strip().split(',')
+                # if int(line[4]) in {4,6,8} or line[3] == '0': continue
+                if line[0] != name:
+                    continue
+                if 'chr' + line[4] not in ChromPos.chrs:
+                    continue
+                if int(line[10]) == 0:
+                    continue
+                
+                if mode == 'normal':
+                    value = int(line[11]) / int(line[10]) - 1
+                elif mode == 'total':
+                    value = int(line[11])
+                else:
+                    raise ValueError(mode)
+                
+                result.append(['chr' + line[4], int(line[5]), int(line[6]), value])
+            if not result:
+                raise KeyError(name)
+            # result.sort_items()
+            return result
+    
+    def read_SNPs(self, method='normal'):
+        with open(self.SNP_path, 'r') as file:
+            result = []
+            for line in file:
+                if line[0] == '#':
+                    idx = line[2:line.rfind('#')].split('!')
+                    aligns = idx[4]
+                    lab = idx[3]
+                    segsegs = idx[2]
+                    datas = idx[1]
+                    idx = idx[0]
+                    if aligns:
+                        aligns = ','.join(aligns.split('>'))
+                    else:
+                        aligns = ''
+                    continue
+                line = line.split()
+                if line[0] not in ChromPos.chrs:
+                    continue
+                if method == 'normal':
+                    if line[4] == 0:
+                        continue
+                    result.append([line[0], int(line[1]), float(line[4]), int(line[5]), int(line[6])])
+                elif method == 'naive':
+                    ref = int(line[2])
+                    alt = int(line[3])
+                    if min(ref, alt) == 0:
+                        continue
+                    result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 10000, 10000])
+                else:
+                    raise KeyError(method)
+            # result.sort_items()
+            return idx, datas, lab, result, aligns, segsegs
+    
+    def read_CGH(self, cgh_name):
+        cgnames = ['BR:MCF7', 'BR:MDA-MB-231', 'BR:HS 578T', 'BR:BT-549', 'BR:T-47D', 'CNS:SF-268', 'CNS:SF-295',
+                   'CNS:SF-539', 'CNS:SNB-19', 'CNS:SNB-75', 'CNS:U251', 'CO:COLO 205', 'CO:HCC-2998', 'CO:HCT-116',
+                   'CO:HCT-15', 'CO:HT29', 'CO:KM12', 'CO:SW-620', 'LE:CCRF-CEM', 'LE:HL-60(TB)', 'LE:K-562',
+                   'LE:MOLT-4', 'LE:RPMI-8226', 'LE:SR', 'ME:LOX IMVI', 'ME:MALME-3M', 'ME:M14', 'ME:SK-MEL-2',
+                   'ME:SK-MEL-28', 'ME:SK-MEL-5', 'ME:UACC-257', 'ME:UACC-62', 'ME:MDA-MB-435', 'ME:MDA-N',
+                   'LC:A549/ATCC', 'LC:EKVX', 'LC:HOP-62', 'LC:HOP-92', 'LC:NCI-H226', 'LC:NCI-H23', 'LC:NCI-H322M',
+                   'LC:NCI-H460', 'LC:NCI-H522', 'OV:IGROV1', 'OV:OVCAR-3', 'OV:OVCAR-4', 'OV:OVCAR-5', 'OV:OVCAR-8',
+                   'OV:SK-OV-3', 'OV:NCI/ADR-RES', 'PR:PC-3', 'PR:DU-145', 'RE:786-0', 'RE:A498', 'RE:ACHN',
+                   'RE:CAKI-1', 'RE:RXF 393', 'RE:SN12C', 'RE:TK-10', 'RE:UO-31']
+        idx = cgnames.index(cgh_name) + 3
+        N = 0
+        with open(self.CGH_path, 'r') as file:
+            result = []
+            for line in file:
+                line = line.strip().split('\t')
+                chr = line[0]
+                if chr not in ChromPos.chrs:
+                    continue
+                pos = (int(line[1]) + int(line[2])) // 2
+                try:
+                    value = 2 ** (1 + float(line[idx]))
+                except ValueError:
+                    continue
+                N += 1
+                result.append([chr, pos, value, 100, 100])
+            # result.sort_items()
+            return N, result
+    
+    def read_synonims(self):
+        cosmic_names = dict()
+        cgh_names = dict()
+        with open(self.synonims_path, 'r') as file:
+            for line in file:
+                line = line.strip('\n').split('\t')
+                if line[1] and line[2]:
+                    name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
+                    cosmic_names[name] = line[1]
+                    cgh_names[name] = line[2]
+        return cosmic_names, cgh_names

@@ -2,7 +2,7 @@ import os
 import sys
 
 sys.path.insert(1, '/home/abramov/ASB-Project')
-from scripts.helpers import Reader
+from scripts.HELPERS.helpers import Reader
 
 scripts_path = '/home/abramov/ASB-Project/scripts/'
 Correlation_path = '/home/abramov/Correlation/'
