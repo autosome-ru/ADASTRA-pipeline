@@ -7,4 +7,3 @@ njobs=$1
 flag=$2
 
 parallel --delay 80 --jobs "$njobs" bash "$ScriptsFolder"SNPcalling/ProcessLine.sh "$flag" :::: "$ParametersPath"/BadVCF.tsv
-
