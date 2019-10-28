@@ -40,10 +40,7 @@ if [ "$TF" != "None" ]; then
     echo "Directory for $ExpName already exists"
   fi
 
-    OutPath=${AlignmentsPath}"EXP/$TF/$ExpName/"
-  if [ -f ${OutPath}"$AlignName.vcf.gz" ];then
-    rm ${OutPath}"$AlignName.vcf.gz"
-  fi
+  OutPath=${AlignmentsPath}"EXP/$TF/$ExpName/"
   AlignmentFullPath=${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.bam"
 else
   if ! [ -d /home/abramov/Alignments/CTRL/"$EXP" ]; then
@@ -57,9 +54,6 @@ else
   fi
 
   OutPath=${AlignmentsPath}"CTRL/$ExpName/"
-  if [ -f ${OutPath}"$AlignName.vcf.gz" ];then
-    rm ${OutPath}"$AlignName.vcf.gz"
-  fi
   AlignmentFullPath=${AlignmentsPath}"CTRL/$ExpName/$AlignName.bam"
 fi
 echo "Downloading $ExpName"
@@ -87,6 +81,10 @@ fi
 
 rm "$AlignmentFullPath"
 rm "$AlignmentFullPath.bai"
+
+if [ -f ${OutPath}"$AlignName.vcf.gz" ];then
+  rm ${OutPath}"$AlignName.vcf.gz"
+fi
 
 if ! gzip "$OutPath$AlignName.vcf"
 then
