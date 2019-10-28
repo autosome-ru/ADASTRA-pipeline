@@ -260,26 +260,30 @@ class Reader:
     def read_SNPs(self, method='normal'):
         with open(self.SNP_path, 'r') as file:
             result = []
+            uniq_segments_count = 0
+            previous_segment = []
             for line in file:
                 if line[0] == '#':
-                    idx = line[2:line.rfind('#')].split('!')
-                    aligns = idx[4]
-                    lab = idx[3]
-                    segsegs = idx[2]
-                    datas = idx[1]
-                    idx = idx[0]
+                    split_header = line[1:].split('!')
+                    datasets_number = split_header[0]
+                    lab = split_header[1]
+                    aligns = split_header[2]
                     if aligns:
                         aligns = ','.join(aligns.split('>'))
                     else:
                         aligns = ''
                     continue
-                line = line.split()
+                line = line.strip().split("\t")
                 if line[0] not in ChromPos.chrs:
                     continue
+                current_segment = [float(line[4]), int(line[5]), int(line[6])]
+                if previous_segment != current_segment:
+                    uniq_segments_count += 1
+                    previous_segment = current_segment
                 if method == 'normal':
                     if line[4] == 0:
                         continue
-                    result.append([line[0], int(line[1]), float(line[4]), int(line[5]), int(line[6])])
+                    result.append([line[0], int(line[1])] + current_segment)
                 elif method == 'naive':
                     ref = int(line[2])
                     alt = int(line[3])
@@ -288,8 +292,8 @@ class Reader:
                     result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 10000, 10000])
                 else:
                     raise KeyError(method)
-            # result.sort_items()
-            return idx, datas, lab, result, aligns, segsegs
+
+            return datasets_number, lab, result, aligns, uniq_segments_count
     
     def read_CGH(self, cgh_name):
         cgnames = ['BR:MCF7', 'BR:MDA-MB-231', 'BR:HS 578T', 'BR:BT-549', 'BR:T-47D', 'CNS:SF-268', 'CNS:SF-295',

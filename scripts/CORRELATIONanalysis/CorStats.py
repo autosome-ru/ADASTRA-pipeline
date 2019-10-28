@@ -7,6 +7,11 @@ from scripts.HELPERS.helpers import Reader
 scripts_path = '/home/abramov/ASB-Project/scripts/'
 Correlation_path = '/home/abramov/Correlation/'
 
+CGH_path = Correlation_path + 'CHIP_hg38.bed'
+cosmic_path = Correlation_path + 'COSMIC_copy_number.csv'
+synonims_path = scripts_path + 'CORRELATIONanalysis/synonims.tsv'
+heatmap_data_path = '/home/abramov/HeatmapData/'
+
 
 def get_name_by_dir(dir_name):
     if dir_name in naive_names:
@@ -27,9 +32,9 @@ if __name__ == '__main__':
             snp_dirs.append(Correlation_path + f_name + '/')
 
     reader = Reader()
-    reader.CGH_path = Correlation_path + 'CHIP_hg38.bed'
-    reader.Cosmic_path = Correlation_path + 'COSMIC_copy_number.csv'
-    reader.synonims_path = scripts_path + 'CORRELATIONanalysis/synonims.tsv'
+    reader.CGH_path = CGH_path
+    reader.Cosmic_path = cosmic_path
+    reader.synonims_path = synonims_path
 
     cosmic_names, cgh_names = reader.read_synonims()
 
@@ -50,34 +55,34 @@ if __name__ == '__main__':
         COSMIC_segments = reader.read_Cosmic(cosmic_names[name])
 
         for snp_dir in snp_dirs + naive_names:
-            type = get_name_by_dir(snp_dir)
-            if type != snp_dir:
+            model = get_name_by_dir(snp_dir)
+            if model != snp_dir:
                 reader.SNP_path = snp_dir + file_name
                 method = 'normal'
-                cosm_dir = '/home/abramov/HeatmapData/' + type + '_tables/'
+                cosm_dir = heatmap_data_path + model + '_tables/'
                 if not os.path.isdir(cosm_dir):
                     os.mkdir(cosm_dir)
                 cosm_path = cosm_dir + file_name
             else:
-                method = type
+                method = model
             # print('reading SNP ' + type)
-            N, datas, lab, SNP_objects, aligns, segsegs = reader.read_SNPs(method=method)
+            number_of_datasets, lab, SNP_objects, aligns, segments_number = reader.read_SNPs(method=method)
 
-            type = get_name_by_dir(snp_dir)
+            model = get_name_by_dir(snp_dir)
 
-            corr_to_objects[type] = 'nan'
-            corr_to_segments[type] = 'nan'
-            seg_segs[type] = segsegs
+            corr_to_objects[model] = 'nan'
+            corr_to_segments[model] = 'nan'
+            seg_segs[model] = segments_number
 
             result = COSMIC_segments.merge_with_object_table(SNP_objects)
             if len(result) != 0:
-                corr_to_segments[type] = COSMIC_segments.correlation_of_merged(method='mean', result=result)
+                corr_to_segments[model] = COSMIC_segments.correlation_of_merged(method='mean', result=result)
             if method == 'normal':
                 result = SNP_objects.print_merged_to_file(COSMIC_segments, cosm_path)
             else:
                 result = SNP_objects.merge_with_segment_table(COSMIC_segments)
             if len(result) != 0:
-                corr_to_objects[type] = SNP_objects.correlation_of_merged(result=result)
+                corr_to_objects[model] = SNP_objects.correlation_of_merged(result=result)
 
         # TODO: add 3-5 neighbours naive
 
@@ -101,16 +106,16 @@ if __name__ == '__main__':
             corr_to_segments_global[name] = CGH_objects.correlation_of_merged(result=result)
 
         out_line = '\t'.join(map(lambda x: '\t'.join(map(str, x)),
-                                 [[name, lab, aligns, N, datas, len(COSMIC_segments.segments)]] +
-                                 [[seg_segs[type],
-                                   corr_to_segments[type],
-                                   corr_to_objects[type]]
-                                  for type in map(lambda x: get_name_by_dir(x), snp_dirs)] +
+                                 [[name, lab, aligns, len(SNP_objects), number_of_datasets, len(COSMIC_segments.segments)]] +
+                                 [[seg_segs[model],
+                                   corr_to_segments[model],
+                                   corr_to_objects[model]]
+                                  for model in map(get_name_by_dir, snp_dirs)] +
                                  [[corr_to_segments[name],
                                    corr_to_objects[name]]
                                   for name in naive_names] +
                                  [[corr_to_segments_global[name],
                                    corr_to_objects_global[name]]]
                                  )) + '\n'
-        print(file_name, N)
+        print(file_name)
         out.write(out_line)
