@@ -199,7 +199,7 @@ def pack(values):
     return '\t'.join(map(str, values)) + '\n'
 
 
-def make_list_for_VCFs(out_path, condition_function):  # condition function must takes path and return boolean
+def make_list_for_VCFs(out_path, condition_function=lambda x: True):  # condition function takes path and return boolean
     black_list = make_black_list()
     counted_controls = set()
 
