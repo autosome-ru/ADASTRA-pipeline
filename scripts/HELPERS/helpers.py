@@ -251,6 +251,7 @@ class CorrelationReader:
             uniq_segments_count = 0
             previous_segment = []
             for line in file:
+                line = line.strip()
                 if line[0] == '#':
                     split_header = line[1:].split('!')
                     datasets_number = split_header[0]
@@ -261,7 +262,7 @@ class CorrelationReader:
                     else:
                         aligns = ''
                     continue
-                line = line.strip().split("\t")
+                line = line.split("\t")
                 if line[0] not in ChromPos.chrs:
                     continue
                 current_segment = [float(line[4]), int(line[5]), int(line[6])]
