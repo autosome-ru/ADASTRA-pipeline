@@ -318,6 +318,8 @@ def correct_cosmic_file(cosmic_file, out_file):
             if line[0] == '#':
                 continue
             line = line.strip().split(',')
+            if not line:
+                continue
             if 'chr' + line[4] not in ChromPos.chrs:
                 continue
             try:
