@@ -1,8 +1,7 @@
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function, GTRD_slice_path, \
-    create_line_for_snp_calling, synonims_path, parameters_path
+import scripts.HELPERS.paths as paths
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
@@ -202,25 +201,25 @@ def pack(values):
 
 
 def make_list_for_VCFs(out_path, condition_function=lambda x: True):  # condition function takes path and return boolean
-    black_list = make_black_list()
+    black_list = paths.make_black_list()
     counted_controls = set()
     
-    with open(GTRD_slice_path, "r") as master_list, open(out_path, "w") as out:
+    with open(paths.GTRD_slice_path, "r") as master_list, open(out_path, "w") as out:
         for line in master_list:
             if line[0] == "#":
                 continue
             split_line = line.strip().split("\t")
             if split_line[0] not in black_list:
-                vcf_path = create_path_from_GTRD_function(split_line, for_what="vcf")
+                vcf_path = paths.create_path_from_GTRD_function(split_line, for_what="vcf")
                 if condition_function(vcf_path):
-                    out.write(create_line_for_snp_calling(split_line))
+                    out.write(paths.create_line_for_snp_calling(split_line))
             if len(split_line) > 10 and split_line[10] not in black_list:
-                vcf_path = create_path_from_GTRD_function(split_line, for_what="vcf", ctrl=True)
+                vcf_path = paths.create_path_from_GTRD_function(split_line, for_what="vcf", ctrl=True)
                 if vcf_path in counted_controls:
                     continue
                 counted_controls.add(vcf_path)
                 if condition_function(vcf_path):
-                    out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
+                    out.write(paths.create_line_for_snp_calling(split_line, is_ctrl=True))
 
 
 def check_if_in_expected_args(what_for):
@@ -231,7 +230,7 @@ def check_if_in_expected_args(what_for):
 def read_synonims():
     cosmic_names = dict()
     cgh_names = dict()
-    with open(synonims_path, 'r') as file:
+    with open(paths.synonims_path, 'r') as file:
         for line in file:
             line = line.strip('\n').split('\t')
             if line[1]:
@@ -333,4 +332,4 @@ def correct_cosmic_file(cosmic_file, out_file):
 
 
 if __name__ == '__main__':
-    correct_cosmic_file(parameters_path + 'COSMIC_copy_number.csv', parameters_path + 'COSMIC_copy_number.sorted.tsv')
+    correct_cosmic_file(paths.parameters_path + 'COSMIC_copy_number.csv', paths.parameters_path + 'COSMIC_copy_number.sorted.tsv')
