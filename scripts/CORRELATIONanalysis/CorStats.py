@@ -32,7 +32,7 @@ def unpack_cosmic_segments(line, mode='normal'):
         return []
 
     if mode == 'normal':
-        value = int(line[4]) / int(line[5]) - 1
+        value = int(line[5]) / int(line[4]) - 1
     elif mode == 'total':
         value = int(line[5])
     else:
