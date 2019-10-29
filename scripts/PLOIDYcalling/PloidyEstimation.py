@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import ploidy_path
-from scripts.HELPERS.helpers import unpack
+from scripts.HELPERS.helpers import unpack, ChromPos, pack
 
 
 class Segmentation(ABC):
@@ -425,11 +425,8 @@ class ChromosomeSegmentation:  # chrom
 
 class GenomeSegmentator:  # seg
     def __init__(self, file, out, segm_mode, extra_states=None, b_penalty='CAIC', prior=None):
-        chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
-                 145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
-                 101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
-                 156040895, 57227415]
-        self.chrs, self.chr_lengths = self.construct_chrs(chr_l, from_sys=False)
+
+        self.chrs = sorted(list(ChromPos.chrs.keys()))
 
         self.mode = segm_mode
         if extra_states:
@@ -445,7 +442,7 @@ class GenomeSegmentator:  # seg
         self.COV_TR = 0  # coverage treshold
         self.INTERSECT = 300
         self.SEG_LENGTH = 600
-        self.ISOLATED_SNP_FILTER = 4
+        self.ISOLATED_SNP_FILTER = 2
         self.chr_segmentations = []  # chroms
 
         self.b_penalty = b_penalty
@@ -458,28 +455,9 @@ class GenomeSegmentator:  # seg
             self.prior[5] = 1.5
 
         for CHR in self.chrs:
-            chrom = ChromosomeSegmentation(self, CHR, self.chr_lengths[CHR])
+            chrom = ChromosomeSegmentation(self, CHR, ChromPos.chrs[CHR])
             print('{} total SNP count: {}'.format(CHR, chrom.LINES))
             self.chr_segmentations.append(chrom)
-
-    @staticmethod
-    def construct_chrs(chr_l, from_sys=False):
-        chrs = []
-        chr_lengths = dict()
-        if from_sys:
-            chrs = sys.argv[3:]
-        else:
-            for i in range(1, 23):
-                chrs.append('chr' + str(i))
-            chrs.append('chrX')
-            chrs.append('chrY')
-
-        for i in range(1, 23):
-            chr_lengths['chr' + str(i)] = chr_l[i - 1]
-        chr_lengths['chrX'] = chr_l[-2]
-        chr_lengths['chrY'] = chr_l[-1]
-
-        return chrs, chr_lengths
 
     def append_ploidy_segments(self, chrom):
         segments_to_write = []
@@ -519,7 +497,7 @@ class GenomeSegmentator:  # seg
 
         filtered_segments = self.filter_segments(segments, self.ISOLATED_SNP_FILTER)
         for segment in filtered_segments:
-            self.OUT.write('\t'.join(map(str, segment)) + '\n')
+            self.OUT.write(pack(segment))
 
     # noinspection PyTypeChecker
     def estimate_ploidy(self):
@@ -530,11 +508,11 @@ class GenomeSegmentator:  # seg
             self.chr_segmentations[j] = None
 
     @staticmethod
-    def filter_segments(segments, snp_number_tr=3):
+    def filter_segments(segments, snp_number_tr=2):
         is_bad_left = False
         is_bad_segment = False
         for k in range(len(segments)):
-            if segments[k][7] < snp_number_tr and segments[k][3] != 0:  # если k сегмент "плохой"
+            if segments[k][7] <= snp_number_tr and segments[k][3] != 0:  # если k сегмент "плохой"
                 if is_bad_segment:  # если k-1 тоже "плохой"
                     is_bad_left = True
                 else:

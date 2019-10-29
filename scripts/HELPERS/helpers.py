@@ -2,7 +2,7 @@ import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function, GTRD_slice_path, \
-    synonims_path, parameters_path
+    synonims_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
