@@ -6,9 +6,9 @@ alignments_path = "/home/abramov/Alignments/"
 
 scripts_path = project_path + "scripts/"
 parameters_path = "/home/abramov/PARAMETERS/"
-parallel_parameters_path = '/home/abramov/ParallelParameters/stats/'
+parallel_parameters_path = '/home/abramov/ParallelParameters/'
 
-ploidy_path = "/home/abramov/StatsPloidy/"
+ploidy_path = "/home/abramov/PloidyForRelease/"
 results_path = "/home/abramov/DATA/"
 
 ploidy_dict_path = parameters_path + "CELL_LINES.json"
