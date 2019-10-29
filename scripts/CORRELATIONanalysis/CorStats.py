@@ -1,121 +1,146 @@
 import os
 import sys
+from scipy.stats import kendalltau
 
 sys.path.insert(1, '/home/abramov/ASB-Project')
-from scripts.HELPERS.helpers import Reader
+from scripts.HELPERS.helpers import CorrelationReader, ChromPos, Intersection, pack, read_synonims
+from scripts.HELPERS.paths import parameters_path, correlation_path, heatmap_data_path
 
-scripts_path = '/home/abramov/ASB-Project/scripts/'
-Correlation_path = '/home/abramov/Correlation/'
-
-CGH_path = Correlation_path + 'CHIP_hg38.bed'
-cosmic_path = Correlation_path + 'COSMIC_copy_number.csv'
-synonims_path = scripts_path + 'CORRELATIONanalysis/synonims.tsv'
-heatmap_data_path = '/home/abramov/HeatmapData/'
+CGH_path = parameters_path + 'CHIP_hg38.bed'
+cosmic_path = parameters_path + 'COSMIC_copy_number.csv'
 
 
 def get_name_by_dir(dir_name):
-    if dir_name in naive_names:
+    if dir_name in naive_modes:
         return dir_name
     return dir_name[:dir_name.rfind('_')].split('/')[-1]
 
 
+def count_cosmic_segments():
+    with open(cosmic_path, 'r') as cosmic_file:
+        return sum(True for line in cosmic_file if unpack_cosmic_segments(line))
+
+
+def unpack_cosmic_segments(line, mode='normal'):
+    if line[0] == '#':
+        return []
+    line = line.strip().split(',')
+    # if int(line[4]) in {4,6,8} or line[3] == '0': continue
+    if line[0] != name:
+        return []
+    if 'chr' + line[4] not in ChromPos.chrs:
+        return []
+    if int(line[10]) == 0:
+        return []
+    
+    if mode == 'normal':
+        value = int(line[11]) / int(line[10]) - 1
+    elif mode == 'total':
+        value = int(line[11])
+    else:
+        raise ValueError(mode)
+    
+    return ['chr' + line[4], int(line[5]), int(line[6]), value]
+
+
+def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
+    if heatmap_data_file is not None:
+        heatmap = open(heatmap_data_file, 'w')
+    with open(cosmic_path, 'r') as cosmic_file:
+        snp_ploidy = []
+        cosm_ploidy = []
+        for chr, pos, ploidy, qual, segn, in_intersect, cosmic_ploidy \
+                in Intersection(SNP_objects, cosmic_file, write_intersect=True,
+                                unpack_segments_function=lambda x: unpack_cosmic_segments(x, mode=mode),
+                                write_segment_args=True):
+            if not in_intersect:
+                continue
+            snp_ploidy.append(ploidy)
+            cosm_ploidy.append(cosmic_ploidy)
+
+            if heatmap_data_file is not None:
+                heatmap.write(pack([chr, pos, ploidy, cosmic_ploidy]))
+    if heatmap_data_file is not None:
+        heatmap.close()
+    
+    if len(snp_ploidy) != 0:
+        return kendalltau(snp_ploidy, cosm_ploidy)[0]
+    return 'NaN'
+
+
 if __name__ == '__main__':
     file_name = sys.argv[1]
-
-    out_path = Correlation_path + file_name + '.thread'
-
+    print(file_name)
+    
+    out_path = correlation_path + file_name + '.thread'
+    
     snp_dirs = []
-    naive_names = ['naive']
-
-    for f_name in os.listdir(Correlation_path):
-        if f_name.endswith('_tables') and os.path.isdir(Correlation_path + f_name):
-            snp_dirs.append(Correlation_path + f_name + '/')
-
-    reader = Reader()
+    naive_modes = ['naive']
+    
+    for f_name in os.listdir(correlation_path):
+        if f_name.endswith('_tables') and os.path.isdir(correlation_path + f_name):
+            snp_dirs.append(correlation_path + f_name + '/')
+    
+    reader = CorrelationReader()
     reader.CGH_path = CGH_path
-    reader.Cosmic_path = cosmic_path
-    reader.synonims_path = synonims_path
-
-    cosmic_names, cgh_names = reader.read_synonims()
-
+    
+    cosmic_names, cgh_names = read_synonims()
+    
     with open(out_path, 'w') as out:
-
-        corr_to_objects_global = dict()
-        corr_to_segments_global = dict()
-
+        
         # if file_name != 'HCT-116_colon_carcinoma_19.tsv': continue
-
+        
         corr_to_objects = dict()
-        corr_to_segments = dict()
-        seg_segs = dict()
-
+        segment_numbers = dict()
+        
         # print('reading COSMIC')
         name = file_name[:file_name.rfind('_')]
         index = file_name[file_name.rfind('_') + 1:file_name.rfind('.')]
-        COSMIC_segments = reader.read_Cosmic(cosmic_names[name])
-
-        for snp_dir in snp_dirs + naive_names:
+        
+        for snp_dir in snp_dirs:
             model = get_name_by_dir(snp_dir)
-            if model != snp_dir:
-                reader.SNP_path = snp_dir + file_name
-                method = 'normal'
-                cosm_dir = heatmap_data_path + model + '_tables/'
-                if not os.path.isdir(cosm_dir):
-                    os.mkdir(cosm_dir)
-                cosm_path = cosm_dir + file_name
-            else:
-                method = model
+            
+            reader.SNP_path = snp_dir + file_name
+            
+            heatmap_data_dir = heatmap_data_path + model + '_tables/'
+            if not os.path.isdir(heatmap_data_dir):
+                os.mkdir(heatmap_data_dir)
+            heatmap_data_file = heatmap_data_dir + file_name
+            
             # print('reading SNP ' + type)
-            number_of_datasets, lab, SNP_objects, aligns, segments_number = reader.read_SNPs(method=method)
-
-            model = get_name_by_dir(snp_dir)
-
-            corr_to_objects[model] = 'nan'
-            corr_to_segments[model] = 'nan'
-            seg_segs[model] = segments_number
-
-            result = COSMIC_segments.merge_with_object_table(SNP_objects)
-            if len(result) != 0:
-                corr_to_segments[model] = COSMIC_segments.correlation_of_merged(method='mean', result=result)
-            if method == 'normal':
-                result = SNP_objects.print_merged_to_file(COSMIC_segments, cosm_path)
-            else:
-                result = SNP_objects.merge_with_segment_table(COSMIC_segments)
-            if len(result) != 0:
-                corr_to_objects[model] = SNP_objects.correlation_of_merged(result=result)
-
+            number_of_datasets, lab, SNP_objects, aligns, segments_number = reader.read_SNPs(method='normal')
+            
+            segment_numbers[model] = segments_number
+            corr_to_objects[model] = correlation_with_cosmic(SNP_objects,
+                                                             mode='normal',
+                                                             heatmap_data_file=heatmap_data_file)
+        
+        for naive_mode in naive_modes:
+            number_of_datasets, lab, SNP_objects, aligns, segments_number = reader.read_SNPs(method=naive_mode)
+            
+            corr_to_objects[model] = correlation_with_cosmic(SNP_objects, mode='normal')
+        
         # TODO: add 3-5 neighbours naive
-
+        
         # TODO: add closest chip COR
-
-        # print('reading COSMIC total')
-        COSMIC_segments_total = reader.read_Cosmic(cosmic_names[name], mode='total')
-
+        
         # print('reading CGH')
-        N_CGH, CGH_objects = reader.read_CGH(cgh_names[name])
-
-        corr_to_objects_global[name] = 'nan'
-        corr_to_segments_global[name] = 'nan'
-
-        result = COSMIC_segments_total.merge_with_object_table(CGH_objects)
-        if len(result) != 0:
-            corr_to_objects_global[name] = COSMIC_segments_total.correlation_of_merged(method='mean',
-                                                                                       result=result)
-        result = CGH_objects.merge_with_segment_table(COSMIC_segments_total)
-        if len(result) != 0:
-            corr_to_segments_global[name] = CGH_objects.correlation_of_merged(result=result)
-
+        CGH_objects = reader.read_CGH(cgh_names[name])
+        
+        corr_to_objects_chip = correlation_with_cosmic(CGH_objects, mode='total')
+        
         out_line = '\t'.join(map(lambda x: '\t'.join(map(str, x)),
-                                 [[name, lab, aligns, len(SNP_objects), number_of_datasets, len(COSMIC_segments.segments)]] +
-                                 [[seg_segs[model],
-                                   corr_to_segments[model],
-                                   corr_to_objects[model]]
+        
+                                 [[name, lab, aligns, len(SNP_objects), number_of_datasets,
+                                   count_cosmic_segments()]] +
+        
+                                 [[segment_numbers[model], corr_to_objects[model]]
                                   for model in map(get_name_by_dir, snp_dirs)] +
-                                 [[corr_to_segments[name],
-                                   corr_to_objects[name]]
-                                  for name in naive_names] +
-                                 [[corr_to_segments_global[name],
-                                   corr_to_objects_global[name]]]
+        
+                                 [[corr_to_objects[naive_mode]]
+                                  for naive_mode in naive_modes] +
+        
+                                 [[corr_to_objects_chip]]
+        
                                  )) + '\n'
-        print(file_name)
         out.write(out_line)

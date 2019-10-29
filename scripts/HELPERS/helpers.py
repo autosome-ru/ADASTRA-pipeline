@@ -1,9 +1,8 @@
 import sys
-from typing import List, Union
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function, GTRD_slice_path, \
-    create_line_for_snp_calling
+    create_line_for_snp_calling, synonims_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
@@ -223,39 +222,22 @@ def make_list_for_VCFs(out_path, condition_function):  # condition function must
                     out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
 
 
-class Reader:
+def read_synonims():
+    cosmic_names = dict()
+    cgh_names = dict()
+    with open(synonims_path, 'r') as file:
+        for line in file:
+            line = line.strip('\n').split('\t')
+            if line[1]:
+                name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
+                cosmic_names[name] = line[1]
+                cgh_names[name] = line[2]
+    return cosmic_names, cgh_names
+
+
+class CorrelationReader:
     CGH_path = ''
     SNP_path = ''
-    Cosmic_path = ''
-    synonims_path = ''
-    
-    def read_Cosmic(self, name, mode='normal'):
-        with open(self.Cosmic_path, 'r') as file:
-            result = []
-            for line in file:
-                if line[0] == '#':
-                    continue
-                line = line.strip().split(',')
-                # if int(line[4]) in {4,6,8} or line[3] == '0': continue
-                if line[0] != name:
-                    continue
-                if 'chr' + line[4] not in ChromPos.chrs:
-                    continue
-                if int(line[10]) == 0:
-                    continue
-                
-                if mode == 'normal':
-                    value = int(line[11]) / int(line[10]) - 1
-                elif mode == 'total':
-                    value = int(line[11])
-                else:
-                    raise ValueError(mode)
-                
-                result.append(['chr' + line[4], int(line[5]), int(line[6]), value])
-            if not result:
-                raise KeyError(name)
-            # result.sort_items()
-            return result
     
     def read_SNPs(self, method='normal'):
         with open(self.SNP_path, 'r') as file:
@@ -306,7 +288,6 @@ class Reader:
                    'OV:SK-OV-3', 'OV:NCI/ADR-RES', 'PR:PC-3', 'PR:DU-145', 'RE:786-0', 'RE:A498', 'RE:ACHN',
                    'RE:CAKI-1', 'RE:RXF 393', 'RE:SN12C', 'RE:TK-10', 'RE:UO-31']
         idx = cgnames.index(cgh_name) + 3
-        N = 0
         with open(self.CGH_path, 'r') as file:
             result = []
             for line in file:
@@ -319,19 +300,6 @@ class Reader:
                     value = 2 ** (1 + float(line[idx]))
                 except ValueError:
                     continue
-                N += 1
                 result.append([chr, pos, value, 100, 100])
             # result.sort_items()
-            return N, result
-    
-    def read_synonims(self):
-        cosmic_names = dict()
-        cgh_names = dict()
-        with open(self.synonims_path, 'r') as file:
-            for line in file:
-                line = line.strip('\n').split('\t')
-                if line[1] and line[2]:
-                    name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
-                    cosmic_names[name] = line[1]
-                    cgh_names[name] = line[2]
-        return cosmic_names, cgh_names
+            return result
