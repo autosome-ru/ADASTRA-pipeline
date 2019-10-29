@@ -6,8 +6,8 @@ sys.path.insert(1, '/home/abramov/ASB-Project')
 from scripts.HELPERS.helpers import CorrelationReader, ChromPos, Intersection, pack, read_synonims
 from scripts.HELPERS.paths import parameters_path, correlation_path, heatmap_data_path
 
-CGH_path = parameters_path + 'CHIP_hg38.bed'
-cosmic_path = parameters_path + 'COSMIC_copy_number.csv'
+CGH_path = parameters_path + 'CHIP_hg38.sorted.bed'
+cosmic_path = parameters_path + 'COSMIC_copy_number.sorted.tsv'
 
 
 def get_name_by_dir(dir_name):
@@ -24,23 +24,21 @@ def count_cosmic_segments():
 def unpack_cosmic_segments(line, mode='normal'):
     if line[0] == '#':
         return []
-    line = line.strip().split(',')
-    # if int(line[4]) in {4,6,8} or line[3] == '0': continue
-    if line[0] != name:
+    line = line.strip().split('\t')
+    
+    if line[0] != cosmic_names[cell_line_name]:
         return []
-    if 'chr' + line[4] not in ChromPos.chrs:
-        return []
-    if int(line[10]) == 0:
+    if int(line[4]) == 0:
         return []
     
     if mode == 'normal':
-        value = int(line[11]) / int(line[10]) - 1
+        value = int(line[4]) / int(line[5]) - 1
     elif mode == 'total':
-        value = int(line[11])
+        value = int(line[5])
     else:
         raise ValueError(mode)
     
-    return ['chr' + line[4], int(line[5]), int(line[6]), value]
+    return [line[1], int(line[2]), int(line[3]), value]
 
 
 def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
@@ -94,7 +92,7 @@ if __name__ == '__main__':
         segment_numbers = dict()
         
         # print('reading COSMIC')
-        name = file_name[:file_name.rfind('_')]
+        cell_line_name = file_name[:file_name.rfind('_')]
         index = file_name[file_name.rfind('_') + 1:file_name.rfind('.')]
         
         for snp_dir in snp_dirs:
@@ -125,13 +123,13 @@ if __name__ == '__main__':
         # TODO: add closest chip COR
         
         # print('reading CGH')
-        CGH_objects = reader.read_CGH(cgh_names[name])
+        CGH_objects = reader.read_CGH(cgh_names[cell_line_name])
         
         corr_to_objects_chip = correlation_with_cosmic(CGH_objects, mode='total')
         
         out_line = '\t'.join(map(lambda x: '\t'.join(map(str, x)),
         
-                                 [[name, lab, aligns, len(SNP_objects), number_of_datasets,
+                                 [[cell_line_name, lab, aligns, len(SNP_objects), number_of_datasets,
                                    count_cosmic_segments()]] +
         
                                  [[segment_numbers[model], corr_to_objects[model]]
