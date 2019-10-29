@@ -7,9 +7,9 @@ alignments_path = "/home/abramov/Alignments/"
 
 scripts_path = project_path + "scripts/"
 parameters_path = "/home/abramov/PARAMETERS/"
-parallel_parameters_path = '/home/abramov/ParallelParameters/'
+parallel_parameters_path = '/home/abramov/ParallelParameters/stats/'
 
-ploidy_path = "/home/abramov/PloidyForRelease/"
+ploidy_path = "/home/abramov/StatsPloidy/"
 results_path = "/home/abramov/DATA/"
 
 ploidy_dict_path = parameters_path + "CELL_LINES.json"
@@ -18,6 +18,9 @@ blacklisted_exps_path = parameters_path + "blacklisted_exps.tsv"
 tf_dict_path = parameters_path + "TF_DICT.json"
 cl_dict_path = parameters_path + "CL_DICT.json"
 
+correlation_path = '/home/abramov/Correlation/'
+synonims_path = parameters_path + 'synonims.tsv'
+heatmap_data_path = '/home/abramov/HeatmapData/'
 
 def create_path_from_GTRD_function(line, for_what, ctrl=False):
     end = ""
