@@ -1,6 +1,5 @@
 import sys
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.helpers import pack
 
 project_path = "/home/abramov/ASB-Project/"
 alignments_path = "/home/abramov/Alignments/"
@@ -22,6 +21,7 @@ correlation_path = '/home/abramov/Correlation/'
 synonims_path = parameters_path + 'synonims.tsv'
 heatmap_data_path = '/home/abramov/HeatmapData/'
 
+
 def create_path_from_GTRD_function(line, for_what, ctrl=False):
     end = ""
     if for_what == "vcf":
@@ -38,14 +38,6 @@ def create_path_from_GTRD_function(line, for_what, ctrl=False):
 
 def create_ploidy_path_function(string):
     return ploidy_path + "Corrected-1,5/" + string + "_ploidy.tsv"
-
-
-def create_line_for_snp_calling(split_line, is_ctrl=False):
-    if is_ctrl:
-        result = [split_line[10]] + ["None", "Homo sapiens"] + split_line[11:15]
-        return pack(result)
-    else:
-        return pack(split_line[:7])
 
 
 def make_black_list():

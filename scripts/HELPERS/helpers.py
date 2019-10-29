@@ -2,7 +2,7 @@ import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function, GTRD_slice_path, \
-    create_line_for_snp_calling, synonims_path
+    synonims_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
@@ -199,6 +199,14 @@ def unpack(line, use_in):
 
 def pack(values):
     return '\t'.join(map(str, values)) + '\n'
+
+
+def create_line_for_snp_calling(split_line, is_ctrl=False):
+    if is_ctrl:
+        result = [split_line[10]] + ["None", "Homo sapiens"] + split_line[11:15]
+        return pack(result)
+    else:
+        return pack(split_line[:7])
 
 
 def make_list_for_VCFs(out_path, condition_function=lambda x: True):  # condition function takes path and return boolean
