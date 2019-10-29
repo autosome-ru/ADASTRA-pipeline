@@ -1,7 +1,8 @@
 import sys
+
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function, GTRD_slice_path, \
-    create_line_for_snp_calling
+    create_line_for_snp_calling, synonims_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
@@ -225,3 +226,86 @@ def make_list_for_VCFs(out_path, condition_function=lambda x: True):  # conditio
 def check_if_in_expected_args(what_for):
     if what_for not in expected_args:
         raise ValueError('{} not in CL, TF'.format(what_for))
+
+
+def read_synonims():
+    cosmic_names = dict()
+    cgh_names = dict()
+    with open(synonims_path, 'r') as file:
+        for line in file:
+            line = line.strip('\n').split('\t')
+            if line[1]:
+                name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
+                cosmic_names[name] = line[1]
+                cgh_names[name] = line[2]
+    return cosmic_names, cgh_names
+
+
+class CorrelationReader:
+    CGH_path = ''
+    SNP_path = ''
+    
+    def read_SNPs(self, method='normal'):
+        with open(self.SNP_path, 'r') as file:
+            result = []
+            uniq_segments_count = 0
+            previous_segment = []
+            for line in file:
+                if line[0] == '#':
+                    split_header = line[1:].split('!')
+                    datasets_number = split_header[0]
+                    lab = split_header[1]
+                    aligns = split_header[2]
+                    if aligns:
+                        aligns = ','.join(aligns.split('>'))
+                    else:
+                        aligns = ''
+                    continue
+                line = line.strip().split("\t")
+                if line[0] not in ChromPos.chrs:
+                    continue
+                current_segment = [float(line[4]), int(line[5]), int(line[6])]
+                if previous_segment != current_segment:
+                    uniq_segments_count += 1
+                    previous_segment = current_segment
+                if method == 'normal':
+                    if line[4] == 0:
+                        continue
+                    result.append([line[0], int(line[1])] + current_segment)
+                elif method == 'naive':
+                    ref = int(line[2])
+                    alt = int(line[3])
+                    if min(ref, alt) == 0:
+                        continue
+                    result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 10000, 10000])
+                else:
+                    raise KeyError(method)
+
+            return datasets_number, lab, result, aligns, uniq_segments_count
+    
+    def read_CGH(self, cgh_name):
+        cgnames = ['BR:MCF7', 'BR:MDA-MB-231', 'BR:HS 578T', 'BR:BT-549', 'BR:T-47D', 'CNS:SF-268', 'CNS:SF-295',
+                   'CNS:SF-539', 'CNS:SNB-19', 'CNS:SNB-75', 'CNS:U251', 'CO:COLO 205', 'CO:HCC-2998', 'CO:HCT-116',
+                   'CO:HCT-15', 'CO:HT29', 'CO:KM12', 'CO:SW-620', 'LE:CCRF-CEM', 'LE:HL-60(TB)', 'LE:K-562',
+                   'LE:MOLT-4', 'LE:RPMI-8226', 'LE:SR', 'ME:LOX IMVI', 'ME:MALME-3M', 'ME:M14', 'ME:SK-MEL-2',
+                   'ME:SK-MEL-28', 'ME:SK-MEL-5', 'ME:UACC-257', 'ME:UACC-62', 'ME:MDA-MB-435', 'ME:MDA-N',
+                   'LC:A549/ATCC', 'LC:EKVX', 'LC:HOP-62', 'LC:HOP-92', 'LC:NCI-H226', 'LC:NCI-H23', 'LC:NCI-H322M',
+                   'LC:NCI-H460', 'LC:NCI-H522', 'OV:IGROV1', 'OV:OVCAR-3', 'OV:OVCAR-4', 'OV:OVCAR-5', 'OV:OVCAR-8',
+                   'OV:SK-OV-3', 'OV:NCI/ADR-RES', 'PR:PC-3', 'PR:DU-145', 'RE:786-0', 'RE:A498', 'RE:ACHN',
+                   'RE:CAKI-1', 'RE:RXF 393', 'RE:SN12C', 'RE:TK-10', 'RE:UO-31']
+        idx = cgnames.index(cgh_name) + 3
+        with open(self.CGH_path, 'r') as file:
+            result = []
+            for line in file:
+                line = line.strip().split('\t')
+                chr = line[0]
+                if chr not in ChromPos.chrs:
+                    continue
+                pos = (int(line[1]) + int(line[2])) // 2
+                try:
+                    value = 2 ** (1 + float(line[idx]))
+                except ValueError:
+                    continue
+                result.append([chr, pos, value, 100, 100])
+            # result.sort_items()
+            return result
