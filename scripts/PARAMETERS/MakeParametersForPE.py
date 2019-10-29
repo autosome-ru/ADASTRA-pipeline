@@ -18,7 +18,7 @@ if __name__ == "__main__":
     with open(out_path, 'w') as file:
         for key in keys:
             name = key.split('!')[0]
-            if cosmic_names[name] not in cell_lines:
+            if cosmic_names.get(name, '') not in cell_lines:
                 continue
             is_empty = True
             for value in d[key]:
