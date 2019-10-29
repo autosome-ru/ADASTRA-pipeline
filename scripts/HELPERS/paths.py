@@ -1,6 +1,5 @@
 import sys
 sys.path.insert(1, "/home/abramov/ASB-Project")
-import scripts.HELPERS.helpers as helpers
 
 project_path = "/home/abramov/ASB-Project/"
 alignments_path = "/home/abramov/Alignments/"
@@ -39,14 +38,6 @@ def create_path_from_GTRD_function(line, for_what, ctrl=False):
 
 def create_ploidy_path_function(string):
     return ploidy_path + "Corrected-1,5/" + string + "_ploidy.tsv"
-
-
-def create_line_for_snp_calling(split_line, is_ctrl=False):
-    if is_ctrl:
-        result = [split_line[10]] + ["None", "Homo sapiens"] + split_line[11:15]
-        return helpers.pack(result)
-    else:
-        return helpers.pack(split_line[:7])
 
 
 def make_black_list():
