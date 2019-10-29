@@ -53,10 +53,10 @@ if name in names:
 
         with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
             out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list))
-            for chr, pos, ref, alt, in_intersection, ploidy, qual, segn \
+            for chr, pos, ref, alt, in_intersection, snp_ploidy, qual, segn \
                     in Intersection(table, ploidy,
                                     unpack_segments_function=unpack_ploidy_segments, unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
-                if not in_intersection or ploidy == 0:
+                if not in_intersection or snp_ploidy == 0:
                     continue
-                out.write(pack([chr, pos, ref, alt, ploidy, qual, segn]))
+                out.write(pack([chr, pos, ref, alt, snp_ploidy, qual, segn]))
