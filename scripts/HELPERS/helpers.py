@@ -320,6 +320,7 @@ def correct_cosmic_file(cosmic_file, out_file):
             line = line.strip().split(',')
             if not line:
                 continue
+            print(line)
             if 'chr' + line[4] not in ChromPos.chrs:
                 continue
             try:
