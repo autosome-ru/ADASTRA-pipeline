@@ -340,7 +340,3 @@ def create_line_for_snp_calling(split_line, is_ctrl=False):
         return pack(result)
     else:
         return pack(split_line[:7])
-
-
-if __name__ == '__main__':
-    correct_cosmic_file(parameters_path + 'COSMIC_copy_number.csv', parameters_path + 'COSMIC_copy_number.sorted.tsv')
