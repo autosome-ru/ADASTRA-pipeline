@@ -424,7 +424,7 @@ class ChromosomeSegmentation:  # chrom
 
 
 class GenomeSegmentator:  # seg
-    def __init__(self, file, out, segm_mode, extra_states=None, b_penalty='CAIC'):
+    def __init__(self, file, out, segm_mode, extra_states=None, b_penalty='CAIC', prior=None):
         chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
                  145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
                  101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
@@ -450,6 +450,12 @@ class GenomeSegmentator:  # seg
 
         self.b_penalty = b_penalty
         self.prior = dict(zip(self.i_list, [1] * len(self.i_list)))
+        
+        if prior == 'custom':
+            self.prior[1.5] = 0.813
+            self.prior[3] = 2
+            self.prior[4] = 2
+            self.prior[5] = 1.5
 
         for CHR in self.chrs:
             chrom = ChromosomeSegmentation(self, CHR, self.chr_lengths[CHR])
@@ -555,17 +561,31 @@ if __name__ == '__main__':
     key = sys.argv[1]
     print(key)
 
-    mode = 'corrected'
-    states = [1.5]
-    b_penalty = 'CAIC'
+    model = sys.argv[2].lower()
+    b_penalty = sys.argv[3]
+    
+    if model == 'binomial':
+        mode = 'binomial'
+        states = []
+        prior = None
+    elif model == 'corrected-1,5':
+        mode = 'corrected'
+        states = [1.5]
+        prior = None
+    elif model == 'corrected-1,5-prior':
+        mode = 'corrected'
+        states = [1.5]
+        prior = 'custom'
+    else:
+        raise ValueError(model)
 
     merged_vcfs_path = ploidy_path + key + ".tsv"
 
-    model = 'Corrected-1,5'
+    model_path = ploidy_path + model + '_' + b_penalty + '/'
 
     t = time.clock()
-    if not os.path.isdir(ploidy_path + model):
-        os.mkdir(ploidy_path + model)
-    GS = GenomeSegmentator(merged_vcfs_path, ploidy_path + model + '/' + key + "_ploidy.tsv", mode, states, b_penalty)
+    if not os.path.isdir(model_path):
+        os.mkdir(model_path)
+    GS = GenomeSegmentator(merged_vcfs_path, model_path + key + "_ploidy.tsv", mode, states, b_penalty, prior)
     GS.estimate_ploidy()
     print('Total time: {} s'.format(time.clock() - t))

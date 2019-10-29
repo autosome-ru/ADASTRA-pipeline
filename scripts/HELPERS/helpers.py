@@ -2,7 +2,7 @@ import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function, GTRD_slice_path, \
-    create_line_for_snp_calling, synonims_path
+    create_line_for_snp_calling, synonims_path, parameters_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
@@ -17,43 +17,43 @@ expected_args = {"CL": "TF", "TF": "CL"}
 
 class ChromPos:
     chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], chr_l))
-
+    
     def __init__(self, chr, pos):
         if chr not in self.chrs:
             raise ValueError("Not in valid chromosomes {}".format(chr))
         self.chr = chr
         self.pos = int(pos)
-
+    
     def __lt__(self, other):
         if self.chr == other.chr:
             return self.pos < other.pos
         else:
             return self.chr < other.chr
-
+    
     def __gt__(self, other):
         if self.chr == other.chr:
             return self.pos > other.pos
         else:
             return self.chr > other.chr
-
+    
     def __le__(self, other):
         if self.chr == other.chr:
             return self.pos <= other.pos
         else:
             return self.chr <= other.chr
-
+    
     def __ge__(self, other):
         if self.chr == other.chr:
             return self.pos >= other.pos
         else:
             return self.chr >= other.chr
-
+    
     def __eq__(self, other):
         return (self.chr, self.pos) == (other.chr, other.pos)
-
+    
     def __ne__(self, other):
         return (self.chr, self.pos) != (other.chr, other.pos)
-
+    
     def distance(self, other):
         if self.chr != other.chr:
             return float('inf')
@@ -83,42 +83,42 @@ class Intersection:
         self.segment_start = None
         self.segment_end = None
         self.has_segments = True
-
+    
     def __iter__(self):
         return self
-
+    
     def return_snp(self, intersect):
         return [self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
                + [int(intersect)] * self.write_intersect \
                + [arg * intersect for arg in self.seg_args] * self.write_segment_args
-
+    
     def get_next_snp(self):
         try:
             snp_chr, pos, *self.snp_args = self.unpack_snp_function(next(self.snps))
             self.snp_coordinate = ChromPos(snp_chr, pos)
         except ValueError:
             self.get_next_snp()
-
+    
     def get_next_segment(self):
         try:
             seg_chr, start_pos, end_pos, *self.seg_args = self.unpack_segments_function(next(self.segments))
-
+            
             self.segment_start = ChromPos(seg_chr, start_pos)
             self.segment_end = ChromPos(seg_chr, end_pos)
         except StopIteration:
             self.has_segments = False
         except ValueError:
             self.get_next_segment()
-
+    
     def __next__(self):
         if self.snp_coordinate is None:
             self.get_next_snp()
         if self.segment_start is None:
             self.get_next_segment()
-
+        
         while self.has_segments and self.snp_coordinate >= self.segment_end:
             self.get_next_segment()
-
+        
         if self.has_segments and self.snp_coordinate >= self.segment_start:
             x = self.return_snp(True)
             self.get_next_snp()
@@ -182,10 +182,10 @@ def unpack(line, use_in):
             return []
         else:
             return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
-
+    
     ploidy = float(line_split[8 + difference])
     dip_qual, lq, rq, seg_c = map(int, line_split[9 + difference:13 + difference])
-
+    
     if line_split[13 + difference] == '.':
         p_ref = '.'
         p_alt = '.'
@@ -193,7 +193,7 @@ def unpack(line, use_in):
         p_ref, p_alt = map(float, line_split[13 + difference:15 + difference])
     if use_in == "Aggregation":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt
-
+    
     raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
 
 
@@ -204,7 +204,7 @@ def pack(values):
 def make_list_for_VCFs(out_path, condition_function=lambda x: True):  # condition function takes path and return boolean
     black_list = make_black_list()
     counted_controls = set()
-
+    
     with open(GTRD_slice_path, "r") as master_list, open(out_path, "w") as out:
         for line in master_list:
             if line[0] == "#":
@@ -280,7 +280,7 @@ class CorrelationReader:
                     result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 10000, 10000])
                 else:
                     raise KeyError(method)
-
+            
             return datasets_number, lab, result, aligns, uniq_segments_count
     
     def read_CGH(self, cgh_name):
@@ -309,3 +309,28 @@ class CorrelationReader:
                 result.append([chr, pos, value, 100, 100])
             # result.sort_items()
             return result
+
+
+def correct_cosmic_file(cosmic_file, out_file):
+    with open(cosmic_file, 'r') as file, open(out_file, 'w') as out:
+        lines = dict()
+        for line in file:
+            if line[0] == '#':
+                continue
+            line = line.strip().split(',')
+            if 'chr' + line[4] not in ChromPos.chrs:
+                continue
+            try:
+                lines[line[0]].append(['chr' + line[4], line[5], line[6], line[10], line[11]])
+            except KeyError:
+                lines[line[0]] = [['chr' + line[4], line[5], line[6], line[10], line[11]]]
+        
+        for cell_line, segments in lines.items():
+            segments = sorted(segments, key=lambda x: int(x[1]))
+            segments = sorted(segments, key=lambda x: x[0])
+            for segment in segments:
+                out.write(pack([cell_line] + segment))
+
+
+if __name__ == '__main__':
+    correct_cosmic_file(parameters_path + 'COSMIC_copy_number.csv', parameters_path + 'COSMIC_copy_number.sorted.tsv')
