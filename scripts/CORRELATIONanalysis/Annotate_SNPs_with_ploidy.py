@@ -52,7 +52,7 @@ if name in names:
         print(out_path)
 
         with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
-            out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list))
+            out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list) + '\n')
             for chr, pos, ref, alt, in_intersection, snp_ploidy, qual, segn \
                     in Intersection(table, ploidy,
                                     unpack_segments_function=unpack_ploidy_segments, unpack_snp_function=unpack_snps,
