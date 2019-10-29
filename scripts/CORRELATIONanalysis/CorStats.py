@@ -121,7 +121,7 @@ if __name__ == '__main__':
         for naive_mode in naive_modes:
             number_of_datasets, lab, SNP_objects, aligns, segments_number = reader.read_SNPs(method=naive_mode)
 
-            corr_to_objects[model] = correlation_with_cosmic(SNP_objects, mode='normal')
+            corr_to_objects[naive_mode] = correlation_with_cosmic(SNP_objects, mode='normal')
 
         # TODO: add 3-5 neighbours naive
 
