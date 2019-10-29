@@ -56,6 +56,7 @@ else
   OutPath=${AlignmentsPath}"CTRL/$ExpName/"
   AlignmentFullPath=${AlignmentsPath}"CTRL/$ExpName/$AlignName.bam"
 fi
+
 echo "Downloading $ExpName"
 if [ "$to_download" == "-d" ]; then
   if ! bash ${HelpersScriptsPath}DownloadFile.sh "$AlignmentDownloadPath" "$AlignmentFullPath"

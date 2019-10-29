@@ -21,6 +21,8 @@ do
 	  esac
 done
 
+bam_size=0
+
 if [ ! -f "$VCF.tbi" ]; then
 	echo "Index file for VCF not found, indexing.."
 	# shellcheck disable=SC2154
@@ -63,6 +65,9 @@ then
     exit 1
 fi
 
+bam_size=$((bam_size + $(wc -c <"$OUT${BAMNAME}_chop.bam")))
+rm "$OUT${BAMNAME}_chop.bam"
+
 if ! $Java $JavaParameters -jar "$PICARD" \
 	MarkDuplicates \
 	I="$OUT/${BAMNAME}_formated.bam" \
@@ -73,6 +78,10 @@ then
     echo "Failed to picard.MarkDplicates"
     exit 1
 fi
+
+bam_size=$((bam_size + $(wc -c <"$OUT${BAMNAME}_formated.bam")))
+rm "$OUT${BAMNAME}_formated.bam"
+rm "$OUT/${BAMNAME}_metrics.txt"
 
 if ! $Java $JavaParameters -jar "$GATK" \
 	BaseRecalibrator \
@@ -96,6 +105,13 @@ then
     exit 1
 fi
 
+bam_size=$((bam_size + $(wc -c <"$OUT${BAMNAME}_ready.bam")))
+if [ -f "$OUT/${BAMNAME}_ready.bam.bai" ]; then
+    rm "$OUT/${BAMNAME}_ready.bam.bai"
+fi
+rm "$OUT/${BAMNAME}.table"
+rm "$OUT${BAMNAME}_ready.bam"
+
 if ! $Java $JavaParameters -jar "$GATK" \
 	HaplotypeCaller \
 	-R "$FA" \
@@ -107,25 +123,9 @@ then
     exit 1
 fi
 
-rm "$OUT/${BAMNAME}_metrics.txt"
-rm "$OUT/${BAMNAME}.table"
-
-
-if [ -f "$OUT/${BAMNAME}_ready.bam.bai" ]; then
-    rm "$OUT/${BAMNAME}_ready.bam.bai"
-fi
-
-bam_size=0
-
-bam_size=$((bam_size + $(wc -c <"$OUT${BAMNAME}_formated.bam")))
-bam_size=$((bam_size + $(wc -c <"$OUT${BAMNAME}_ready.bam")))
-bam_size=$((bam_size + $(wc -c <"$OUT${BAMNAME}_chop.bam")))
 bam_size=$((bam_size + $(wc -c <"$OUT${BAMNAME}_final.bam")))
 
 rm "$OUT${BAMNAME}_final.bam"
 rm "$OUT${BAMNAME}_final.bai"
-rm "$OUT${BAMNAME}_chop.bam"
-rm "$OUT${BAMNAME}_ready.bam"
-rm "$OUT${BAMNAME}_formated.bam"
 
 echo "Total intermediate .bam size: $bam_size"
