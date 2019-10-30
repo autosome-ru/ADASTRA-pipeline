@@ -26,6 +26,6 @@ with open(out, 'w') as o:
         if int(split_line[1]) < 0 or int(split_line[2]) < 0:
             continue
         if peak_type == "gem":
-            split_line[1] = str(max(int(split_line[1]) - 150, 0))
+            split_line[1] = str(max(int(split_line[1]) - 150, 1))
             split_line[2] = str(min(int(split_line[2]) + 150, ChromPos.chrs[split_line[0]]))
         o.write('\t'.join(split_line[:3]) + '\n')
