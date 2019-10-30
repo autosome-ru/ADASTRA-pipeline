@@ -42,7 +42,7 @@ def check_vcf(path, missing_chromosomes_threshold=2):
     return is_bad_vcf
 
 
-def check_11_chromosome(path):
+def check_chromosome(path, chromosome_name):
     if not os.path.isfile(path):
         return False
     with gzip.open(path, 'rt') as vcf:
@@ -53,11 +53,14 @@ def check_11_chromosome(path):
             chr = line[0]
             if chr not in ChromPos.chrs:
                 print(chr)
-            if chr == "chr11":
+            if chr == chromosome_name:
                 print(line)
                 return True
     return False
 
 
 if __name__ == "__main__":
-    make_list_for_VCFs(condition_function=check_11_chromosome)
+    d = make_list_for_VCFs(condition_function=lambda x: check_chromosome(x, chromosome_name="chr11"))
+    print("{}/{} vcfs have 11 chromosome".format(sum(x[1] for x in d.items()), len(d)))
+    d = make_list_for_VCFs(condition_function=lambda x: check_chromosome(x, chromosome_name="chr1"))
+    print("{}/{} vcfs have 1 chromosome".format(sum(x[1] for x in d.items()), len(d)))
