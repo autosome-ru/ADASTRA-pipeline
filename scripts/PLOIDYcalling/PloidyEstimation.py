@@ -352,9 +352,10 @@ class ChromosomeSegmentation:  # chrom
         return snps, count, positions
 
     def unpack_line_or_false(self, line):
-        if line[0] == '#':
+        try:
+            chr, pos, ID, ref, alt, ref_c, alt_c = unpack(line, use_in="PloidyEstimation")
+        except ValueError:
             return False
-        chr, pos, ID, ref, alt, ref_c, alt_c = unpack(line, use_in="PloidyEstimation")
         if chr != self.CHR or ID == '.':
             return False
         return pos, ref_c, alt_c

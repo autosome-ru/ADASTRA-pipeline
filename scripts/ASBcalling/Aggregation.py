@@ -71,11 +71,11 @@ if __name__ == '__main__':
                                           what_for)  # returns name of cell-line for aggregation on TF and vice versa
             with open(table, 'r') as file:
                 for line in file:
-                    if line[0] == '#':
+                    try:
+                        (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
+                         ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = unpack(line, use_in="Aggregation")
+                    except ValueError:
                         continue
-                    (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
-                     ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = unpack(line, use_in="Aggregation")
-
                     if p_ref == '.' or p_ref == 0 or p_alt == 0 or ploidy == 0:
                         continue
                     cov = ref_c + alt_c
