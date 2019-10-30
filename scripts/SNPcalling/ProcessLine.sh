@@ -83,6 +83,10 @@ fi
 rm "$AlignmentFullPath"
 rm "$AlignmentFullPath.bai"
 
+if [ -f ${OutPath}"$AlignName.vcf.idx" ];then
+  rm ${OutPath}"$AlignName.vcf.idx"
+fi
+
 if [ -f ${OutPath}"$AlignName.vcf.gz" ];then
   rm ${OutPath}"$AlignName.vcf.gz"
 fi
