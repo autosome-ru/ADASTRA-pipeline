@@ -53,10 +53,11 @@ def check_11_chromosome(path):
             chr = line[0]
             if chr not in ChromPos.chrs:
                 print(chr)
-                break
             if chr == "chr11":
                 print(line)
+                return True
+    return False
 
 
 if __name__ == "__main__":
-    make_list_for_VCFs(out_path, condition_function=check_vcf, write_in_file=True)
+    make_list_for_VCFs(condition_function=check_11_chromosome)

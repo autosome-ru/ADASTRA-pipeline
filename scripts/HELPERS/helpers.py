@@ -209,12 +209,13 @@ def create_line_for_snp_calling(split_line, is_ctrl=False):
         return pack(split_line[:7])
 
 
-def make_list_for_VCFs(out_path, condition_function=lambda x: True, write_in_file=True):
+def make_list_for_VCFs(out_path=None, condition_function=lambda x: True):
     # condition function takes path and return boolean
     black_list = make_black_list()
     counted_controls = set()
+    condition_to_file_dict = {}
     with open(GTRD_slice_path, "r") as master_list:
-        if write_in_file:
+        if out_path is not None:
             out = open(out_path, "w")
         for line in master_list:
             if line[0] == "#":
@@ -222,18 +223,25 @@ def make_list_for_VCFs(out_path, condition_function=lambda x: True, write_in_fil
             split_line = line.strip().split("\t")
             if split_line[0] not in black_list:
                 vcf_path = create_path_from_GTRD_function(split_line, for_what="vcf")
-                if condition_function(vcf_path):
-                    if write_in_file:
+                if out_path is not None:
+                    if condition_function(vcf_path):
                         out.write(create_line_for_snp_calling(split_line))
+                else:
+                    condition_to_file_dict[vcf_path] = condition_function(vcf_path)
             if len(split_line) > 10 and split_line[10] not in black_list:
                 vcf_path = create_path_from_GTRD_function(split_line, for_what="vcf", ctrl=True)
                 if vcf_path in counted_controls:
                     continue
                 counted_controls.add(vcf_path)
-                if condition_function(vcf_path):
-                    out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
-        if write_in_file:
+                if out_path is not None:
+                    if condition_function(vcf_path):
+                        out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
+                else:
+                    condition_to_file_dict[vcf_path] = condition_function(vcf_path)
+        if out_path is not None:
             out.close()
+        else:
+            return condition_to_file_dict
 
 
 def check_if_in_expected_args(what_for):
