@@ -22,15 +22,12 @@ def check_vcf(path, missing_chromosomes_threshold=2):
             line = line.strip().split("\t")
             chr = line[0]
             if chr not in ChromPos.chrs:
-                is_bad_vcf = True
-                break
+                continue
             if not a[chrs[chr]]:
                 a[chrs[chr]] = True
 
     number_of_bad_chromosomes = 0
     print(path)
-    if is_bad_vcf:
-        return is_bad_vcf
     for chr_index in reversed(a):
         print(chr_index)
         if not chr_index:
@@ -60,7 +57,4 @@ def check_chromosome(path, chromosome_name):
 
 
 if __name__ == "__main__":
-    d = make_list_for_VCFs(condition_function=lambda x: check_chromosome(x, chromosome_name="chr11"))
-    print("{}/{} vcfs have 11 chromosome".format(sum(x[1] for x in d.items()), len(d)))
-    d = make_list_for_VCFs(condition_function=lambda x: check_chromosome(x, chromosome_name="chr1"))
-    print("{}/{} vcfs have 1 chromosome".format(sum(x[1] for x in d.items()), len(d)))
+    make_list_for_VCFs(out_path, condition_function=check_vcf)
