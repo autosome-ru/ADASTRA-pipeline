@@ -21,6 +21,7 @@ if [ "$AlignmentDownloadPath" = "None" ];then
     exit 1
 fi
 
+echo "Making dirs"
 if [ "$TF" != "None" ]; then
   if ! [ -d ${AlignmentsPath}"EXP/$TF" ]; then
     if ! mkdir ${AlignmentsPath}"EXP/$TF"
@@ -36,8 +37,6 @@ if [ "$TF" != "None" ]; then
       echo "Failed to make dir $ExpName"
       exit 1
     fi
-  else
-    echo "Directory for $ExpName already exists"
   fi
 
   OutPath=${AlignmentsPath}"EXP/$TF/$ExpName/"
@@ -49,8 +48,6 @@ else
       echo "Failed to make dir $ExpName"
       exit 1
     fi
-  else
-    echo "Directory for $ExpName already exists"
   fi
 
   OutPath=${AlignmentsPath}"CTRL/$ExpName/"
