@@ -378,6 +378,8 @@ class ChromosomeSegmentation:  # chrom
 
             condition = length_difference != 0
 
+        self.CRITICAL_GAP = self.effective_length * self.CRITICAL_GAP_FACTOR
+
     def get_subchromosomes_slices(self):
         tuples = []
         current_tuple_start = 0
