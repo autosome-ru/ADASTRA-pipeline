@@ -322,17 +322,17 @@ class ChromosomeSegmentation:  # chrom
         self.b_penalty = seg.b_penalty
         self.FILE = open(seg.FILE, 'r')
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
-        self.CRITICAL_GAP_FACTOR = seg.CRITICAL_GAP_FACTOR
+        if self.LINES == 0:
+            return
+        self.CRITICAL_GAP_FACTOR = 1 - self.LINES ** (- 1 / self.LINES)
         self.CRITICAL_GAP = None
+        self.PRECISION = seg.PRECISION
 
         self.bpos = []  # border positions, tuples or ints
         self.ests = []  # estimated BADs for split segments
         self.quals = []  # qualities of estimations
         self.Q1 = []  # diploid quality
         self.counts = []  # number of SNPs in segments
-
-        if self.LINES == 0:
-            return
 
         self.effective_length = self.positions[-1] - self.positions[0]
 
@@ -352,9 +352,10 @@ class ChromosomeSegmentation:  # chrom
         return snps, count, positions
 
     def unpack_line_or_false(self, line):
-        if line[0] == '#':
+        try:
+            chr, pos, ID, ref, alt, ref_c, alt_c = unpack(line, use_in="PloidyEstimation")
+        except ValueError:
             return False
-        chr, pos, ID, ref, alt, ref_c, alt_c = unpack(line, use_in="PloidyEstimation")
         if chr != self.CHR or ID == '.':
             return False
         return pos, ref_c, alt_c
@@ -365,14 +366,13 @@ class ChromosomeSegmentation:  # chrom
         black_list_i = set()
         while condition:
             self.effective_length -= length_difference
-            self.CRITICAL_GAP = self.effective_length * (1 - 10 ** (-self.CRITICAL_GAP_FACTOR / self.LINES))
             length_difference = 0
 
             for i in range(self.LINES - 1):
                 if i in black_list_i:
                     continue
                 difference = self.positions[i + 1] - self.positions[i]
-                if difference > self.CRITICAL_GAP:
+                if difference > max((self.effective_length - difference) * self.CRITICAL_GAP_FACTOR, self.PRECISION):
                     length_difference += difference
                     black_list_i.add(i)
 
@@ -437,22 +437,17 @@ class GenomeSegmentator:  # seg
         self.FILE = file  # table
         self.OUT = open(out, 'w')  # ploidy file
         self.n_max = 5  # max ploidy
-        self.CRITICAL_GAP_FACTOR = 16.5
         self.NUM_TR = 100  # minimal number of snps in chromosome to start segmentation
         self.COV_TR = 0  # coverage treshold
         self.INTERSECT = 300
         self.SEG_LENGTH = 600
         self.ISOLATED_SNP_FILTER = 2
         self.chr_segmentations = []  # chroms
+        self.PRECISION = 10 ** 6
 
         self.b_penalty = b_penalty
-        self.prior = dict(zip(self.i_list, [1] * len(self.i_list)))
-        
-        if prior == 'custom':
-            self.prior[1.5] = 0.813
-            self.prior[3] = 2
-            self.prior[4] = 2
-            self.prior[5] = 1.5
+        if prior is None:
+            self.prior = dict(zip(self.i_list, [1] * len(self.i_list)))
 
         for CHR in self.chrs:
             chrom = ChromosomeSegmentation(self, CHR, ChromPos.chrs[CHR])
@@ -550,10 +545,6 @@ if __name__ == '__main__':
         mode = 'corrected'
         states = [1.5]
         prior = None
-    elif model == 'corrected-1,5-prior':
-        mode = 'corrected'
-        states = [1.5]
-        prior = 'custom'
     else:
         raise ValueError(model)
 
