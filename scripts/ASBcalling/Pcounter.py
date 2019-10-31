@@ -55,7 +55,7 @@ if __name__ == '__main__':
             else:
                 p_ref = '.'
                 p_alt = '.'
-            
+
             out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type] +
                            [in_callers[name] for name in callers_names] +
                            [ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt]))
