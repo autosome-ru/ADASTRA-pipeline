@@ -324,7 +324,7 @@ class ChromosomeSegmentation:  # chrom
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
         if self.LINES == 0:
             return
-        self.CRITICAL_GAP_FACTOR = 1 - self.LINES ** (- 1 / self.LINES)
+        self.CRITICAL_GAP_FACTOR = 1 - 10 ** (- 1 / np.sqrt(self.LINES))
         self.CRITICAL_GAP = None
         self.PRECISION = seg.PRECISION
 
@@ -445,7 +445,7 @@ class GenomeSegmentator:  # seg
         self.SEG_LENGTH = 600
         self.ISOLATED_SNP_FILTER = 2
         self.chr_segmentations = []  # chroms
-        self.PRECISION = 10 ** 6
+        self.PRECISION = 1
 
         self.b_penalty = b_penalty
         if prior is None:
