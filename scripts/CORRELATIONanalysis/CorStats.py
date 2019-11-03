@@ -25,7 +25,6 @@ def unpack_cosmic_segments(line, mode='normal'):
     if line[0] == '#':
         return []
     line = line.strip().split(',')
-    # if int(line[4]) in {4,6,8} or line[3] == '0': continue
     if line[0] != name:
         return []
     if 'chr' + line[4] not in ChromPos.chrs:
@@ -43,28 +42,29 @@ def unpack_cosmic_segments(line, mode='normal'):
     return ['chr' + line[4], int(line[5]), int(line[6]), value]
 
 
-def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
-    if heatmap_data_file is not None:
-        heatmap = open(heatmap_data_file, 'w')
+def correlation_with_cosmic(SNPs_iterator, mode, heatmap_file_path=None):
+    heat_map = None
+    if heatmap_file_path is not None:
+        heat_map = open(heatmap_file_path, 'w')
     with open(cosmic_path, 'r') as cosmic_file:
-        snp_ploidy = []
-        cosm_ploidy = []
-        for chr, pos, ploidy, qual, segn, in_intersect, cosmic_ploidy \
-                in Intersection(SNP_objects, cosmic_file, write_intersect=True,
+        snp_bad_list = []
+        cosmic_bad_list = []
+        for chr, pos, ploidy, qual, segn, in_intersect, cosmic_bad \
+                in Intersection(SNPs_iterator, cosmic_file, write_intersect=True,
                                 unpack_segments_function=lambda x: unpack_cosmic_segments(x, mode=mode),
                                 write_segment_args=True):
             if not in_intersect:
                 continue
-            snp_ploidy.append(ploidy)
-            cosm_ploidy.append(cosmic_ploidy)
+            snp_bad_list.append(ploidy)
+            cosmic_bad_list.append(cosmic_bad)
 
-            if heatmap_data_file is not None:
-                heatmap.write(pack([chr, pos, ploidy, cosmic_ploidy]))
-    if heatmap_data_file is not None:
-        heatmap.close()
+            if heat_map is not None:
+                heat_map.write(pack([chr, pos, ploidy, cosmic_bad]))
+    if heat_map is not None:
+        heat_map.close()
     
-    if len(snp_ploidy) != 0:
-        return kendalltau(snp_ploidy, cosm_ploidy)[0]
+    if len(snp_bad_list) != 0:
+        return kendalltau(snp_bad_list, cosmic_bad_list)[0]
     return 'NaN'
 
 
@@ -113,7 +113,7 @@ if __name__ == '__main__':
             segment_numbers[model] = segments_number
             corr_to_objects[model] = correlation_with_cosmic(SNP_objects,
                                                              mode='normal',
-                                                             heatmap_data_file=heatmap_data_file)
+                                                             heatmap_file_path=heatmap_data_file)
         
         for naive_mode in naive_modes:
             number_of_datasets, lab, SNP_objects, aligns, segments_number = reader.read_SNPs(method=naive_mode)

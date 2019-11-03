@@ -177,8 +177,8 @@ def unpack(line, use_in):
         return chr, pos, ID, ref, alt, ref_c, alt_c
     repeat = line_split[7]
     difference = len(callers_names)
-    peaks = map(int, line_split[8:8 + difference])
-    in_callers = dict(zip(callers_names, [peaks]))
+    peaks = list(map(int, line_split[8:8 + difference]))
+    in_callers = dict(zip(callers_names, peaks))
     if use_in == "Pcounter":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
     ploidy = float(line_split[8 + difference])
