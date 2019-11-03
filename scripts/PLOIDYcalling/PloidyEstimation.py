@@ -91,6 +91,11 @@ class Segmentation(ABC):
             return -1 / 2 * k
         elif self.sub_chrom.chrom.b_penalty == 'SQRT':
             return -1 / 2 * k * (np.sqrt(self.LINES) + 1)
+        elif self.sub_chrom.chrom.b_penalty == 'MIX':
+            return -1 / 2 * k * (np.sqrt(self.LINES) + 1) \
+                if self.LINES > 130000 else -1 / 2 * k * (np.log(self.LINES) + 1)
+        elif self.sub_chrom.chrom.b_penalty == 'CBRT':
+            return -1 / 2 * k * (self.LINES**(1/3) + 1)
         else:
             raise ValueError(self.sub_chrom.b_penalty)
     
@@ -548,9 +553,9 @@ if __name__ == '__main__':
     model = sys.argv[2].lower()
     b_penalty = sys.argv[3]
     
-    if model == 'binomial':
-        mode = 'binomial'
-        states = []
+    if model == 'corrected-6':
+        mode = 'corrected-6'
+        states = [1.5, 6]
         prior = None
     elif model == 'corrected-1,5':
         mode = 'corrected'
