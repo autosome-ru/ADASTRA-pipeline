@@ -64,7 +64,7 @@ def unpack_segments(line):
     if isinstance(line, (list, tuple)):
         return line
     if line[0] == '#':
-        return []
+        return [''] * len(line.strip().split('\t'))
     return line.strip().split('\t')
 
 
@@ -88,9 +88,6 @@ class Intersection:
         return self
     
     def return_snp(self, intersect):
-        # print([self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
-        #        + [int(intersect)] * self.write_intersect \
-        #        + [arg * intersect for arg in self.seg_args] * self.write_segment_args)
         return [self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
                + [int(intersect)] * self.write_intersect \
                + [arg * intersect for arg in self.seg_args] * self.write_segment_args
@@ -105,7 +102,6 @@ class Intersection:
     def get_next_segment(self):
         try:
             seg_chr, start_pos, end_pos, *self.seg_args = self.unpack_segments_function(next(self.segments))
-            
             self.segment_start = ChromPos(seg_chr, start_pos)
             self.segment_end = ChromPos(seg_chr, end_pos)
         except StopIteration:
@@ -167,6 +163,8 @@ def make_dict_from_vcf(vcf, vcf_dict):
 
 
 def unpack(line, use_in):
+    if line[0] == '#':
+        return []
     line_split = line.strip().split('\t')
     chr = line_split[0]
     pos = int(line_split[1])
@@ -181,10 +179,7 @@ def unpack(line, use_in):
     peaks = map(int, line_split[8:8 + difference])
     in_callers = dict(zip(callers_names, [peaks]))
     if use_in == "Pcounter":
-        if line[0] == '#':
-            return []
-        else:
-            return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
+        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
     
     ploidy = float(line_split[8 + difference])
     dip_qual, lq, rq, seg_c = map(int, line_split[9 + difference:13 + difference])
