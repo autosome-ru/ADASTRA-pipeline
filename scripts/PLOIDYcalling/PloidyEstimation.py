@@ -420,7 +420,7 @@ class ChromosomeSegmentation:  # chrom
             if st - ed <= self.snp_filter:
                 bpos = []
                 ests = [0]
-                quals = [0]
+                quals = [(0, 0)]
                 Q1 = [0]
                 counts = [st - ed]
             else:
