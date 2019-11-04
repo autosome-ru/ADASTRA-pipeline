@@ -85,17 +85,21 @@ class Segmentation(ABC):
     
     def get_parameter_penalty(self, borders, alphabet):
         k = borders * alphabet
+        if isinstance(self, PieceSegmentation):
+            N = self.LINES
+        else:
+            N = self.sub_chrom.chrom.LINES
         if self.sub_chrom.chrom.b_penalty == 'CAIC':
-            return -1 / 2 * k * (np.log(self.LINES) + 1)
+            return -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'AIC':
             return -1 / 2 * k
         elif self.sub_chrom.chrom.b_penalty == 'SQRT':
-            return -1 / 2 * k * (np.sqrt(self.LINES) + 1)
+            return -1 / 2 * k * (np.sqrt(N) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'MIX':
-            return -1 / 2 * k * (np.sqrt(self.LINES) + 1) \
-                if self.LINES > 130000 else -1 / 2 * k * (np.log(self.LINES) + 1)
+            return -1 / 2 * k * (np.sqrt(N) + 1) \
+                if N > 13000 else -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'CBRT':
-            return -1 / 2 * k * (self.LINES**(1/3) + 1)
+            return -1 / 2 * k * (N**(1/3) + 1)
         else:
             raise ValueError(self.sub_chrom.b_penalty)
     
