@@ -391,6 +391,7 @@ class ChromosomeSegmentation:  # chrom
         
         self.CRITICAL_GAP = self.effective_length * self.CRITICAL_GAP_FACTOR
     
+    #  TODO: (N+1)/N paradox
     def get_subchromosomes_slices(self):
         tuples = []
         current_tuple_start = 0
