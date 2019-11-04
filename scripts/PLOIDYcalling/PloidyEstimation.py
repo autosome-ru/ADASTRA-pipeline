@@ -337,7 +337,6 @@ class ChromosomeSegmentation:  # chrom
             return
         self.CRITICAL_GAP_FACTOR = 1 - 10 ** (- 1 / np.sqrt(self.LINES))
         self.CRITICAL_GAP = None
-        self.PRECISION = seg.PRECISION
         
         self.bpos = []  # border positions, tuples or ints
         self.ests = []  # estimated BADs for split segments
@@ -383,7 +382,7 @@ class ChromosomeSegmentation:  # chrom
                 if i in black_list_i:
                     continue
                 difference = self.positions[i + 1] - self.positions[i]
-                if difference > max((self.effective_length - difference) * self.CRITICAL_GAP_FACTOR, self.PRECISION):
+                if difference > (self.effective_length - difference) * self.CRITICAL_GAP_FACTOR:
                     length_difference += difference
                     black_list_i.add(i)
             
@@ -414,6 +413,8 @@ class ChromosomeSegmentation:  # chrom
         else:
             self.bpos.append((1, self.positions[0]))
         
+        print('slices {}'.format(self.get_subchromosomes_slices()))
+        
         for part, (st, ed) in enumerate(self.get_subchromosomes_slices(), 1):
             sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st, part)
             sub_chrom.estimate_sub_chr()
@@ -436,7 +437,7 @@ class ChromosomeSegmentation:  # chrom
               '\nSNP counts {}'
               '\nborder positions: {}'
               .format(len(self.positions), self.ests, self.counts, map(lambda x: round(x, -6), self.bpos)))
-        print('CHR time: {} s\n'.format(time.clock() - start_t))
+        print('{} time: {} s\n'.format(self.CHR, time.clock() - start_t))
 
 
 class GenomeSegmentator:  # seg
@@ -459,7 +460,6 @@ class GenomeSegmentator:  # seg
         self.SEG_LENGTH = 600
         self.ISOLATED_SNP_FILTER = 2
         self.chr_segmentations = []  # chroms
-        self.PRECISION = 1
         
         self.b_penalty = b_penalty
         if prior is None:
