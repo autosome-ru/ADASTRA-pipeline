@@ -447,7 +447,7 @@ class ChromosomeSegmentation:  # chrom
         else:
             self.bpos.append((self.positions[-1] + 1, self.length))
         
-        custom_round = lambda x: round(x, -6)  # fuck you PEP8
+        custom_round = lambda x: x  # round(x, -6)  # fuck you PEP8
         print('\nTotal SNPs: {},'
               '\nestimated ploidys: {},'
               '\nSNP counts {}'
