@@ -417,8 +417,6 @@ class ChromosomeSegmentation:  # chrom
         print('Distance splits {}'.format(self.get_subchromosomes_slices()))
         
         for part, (st, ed) in enumerate(self.get_subchromosomes_slices(), 1):
-            if st - ed <= self.snp_filter:
-                continue
             sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st, part)
             sub_chrom.estimate_sub_chr()
             self.bpos += sub_chrom.bpos
