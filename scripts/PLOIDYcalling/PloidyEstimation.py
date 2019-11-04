@@ -417,12 +417,12 @@ class ChromosomeSegmentation:  # chrom
         print('Distance splits {}'.format(self.get_subchromosomes_slices()))
         
         for part, (st, ed) in enumerate(self.get_subchromosomes_slices(), 1):
-            if st - ed <= self.snp_filter:
+            if ed - st <= self.snp_filter:
                 bpos = []
                 ests = [0]
                 quals = [(0, 0)]
                 Q1 = [0]
-                counts = [st - ed]
+                counts = [ed - st]
             else:
                 sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st, part)
                 sub_chrom.estimate_sub_chr()
