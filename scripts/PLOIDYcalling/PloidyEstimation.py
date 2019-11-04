@@ -97,7 +97,7 @@ class Segmentation(ABC):
             return -1 / 2 * k * (np.sqrt(N) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'MIX':
             return -1 / 2 * k * (np.sqrt(N) + 1) \
-                if N > 13000 else -1 / 2 * k * (np.log(N) + 1)
+                if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'CBRT':
             return -1 / 2 * k * (N**(1/3) + 1)
         else:
