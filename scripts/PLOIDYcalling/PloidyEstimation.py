@@ -451,7 +451,7 @@ class ChromosomeSegmentation:  # chrom
               '\nestimated ploidys: {},'
               '\nSNP counts {}'
               '\nborder positions: {}'
-              .format(len(self.positions), self.ests, self.counts, map(lambda x: round(x, -6), self.bpos)))
+              .format(len(self.positions), self.ests, self.counts, list(map(lambda x: round(x, -6), self.bpos))))
         print('{} time: {} s\n'.format(self.CHR, time.clock() - start_t))
 
 
