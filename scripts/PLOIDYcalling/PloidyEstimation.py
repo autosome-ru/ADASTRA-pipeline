@@ -500,8 +500,7 @@ class GenomeSegmentator:  # seg
                         cur = border[1]
                     else:
                         cur = 1
-                    continue
-                if isinstance(border, tuple):
+                elif isinstance(border, tuple):
                     segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
                                               chrom.quals[counter][0], chrom.quals[counter][1],
                                               chrom.counts[counter]])
@@ -522,11 +521,11 @@ class GenomeSegmentator:  # seg
     
     def write_ploidy_to_file(self, chrom):
         segments = self.append_ploidy_segments(chrom)
-        segments = sorted(segments, key=lambda x: x[1])
-        segments = sorted(segments, key=lambda x: x[0])
         
         filtered_segments = self.filter_segments(segments, self.ISOLATED_SNP_FILTER)
         for segment in filtered_segments:
+            if segment[3] == 0:  # ploidy == 0
+                continue
             self.OUT.write(pack(segment))
     
     # noinspection PyTypeChecker
