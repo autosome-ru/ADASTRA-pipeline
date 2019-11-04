@@ -337,6 +337,7 @@ class ChromosomeSegmentation:  # chrom
             return
         self.CRITICAL_GAP_FACTOR = 1 - 10 ** (- 1 / np.sqrt(self.LINES))
         self.CRITICAL_GAP = None
+        self.snp_filter = seg.ISOLATED_SNP_FILTER
         
         self.bpos = []  # border positions, tuples or ints
         self.ests = []  # estimated BADs for split segments
@@ -413,9 +414,11 @@ class ChromosomeSegmentation:  # chrom
         else:
             self.bpos.append((1, self.positions[0]))
         
-        print('slices {}'.format(self.get_subchromosomes_slices()))
+        print('Distance splits {}'.format(self.get_subchromosomes_slices()))
         
         for part, (st, ed) in enumerate(self.get_subchromosomes_slices(), 1):
+            if st - ed <= self.snp_filter:
+                continue
             sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st, part)
             sub_chrom.estimate_sub_chr()
             self.bpos += sub_chrom.bpos
