@@ -554,7 +554,7 @@ if __name__ == '__main__':
     b_penalty = sys.argv[3]
     
     if model == 'corrected-6':
-        mode = 'corrected-6'
+        mode = 'corrected'
         states = [1.5, 6]
         prior = None
     elif model == 'corrected-1,5':
