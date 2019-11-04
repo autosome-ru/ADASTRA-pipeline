@@ -447,14 +447,13 @@ class ChromosomeSegmentation:  # chrom
         else:
             self.bpos.append((self.positions[-1] + 1, self.length))
         
-        custom_round = lambda x: x  # round(x, -6)  # fuck you PEP8
         print('\nTotal SNPs: {},'
               '\nestimated ploidys: {},'
               '\nSNP counts {}'
-              '\nborder positions: {}'
+              '\nborder distances: {}'
               .format(len(self.positions), self.ests, self.counts,
-                      list(map(lambda x: custom_round(x) if isinstance(x, (int, float)) else
-                               tuple(map(custom_round, x)), self.bpos))))
+                      list(map(lambda x: (x, 0) if isinstance(x, (int, float)) else
+                               (x[0], x[1]-x[0]), self.bpos))))
         print('{} time: {} s\n'.format(self.CHR, time.clock() - start_t))
 
 
