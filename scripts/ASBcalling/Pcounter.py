@@ -38,6 +38,9 @@ if __name__ == '__main__':
     print('Now doing {} \n with ploidy file {}'.format(table_annotated, rev_d[key]))
     
     with open(ploidy, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
+        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts',
+                        'repeat_type'] + callers_names + ['BAD', 'Q1', 'left_qual', 'right_qual', 'SNP_count',
+                                                          'p_value_ref', 'p_value_alt']))
 
         for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, \
             in_intersection, ploidy, dip_qual, lq, rq, seg_c in \
