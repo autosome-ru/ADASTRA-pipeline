@@ -453,7 +453,7 @@ class ChromosomeSegmentation:  # chrom
               '\nSNP counts {}'
               '\nborder positions: {}'
               .format(len(self.positions), self.ests, self.counts,
-                      list(map(lambda x: custom_round(x) if isinstance(x, int) else
+                      list(map(lambda x: custom_round(x) if isinstance(x, (int, float)) else
                                tuple(map(custom_round, x)), self.bpos))))
         print('{} time: {} s\n'.format(self.CHR, time.clock() - start_t))
 
