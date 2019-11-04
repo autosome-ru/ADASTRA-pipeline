@@ -454,7 +454,7 @@ class ChromosomeSegmentation:  # chrom
               '\nCritical gap {}'
               '\nborder distances: {}'
               .format(len(self.positions), self.ests, self.counts, round(self.CRITICAL_GAP),
-                      list(map(lambda x: (x, 0) if isinstance(x, (int, float)) else
+                      list(map(lambda x: (x, 1) if isinstance(x, (int, float)) else
                                (x[0], x[1]-x[0]), self.bpos))))
         print('{} time: {} s\n'.format(self.CHR, time.clock() - start_t))
 
