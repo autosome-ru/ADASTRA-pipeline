@@ -191,19 +191,19 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
     
     @staticmethod
     def split_list(length, l, k):
-        iterator = []
+        result = []
         if length < l:
-            iterator.append((0, length - 1))
-            return iterator
+            result.append((0, length - 1))
+            return result
         length -= k
         div, mod = divmod(length - 1, l - k)
         new_l, num = divmod(length - 1, div)
         for i in range(div):
             if i < num:
-                iterator.append(((new_l + 1) * i, (new_l + 1) * (i + 1) + k))
+                result.append(((new_l + 1) * i, (new_l + 1) * (i + 1) + k))
             else:
-                iterator.append((new_l * i + num, new_l * (i + 1) + k + num))
-        return iterator
+                result.append((new_l * i + num, new_l * (i + 1) + k + num))
+        return result
     
     def set_candidates(self, candidate_set):
         self.candidate_numbers = sorted(list(candidate_set))
@@ -417,15 +417,29 @@ class ChromosomeSegmentation:  # chrom
         print('Distance splits {}'.format(self.get_subchromosomes_slices()))
         
         for part, (st, ed) in enumerate(self.get_subchromosomes_slices(), 1):
-            sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st, part)
-            sub_chrom.estimate_sub_chr()
-            self.bpos += sub_chrom.bpos
+            if st - ed <= self.snp_filter:
+                bpos = []
+                ests = [0]
+                quals = [0]
+                Q1 = [0]
+                counts = [st - ed]
+            else:
+                sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st, part)
+                sub_chrom.estimate_sub_chr()
+                
+                bpos = sub_chrom.bpos
+                ests = sub_chrom.ests
+                quals = sub_chrom.quals
+                Q1 = sub_chrom.Q1
+                counts = sub_chrom.counts
+                
+            self.bpos += bpos
             if ed != self.LINES:
                 self.bpos += [(self.positions[ed - 1], self.positions[ed])]
-            self.ests += sub_chrom.ests
-            self.quals += sub_chrom.quals
-            self.Q1 += sub_chrom.Q1
-            self.counts += sub_chrom.counts
+            self.ests += ests
+            self.quals += quals
+            self.Q1 += Q1
+            self.counts += counts
         
         #  border for last snp
         if self.length - self.positions[-1] <= self.CRITICAL_GAP:
