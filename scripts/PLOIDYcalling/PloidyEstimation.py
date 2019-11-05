@@ -574,12 +574,12 @@ if __name__ == '__main__':
     print(key)
 
     mode = 'corrected'
-    states = [1.5]
-    b_penalty = 'CAIC'
+    states = [1.5, 6]
+    b_penalty = 'MIX'
 
     merged_vcfs_path = ploidy_path + key + ".tsv"
 
-    model = 'Corrected-1,5'
+    model = 'Corrected-6'
 
     t = time.clock()
     if not os.path.isdir(ploidy_path + model):
