@@ -3,7 +3,7 @@ import sys
 from scipy.stats import kendalltau
 
 sys.path.insert(1, '/home/abramov/ASB-Project')
-from scripts.HELPERS.helpers import CorrelationReader, ChromPos, Intersection, pack, read_synonims
+from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims
 from scripts.HELPERS.paths import parameters_path, correlation_path, heatmap_data_path
 
 CGH_path = parameters_path + 'CHIP_hg38.sorted.bed'
@@ -41,29 +41,11 @@ def unpack_cosmic_segments(line, mode='normal'):
     return [line[1], int(line[2]), int(line[3]), value]
 
 
-def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
-    if heatmap_data_file is not None:
-        heatmap = open(heatmap_data_file, 'w')
-    cosmic_segments = []
 def correlation_with_cosmic(SNPs_iterator, mode, heatmap_file_path=None):
     heat_map = None
     if heatmap_file_path is not None:
         heat_map = open(heatmap_file_path, 'w')
     with open(cosmic_path, 'r') as cosmic_file:
-        for line in cosmic_file:
-            # TODO: change v name
-            v = unpack_cosmic_segments(line, mode=mode)
-            if v:
-                cosmic_segments.append(v)
-    snp_ploidy = []
-    cosm_ploidy = []
-    for chr, pos, ploidy, qual, segn, in_intersect, cosmic_ploidy \
-            in Intersection(SNP_objects, cosmic_segments, write_intersect=True,
-                            write_segment_args=True):
-        if not in_intersect:
-            continue
-        snp_ploidy.append(ploidy)
-        cosm_ploidy.append(cosmic_ploidy)
         snp_bad_list = []
         cosmic_bad_list = []
         for chr, pos, ploidy, qual, segn, in_intersect, cosmic_bad \
@@ -75,13 +57,6 @@ def correlation_with_cosmic(SNPs_iterator, mode, heatmap_file_path=None):
             snp_bad_list.append(ploidy)
             cosmic_bad_list.append(cosmic_bad)
 
-        if heatmap_data_file is not None:
-            heatmap.write(pack([chr, pos, ploidy, cosmic_ploidy]))
-    if heatmap_data_file is not None:
-        heatmap.close()
-
-    if len(snp_ploidy) != 0:
-        return kendalltau(snp_ploidy, cosm_ploidy)[0]
             if heat_map is not None:
                 heat_map.write(pack([chr, pos, ploidy, cosmic_bad]))
     if heat_map is not None:
@@ -137,7 +112,7 @@ if __name__ == '__main__':
             segment_numbers[model] = segments_number
             corr_to_objects[model] = correlation_with_cosmic(SNP_objects,
                                                              mode='normal',
-                                                             heatmap_data_file=heatmap_data_file)
+                                                             heatmap_file_path=heatmap_data_file)
 
         for naive_mode in naive_modes:
             number_of_datasets, lab, SNP_objects, aligns, segments_number = reader.read_SNPs(method=naive_mode)
