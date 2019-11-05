@@ -85,12 +85,21 @@ class Segmentation(ABC):
 
     def get_parameter_penalty(self, borders, alphabet):
         k = borders * alphabet
+        if isinstance(self, PieceSegmentation):
+            N = self.LINES
+        else:
+            N = self.sub_chrom.chrom.LINES
         if self.sub_chrom.chrom.b_penalty == 'CAIC':
-            return -1 / 2 * k * (np.log(self.LINES) + 1)
+            return -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'AIC':
             return -1 / 2 * k
         elif self.sub_chrom.chrom.b_penalty == 'SQRT':
-            return -1 / 2 * k * (np.sqrt(self.LINES) + 1)
+            return -1 / 2 * k * (np.sqrt(N) + 1)
+        elif self.sub_chrom.chrom.b_penalty == 'MIX':
+            return -1 / 2 * k * (np.sqrt(N) + 1) \
+                if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
+        elif self.sub_chrom.chrom.b_penalty == 'CBRT':
+            return -1 / 2 * k * (N**(1/3) + 1)
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
@@ -156,7 +165,7 @@ class PieceSegmentation(Segmentation):
 
 
 class SubChromosomeSegmentation(Segmentation):  # sub_chrom
-    def __init__(self, chrom, SNPS, LINES):
+    def __init__(self, chrom, SNPS, LINES, name):
         super().__init__()
 
         self.SNPS, self.LINES = SNPS, LINES
@@ -182,21 +191,23 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         self.Q1 = []  # diploid quality
         self.counts = []  # number of snps in segments
 
+        self.name = name
+
     @staticmethod
     def split_list(length, l, k):
-        iterator = []
+        result = []
         if length < l:
-            iterator.append((0, length - 1))
-            return iterator
+            result.append((0, length - 1))
+            return result
         length -= k
         div, mod = divmod(length - 1, l - k)
         new_l, num = divmod(length - 1, div)
         for i in range(div):
             if i < num:
-                iterator.append(((new_l + 1) * i, (new_l + 1) * (i + 1) + k))
+                result.append(((new_l + 1) * i, (new_l + 1) * (i + 1) + k))
             else:
-                iterator.append((new_l * i + num, new_l * (i + 1) + k + num))
-        return iterator
+                result.append((new_l * i + num, new_l * (i + 1) + k + num))
+        return result
 
     def set_candidates(self, candidate_set):
         self.candidate_numbers = sorted(list(candidate_set))
@@ -284,27 +295,31 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
 
         self.construct_probs_initial()
 
-        if self.candidates_count > self.chrom.SEG_LENGTH:
-            tuples = self.split_list(self.candidates_count + 1, self.chrom.SEG_LENGTH, self.chrom.INTERSECT)
-            border_set = set()
-            print("{} segments: {}".format(len(tuples), tuples))
-            counter = 0
-            for first, last in tuples:
-                counter += 1
-                print('Making {} out of {} segments from {} to {} for {}.'.format(counter, len(tuples), first, last,
-                                                                                  self.chrom.CHR))
-                PS = PieceSegmentation(self, first, last)
-                PS.estimate()
-                # print(PS.bposn)
-                border_set |= set(PS.bposn)
-            self.candidate_numbers = sorted(list(border_set))
-            self.candidates_count = len(self.candidate_numbers)
-        print(len(self.positions))
-        print('{} candidates'.format(self.candidates_count))
+        # if self.candidates_count > self.chrom.SEG_LENGTH:
+        tuples = self.split_list(self.candidates_count + 1, self.chrom.SEG_LENGTH, self.chrom.INTERSECT)
+        border_set = set()
+        # print("{} segments: {}".format(len(tuples), tuples))
+        counter = 0
+        for first, last in tuples:
+            counter += 1
+            print(
+                'Making {} out of {} segments from {} to {} for {} (part {} of {}).'.format(counter, len(tuples), first,
+                                                                                            last, self.chrom.CHR,
+                                                                                            self.name,
+                                                                                            len(
+                                                                                                self.chrom.get_subchromosomes_slices())))
+            PS = PieceSegmentation(self, first, last)
+            PS.estimate()
+            # print(PS.bposn)
+            border_set |= set(PS.bposn)
+        self.candidate_numbers = sorted(list(border_set))
+        self.candidates_count = len(self.candidate_numbers)
+        print('SNPs in part: {}'.format(len(self.positions)))
+        # print('{} candidates'.format(self.candidates_count))
 
         self.estimate()
         self.estimate_Is()
-        print(self.ests, self.counts)
+        print('\n'.join(map(str, zip(self.ests, self.counts))))
 
 
 class ChromosomeSegmentation:  # chrom
@@ -324,9 +339,9 @@ class ChromosomeSegmentation:  # chrom
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
         if self.LINES == 0:
             return
-        self.CRITICAL_GAP_FACTOR = 1 - self.LINES ** (- 1 / self.LINES)
+        self.CRITICAL_GAP_FACTOR = 1 - 10 ** (- 1 / np.sqrt(self.LINES))
         self.CRITICAL_GAP = None
-        self.PRECISION = seg.PRECISION
+        self.snp_filter = seg.ISOLATED_SNP_FILTER
 
         self.bpos = []  # border positions, tuples or ints
         self.ests = []  # estimated BADs for split segments
@@ -372,12 +387,15 @@ class ChromosomeSegmentation:  # chrom
                 if i in black_list_i:
                     continue
                 difference = self.positions[i + 1] - self.positions[i]
-                if difference > max((self.effective_length - difference) * self.CRITICAL_GAP_FACTOR, self.PRECISION):
+                if difference > (self.effective_length - difference) * self.CRITICAL_GAP_FACTOR:
                     length_difference += difference
                     black_list_i.add(i)
 
             condition = length_difference != 0
 
+        self.CRITICAL_GAP = self.effective_length * self.CRITICAL_GAP_FACTOR
+
+    #  TODO: (N+1)/N paradox
     def get_subchromosomes_slices(self):
         tuples = []
         current_tuple_start = 0
@@ -401,16 +419,32 @@ class ChromosomeSegmentation:  # chrom
         else:
             self.bpos.append((1, self.positions[0]))
 
-        for st, ed in self.get_subchromosomes_slices():
-            sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st)
-            sub_chrom.estimate_sub_chr()
-            self.bpos += sub_chrom.bpos
+        print('Distance splits {}'.format(self.get_subchromosomes_slices()))
+
+        for part, (st, ed) in enumerate(self.get_subchromosomes_slices(), 1):
+            if ed - st <= self.snp_filter:
+                bpos = []
+                ests = [0]
+                quals = [(0, 0)]
+                Q1 = [0]
+                counts = [ed - st]
+            else:
+                sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st, part)
+                sub_chrom.estimate_sub_chr()
+
+                bpos = sub_chrom.bpos
+                ests = sub_chrom.ests
+                quals = sub_chrom.quals
+                Q1 = sub_chrom.Q1
+                counts = sub_chrom.counts
+
+            self.bpos += bpos
             if ed != self.LINES:
                 self.bpos += [(self.positions[ed - 1], self.positions[ed])]
-            self.ests += sub_chrom.ests
-            self.quals += sub_chrom.quals
-            self.Q1 += sub_chrom.Q1
-            self.counts += sub_chrom.counts
+            self.ests += ests
+            self.quals += quals
+            self.Q1 += Q1
+            self.counts += counts
 
         #  border for last snp
         if self.length - self.positions[-1] <= self.CRITICAL_GAP:
@@ -418,9 +452,15 @@ class ChromosomeSegmentation:  # chrom
         else:
             self.bpos.append((self.positions[-1] + 1, self.length))
 
-        print('Total SNPs: {}, estimated ploidys: {}, border positions: {}'.format(len(self.positions), self.ests,
-                                                                                   self.bpos))
-        print('CHR time: {} s'.format(time.clock() - start_t))
+        print('\nTotal SNPs: {},'
+              '\nestimated ploidys: {},'
+              '\nSNP counts {}'
+              '\nCritical gap {}'
+              '\nborder distances: {}'
+              .format(len(self.positions), self.ests, self.counts, round(self.CRITICAL_GAP),
+                      list(map(lambda x: (x, 1) if isinstance(x, (int, float)) else
+                               (x[0], x[1]-x[0]), self.bpos))))
+        print('{} time: {} s\n'.format(self.CHR, time.clock() - start_t))
 
 
 class GenomeSegmentator:  # seg
@@ -443,7 +483,6 @@ class GenomeSegmentator:  # seg
         self.SEG_LENGTH = 600
         self.ISOLATED_SNP_FILTER = 2
         self.chr_segmentations = []  # chroms
-        self.PRECISION = 10 ** 6
 
         self.b_penalty = b_penalty
         if prior is None:
@@ -465,8 +504,7 @@ class GenomeSegmentator:  # seg
                         cur = border[1]
                     else:
                         cur = 1
-                    continue
-                if isinstance(border, tuple):
+                elif isinstance(border, tuple):
                     segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
                                               chrom.quals[counter][0], chrom.quals[counter][1],
                                               chrom.counts[counter]])
@@ -487,15 +525,16 @@ class GenomeSegmentator:  # seg
 
     def write_ploidy_to_file(self, chrom):
         segments = self.append_ploidy_segments(chrom)
-        segments = sorted(segments, key=lambda x: x[1])
-        segments = sorted(segments, key=lambda x: x[0])
 
         filtered_segments = self.filter_segments(segments, self.ISOLATED_SNP_FILTER)
         for segment in filtered_segments:
+            if segment[3] == 0:  # ploidy == 0
+                continue
             self.OUT.write(pack(segment))
 
     # noinspection PyTypeChecker
     def estimate_ploidy(self):
+        self.OUT.write(pack(['#chr', 'start', 'end', 'BAD', 'Q1', 'qual_left', 'qual_right', 'SNP_count']))
         for j in range(len(self.chr_segmentations)):
             chrom = self.chr_segmentations[j]
             chrom.estimate_chr()

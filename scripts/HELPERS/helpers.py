@@ -64,7 +64,7 @@ def unpack_segments(line):
     if isinstance(line, (list, tuple)):
         return line
     if line[0] == '#':
-        return []
+        return [''] * len(line.strip().split('\t'))
     return line.strip().split('\t')
 
 
@@ -199,14 +199,6 @@ def pack(values):
     return '\t'.join(map(str, values)) + '\n'
 
 
-def create_line_for_snp_calling(split_line, is_ctrl=False):
-    if is_ctrl:
-        result = [split_line[10]] + ["None", "Homo sapiens"] + split_line[11:15]
-        return pack(result)
-    else:
-        return pack(split_line[:7])
-
-
 def make_list_for_VCFs(out_path=None, condition_function=lambda x: True):
     # condition function takes path and return boolean
     black_list = make_black_list()
@@ -270,6 +262,7 @@ class CorrelationReader:
             uniq_segments_count = 0
             previous_segment = []
             for line in file:
+                line = line.strip()
                 if line[0] == '#':
                     split_header = line[1:].split('!')
                     datasets_number = split_header[0]
@@ -280,7 +273,7 @@ class CorrelationReader:
                     else:
                         aligns = ''
                     continue
-                line = line.strip().split("\t")
+                line = line.split("\t")
                 if line[0] not in ChromPos.chrs:
                     continue
                 current_segment = [float(line[4]), int(line[5]), int(line[6])]
@@ -328,3 +321,34 @@ class CorrelationReader:
                 result.append([chr, pos, value, 100, 100])
             # result.sort_items()
             return result
+
+
+def correct_cosmic_file(cosmic_file, out_file):
+    with open(cosmic_file, 'r') as file, open(out_file, 'w') as out:
+        lines = dict()
+        for line in file:
+            if line[0] == '#':
+                continue
+            line = line.strip().split(',')
+            if not line[0]:
+                continue
+            if 'chr' + line[4] not in ChromPos.chrs:
+                continue
+            try:
+                lines[line[0]].append(['chr' + line[4], line[5], line[6], line[10], line[11]])
+            except KeyError:
+                lines[line[0]] = [['chr' + line[4], line[5], line[6], line[10], line[11]]]
+
+        for cell_line, segments in lines.items():
+            segments = sorted(segments, key=lambda x: int(x[1]))
+            segments = sorted(segments, key=lambda x: x[0])
+            for segment in segments:
+                out.write(pack([cell_line] + segment))
+
+
+def create_line_for_snp_calling(split_line, is_ctrl=False):
+    if is_ctrl:
+        result = [split_line[10]] + ["None", "Homo sapiens"] + split_line[11:15]
+        return pack(result)
+    else:
+        return pack(split_line[:7])
