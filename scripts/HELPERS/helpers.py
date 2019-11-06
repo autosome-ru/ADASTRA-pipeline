@@ -83,6 +83,7 @@ class Intersection:
         self.segment_start = None
         self.segment_end = None
         self.has_segments = True
+        self.has_snps = True
 
     def __iter__(self):
         return self
@@ -111,6 +112,9 @@ class Intersection:
             self.get_next_segment()
 
     def __next__(self):
+        if not self.has_snps:
+            raise StopIteration
+
         if self.snp_coordinate is None:
             self.get_next_snp()
         if self.segment_start is None:
@@ -125,7 +129,10 @@ class Intersection:
             return x
         else:
             x = self.return_snp(False)
-            self.get_next_snp()
+            try:
+                self.get_next_snp()
+            except StopIteration:
+                self.has_snps = False
             return x
 
 
