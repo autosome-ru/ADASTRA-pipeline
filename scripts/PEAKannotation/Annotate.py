@@ -41,6 +41,7 @@ if __name__ == "__main__":
         sorted_lines = new_arr
 
     with open(table_annotated_path, "w") as out:
-        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts'] + callers_names))
+        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts', 'repeat_type'] +
+                       callers_names))
         for split_line in sorted_lines:
             out.write(pack(split_line))
