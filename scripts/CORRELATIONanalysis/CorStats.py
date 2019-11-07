@@ -23,7 +23,7 @@ def count_cosmic_segments():
 
 def unpack_cosmic_segments(line, mode='normal'):
     if line[0] == '#':
-        return []
+        return [''] * len(line.strip().split('\t'))
     line = line.strip().split('\t')
 
     if line[0] != cosmic_names[cell_line_name]:
