@@ -9,6 +9,8 @@ from scripts.HELPERS.helpers import Intersection, pack, read_synonims
 
 def unpack_ploidy_segments(line):
     line = line.strip().split('\t')
+    if line[0] == '#':
+        return [''] * 6
     return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[7])]
 
 
@@ -40,7 +42,7 @@ except KeyError:
     datasetsn = 'nan'
     al_list = []
     print(file_name)
-    
+
 names, _ = read_synonims()
 if name in names:
     table_path = ploidy_path + file_name
@@ -50,7 +52,7 @@ if name in names:
         ploidy_file_path = ploidy_path + mode + '/' + name + '!' + lab + '_ploidy.tsv'
         out_path = correlation_path + mode + '_tables/' + name + '_' + lab.replace('_', '-') + '.tsv'
         print(out_path)
-
+        
         with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
             out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list) + '\n')
             for chr, pos, ref, alt, in_intersection, segment_ploidy, qual, segn \
