@@ -3,7 +3,7 @@ import sys
 from scipy.stats import kendalltau
 
 sys.path.insert(1, '/home/abramov/ASB-Project')
-from scripts.HELPERS.helpers import CorrelationReader, ChromPos, Intersection, pack, read_synonims
+from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims
 from scripts.HELPERS.paths import parameters_path, correlation_path, heatmap_data_path
 
 CGH_path = parameters_path + 'CHIP_hg38.sorted.bed'
