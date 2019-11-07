@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ParametersListsFolder="/home/abramov/ParallelParameters/stats/"
+ParametersListsFolder="/home/abramov/ParallelParameters/"
 ScriptsFolder="/home/abramov/ASB-Project/scripts/"
 
 njobs=$1
