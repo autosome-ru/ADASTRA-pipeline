@@ -89,8 +89,6 @@ class Intersection:
         return self
 
     def return_snp(self, intersect):
-        if len(self.seg_args) != 3:
-            print(self.seg_args)
         return [self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
                + [int(intersect)] * self.write_intersect \
                + [arg * intersect for arg in self.seg_args] * self.write_segment_args
@@ -105,6 +103,8 @@ class Intersection:
     def get_next_segment(self):
         try:
             seg_chr, start_pos, end_pos, *self.seg_args = self.unpack_segments_function(next(self.segments))
+            if self.seg_args == []:
+                print(seg_chr, start_pos, end_pos)
             self.segment_start = ChromPos(seg_chr, start_pos)
             self.segment_end = ChromPos(seg_chr, end_pos)
         except StopIteration:
