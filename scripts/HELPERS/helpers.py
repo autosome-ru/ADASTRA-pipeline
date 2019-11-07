@@ -89,7 +89,8 @@ class Intersection:
         return self
 
     def return_snp(self, intersect):
-        print(len(self.seg_args))
+        if len(self.seg_args) != 3:
+            print(self.seg_args)
         return [self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
                + [int(intersect)] * self.write_intersect \
                + [arg * intersect for arg in self.seg_args] * self.write_segment_args
