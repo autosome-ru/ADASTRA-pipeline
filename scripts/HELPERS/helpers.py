@@ -311,6 +311,8 @@ class CorrelationReader:
                    'LC:NCI-H460', 'LC:NCI-H522', 'OV:IGROV1', 'OV:OVCAR-3', 'OV:OVCAR-4', 'OV:OVCAR-5', 'OV:OVCAR-8',
                    'OV:SK-OV-3', 'OV:NCI/ADR-RES', 'PR:PC-3', 'PR:DU-145', 'RE:786-0', 'RE:A498', 'RE:ACHN',
                    'RE:CAKI-1', 'RE:RXF 393', 'RE:SN12C', 'RE:TK-10', 'RE:UO-31']
+        if cgh_name not in cgnames:
+            return []
         idx = cgnames.index(cgh_name) + 3
         with open(self.CGH_path, 'r') as file:
             result = []
