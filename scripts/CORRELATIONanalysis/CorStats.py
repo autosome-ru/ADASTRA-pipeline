@@ -73,12 +73,15 @@ def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
 
 def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
     nearest_probes = []
-    j = 0
     if not CGH_objects:
         return []
     for SNP in SNP_objects:
         SNP = [ChromPos(SNP[0], SNP[1])] + SNP[2:]
-        nearest_probe = min([probe for probe in CGH_objects[j:]], key=lambda x: SNP[0].distance(ChromPos(x[0], x[1])))
+        chr_probes_dict = dict(zip(list(ChromPos.chrs.keys()),
+                                   [[probe for probe in CGH_objects if
+                                     probe[0] == chr] for chr in list(ChromPos.chrs.keys())]))
+        nearest_probe = min([probe for probe in chr_probes_dict[SNP[0].chr]],
+                            key=lambda x: SNP[0].distance(ChromPos(x[0], x[1])))
         j = CGH_objects.index(nearest_probe)
         nearest_probes.append(nearest_probe)
     return nearest_probes
