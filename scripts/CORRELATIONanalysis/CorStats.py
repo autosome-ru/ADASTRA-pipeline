@@ -3,7 +3,7 @@ import sys
 from scipy.stats import kendalltau
 
 sys.path.insert(1, '/home/abramov/ASB-Project')
-from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims
+from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos
 from scripts.HELPERS.paths import parameters_path, correlation_path, heatmap_data_path
 
 CGH_path = parameters_path + 'CHIP_hg38.sorted.bed'
@@ -71,6 +71,17 @@ def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
     return 'NaN'
 
 
+def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
+    nearest_probes = []
+    j = 0
+    for SNP in SNP_objects:
+        SNP = [ChromPos(SNP[0], SNP[1])] + SNP[2:]
+        nearest_probe = min([probe for probe in CGH_objects[j:]], key=lambda x: SNP[0].distance(ChromPos(x[0], x[1])))
+        j = CGH_objects.index(nearest_probe)
+        nearest_probes.append(nearest_probe)
+    return nearest_probes
+
+
 if __name__ == '__main__':
     file_name = sys.argv[1]
     print(file_name)
@@ -131,7 +142,8 @@ if __name__ == '__main__':
         CGH_objects = reader.read_CGH(cgh_names[cell_line_name])
 
         corr_to_objects_chip = correlation_with_cosmic(CGH_objects, mode='total')
-
+        nearest_cgh_objects = find_nearest_probe_to_SNP(SNP_objects, CGH_objects)
+        corr_to_objects_chip_nearest = correlation_with_cosmic(nearest_cgh_objects, mode='total')
         out_line = '\t'.join(map(lambda x: '\t'.join(map(str, x)),
 
                                  [[cell_line_name, lab, aligns, len(SNP_objects), number_of_datasets,
@@ -143,7 +155,9 @@ if __name__ == '__main__':
                                  [[corr_to_objects[naive_mode]]
                                   for naive_mode in naive_modes] +
 
-                                 [[corr_to_objects_chip]]
+                                 [[corr_to_objects_chip]] +
+
+                                 [[corr_to_objects_chip_nearest]]
 
                                  )) + '\n'
         out.write(out_line)
