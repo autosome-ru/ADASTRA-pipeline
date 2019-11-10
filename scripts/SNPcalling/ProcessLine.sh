@@ -42,8 +42,8 @@ if [ "$TF" != "None" ]; then
   OutPath=${AlignmentsPath}"EXP/$TF/$ExpName/"
   AlignmentFullPath=${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.bam"
 else
-  if ! [ -d ${AlignmentsPath}"CTRL/$EXP" ]; then
-    if ! mkdir ${AlignmentsPath}"CTRL/$EXP"
+  if ! [ -d ${AlignmentsPath}"CTRL/$ExpName" ]; then
+    if ! mkdir ${AlignmentsPath}"CTRL/$ExpName"
     then
       echo "Failed to make dir $ExpName"
       exit 1
