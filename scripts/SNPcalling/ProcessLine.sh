@@ -1,6 +1,6 @@
 #!/bin/bash
 
-AlignmentsPath="/home/abramov/Alignments/"
+AlignmentsPath="/home/abramov/Alignments_chr11/"
 ScriptsPath="/home/abramov/ASB-Project/scripts/"
 SNPcallingScriptsPath=${ScriptsPath}"SNPcalling/"
 HelpersScriptsPath=${ScriptsPath}"HELPERS/"
@@ -14,7 +14,7 @@ ExpName=${ADDR[0]}
 TF=${ADDR[1]}
 ReadGroups=${ADDR[5]}
 AlignName=${ADDR[6]}
-AlignmentDownloadPath=${ADDR[7]}
+AlignmentDownloadPath=${AlignmentsPath}${AlignName}".bam"
 
 if [ "$AlignmentDownloadPath" = "None" ];then
     echo "There is no Path for exp $ExpName"
