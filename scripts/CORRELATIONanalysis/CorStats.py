@@ -67,7 +67,6 @@ def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
         heatmap.close()
 
     if len(snp_ploidy) != 0:
-        print(snp_ploidy)
         return kendalltau(snp_ploidy, cosm_ploidy)[0]
     return 'NaN'
 
