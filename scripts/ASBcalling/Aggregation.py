@@ -97,7 +97,7 @@ if __name__ == '__main__':
                         'maxdepth_m2', 'mostsig_ref/alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
                         'min_cover', 'max_cover', 'med_cover', 'mean_cover', 'total_cover', 'm1_ref', 'm1_alt',
                         'm2_ref', 'm2_alt',
-                        'm_hpref', 'm_hpalt', 'm_fpref', 'm_fpalt', 'm_logpref', 'm_logpalt' 'm_stpref', 'm_stpalt']))
+                        'm_hpref', 'm_hpalt', 'm_fpref', 'm_fpalt', 'm_logpref', 'm_logpalt', 'm_stpref', 'm_stpalt']))
 
         filtered_snps = dict()
         for key in common_snps:
