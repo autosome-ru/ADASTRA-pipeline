@@ -62,7 +62,7 @@ if __name__ == '__main__':
         tables = cell_lines_dict[key_name]
     if what_for == "TF":
         tables = tf_dict[key_name]
-    print('Reading datasets for {} '.format(what_for) + key_name)
+    print('Reading datasets for {} {}'.format(what_for, key_name))
     common_snps = dict()
     for table in tables:
         if os.path.isfile(table):
@@ -89,7 +89,7 @@ if __name__ == '__main__':
                                                                           dip_qual, lq, rq, seg_c, p_ref, p_alt,
                                                                           table_name, another_agr)]
 
-    print('Writing ', key_name)
+    print('Writing {}'.format(key_name))
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'total_callers', 'unique_callers', 'm_ploidy',
@@ -107,7 +107,7 @@ if __name__ == '__main__':
                     break
 
         counter = 0
-        print(len(filtered_snps), 'snps')
+        print('{} snps'.format(len(filtered_snps)))
 
         if len(filtered_snps) == 0:
             sys.exit(0)
@@ -120,7 +120,7 @@ if __name__ == '__main__':
             value = filtered_snps[key]
             counter += 1
             if counter % 10000 == 0:
-                print(counter, 'done')
+                print('done {}'.format(counter))
             c_uniq_callers = dict(zip(callers_names, [False]*len(callers_names)))
             m_total_callers = 0
             c_ploidy = []
