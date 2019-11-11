@@ -97,7 +97,7 @@ if __name__ == '__main__':
                         'maxdepth_m2', 'mostsig_ref/alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
                         'min_cover', 'max_cover', 'med_cover', 'mean_cover', 'total_cover', 'm1_ref', 'm1_alt',
                         'm2_ref', 'm2_alt',
-                        'm_hpref', 'm_hpalt', 'm_fpref', 'm_fpalt', 'm_stpref', 'm_stpalt']))
+                        'm_hpref', 'm_hpalt', 'm_fpref', 'm_fpalt', 'm_logpref', 'm_logpalt' 'm_stpref', 'm_stpalt']))
 
         filtered_snps = dict()
         for key in common_snps:
@@ -184,6 +184,8 @@ if __name__ == '__main__':
             m_hpalt = stats.hmean(c_palt)
             m_fpref = stats.combine_pvalues(c_pref, method='fisher')[1]
             m_fpalt = stats.combine_pvalues(c_palt, method='fisher')[1]
+            m_logpref = stats.combine_pvalues(c_pref, method='mudholkar_george')[1]
+            m_logpalt = stats.combine_pvalues(c_palt, method='mudholkar_george')[1]
             m_stpref = stats.combine_pvalues(c_pref, method='stouffer')[1]
             m_stpalt = stats.combine_pvalues(c_palt, method='stouffer')[1]
 
@@ -248,6 +250,7 @@ if __name__ == '__main__':
                  m1_ref, m1_alt, m2_ref, m2_alt,
                  m_hpref, m_hpalt,
                  m_fpref, m_fpalt,
+                 m_logpref, m_logpalt,
                  m_stpref, m_stpalt]))
             origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': c_table_names,
                                                             expected_args[what_for]: c_another_agr,
