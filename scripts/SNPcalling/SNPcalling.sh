@@ -75,7 +75,7 @@ if ! $Java $JavaParameters -jar "$PICARD" \
 	REMOVE_DUPLICATES=true \
 	M="$OutPath/${BamName}_metrics.txt"
 then
-    echo "Failed to picard.MarkDplicates"
+    echo "Failed to picard.MarkDuplicates"
     exit 1
 fi
 

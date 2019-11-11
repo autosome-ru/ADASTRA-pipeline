@@ -62,7 +62,7 @@ if __name__ == '__main__':
         tables = cell_lines_dict[key_name]
     if what_for == "TF":
         tables = tf_dict[key_name]
-    print('Reading datasets for {} '.format(what_for) + key_name)
+    print('Reading datasets for {} {}'.format(what_for, key_name))
     common_snps = dict()
     for table in tables:
         if os.path.isfile(table):
@@ -89,7 +89,7 @@ if __name__ == '__main__':
                                                                           dip_qual, lq, rq, seg_c, p_ref, p_alt,
                                                                           table_name, another_agr)]
 
-    print('Writing ', key_name)
+    print('Writing {}'.format(key_name))
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'total_callers', 'unique_callers', 'm_ploidy',
@@ -97,7 +97,7 @@ if __name__ == '__main__':
                         'maxdepth_m2', 'mostsig_ref/alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
                         'min_cover', 'max_cover', 'med_cover', 'mean_cover', 'total_cover', 'm1_ref', 'm1_alt',
                         'm2_ref', 'm2_alt',
-                        'm_hpref', 'm_hpalt', 'm_fpref', 'm_fpalt', 'm_stpref', 'm_stpalt']))
+                        'm_hpref', 'm_hpalt', 'm_fpref', 'm_fpalt', 'm_logpref', 'm_logpalt', 'm_stpref', 'm_stpalt']))
 
         filtered_snps = dict()
         for key in common_snps:
@@ -107,7 +107,7 @@ if __name__ == '__main__':
                     break
 
         counter = 0
-        print(len(filtered_snps), 'snps')
+        print('{} snps'.format(len(filtered_snps)))
 
         if len(filtered_snps) == 0:
             sys.exit(0)
@@ -120,7 +120,7 @@ if __name__ == '__main__':
             value = filtered_snps[key]
             counter += 1
             if counter % 10000 == 0:
-                print(counter, 'done')
+                print('done {}'.format(counter))
             c_uniq_callers = dict(zip(callers_names, [False]*len(callers_names)))
             m_total_callers = 0
             c_ploidy = []
@@ -184,6 +184,8 @@ if __name__ == '__main__':
             m_hpalt = stats.hmean(c_palt)
             m_fpref = stats.combine_pvalues(c_pref, method='fisher')[1]
             m_fpalt = stats.combine_pvalues(c_palt, method='fisher')[1]
+            m_logpref = stats.combine_pvalues(c_pref, method='mudholkar_george')[1]
+            m_logpalt = stats.combine_pvalues(c_palt, method='mudholkar_george')[1]
             m_stpref = stats.combine_pvalues(c_pref, method='stouffer')[1]
             m_stpalt = stats.combine_pvalues(c_palt, method='stouffer')[1]
 
@@ -248,6 +250,7 @@ if __name__ == '__main__':
                  m1_ref, m1_alt, m2_ref, m2_alt,
                  m_hpref, m_hpalt,
                  m_fpref, m_fpalt,
+                 m_logpref, m_logpalt,
                  m_stpref, m_stpalt]))
             origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': c_table_names,
                                                             expected_args[what_for]: c_another_agr,
@@ -257,9 +260,9 @@ if __name__ == '__main__':
     print("Counting FDR")
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
         table = pd.read_table(f)
-    bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["m_fpref"],
+    bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpref"],
                                                                              alpha=0.05, method='fdr_bh')
-    bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["m_fpalt"],
+    bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt"],
                                                                              alpha=0.05, method='fdr_bh')
     table["m_fdr_ref"] = pd.Series(p_val_ref)
     table["m_fdr_alt"] = pd.Series(p_val_alt)
