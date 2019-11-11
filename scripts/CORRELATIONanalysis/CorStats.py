@@ -67,6 +67,7 @@ def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
         heatmap.close()
 
     if len(snp_ploidy) != 0:
+        print(snp_ploidy)
         return kendalltau(snp_ploidy, cosm_ploidy)[0]
     return 'NaN'
 
@@ -80,7 +81,6 @@ def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
         SNP = [ChromPos(SNP[0], SNP[1])] + SNP[2:]
         current_distance = SNP[0].distance(ChromPos(CGH_objects[i][0], CGH_objects[i][1]))
         while SNP[0].distance(ChromPos(CGH_objects[i + 1][0], CGH_objects[i + 1][1])) < current_distance:
-            print(current_distance)
             current_distance = SNP[0].distance(ChromPos(CGH_objects[i + 1][0], CGH_objects[i + 1][1]))
             i += 1
         nearest_probes.append(CGH_objects[i])
@@ -149,7 +149,7 @@ if __name__ == '__main__':
         corr_to_objects_chip = correlation_with_cosmic(CGH_objects, mode='total')
         nearest_cgh_objects = find_nearest_probe_to_SNP(SNP_objects, CGH_objects)
         corr_to_objects_chip_nearest = correlation_with_cosmic(nearest_cgh_objects, mode='total')
-        print(corr_to_objects_chip_nearest)
+        print(corr_to_objects_chip_nearest, corr_to_objects_chip_nearest)
         out_line = '\t'.join(map(lambda x: '\t'.join(map(str, x)),
 
                                  [[cell_line_name, lab, aligns, len(SNP_objects), number_of_datasets,
