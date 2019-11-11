@@ -75,15 +75,14 @@ def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
     nearest_probes = []
     if not CGH_objects:
         return []
-    chr_probes_dict = dict(zip(list(ChromPos.chrs.keys()),
-                               [[probe for probe in CGH_objects if
-                                 probe[0] == chr] for chr in list(ChromPos.chrs.keys())]))
+    i = 0
     for SNP in SNP_objects:
         SNP = [ChromPos(SNP[0], SNP[1])] + SNP[2:]
-
-        nearest_probe = min([probe for probe in chr_probes_dict[SNP[0].chr]],
-                            key=lambda x: SNP[0].distance(ChromPos(x[0], x[1])))
-        nearest_probes.append(nearest_probe)
+        current_distance = SNP[0].distance(ChromPos(CGH_objects[i][0], CGH_objects[i][1]))
+        while SNP[0].distance(ChromPos(CGH_objects[i + 1][0], CGH_objects[i][1])) < current_distance:
+            current_distance = SNP[0].distance(ChromPos(CGH_objects[i + 1][0], CGH_objects[i + 1][1]))
+            i += 1
+        nearest_probes.append(CGH_objects[i])
     return nearest_probes
 
 
