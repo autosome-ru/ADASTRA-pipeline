@@ -79,7 +79,8 @@ def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
     for SNP in SNP_objects:
         SNP = [ChromPos(SNP[0], SNP[1])] + SNP[2:]
         current_distance = SNP[0].distance(ChromPos(CGH_objects[i][0], CGH_objects[i][1]))
-        while SNP[0].distance(ChromPos(CGH_objects[i + 1][0], CGH_objects[i][1])) < current_distance:
+        while SNP[0].distance(ChromPos(CGH_objects[i + 1][0], CGH_objects[i + 1][1])) < current_distance:
+            print(current_distance)
             current_distance = SNP[0].distance(ChromPos(CGH_objects[i + 1][0], CGH_objects[i + 1][1]))
             i += 1
         nearest_probes.append(CGH_objects[i])
