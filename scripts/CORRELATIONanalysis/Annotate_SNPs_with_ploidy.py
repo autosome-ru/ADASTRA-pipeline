@@ -38,7 +38,7 @@ lab = file_name.split('!')[1][:-4]
 try:
     aligns = aligns_by_cell_type[file_name[:-4]]  # .tsv
     datasetsn = len(aligns)
-    al_list = [align[29:-7] for align in aligns]
+    al_list = [align[29:-7] for align in aligns if os.path.isfile(align)]
 except KeyError:
     datasetsn = 'nan'
     al_list = []
