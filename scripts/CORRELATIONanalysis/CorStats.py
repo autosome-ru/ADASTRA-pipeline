@@ -82,6 +82,8 @@ def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
         while SNP[0].distance(ChromPos(CGH_objects[i + 1][0], CGH_objects[i + 1][1])) < current_distance:
             current_distance = SNP[0].distance(ChromPos(CGH_objects[i + 1][0], CGH_objects[i + 1][1]))
             i += 1
+        if current_distance == float('inf'):
+            print("well thats shit right there")
         nearest_probes.append(CGH_objects[i])
     return nearest_probes
 
@@ -139,9 +141,6 @@ if __name__ == '__main__':
             corr_to_objects[naive_mode] = correlation_with_cosmic(SNP_objects, mode='normal')
 
         # TODO: add 3-5 neighbours naive
-
-        # TODO: add closest chip COR
-
         # print('reading CGH')
         CGH_objects = reader.read_CGH(cgh_names[cell_line_name])
 
