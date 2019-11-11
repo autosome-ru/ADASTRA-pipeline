@@ -22,7 +22,6 @@ class Segmentation(ABC):
         self.border_numbers = None
         self.positions = []
 
-        # TODO: make abstract
         self.LINES = None
         self.last_snp_number = None
         self.candidate_numbers = None
