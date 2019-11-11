@@ -21,7 +21,7 @@ with open(out_path, 'w') as out:
                               'cor_by_snp' + get_name_by_dir(snp_dir)]
                              for snp_dir in snp_dirs] +
                             [['cor_by_snp_naive',
-                              'cor_by_probe_CGH']]
+                              'cor_by_probe_CGH', 'cor_by_snp_probe_CGH']]
                             )) + '\n')
     
     for file_name in os.listdir(Correlation_path):

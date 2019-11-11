@@ -141,13 +141,11 @@ if __name__ == '__main__':
             corr_to_objects[naive_mode] = correlation_with_cosmic(SNP_objects, mode='normal')
 
         # TODO: add 3-5 neighbours naive
-        # print('reading CGH')
         CGH_objects = reader.read_CGH(cgh_names[cell_line_name])
 
         corr_to_objects_chip = correlation_with_cosmic(CGH_objects, mode='total')
         nearest_cgh_objects = find_nearest_probe_to_SNP(SNP_objects, CGH_objects)
         corr_to_objects_chip_nearest = correlation_with_cosmic(nearest_cgh_objects, mode='total')
-        print(corr_to_objects_chip, corr_to_objects_chip_nearest)
         out_line = '\t'.join(map(lambda x: '\t'.join(map(str, x)),
 
                                  [[cell_line_name, lab, aligns, len(SNP_objects), number_of_datasets,
