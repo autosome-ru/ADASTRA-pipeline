@@ -1,6 +1,8 @@
 import os
 import sys
+import numpy as np
 from scipy.stats import kendalltau
+from sklearn import linear_model
 
 sys.path.insert(1, '/home/abramov/ASB-Project')
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos
@@ -67,7 +69,8 @@ def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
         heatmap.close()
 
     if len(snp_ploidy) != 0:
-        return kendalltau(snp_ploidy, cosm_ploidy)[0]
+        lm = linear_model.LinearRegression().fit(snp_ploidy, cosm_ploidy)
+        return kendalltau(snp_ploidy, cosm_ploidy)[0], lm.predict(np.array([0, 1]))
     return 'NaN'
 
 
@@ -108,9 +111,9 @@ if __name__ == '__main__':
 
         # if file_name != 'HCT-116_colon_carcinoma_19.tsv': continue
 
-        corr_to_objects = dict()
-        segment_numbers = dict()
-
+        corr_to_objects = {}
+        segment_numbers = {}
+        lm_coefficients = {}
         # print('reading COSMIC')
         cell_line_name = file_name[:file_name.rfind('_')]
         index = file_name[file_name.rfind('_') + 1:file_name.rfind('.')]
@@ -129,27 +132,30 @@ if __name__ == '__main__':
             number_of_datasets, lab, SNP_objects, aligns, segments_number = reader.read_SNPs(method='normal')
 
             segment_numbers[model] = segments_number
-            corr_to_objects[model] = correlation_with_cosmic(SNP_objects,
-                                                             mode='normal',
-                                                             heatmap_data_file=heatmap_data_file)
+            corr_to_objects[model], lm_coefficients[model] = correlation_with_cosmic(
+                                                                                    SNP_objects,
+                                                                                    mode='normal',
+                                                                                    heatmap_data_file=heatmap_data_file
+            )
 
         for naive_mode in naive_modes:
             number_of_datasets, lab, SNP_objects, aligns, segments_number = reader.read_SNPs(method=naive_mode)
 
-            corr_to_objects[naive_mode] = correlation_with_cosmic(SNP_objects, mode='normal')
+            corr_to_objects[naive_mode], _ = correlation_with_cosmic(SNP_objects, mode='normal')
 
         # TODO: add 3-5 neighbours naive
         CGH_objects = reader.read_CGH(cgh_names[cell_line_name])
         nearest_cgh_objects = find_nearest_probe_to_SNP(SNP_objects, CGH_objects)
 
-        corr_to_objects_chip = correlation_with_cosmic(CGH_objects, mode='total')
-        corr_to_objects_chip_nearest = correlation_with_cosmic(nearest_cgh_objects, mode='total')
+        corr_to_objects_chip, _ = correlation_with_cosmic(CGH_objects, mode='total')
+        corr_to_objects_chip_nearest, _ = correlation_with_cosmic(nearest_cgh_objects, mode='total')
         out_line = '\t'.join(map(lambda x: '\t'.join(map(str, x)),
 
                                  [[cell_line_name, lab, aligns, len(SNP_objects), number_of_datasets,
                                    count_cosmic_segments()]] +
 
-                                 [[segment_numbers[model], corr_to_objects[model]]
+                                 [[segment_numbers[model], corr_to_objects[model],
+                                   lm_coefficients[model][0],lm_coefficients[model[1]]]
                                   for model in map(get_name_by_dir, snp_dirs)] +
 
                                  [[corr_to_objects[naive_mode]]
