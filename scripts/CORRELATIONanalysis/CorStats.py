@@ -69,8 +69,9 @@ def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
         heatmap.close()
 
     if len(snp_ploidy) != 0:
-        lm = linear_model.LinearRegression().fit(snp_ploidy, cosm_ploidy)
-        return kendalltau(snp_ploidy, cosm_ploidy)[0], lm.predict(np.array([0, 1]).reshape(-1, 1))
+        lm = linear_model.LinearRegression()
+        lm.fit(snp_ploidy, cosm_ploidy)
+        return kendalltau(snp_ploidy, cosm_ploidy)[0], tuple(map(float, lm.predict(np.array([0, 1]).reshape(-1, 1))))
     return 'NaN'
 
 
