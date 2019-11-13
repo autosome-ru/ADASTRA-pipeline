@@ -156,7 +156,7 @@ if __name__ == '__main__':
                                    count_cosmic_segments()]] +
 
                                  [[segment_numbers[model], corr_to_objects[model],
-                                   lm_coefficients[model][0],lm_coefficients[model[1]]]
+                                   lm_coefficients[model][0], lm_coefficients[model][1]]
                                   for model in map(get_name_by_dir, snp_dirs)] +
 
                                  [[corr_to_objects[naive_mode]]
