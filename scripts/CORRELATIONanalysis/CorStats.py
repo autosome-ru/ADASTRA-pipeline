@@ -72,7 +72,7 @@ def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
         lm = linear_model.LinearRegression()
         lm.fit(np.array(snp_ploidy).reshape(-1, 1), np.array(cosm_ploidy).reshape(-1, 1))
         return kendalltau(snp_ploidy, cosm_ploidy)[0], tuple(map(float, lm.predict(np.array([0, 1]).reshape(-1, 1))))
-    return 'NaN'
+    return 'NaN', 'NaN'
 
 
 def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
