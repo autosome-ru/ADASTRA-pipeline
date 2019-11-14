@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ParametersListsFolder="/home/abramov/ParallelParameters/"
+ParametersListsFolder="/home/abramov/ParallelParameters/stats"
 ScriptsFolder="/home/abramov/ASB-Project/scripts/"
 
 njobs=$1
@@ -14,7 +14,7 @@ fi
 if [ "$flag" == --merge ] || [ "$flag" == --ploidy ]; then
   python3 "$ScriptsFolder"PARAMETERS/MakeParametersForPE.py
   python3 "$ScriptsFolder"PARAMETERS/SortParameters.py
-	parallel --jobs "$njobs" python3 "$ScriptsFolder"PLOIDYcalling/PloidyEstimation.py :::: "$ParametersListsFolder"PE_parameters.cfg :::: "$ParametersListsFolder"models.cfg :::: "$ParametersListsFolder"b_pen.cfg
+	parallel --jobs "$njobs" python3 "$ScriptsFolder"PLOIDYcalling/PloidyEstimation.py :::: "$ParametersListsFolder"PE_parameters.cfg
 fi
 
 if [ "$flag" == --merge ] || [ "$flag" == --ploidy ] || [ "$flag" == --aswp ]; then
