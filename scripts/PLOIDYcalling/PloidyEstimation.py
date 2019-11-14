@@ -21,6 +21,8 @@ class Segmentation(ABC):
         self.bposn = None
         self.border_numbers = None
         self.positions = []
+        self.SUM_COV = None
+        self.LENGTH = None
 
         self.LINES = None
         self.last_snp_number = None
@@ -99,6 +101,9 @@ class Segmentation(ABC):
                 if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'CBRT':
             return -1 / 2 * k * (N**(1/3) + 1)
+        elif self.sub_chrom.chrom.b_penalty == 'DENS':
+            return borders * self.SUM_COV / self.LENGTH * self.sub_chrom.chrom.RESOLUTION \
+                   * (1 - np.log1p(1/np.sqrt(self.SUM_COV)))
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
@@ -121,6 +126,9 @@ class PieceSegmentation(Segmentation):
         self.LINES = end - start + 1
         self.positions = sub_chrom.positions[
                          sub_chrom.candidate_numbers[start]:sub_chrom.candidate_numbers[end - 1] + 2]
+        self.SUM_COV = sum(x[1] + x[2] for x in self.sub_chrom.SNPS[
+                         sub_chrom.candidate_numbers[start]:sub_chrom.candidate_numbers[end - 1] + 2])
+        self.LENGTH = self.positions[-1] - self.positions[0]
         self.candidate_numbers = sub_chrom.candidate_numbers[start:end + 1]
         self.candidates_count = end - start
         if self.end == sub_chrom.candidates_count:
@@ -168,6 +176,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         super().__init__()
 
         self.SNPS, self.LINES = SNPS, LINES
+        self.SUM_COV = sum(x[1] + x[2] for x in self.SNPS)
 
         self.start = 0
         self.end = (self.LINES - 1) - 1  # index from 0 and #borders = #snps - 1
@@ -293,7 +302,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
             return
 
         self.construct_probs_initial()
-
+        self.LENGTH = self.positions[-1] - self.positions[0]
         # if self.candidates_count > self.chrom.SEG_LENGTH:
         tuples = self.split_list(self.candidates_count + 1, self.chrom.SEG_LENGTH, self.chrom.INTERSECT)
         border_set = set()
@@ -326,6 +335,7 @@ class ChromosomeSegmentation:  # chrom
         super().__init__()
         self.CHR = CHR  # name
         self.length = length  # length, bp
+        self.RESOLUTION = seg.RESOLUTION
 
         self.COV_TR = seg.COV_TR  # coverage treshold
         self.SEG_LENGTH = seg.SEG_LENGTH  # length of segment
@@ -478,6 +488,7 @@ class GenomeSegmentator:  # seg
         self.n_max = 5  # max ploidy
         self.NUM_TR = 100  # minimal number of snps in chromosome to start segmentation
         self.COV_TR = 0  # coverage treshold
+        self.RESOLUTION = 10**7  # bp
         self.INTERSECT = 300
         self.SEG_LENGTH = 600
         self.ISOLATED_SNP_FILTER = 2
@@ -574,11 +585,11 @@ if __name__ == '__main__':
 
     mode = 'corrected'
     states = [1.5, 6]
-    b_penalty = 'MIX'
+    b_penalty = 'DENS'
 
     merged_vcfs_path = ploidy_path + key + ".tsv"
 
-    model = 'Corrected-6'
+    model = 'Corrected-DENS'
 
     t = time.clock()
     if not os.path.isdir(ploidy_path + model):
