@@ -126,7 +126,7 @@ class PieceSegmentation(Segmentation):
         self.LINES = end - start + 1
         self.positions = sub_chrom.positions[
                          sub_chrom.candidate_numbers[start]:sub_chrom.candidate_numbers[end - 1] + 2]
-        self.SUM_COV = sum(x[1] + x[2] for x in self.sub_chrom.SNPS[
+        self.SUM_COV = sum(x[1] + x[2] for x in sub_chrom.SNPS[
                          sub_chrom.candidate_numbers[start]:sub_chrom.candidate_numbers[end - 1] + 2])
         self.LENGTH = self.positions[-1] - self.positions[0]
         self.candidate_numbers = sub_chrom.candidate_numbers[start:end + 1]
