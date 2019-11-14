@@ -100,10 +100,10 @@ class Segmentation(ABC):
             return -1 / 2 * k * (np.sqrt(N) + 1) \
                 if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'CBRT':
-            return -1 / 2 * k * (N**(1/3) + 1)
+            return -1 / 2 * k * (N ** (1 / 3) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'DENS':
-            return borders * self.SUM_COV / self.LENGTH * self.sub_chrom.chrom.RESOLUTION \
-                   * (1 - np.log1p(1/np.sqrt(self.SUM_COV)))
+            C = self.SUM_COV / self.LENGTH * self.sub_chrom.chrom.RESOLUTION
+            return borders * C * (1 - np.log1p(1 / np.sqrt(C)))
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
@@ -127,7 +127,8 @@ class PieceSegmentation(Segmentation):
         self.positions = sub_chrom.positions[
                          sub_chrom.candidate_numbers[start]:sub_chrom.candidate_numbers[end - 1] + 2]
         self.SUM_COV = sum(x[1] + x[2] for x in sub_chrom.SNPS[
-                         sub_chrom.candidate_numbers[start]:sub_chrom.candidate_numbers[end - 1] + 2])
+                                                sub_chrom.candidate_numbers[start]:sub_chrom.candidate_numbers[
+                                                                                       end - 1] + 2])
         self.LENGTH = self.positions[-1] - self.positions[0]
         self.candidate_numbers = sub_chrom.candidate_numbers[start:end + 1]
         self.candidates_count = end - start
@@ -468,7 +469,7 @@ class ChromosomeSegmentation:  # chrom
               '\nborder distances: {}'
               .format(len(self.positions), self.ests, self.counts, round(self.CRITICAL_GAP),
                       list(map(lambda x: (x, 1) if isinstance(x, (int, float)) else
-                               (x[0], x[1]-x[0]), self.bpos))))
+                      (x[0], x[1] - x[0]), self.bpos))))
         print('{} time: {} s\n'.format(self.CHR, time.clock() - start_t))
 
 
@@ -488,7 +489,7 @@ class GenomeSegmentator:  # seg
         self.n_max = 5  # max ploidy
         self.NUM_TR = 100  # minimal number of snps in chromosome to start segmentation
         self.COV_TR = 0  # coverage treshold
-        self.RESOLUTION = 10**7  # bp
+        self.RESOLUTION = 10 ** 7  # bp
         self.INTERSECT = 300
         self.SEG_LENGTH = 600
         self.ISOLATED_SNP_FILTER = 2
