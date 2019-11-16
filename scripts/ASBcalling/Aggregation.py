@@ -95,9 +95,9 @@ if __name__ == '__main__':
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'total_callers', 'unique_callers', 'm_ploidy',
                         'm_q', 'm_dipq', 'm_segc', 'm_datasets', 'maxdepth_ref/alt', 'maxdepth_ploidy', 'maxdepth_m1',
                         'maxdepth_m2', 'mostsig_ref/alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
-                        'min_cover', 'max_cover', 'med_cover', 'mean_cover', 'total_cover', 'm1_ref', 'm1_alt',
+                        'min_cover', 'max_cover', 'med_cover', 'total_cover', 'm1_ref', 'm1_alt',
                         'm2_ref', 'm2_alt',
-                        'm_hpref', 'm_hpalt', 'm_fpref', 'm_fpalt', 'm_logpref', 'm_logpalt', 'm_stpref', 'm_stpalt']))
+                        'm_logpref', 'm_logpalt']))
 
         filtered_snps = dict()
         for key in common_snps:
@@ -173,21 +173,15 @@ if __name__ == '__main__':
             min_cover = min(c_cover)
             max_cover = max(c_cover)
             med_cover = median_grouped(c_cover)
-            mean_cover = np.round(np.mean(c_cover), 1)
+            total_cover = sum(c_cover)
             m_unique_callers = sum(c_uniq_callers[caller] for caller in callers_names)
             m_ploidy = np.round(np.mean(c_ploidy), 2)
             m_dipq = np.round(np.mean(c_dipq), 1)
             m_q = np.round(np.mean(c_q), 1)
             m_segc = np.round(np.mean(c_segc), 1)
             m_datasets = len(value)
-            m_hpref = stats.hmean(c_pref)
-            m_hpalt = stats.hmean(c_palt)
-            m_fpref = stats.combine_pvalues(c_pref, method='fisher')[1]
-            m_fpalt = stats.combine_pvalues(c_palt, method='fisher')[1]
             m_logpref = stats.combine_pvalues(c_pref, method='mudholkar_george')[1]
             m_logpalt = stats.combine_pvalues(c_palt, method='mudholkar_george')[1]
-            m_stpref = stats.combine_pvalues(c_pref, method='stouffer')[1]
-            m_stpalt = stats.combine_pvalues(c_palt, method='stouffer')[1]
 
             c_m1_ref = [x for x in c_m1 if x > 0]
             if c_m1_ref:
@@ -222,7 +216,7 @@ if __name__ == '__main__':
                                      ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
                 try:
                     i_most = min([i for i in range(len(c_cover))
-                                  if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_fpalt - m_fpref)],
+                                  if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_logpalt - m_logpref)],
                                  key=sort_key)
                 except ValueError:
                     refalt_dict[method] = 'NaN'
@@ -246,12 +240,9 @@ if __name__ == '__main__':
                  m_ploidy, m_q, m_dipq, m_segc, m_datasets,
                  refalt_dict['maxdepth'], p_dict['maxdepth'], m1_dict['maxdepth'], m2_dict['maxdepth'],
                  refalt_dict['mostsig'], p_dict['mostsig'], m1_dict['mostsig'], m2_dict['mostsig'],
-                 min_cover, max_cover, med_cover, mean_cover, mean_cover * m_datasets,
+                 min_cover, max_cover, med_cover, total_cover,
                  m1_ref, m1_alt, m2_ref, m2_alt,
-                 m_hpref, m_hpalt,
-                 m_fpref, m_fpalt,
-                 m_logpref, m_logpalt,
-                 m_stpref, m_stpalt]))
+                 m_logpref, m_logpalt]))
             origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': c_table_names,
                                                             expected_args[what_for]: c_another_agr,
                                                             'ref_counts': c_ref, 'alt_counts': c_alt,
