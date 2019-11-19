@@ -10,10 +10,10 @@ from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection
 def count_p(x, n, p, alternative, cut_off=2):
     if x <= cut_off or x >= n - cut_off:
         raise ValueError('Read-counts {} must be greater than cut off value {}'.format(x, cut_off))
-    #tail = binom_test(cut_off, n, p, alternative='less') + binom_test(n - cut_off, n, p, alternative='greater')
+    tail = binom_test(cut_off, n, p, alternative='less') + binom_test(n - cut_off, n, p, alternative='greater')
     pv = (binom_test(x, n, p, alternative) + binom_test(x, n, 1 - p, alternative)) / 2
-    #corrected_pv = 0.5 + (pv - 0.5) / (1 - tail)
-    return pv
+    corrected_pv = 0.5 + (pv - 0.5) / (1 - tail)
+    return corrected_pv
 
 
 def make_reverse_dict(dictionary):
