@@ -9,6 +9,11 @@ from scripts.HELPERS.helpers import pack
 out_path = parameters_path + "cell_lines_BADs.tsv"
 actual_ploidy_path = ploidy_path + "Corrected-6/"
 
+
+def write_BAD(out_buffer, pd_column):
+    out_buffer.write(pack([previous_name, pd_column.mean(), pd_column.median()]))
+
+
 if __name__ == "__main__":
     with open(out_path, "w") as out:
         out.write(pack(["#cell_line", "mean_BAD", "median_BAD"]))
@@ -26,11 +31,7 @@ if __name__ == "__main__":
                     sum_table = table
                     previous_name = cell_line_name
                 else:
-                    mean_BAD = sum_table["BAD"].mean()
-                    median_BAD = sum_table["BAD"].median()
-                    out.write(pack([previous_name, mean_BAD, median_BAD]))
+                    write_BAD(out, sum_table["BAD"])
                     sum_table = table
                     previous_name = cell_line_name
-        mean_BAD = sum_table["BAD"].mean()
-        median_BAD = sum_table["BAD"].median()
-        out.write(pack([previous_name, mean_BAD, median_BAD]))
+        write_BAD(out, sum_table["BAD"])
