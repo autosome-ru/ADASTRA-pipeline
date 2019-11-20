@@ -15,16 +15,16 @@ if __name__ == "__main__":
         previous_name = None
         for file_name in sorted(os.listdir(actual_ploidy_path)):
             cell_line_name = file_name.split("!")[0]
+            with open(actual_ploidy_path + file_name) as file:
+                table = pd.read_table(file)
             if previous_name == cell_line_name:
-                table = pd.read_table(actual_ploidy_path + file_name)
                 sum_table = sum_table.append(table)
             else:
                 if sum_table is None:
-                    sum_table = pd.read_table(ploidy_path + file_name)
+                    sum_table = table
                 else:
-
                     mean_BAD = sum_table["BAD"].mean()
                     median_BAD = sum_table["BAD"].median()
                     out.write(pack([previous_name, mean_BAD, median_BAD]))
-                    sum_table = pd.read_table(ploidy_path + file_name)
+                    sum_table = table
                     previous_name = cell_line_name
