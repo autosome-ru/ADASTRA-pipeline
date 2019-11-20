@@ -11,6 +11,7 @@ actual_ploidy_path = ploidy_path + "Corrected-6/"
 
 if __name__ == "__main__":
     with open(out_path, "w") as out:
+        out.write(pack(["#cell_line", "mean_BAD", "median_BAD"]))
         sum_table = None
         previous_name = None
         for file_name in sorted(os.listdir(actual_ploidy_path)):
@@ -22,6 +23,7 @@ if __name__ == "__main__":
             else:
                 if sum_table is None:
                     sum_table = table
+                    previous_name = cell_line_name
                 else:
                     mean_BAD = sum_table["BAD"].mean()
                     median_BAD = sum_table["BAD"].median()
