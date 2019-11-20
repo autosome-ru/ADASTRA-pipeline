@@ -7,6 +7,9 @@ from scripts.HELPERS.paths import ploidy_dict_path, create_ploidy_path_function
 from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection
 
 
+corrected = {1: 1, 1.5: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 6}
+
+
 def count_p(x, n, p, alternative, cut_off=2):
     if x <= cut_off or x >= n - cut_off:
         raise ValueError('Read-counts {} must be greater than cut off value {}'.format(x, cut_off))
@@ -53,6 +56,7 @@ if __name__ == '__main__':
             if in_intersection:
                 #  p_value counting
                 p = 1 / (float(ploidy) + 1)
+                p = corrected.get(p, p)  # up-correct ploidy
                 n = ref_c + alt_c
                 p_ref = count_p(ref_c, n, p, 'greater')
                 p_alt = count_p(ref_c, n, p, 'less')

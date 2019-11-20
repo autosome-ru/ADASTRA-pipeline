@@ -524,14 +524,10 @@ class GenomeSegmentator:  # seg
 
     def write_ploidy_to_file(self, chrom):
         segments = self.append_ploidy_segments(chrom)
-
-        corrected = {1: 1, 1.5: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 6}
-
         filtered_segments = self.filter_segments(segments, self.ISOLATED_SNP_FILTER)
         for segment in filtered_segments:
             if segment[3] == 0:  # ploidy == 0
                 continue
-            segment[3] = corrected.get(segment[3], segment[3])  # up-correct ploidy
             self.OUT.write(pack(segment))
 
     # noinspection PyTypeChecker
