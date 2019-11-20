@@ -31,3 +31,6 @@ if __name__ == "__main__":
                     out.write(pack([previous_name, mean_BAD, median_BAD]))
                     sum_table = table
                     previous_name = cell_line_name
+        mean_BAD = sum_table["BAD"].mean()
+        median_BAD = sum_table["BAD"].median()
+        out.write(pack([previous_name, mean_BAD, median_BAD]))
