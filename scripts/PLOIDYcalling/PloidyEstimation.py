@@ -98,7 +98,7 @@ class Segmentation(ABC):
             return -1 / 2 * k * (np.sqrt(N) + 1) \
                 if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'CBRT':
-            return -1 / 2 * k * (N**(1/3) + 1)
+            return -1 / 2 * k * (N ** (1 / 3) + 1)
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
@@ -458,7 +458,7 @@ class ChromosomeSegmentation:  # chrom
               '\nborder distances: {}'
               .format(len(self.positions), self.ests, self.counts, round(self.CRITICAL_GAP),
                       list(map(lambda x: (x, 1) if isinstance(x, (int, float)) else
-                               (x[0], x[1]-x[0]), self.bpos))))
+                      (x[0], x[1] - x[0]), self.bpos))))
         print('{} time: {} s\n'.format(self.CHR, time.clock() - start_t))
 
 
@@ -525,10 +525,13 @@ class GenomeSegmentator:  # seg
     def write_ploidy_to_file(self, chrom):
         segments = self.append_ploidy_segments(chrom)
 
+        corrected = {1: 1, 1.5: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 6}
+
         filtered_segments = self.filter_segments(segments, self.ISOLATED_SNP_FILTER)
         for segment in filtered_segments:
             if segment[3] == 0:  # ploidy == 0
                 continue
+            segment[3] = corrected.get(segment[3], segment[3])  # up-correct ploidy
             self.OUT.write(pack(segment))
 
     # noinspection PyTypeChecker
@@ -554,11 +557,11 @@ class GenomeSegmentator:  # seg
             else:  # k сегмент хороший
                 if is_bad_segment and not is_bad_left and k > 1:  # а k-1 плохой и k-2 хороший
                     if segments[k][3] < segments[k - 1][3] and segments[k - 2][3] < segments[k - 1][3]:
-                        # если CNR k-1 сегмента больше CNR k-2 и k сегментов
-                        if segments[k][3] > segments[k - 2][3]:  # если CNR k сегмента больше CNR k-2
-                            segments[k - 1][3] = segments[k][3]  # присвоить CNR k сегмента
-                        else:  # если CNR k-2 сегмента больше CNR k
-                            segments[k - 1][3] = segments[k - 2][3]  # присвоить CNR k-2 сегмента
+                        # если BAD k-1 сегмента больше BAD k-2 и k сегментов
+                        if segments[k][3] > segments[k - 2][3]:  # если BAD k сегмента больше BAD k-2
+                            segments[k - 1][3] = segments[k][3]  # присвоить BAD k сегмента
+                        else:  # если BAD k-2 сегмента больше BAD k
+                            segments[k - 1][3] = segments[k - 2][3]  # присвоить BAD k-2 сегмента
 
                         for j in range(4, 7):
                             segments[k - 1][j] = 0
