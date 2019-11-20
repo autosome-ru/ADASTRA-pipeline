@@ -39,7 +39,7 @@ def add_record(d, line, ctrl=False):
     line[idcs[0]] = line[idcs[0]].replace("(", "").replace(")", "").replace(" ", "_").replace("/", "_")
     if is_lovo:
         add_to_dict(d, line[idcs[0]], path)
-        return 0
+        return
     if line[idcs[2]] != "None":
         Lab = findLAB(line[idcs[2]])
         if Lab:

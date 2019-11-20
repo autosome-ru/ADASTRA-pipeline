@@ -16,6 +16,7 @@ if __name__ == "__main__":
         previous_name = None
         for file_name in sorted(os.listdir(actual_ploidy_path)):
             cell_line_name = file_name.split("!")[0]
+            print(cell_line_name)
             with open(actual_ploidy_path + file_name) as file:
                 table = pd.read_table(file)
             if previous_name == cell_line_name:
