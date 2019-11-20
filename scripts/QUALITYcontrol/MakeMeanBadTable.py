@@ -21,6 +21,7 @@ if __name__ == "__main__":
                 if sum_table is None:
                     sum_table = pd.read_table(ploidy_path + file_name)
                 else:
+                    print(sum_table)
                     mean_BAD = sum_table["BAD"].mean()
                     median_BAD = sum_table["BAD"].median()
                     out.write(pack([previous_name, mean_BAD, median_BAD]))
