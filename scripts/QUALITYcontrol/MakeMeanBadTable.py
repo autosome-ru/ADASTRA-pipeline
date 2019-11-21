@@ -61,7 +61,7 @@ if __name__ == "__main__":
             if previous_name == cell_line_name:
                 bp_len.append(cur_bp_len)
                 sum_table = sum_table.append(table)
-                geo_encode_list = geo_encode_list.append(geo_encode_id)
+                geo_encode_list.append(geo_encode_id)
                 aligns_number += cur_l
                 SNP_number += cur_SNP_number
                 datasets_without_SNP += without_SNP
@@ -75,7 +75,6 @@ if __name__ == "__main__":
                     SNP_number = cur_SNP_number
                     datasets_without_SNP = without_SNP
                 else:
-
                     write_BAD(out, sum_table, max(bp_len), sum(bp_len), aligns_number, SNP_number, datasets_without_SNP,
                               geo_encode_list)
                     datasets_without_SNP = without_SNP
