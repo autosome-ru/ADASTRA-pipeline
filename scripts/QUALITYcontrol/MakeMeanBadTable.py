@@ -11,7 +11,7 @@ out_path = parameters_path + "cell_lines_BADs.tsv"
 actual_ploidy_path = ploidy_path + "Corrected-6/"
 
 
-def write_BAD(out_buffer, pd_df, max_n, total_n, datasets_n, SNP_n, n_without_SNP, ids):
+def write_BAD(out_buffer, pd_df, max_n, total_n, datasets_n, SNP_n, n_without_SNP, IDs):
     print(total_n)
     try:
         mean_by_SNP = (pd_df["BAD"] * pd_df["SNP_count"]).sum()/pd_df["SNP_count"].sum()
@@ -22,7 +22,7 @@ def write_BAD(out_buffer, pd_df, max_n, total_n, datasets_n, SNP_n, n_without_SN
     except ZeroDivisionError:
         mean_by_bp = "nan"
     out_buffer.write(pack([previous_name, mean_by_SNP, mean_by_bp, max_n, total_n,
-                           datasets_n, SNP_n, n_without_SNP, ",".join(map(str, ids))]))
+                           datasets_n, SNP_n, n_without_SNP, ",".join(map(str, IDs))]))
 
 
 if __name__ == "__main__":
@@ -42,7 +42,6 @@ if __name__ == "__main__":
                 geo_encode_id = "None"
             else:
                 geo_encode_id = geo_encode_id.replace("_ploidy.tsv", "")
-                print(geo_encode_id)
             if os.stat(ploidy_path + file_name.replace("_ploidy", "")).st_size == 0:
                 without_SNP = 1
                 cur_SNP_number = 0
@@ -75,6 +74,7 @@ if __name__ == "__main__":
                     SNP_number = cur_SNP_number
                     datasets_without_SNP = without_SNP
                 else:
+                    print(geo_encode_list)
                     write_BAD(out, sum_table, max(bp_len), sum(bp_len), aligns_number, SNP_number, datasets_without_SNP,
                               geo_encode_list)
                     datasets_without_SNP = without_SNP
