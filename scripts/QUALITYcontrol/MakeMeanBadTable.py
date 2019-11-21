@@ -12,7 +12,11 @@ actual_ploidy_path = ploidy_path + "Corrected-6/"
 
 
 def write_BAD(out_buffer, pd_df, datasets_n, SNP_n, without_SNP):
-    out_buffer.write(pack([previous_name, (pd_df["BAD"] * pd_df["SNP_count"]).mean()/pd_df["SNP_count"].sum(), datasets_n, SNP_n, without_SNP]))
+    try:
+        mean = (pd_df["BAD"] * pd_df["SNP_count"]).mean()/pd_df["SNP_count"].sum()
+    except ZeroDivisionError:
+        mean = "nan"
+    out_buffer.write(pack([previous_name, mean, datasets_n, SNP_n, without_SNP]))
 
 
 if __name__ == "__main__":
