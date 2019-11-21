@@ -12,7 +12,7 @@ actual_ploidy_path = ploidy_path + "Corrected-6/"
 
 
 def write_BAD(out_buffer, pd_column, datasets_n):
-    out_buffer.write(pack([previous_name, pd_column.mean(), pd_column.median(), datasets_n, len(pd_column)]))
+    out_buffer.write(pack([previous_name, pd_column.mean(), pd_column.median(), datasets_n, len(pd_column.index)]))
 
 
 if __name__ == "__main__":
