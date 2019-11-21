@@ -22,7 +22,7 @@ def write_BAD(out_buffer, pd_df, max_n, total_n, datasets_n, SNP_n, n_without_SN
     except ZeroDivisionError:
         mean_by_bp = "nan"
     out_buffer.write(pack([previous_name, mean_by_SNP, mean_by_bp, max_n, total_n,
-                           datasets_n, SNP_n, n_without_SNP, ",".join(ids)]))
+                           datasets_n, SNP_n, n_without_SNP, ",".join(map(str, ids))]))
 
 
 if __name__ == "__main__":
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         cell_lines_dict = json.loads(file.readline())
     with open(out_path, "w") as out:
         out.write(pack(["#cell_line", "mean_BAD_by_SNP", "mean_BAD_by_bp", "bp_max", "bp_total",
-                        "number of datasets", "number of SNPs", "number of datasets without SNPs", "geo/encode ID"]))
+                        "number of datasets", "number of SNPs", "number of datasets without SNPs", "geo_encode ID"]))
         sum_table = None
         previous_name = None
         for file_name in sorted(os.listdir(actual_ploidy_path)):
