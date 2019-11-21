@@ -74,7 +74,8 @@ if __name__ == "__main__":
                     SNP_number = cur_SNP_number
                     datasets_without_SNP = without_SNP
                 else:
-                    write_BAD(out, sum_table, max(bp_len), sum(bp_len), aligns_number, SNP_number, datasets_without_SNP)
+                    write_BAD(out, sum_table, max(bp_len), sum(bp_len), aligns_number, SNP_number, datasets_without_SNP,
+                              geo_encode_list)
                     datasets_without_SNP = without_SNP
                     sum_table = table
                     bp_len = [cur_bp_len]
