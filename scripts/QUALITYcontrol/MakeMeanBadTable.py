@@ -57,7 +57,7 @@ if __name__ == "__main__":
             cur_bp_len = (table["end"] - table["start"]).sum()
             if table.empty:
                 without_SNP = cur_l
-            print(geo_encode_list)
+
             if previous_name == cell_line_name:
                 bp_len.append(cur_bp_len)
                 sum_table = sum_table.append(table)
@@ -85,5 +85,6 @@ if __name__ == "__main__":
                     aligns_number = cur_l
                     SNP_number = cur_SNP_number
                     previous_name = cell_line_name
+            print(geo_encode_list)
         write_BAD(out, sum_table, max(bp_len), sum(bp_len), aligns_number, SNP_number, datasets_without_SNP,
                   geo_encode_list)
