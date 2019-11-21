@@ -13,17 +13,21 @@ actual_ploidy_path = ploidy_path + "Corrected-6/"
 
 def write_BAD(out_buffer, pd_df, datasets_n, SNP_n, without_SNP):
     try:
-        mean = (pd_df["BAD"] * pd_df["SNP_count"]).sum()/pd_df["SNP_count"].sum()
+        mean_by_SNP = (pd_df["BAD"] * pd_df["SNP_count"]).sum()/pd_df["SNP_count"].sum()
     except ZeroDivisionError:
-        mean = "nan"
-    out_buffer.write(pack([previous_name, mean, datasets_n, SNP_n, without_SNP]))
+        mean_by_SNP = "nan"
+    try:
+        mean_by_bp = (pd_df["BAD"] * (pd_df["end"] - pd_df["start"])).sum()/(pd_df["end"] - pd_df["start"]).sum()
+    except ZeroDivisionError:
+        mean_by_bp = "nan"
+    out_buffer.write(pack([previous_name, mean_by_SNP, mean_by_bp, datasets_n, SNP_n, without_SNP]))
 
 
 if __name__ == "__main__":
     with open(ploidy_dict_path, "r") as file:
         cell_lines_dict = json.loads(file.readline())
     with open(out_path, "w") as out:
-        out.write(pack(["#cell_line", "mean_BAD", "number of datasets", "number of SNPs",
+        out.write(pack(["#cell_line", "mean_BAD_by_SNP", "mean_BAD_by_bp", "number of datasets", "number of SNPs",
                         "number of datasets without SNPs"]))
         sum_table = None
         previous_name = None
