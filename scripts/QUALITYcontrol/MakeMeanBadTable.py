@@ -17,7 +17,7 @@ def write_BAD(out_buffer, pd_df, max_n, total_n, datasets_n, SNP_n, n_without_SN
     except ZeroDivisionError:
         mean_by_SNP = "nan"
     try:
-        mean_by_bp = (pd_df["BAD"] * pd_df["seg_len"]).sum()/(pd_df["seg_len"]).sum()
+        mean_by_bp = (pd_df["BAD"] * (table["end"] - table["start"])).sum()/(table["end"] - table["start"]).sum()
     except ZeroDivisionError:
         mean_by_bp = "nan"
     out_buffer.write(pack([previous_name, mean_by_SNP, mean_by_bp, max_n, total_n,
