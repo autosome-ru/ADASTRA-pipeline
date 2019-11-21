@@ -26,10 +26,12 @@ if __name__ == "__main__":
         for file_name in sorted(os.listdir(actual_ploidy_path)):
             without_SNP = False
             cell_line_name = file_name.split("!")[0]
+            print(ploidy_path + file_name.replace("_ploidy", ""))
             with open(ploidy_path + file_name.replace("_ploidy", "")) as f:
                 df = pd.read_table(f)
                 if df.empty:
                     without_SNP = True
+                    cur_SNP_number = 0
                 else:
                     cur_SNP_number = len(df.index)
             cur_l = len([x for x in cell_lines_dict[file_name.split("_ploidy")[0]] if os.path.isfile(x)])
