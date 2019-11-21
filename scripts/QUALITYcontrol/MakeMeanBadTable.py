@@ -11,15 +11,15 @@ out_path = parameters_path + "cell_lines_BADs.tsv"
 actual_ploidy_path = ploidy_path + "Corrected-6/"
 
 
-def write_BAD(out_buffer, pd_column, datasets_n, SNP_n, without_SNP):
-    out_buffer.write(pack([previous_name, pd_column.mean(), pd_column.median(), datasets_n, SNP_n, without_SNP]))
+def write_BAD(out_buffer, pd_df, datasets_n, SNP_n, without_SNP):
+    out_buffer.write(pack([previous_name, (pd_df["BAD"] * pd_df["SNP_count"]).mean()/pd_df["SNP_count"].sum(), datasets_n, SNP_n, without_SNP]))
 
 
 if __name__ == "__main__":
     with open(ploidy_dict_path, "r") as file:
         cell_lines_dict = json.loads(file.readline())
     with open(out_path, "w") as out:
-        out.write(pack(["#cell_line", "mean_BAD", "median_BAD", "number of datasets", "number of SNPs",
+        out.write(pack(["#cell_line", "mean_BAD", "number of datasets", "number of SNPs",
                         "number of datasets without SNPs"]))
         sum_table = None
         previous_name = None
@@ -49,10 +49,10 @@ if __name__ == "__main__":
                     SNP_number = cur_SNP_number
                     datasets_without_SNP = int(without_SNP)
                 else:
-                    write_BAD(out, sum_table["BAD"], aligns_number, SNP_number, datasets_without_SNP)
+                    write_BAD(out, sum_table, aligns_number, SNP_number, datasets_without_SNP)
                     datasets_without_SNP = int(without_SNP)
                     sum_table = table
                     aligns_number = cur_l
                     SNP_number = cur_SNP_number
                     previous_name = cell_line_name
-        write_BAD(out, sum_table["BAD"], aligns_number, SNP_number, datasets_without_SNP)
+        write_BAD(out, sum_table, aligns_number, SNP_number, datasets_without_SNP)
