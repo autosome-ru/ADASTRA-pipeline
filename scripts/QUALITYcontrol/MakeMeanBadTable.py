@@ -41,6 +41,7 @@ if __name__ == "__main__":
             if geo_encode_id == cell_line_name:
                 geo_encode_id = "None"
             else:
+                print(geo_encode_id)
                 geo_encode_id = geo_encode_id.replace("_ploidy.tsv", "")
             if os.stat(ploidy_path + file_name.replace("_ploidy", "")).st_size == 0:
                 without_SNP = 1
