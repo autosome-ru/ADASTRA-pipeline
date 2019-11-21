@@ -1,22 +1,25 @@
 import pandas as pd
 import os.path
 import sys
+import json
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path, ploidy_path
+from scripts.HELPERS.paths import parameters_path, ploidy_path, cl_dict_path
 from scripts.HELPERS.helpers import pack
 
 out_path = parameters_path + "cell_lines_BADs.tsv"
 actual_ploidy_path = ploidy_path + "Corrected-6/"
 
 
-def write_BAD(out_buffer, pd_column):
-    out_buffer.write(pack([previous_name, pd_column.mean(), pd_column.median()]))
+def write_BAD(out_buffer, pd_column, datasets_n):
+    out_buffer.write(pack([previous_name, pd_column.mean(), pd_column.median(), datasets_n, len(pd_column)]))
 
 
 if __name__ == "__main__":
+    with open(cl_dict_path) as d:
+        cell_lines_dict = json.loads(d.readlines())
     with open(out_path, "w") as out:
-        out.write(pack(["#cell_line", "mean_BAD", "median_BAD"]))
+        out.write(pack(["#cell_line", "mean_BAD", "median_BAD", "number of datasers", "number of SNPs"]))
         sum_table = None
         previous_name = None
         for file_name in sorted(os.listdir(actual_ploidy_path)):
@@ -26,12 +29,15 @@ if __name__ == "__main__":
                 table = pd.read_table(file)
             if previous_name == cell_line_name:
                 sum_table = sum_table.append(table)
+                aligns_number += len([x for x in cell_lines_dict[cell_line_name] if os.path.isfile(x)])
             else:
                 if sum_table is None:
                     sum_table = table
+                    aligns_number = len([x for x in cell_lines_dict[cell_line_name] if os.path.isfile(x)])
                     previous_name = cell_line_name
                 else:
-                    write_BAD(out, sum_table["BAD"])
+                    write_BAD(out, sum_table["BAD"], aligns_number)
                     sum_table = table
+                    aligns_number = len([x for x in cell_lines_dict[cell_line_name] if os.path.isfile(x)])
                     previous_name = cell_line_name
-        write_BAD(out, sum_table["BAD"])
+        write_BAD(out, sum_table["BAD"], aligns_number)
