@@ -16,8 +16,8 @@ def write_BAD(out_buffer, pd_column, datasets_n):
 
 
 if __name__ == "__main__":
-    with open(cl_dict_path) as d:
-        cell_lines_dict = json.loads(d.readlines())
+    with open(cl_dict_path, "r") as file:
+        cell_lines_dict = json.loads(file.readline())
     with open(out_path, "w") as out:
         out.write(pack(["#cell_line", "mean_BAD", "median_BAD", "number of datasers", "number of SNPs"]))
         sum_table = None
