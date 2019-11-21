@@ -24,20 +24,23 @@ if __name__ == "__main__":
         previous_name = None
         for file_name in sorted(os.listdir(actual_ploidy_path)):
             cell_line_name = file_name.split("!")[0]
-            print(cell_line_name)
+            try:
+                cur_l = len([x for x in cell_lines_dict[cell_line_name] if os.path.isfile(x)])
+            except KeyError:
+                cur_l = "Bug"
             with open(actual_ploidy_path + file_name) as file:
                 table = pd.read_table(file)
             if previous_name == cell_line_name:
                 sum_table = sum_table.append(table)
-                aligns_number += len([x for x in cell_lines_dict[cell_line_name] if os.path.isfile(x)])
+                aligns_number += cur_l
             else:
                 if sum_table is None:
                     sum_table = table
-                    aligns_number = len([x for x in cell_lines_dict[cell_line_name] if os.path.isfile(x)])
+                    aligns_number = cur_l
                     previous_name = cell_line_name
                 else:
                     write_BAD(out, sum_table["BAD"], aligns_number)
                     sum_table = table
-                    aligns_number = len([x for x in cell_lines_dict[cell_line_name] if os.path.isfile(x)])
+                    aligns_number = cur_l
                     previous_name = cell_line_name
         write_BAD(out, sum_table["BAD"], aligns_number)
