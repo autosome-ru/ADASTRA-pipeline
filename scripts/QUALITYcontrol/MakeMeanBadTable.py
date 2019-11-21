@@ -26,7 +26,6 @@ if __name__ == "__main__":
         for file_name in sorted(os.listdir(actual_ploidy_path)):
             without_SNP = False
             cell_line_name = file_name.split("!")[0]
-            print(ploidy_path + file_name.replace("_ploidy", ""))
             if os.stat(ploidy_path + file_name.replace("_ploidy", "")).st_size == 0:
                 without_SNP = True
                 cur_SNP_number = 0
