@@ -44,11 +44,13 @@ if __name__ == "__main__":
                     df = pd.read_table(f,  index_col=False)
                     cur_SNP_number = len(df.index)
             cur_l = len([x for x in cell_lines_dict[file_name.split("_ploidy")[0]] if os.path.isfile(x)])
+            if without_SNP:
+                without_SNP = cur_l
             with open(actual_ploidy_path + file_name) as file:
                 table = pd.read_table(file)
                 cur_bp_len = (table["end"] - table["start"]).sum()
                 if table.empty:
-                    without_SNP = 1
+                    without_SNP = cur_l
             if previous_name == cell_line_name:
                 bp_len.append(cur_bp_len)
                 sum_table = sum_table.append(table)
