@@ -11,7 +11,7 @@ out_path = parameters_path + "cell_lines_BADs.tsv"
 actual_ploidy_path = ploidy_path + "Corrected-6/"
 
 
-def write_BAD(out_buffer, pd_df, max_n, total_n, datasets_n, SNP_n, n_without_SNP):
+def write_BAD(out_buffer, pd_df, max_n, total_n, datasets_n, SNP_n, n_without_SNP, ids):
     print(total_n)
     try:
         mean_by_SNP = (pd_df["BAD"] * pd_df["SNP_count"]).sum()/pd_df["SNP_count"].sum()
@@ -22,7 +22,7 @@ def write_BAD(out_buffer, pd_df, max_n, total_n, datasets_n, SNP_n, n_without_SN
     except ZeroDivisionError:
         mean_by_bp = "nan"
     out_buffer.write(pack([previous_name, mean_by_SNP, mean_by_bp, max_n, total_n,
-                           datasets_n, SNP_n, n_without_SNP]))
+                           datasets_n, SNP_n, n_without_SNP, ",".join(ids)]))
 
 
 if __name__ == "__main__":
@@ -30,12 +30,18 @@ if __name__ == "__main__":
         cell_lines_dict = json.loads(file.readline())
     with open(out_path, "w") as out:
         out.write(pack(["#cell_line", "mean_BAD_by_SNP", "mean_BAD_by_bp", "bp_max", "bp_total",
-                        "number of datasets", "number of SNPs", "number of datasets without SNPs"]))
+                        "number of datasets", "number of SNPs", "number of datasets without SNPs", "geo/encode ID"]))
         sum_table = None
         previous_name = None
         for file_name in sorted(os.listdir(actual_ploidy_path)):
             without_SNP = 0
-            cell_line_name = file_name.split("!")[0]
+            split_name = file_name.split("!")
+            cell_line_name = split_name[0]
+            geo_encode_id = split_name[-1]
+            if geo_encode_id == cell_line_name:
+                geo_encode_id = "None"
+            else:
+                geo_encode_id = geo_encode_id.replace("_ploidy.tsv", "")
             if os.stat(ploidy_path + file_name.replace("_ploidy", "")).st_size == 0:
                 without_SNP = 1
                 cur_SNP_number = 0
@@ -54,6 +60,7 @@ if __name__ == "__main__":
             if previous_name == cell_line_name:
                 bp_len.append(cur_bp_len)
                 sum_table = sum_table.append(table)
+                geo_encode_list = geo_encode_list.append(geo_encode_id)
                 aligns_number += cur_l
                 SNP_number += cur_SNP_number
                 datasets_without_SNP += without_SNP
@@ -62,6 +69,7 @@ if __name__ == "__main__":
                     sum_table = table
                     aligns_number = cur_l
                     bp_len = [cur_bp_len]
+                    geo_encode_list = [geo_encode_id]
                     previous_name = cell_line_name
                     SNP_number = cur_SNP_number
                     datasets_without_SNP = without_SNP
@@ -70,7 +78,9 @@ if __name__ == "__main__":
                     datasets_without_SNP = without_SNP
                     sum_table = table
                     bp_len = [cur_bp_len]
+                    geo_encode_list = [geo_encode_id]
                     aligns_number = cur_l
                     SNP_number = cur_SNP_number
                     previous_name = cell_line_name
-        write_BAD(out, sum_table, max(bp_len), sum(bp_len), aligns_number, SNP_number, datasets_without_SNP)
+        write_BAD(out, sum_table, max(bp_len), sum(bp_len), aligns_number, SNP_number, datasets_without_SNP,
+                  geo_encode_list)
