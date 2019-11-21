@@ -54,9 +54,10 @@ if __name__ == "__main__":
                 without_SNP = cur_l
             with open(actual_ploidy_path + file_name) as file:
                 table = pd.read_table(file)
-                cur_bp_len = (table["end"] - table["start"]).sum()
-                if table.empty:
-                    without_SNP = cur_l
+            cur_bp_len = (table["end"] - table["start"]).sum()
+            if table.empty:
+                without_SNP = cur_l
+            print(geo_encode_list)
             if previous_name == cell_line_name:
                 bp_len.append(cur_bp_len)
                 sum_table = sum_table.append(table)
@@ -74,7 +75,7 @@ if __name__ == "__main__":
                     SNP_number = cur_SNP_number
                     datasets_without_SNP = without_SNP
                 else:
-                    print(geo_encode_list)
+
                     write_BAD(out, sum_table, max(bp_len), sum(bp_len), aligns_number, SNP_number, datasets_without_SNP,
                               geo_encode_list)
                     datasets_without_SNP = without_SNP
