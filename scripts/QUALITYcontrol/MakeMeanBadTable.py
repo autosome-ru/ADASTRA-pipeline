@@ -34,10 +34,10 @@ if __name__ == "__main__":
         sum_table = None
         previous_name = None
         for file_name in sorted(os.listdir(actual_ploidy_path)):
-            without_SNP = False
+            without_SNP = 0
             cell_line_name = file_name.split("!")[0]
             if os.stat(ploidy_path + file_name.replace("_ploidy", "")).st_size == 0:
-                without_SNP = True
+                without_SNP = 1
                 cur_SNP_number = 0
             else:
                 with open(ploidy_path + file_name.replace("_ploidy", "")) as f:
@@ -52,7 +52,7 @@ if __name__ == "__main__":
                 sum_table = sum_table.append(table)
                 aligns_number += cur_l
                 SNP_number += cur_SNP_number
-                datasets_without_SNP += int(without_SNP)
+                datasets_without_SNP += without_SNP
             else:
                 if sum_table is None:
                     sum_table = table
@@ -60,10 +60,10 @@ if __name__ == "__main__":
                     bp_len = [cur_bp_len]
                     previous_name = cell_line_name
                     SNP_number = cur_SNP_number
-                    datasets_without_SNP = int(without_SNP)
+                    datasets_without_SNP = without_SNP
                 else:
                     write_BAD(out, sum_table, max(bp_len), sum(bp_len), aligns_number, SNP_number, datasets_without_SNP)
-                    datasets_without_SNP = int(without_SNP)
+                    datasets_without_SNP = without_SNP
                     sum_table = table
                     bp_len = [cur_bp_len]
                     aligns_number = cur_l
