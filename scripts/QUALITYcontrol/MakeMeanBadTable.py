@@ -28,7 +28,7 @@ if __name__ == "__main__":
             cell_line_name = file_name.split("!")[0]
             print(ploidy_path + file_name.replace("_ploidy", ""))
             with open(ploidy_path + file_name.replace("_ploidy", "")) as f:
-                df = pd.read_table(f)
+                df = pd.read_table(f, header=None)
                 if df.empty:
                     without_SNP = True
                     cur_SNP_number = 0
