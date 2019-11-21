@@ -47,7 +47,7 @@ if __name__ == "__main__":
             with open(actual_ploidy_path + file_name) as file:
                 table = pd.read_table(file)
                 cur_bp_len = (table["end"] - table["start"]).sum()
-                if table.empty():
+                if table.empty:
                     without_SNP = 1
             if previous_name == cell_line_name:
                 bp_len.append(cur_bp_len)
