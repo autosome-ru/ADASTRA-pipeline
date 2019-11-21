@@ -11,24 +11,25 @@ out_path = parameters_path + "cell_lines_BADs.tsv"
 actual_ploidy_path = ploidy_path + "Corrected-6/"
 
 
-def write_BAD(out_buffer, pd_df, datasets_n, SNP_n, without_SNP):
+def write_BAD(out_buffer, pd_df, max_n, total_n, datasets_n, SNP_n, n_without_SNP):
     try:
         mean_by_SNP = (pd_df["BAD"] * pd_df["SNP_count"]).sum()/pd_df["SNP_count"].sum()
     except ZeroDivisionError:
         mean_by_SNP = "nan"
     try:
-        mean_by_bp = (pd_df["BAD"] * (pd_df["end"] - pd_df["start"])).sum()/(pd_df["end"] - pd_df["start"]).sum()
+        mean_by_bp = (pd_df["BAD"] * pd_df["seg_len"]).sum()/(pd_df["seg_len"]).sum()
     except ZeroDivisionError:
         mean_by_bp = "nan"
-    out_buffer.write(pack([previous_name, mean_by_SNP, mean_by_bp, datasets_n, SNP_n, without_SNP]))
+    out_buffer.write(pack([previous_name, mean_by_SNP, mean_by_bp, max_n, total_n,
+                           datasets_n, SNP_n, n_without_SNP]))
 
 
 if __name__ == "__main__":
     with open(ploidy_dict_path, "r") as file:
         cell_lines_dict = json.loads(file.readline())
     with open(out_path, "w") as out:
-        out.write(pack(["#cell_line", "mean_BAD_by_SNP", "mean_BAD_by_bp", "number of datasets", "number of SNPs",
-                        "number of datasets without SNPs"]))
+        out.write(pack(["#cell_line", "mean_BAD_by_SNP", "mean_BAD_by_bp", "bp_max", "bp_total",
+                        "number of datasets", "number of SNPs", "number of datasets without SNPs"]))
         sum_table = None
         previous_name = None
         for file_name in sorted(os.listdir(actual_ploidy_path)):
@@ -44,7 +45,9 @@ if __name__ == "__main__":
             cur_l = len([x for x in cell_lines_dict[file_name.split("_ploidy")[0]] if os.path.isfile(x)])
             with open(actual_ploidy_path + file_name) as file:
                 table = pd.read_table(file)
+                cur_bp_len = (table["end"] - table["start"]).sum()
             if previous_name == cell_line_name:
+                bp_len.append(cur_bp_len)
                 sum_table = sum_table.append(table)
                 aligns_number += cur_l
                 SNP_number += cur_SNP_number
@@ -53,14 +56,16 @@ if __name__ == "__main__":
                 if sum_table is None:
                     sum_table = table
                     aligns_number = cur_l
+                    bp_len = [cur_bp_len]
                     previous_name = cell_line_name
                     SNP_number = cur_SNP_number
                     datasets_without_SNP = int(without_SNP)
                 else:
-                    write_BAD(out, sum_table, aligns_number, SNP_number, datasets_without_SNP)
+                    write_BAD(out, sum_table, max(bp_len), sum(bp_len), aligns_number, SNP_number, datasets_without_SNP)
                     datasets_without_SNP = int(without_SNP)
                     sum_table = table
+                    bp_len = [cur_bp_len]
                     aligns_number = cur_l
                     SNP_number = cur_SNP_number
                     previous_name = cell_line_name
-        write_BAD(out, sum_table, aligns_number, SNP_number, datasets_without_SNP)
+        write_BAD(out, sum_table, max(bp_len), sum(bp_len), aligns_number, SNP_number, datasets_without_SNP)
