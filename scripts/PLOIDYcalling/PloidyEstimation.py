@@ -103,7 +103,7 @@ class Segmentation(ABC):
             return -1 / 2 * k * (N ** (1 / 3) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'DENS':
             C = self.SUM_COV / self.LENGTH * self.sub_chrom.chrom.RESOLUTION
-            return -1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
+            return -1 * 0.1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
