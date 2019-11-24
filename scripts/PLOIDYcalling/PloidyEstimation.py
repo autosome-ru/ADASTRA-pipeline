@@ -86,12 +86,13 @@ class Segmentation(ABC):
 
     def get_parameter_penalty(self, borders, alphabet):
         k = borders * alphabet
+        C = self.SUM_COV / self.LENGTH * self.sub_chrom.chrom.RESOLUTION
         if isinstance(self, PieceSegmentation):
             N = self.LINES
         else:
             N = self.sub_chrom.chrom.LINES
         if self.sub_chrom.chrom.b_penalty == 'CAIC':
-            return -1 / 2 * k * (np.log(N) + 1)
+            return -1 / 2 * k * (np.log(C) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'AIC':
             return -1 / 2 * k
         elif self.sub_chrom.chrom.b_penalty == 'SQRT':
@@ -102,7 +103,6 @@ class Segmentation(ABC):
         elif self.sub_chrom.chrom.b_penalty == 'CBRT':
             return -1 / 2 * k * (N ** (1 / 3) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'DENS':
-            C = self.SUM_COV / self.LENGTH * self.sub_chrom.chrom.RESOLUTION
             return -1 * 0.1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
         else:
             raise ValueError(self.sub_chrom.b_penalty)
@@ -586,11 +586,11 @@ if __name__ == '__main__':
 
     mode = 'corrected'
     states = [1.5, 6]
-    b_penalty = 'DENS'
+    b_penalty = 'CAIC'
 
     merged_vcfs_path = ploidy_path + key + ".tsv"
 
-    model = 'Corrected-DENS'
+    model = 'Corrected-6-C-CAIC'
 
     t = time.clock()
     if not os.path.isdir(ploidy_path + model):
