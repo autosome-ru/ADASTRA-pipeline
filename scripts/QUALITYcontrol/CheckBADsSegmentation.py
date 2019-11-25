@@ -8,7 +8,7 @@ from scripts.HELPERS.paths import parameters_path, ploidy_path, ploidy_dict_path
 from scripts.HELPERS.helpers import pack
 
 out_path = parameters_path + "cell_lines_BADs.tsv"
-actual_ploidy_path = ploidy_path + "Corrected-6/"
+actual_ploidy_path = ploidy_path + "Corrected-6-C-CAIC/"
 
 
 def write_BAD(out_buffer, pd_df, max_n, total_n, datasets_n, SNP_n, n_without_SNP, IDs):
