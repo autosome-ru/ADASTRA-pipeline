@@ -92,7 +92,7 @@ class Segmentation(ABC):
         else:
             N = self.sub_chrom.chrom.LINES
         if self.sub_chrom.chrom.b_penalty == 'CAIC':
-            return -1 / 2 * k * (np.log(C) + 1)
+            return float("inf")
         elif self.sub_chrom.chrom.b_penalty == 'AIC':
             return -1 / 2 * k
         elif self.sub_chrom.chrom.b_penalty == 'SQRT':
