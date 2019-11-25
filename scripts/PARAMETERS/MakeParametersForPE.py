@@ -13,7 +13,10 @@ test_names = [
     "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS357NWO__ploidy.tsv",
     "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS603CUX__ploidy.tsv",
     "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS906KIP__ploidy.tsv",
-
+    "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS389PVA__ploidy.tsv",
+    "K562_myelogenous_leukemia!labs_michael-snyder___biosamples_ENCBS392AAA__ploidy.tsv",
+    "K562_myelogenous_leukemia!_labs_bradley-bernstein___biosamples_ENCBS639AAA__ploidy.tsv",
+    "K562_myelogenous_leukemia!_labs_richard-myers___biosamples_ENCBS577JGM__ploidy.tsv",
               ]
 
 if __name__ == "__main__":

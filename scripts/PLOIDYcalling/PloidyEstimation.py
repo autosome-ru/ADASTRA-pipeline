@@ -92,7 +92,7 @@ class Segmentation(ABC):
         else:
             N = self.sub_chrom.chrom.LINES
         if self.sub_chrom.chrom.b_penalty == 'CAIC':
-            return float("inf")
+            return -1 / 2 * k * (10**-4 * np.log(self.SUM_COV) + 1)
         elif self.sub_chrom.chrom.b_penalty == 'AIC':
             return -1 / 2 * k
         elif self.sub_chrom.chrom.b_penalty == 'SQRT':
@@ -590,7 +590,7 @@ if __name__ == '__main__':
 
     merged_vcfs_path = ploidy_path + key + ".tsv"
 
-    model = 'Corrected-6-C-CAIC'
+    model = 'Corrected-6-C'
 
     t = time.clock()
     if not os.path.isdir(ploidy_path + model):
