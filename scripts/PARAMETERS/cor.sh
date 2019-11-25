@@ -14,7 +14,7 @@ fi
 if [ "$flag" == --merge ] || [ "$flag" == --ploidy ]; then
   python3 "$ScriptsFolder"PARAMETERS/MakeParametersForPE.py
   python3 "$ScriptsFolder"PARAMETERS/SortParameters.py
-	parallel --jobs "$njobs" python3 "$ScriptsFolder"PLOIDYcalling/PloidyEstimation.py :::: "$ParametersListsFolder"PE_parameters.cfg :::: "$ParametersListsFolder"Podgonians.cfg
+	parallel --jobs "$njobs" python3 "$ScriptsFolder"PLOIDYcalling/PloidyEstimation.py :::: "$ParametersListsFolder"PE_parameters.cfg ::: "$ParametersListsFolder"Podgonians.cfg
 fi
 
 if [ "$flag" == --merge ] || [ "$flag" == --ploidy ] || [ "$flag" == --aswp ]; then
