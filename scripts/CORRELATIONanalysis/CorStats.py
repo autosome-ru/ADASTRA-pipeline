@@ -158,8 +158,7 @@ if __name__ == '__main__':
                                  [[cell_line_name, lab, aligns, len(SNP_objects), number_of_datasets,
                                    count_cosmic_segments()]] +
 
-                                 [[segment_numbers[model], corr_to_objects[model],
-                                   lm_coefficients[model][0], lm_coefficients[model][1]]
+                                 [[segment_numbers[model], corr_to_objects[model]]
                                   for model in map(get_name_by_dir, snp_dirs)] +
 
                                  [[corr_to_objects[naive_mode]]

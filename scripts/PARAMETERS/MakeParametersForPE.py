@@ -14,7 +14,7 @@ test_names = [
     "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS603CUX_",
     "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS906KIP_",
     "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS389PVA_",
-    "K562_myelogenous_leukemia!labs_michael-snyder___biosamples_ENCBS392AAA_",
+    "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS392AAA_",
     "K562_myelogenous_leukemia!_labs_bradley-bernstein___biosamples_ENCBS639AAA_",
     "K562_myelogenous_leukemia!_labs_richard-myers___biosamples_ENCBS577JGM_",
               ]
