@@ -9,6 +9,12 @@ from scripts.HELPERS.helpers import read_synonims
 out_path = parallel_parameters_path + 'PE_parameters.cfg'
 
 cell_lines = ['K-562', 'MCF7', 'HCT-116']
+test_names = [
+    "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS357NWO__ploidy.tsv",
+    "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS603CUX__ploidy.tsv",
+    "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS906KIP__ploidy.tsv",
+
+              ]
 
 if __name__ == "__main__":
     with open(ploidy_dict_path, 'r') as read_file:
@@ -17,6 +23,8 @@ if __name__ == "__main__":
     keys = sorted(d.keys())
     with open(out_path, 'w') as file:
         for key in keys:
+            if key not in test_names:
+                continue
             name = key.split('!')[0]
             if cosmic_names.get(name, '') not in cell_lines:
                 continue
