@@ -6,7 +6,7 @@ alignments_path = "/home/abramov/Alignments/"
 
 scripts_path = project_path + "scripts/"
 parameters_path = "/home/abramov/PARAMETERS/"
-parallel_parameters_path = '/home/abramov/ParallelParameters/stats'
+parallel_parameters_path = '/home/abramov/ParallelParameters/stats/'
 
 ploidy_path = "/home/abramov/StatsPloidy/"
 results_path = "/home/abramov/DATA/"
