@@ -18,7 +18,7 @@ with open(out_path, 'w') as out:
                             [['#cell_line', 'cells', 'aligns', 'total_snps', '#_of_merged_datasets',
                               'total_regions']] +
                             [['number_of_segments_' + get_name_by_dir(snp_dir),
-                              'cor_by_snp' + get_name_by_dir(snp_dir)]
+                              'cor_by_snp_' + get_name_by_dir(snp_dir)]
                              for snp_dir in snp_dirs] +
                             [['cor_by_snp_naive',
                               'cor_by_probe_CGH', 'cor_by_snp_probe_CGH']]
