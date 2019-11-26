@@ -512,27 +512,28 @@ class GenomeSegmentator:  # seg
         segments_to_write = []
         cur = None
         counter = 0
-        for border in chrom.bpos:
-            if cur is None:
-                if isinstance(border, tuple):
+        if chrom.LINES != 0:
+            for border in chrom.bpos:
+                if cur is None:
+                    if isinstance(border, tuple):
+                        cur = border[1]
+                    else:
+                        cur = 1
+                elif isinstance(border, tuple):
+                    segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
+                                              chrom.quals[counter][0], chrom.quals[counter][1],
+                                              chrom.counts[counter]])
+                    cur = border[0] + 1
+                    segments_to_write.append([chrom.CHR, cur, border[1], 0, 0, 0, 0, 0])
                     cur = border[1]
+                    counter += 1
                 else:
-                    cur = 1
-            elif isinstance(border, tuple):
-                segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
-                                          chrom.quals[counter][0], chrom.quals[counter][1],
-                                          chrom.counts[counter]])
-                cur = border[0] + 1
-                segments_to_write.append([chrom.CHR, cur, border[1], 0, 0, 0, 0, 0])
-                cur = border[1]
-                counter += 1
-            else:
-                segments_to_write.append(
-                    [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter], chrom.Q1[counter],
-                     chrom.quals[counter][0], chrom.quals[counter][1],
-                     chrom.counts[counter]])
-                cur = math.floor(border) + 1
-                counter += 1
+                    segments_to_write.append(
+                        [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter], chrom.Q1[counter],
+                         chrom.quals[counter][0], chrom.quals[counter][1],
+                         chrom.counts[counter]])
+                    cur = math.floor(border) + 1
+                    counter += 1
         return segments_to_write
 
     def write_ploidy_to_file(self, chrom):
