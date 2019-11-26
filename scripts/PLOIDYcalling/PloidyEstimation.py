@@ -335,7 +335,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
 
 class ChromosomeSegmentation:  # chrom
     def __init__(self, seg, CHR, length=0):
-        super().__init__()
+        super().__init__()  # ??
         self.CHR = CHR  # name
         self.length = length  # length, bp
         self.RESOLUTION = seg.RESOLUTION
@@ -351,6 +351,8 @@ class ChromosomeSegmentation:  # chrom
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
         if self.LINES == 0:
             return
+        if self.LINES <= seg.NUM_TR:
+            self.b_penalty = 'INF'
         self.CRITICAL_GAP_FACTOR = 1 - 10 ** (- 1 / np.sqrt(self.LINES))
         self.CRITICAL_GAP = None
         self.snp_filter = seg.ISOLATED_SNP_FILTER
@@ -489,7 +491,7 @@ class GenomeSegmentator:  # seg
         self.FILE = file  # table
         self.OUT = open(out, 'w')  # ploidy file
         self.n_max = 5  # max ploidy
-        self.NUM_TR = 100  # minimal number of snps in chromosome to start segmentation
+        self.NUM_TR = 1000  # minimal number of snps in chromosome to start segmentation
         self.COV_TR = 0  # coverage treshold
         self.RESOLUTION = 10 ** 7  # bp
         self.INTERSECT = 300
@@ -510,30 +512,27 @@ class GenomeSegmentator:  # seg
         segments_to_write = []
         cur = None
         counter = 0
-        if chrom.LINES >= self.NUM_TR:
-            for border in chrom.bpos:
-                if cur is None:
-                    if isinstance(border, tuple):
-                        cur = border[1]
-                    else:
-                        cur = 1
-                elif isinstance(border, tuple):
-                    segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
-                                              chrom.quals[counter][0], chrom.quals[counter][1],
-                                              chrom.counts[counter]])
-                    cur = border[0] + 1
-                    segments_to_write.append([chrom.CHR, cur, border[1], 0, 0, 0, 0, 0])
+        for border in chrom.bpos:
+            if cur is None:
+                if isinstance(border, tuple):
                     cur = border[1]
-                    counter += 1
                 else:
-                    segments_to_write.append(
-                        [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter], chrom.Q1[counter],
-                         chrom.quals[counter][0], chrom.quals[counter][1],
-                         chrom.counts[counter]])
-                    cur = math.floor(border) + 1
-                    counter += 1
-        else:
-            segments_to_write.append([chrom.CHR, 1, chrom.length, 0, 0, 0, 0, 0])
+                    cur = 1
+            elif isinstance(border, tuple):
+                segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
+                                          chrom.quals[counter][0], chrom.quals[counter][1],
+                                          chrom.counts[counter]])
+                cur = border[0] + 1
+                segments_to_write.append([chrom.CHR, cur, border[1], 0, 0, 0, 0, 0])
+                cur = border[1]
+                counter += 1
+            else:
+                segments_to_write.append(
+                    [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter], chrom.Q1[counter],
+                     chrom.quals[counter][0], chrom.quals[counter][1],
+                     chrom.counts[counter]])
+                cur = math.floor(border) + 1
+                counter += 1
         return segments_to_write
 
     def write_ploidy_to_file(self, chrom):
