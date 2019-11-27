@@ -21,6 +21,8 @@ class Segmentation(ABC):
         self.bposn = None
         self.border_numbers = None
         self.positions = []
+        self.SUM_COV = None
+        self.LENGTH = None
 
         self.LINES = None
         self.last_snp_number = None
@@ -84,21 +86,26 @@ class Segmentation(ABC):
 
     def get_parameter_penalty(self, borders, alphabet):
         k = borders * alphabet
+        C = self.SUM_COV / self.LENGTH * self.sub_chrom.chrom.RESOLUTION
         if isinstance(self, PieceSegmentation):
             N = self.LINES
         else:
             N = self.sub_chrom.chrom.LINES
-        if self.sub_chrom.chrom.b_penalty == 'CAIC':
-            return -1 / 2 * k * (np.log(N) + 1)
-        elif self.sub_chrom.chrom.b_penalty == 'AIC':
+        if self.sub_chrom.b_penalty == 'CAIC':
+            return -1 / 2 * k * (float(sys.argv[2]) * np.log(self.SUM_COV) + 1)
+        elif self.sub_chrom.b_penalty == 'AIC':
             return -1 / 2 * k
-        elif self.sub_chrom.chrom.b_penalty == 'SQRT':
+        elif self.sub_chrom.b_penalty == 'SQRT':
             return -1 / 2 * k * (np.sqrt(N) + 1)
-        elif self.sub_chrom.chrom.b_penalty == 'MIX':
+        elif self.sub_chrom.b_penalty == 'MIX':
             return -1 / 2 * k * (np.sqrt(N) + 1) \
                 if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
-        elif self.sub_chrom.chrom.b_penalty == 'CBRT':
+        elif self.sub_chrom.b_penalty == 'CBRT':
             return -1 / 2 * k * (N ** (1 / 3) + 1)
+        elif self.sub_chrom.b_penalty == 'DENS':
+            return -1 * 0.1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
+        elif self.sub_chrom.b_penalty == 'INF':
+            return float('inf')
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
@@ -121,6 +128,10 @@ class PieceSegmentation(Segmentation):
         self.LINES = end - start + 1
         self.positions = sub_chrom.positions[
                          sub_chrom.candidate_numbers[start]:sub_chrom.candidate_numbers[end - 1] + 2]
+        self.SUM_COV = sum(x[1] + x[2] for x in sub_chrom.SNPS[
+                                                sub_chrom.candidate_numbers[start]:sub_chrom.candidate_numbers[
+                                                                                       end - 1] + 2])
+        self.LENGTH = self.positions[-1] - self.positions[0]
         self.candidate_numbers = sub_chrom.candidate_numbers[start:end + 1]
         self.candidates_count = end - start
         if self.end == sub_chrom.candidates_count:
@@ -168,6 +179,11 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         super().__init__()
 
         self.SNPS, self.LINES = SNPS, LINES
+        self.SUM_COV = sum(x[1] + x[2] for x in self.SNPS)
+        if self.LINES <= chrom.NUM_TR:
+            self.b_penalty = 'INF'
+        else:
+            self.b_penalty = chrom.b_penalty
 
         self.start = 0
         self.end = (self.LINES - 1) - 1  # index from 0 and #borders = #snps - 1
@@ -293,7 +309,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
             return
 
         self.construct_probs_initial()
-
+        self.LENGTH = self.positions[-1] - self.positions[0]
         # if self.candidates_count > self.chrom.SEG_LENGTH:
         tuples = self.split_list(self.candidates_count + 1, self.chrom.SEG_LENGTH, self.chrom.INTERSECT)
         border_set = set()
@@ -323,9 +339,9 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
 
 class ChromosomeSegmentation:  # chrom
     def __init__(self, seg, CHR, length=0):
-        super().__init__()
         self.CHR = CHR  # name
         self.length = length  # length, bp
+        self.RESOLUTION = seg.RESOLUTION
 
         self.COV_TR = seg.COV_TR  # coverage treshold
         self.SEG_LENGTH = seg.SEG_LENGTH  # length of segment
@@ -338,6 +354,7 @@ class ChromosomeSegmentation:  # chrom
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
         if self.LINES == 0:
             return
+        self.NUM_TR = seg.NUM_TR
         self.CRITICAL_GAP_FACTOR = 1 - 10 ** (- 1 / np.sqrt(self.LINES))
         self.CRITICAL_GAP = None
         self.snp_filter = seg.ISOLATED_SNP_FILTER
@@ -476,8 +493,9 @@ class GenomeSegmentator:  # seg
         self.FILE = file  # table
         self.OUT = open(out, 'w')  # ploidy file
         self.n_max = 5  # max ploidy
-        self.NUM_TR = 100  # minimal number of snps in chromosome to start segmentation
+        self.NUM_TR = 1000  # minimal number of snps in chromosome to start segmentation
         self.COV_TR = 0  # coverage treshold
+        self.RESOLUTION = 10 ** 7  # bp
         self.INTERSECT = 300
         self.SEG_LENGTH = 600
         self.ISOLATED_SNP_FILTER = 2
@@ -496,7 +514,7 @@ class GenomeSegmentator:  # seg
         segments_to_write = []
         cur = None
         counter = 0
-        if chrom.LINES >= self.NUM_TR:
+        if chrom.LINES != 0:
             for border in chrom.bpos:
                 if cur is None:
                     if isinstance(border, tuple):
@@ -518,12 +536,11 @@ class GenomeSegmentator:  # seg
                          chrom.counts[counter]])
                     cur = math.floor(border) + 1
                     counter += 1
-        else:
-            segments_to_write.append([chrom.CHR, 1, chrom.length, 0, 0, 0, 0, 0])
         return segments_to_write
 
     def write_ploidy_to_file(self, chrom):
         segments = self.append_ploidy_segments(chrom)
+
         filtered_segments = self.filter_segments(segments, self.ISOLATED_SNP_FILTER)
         for segment in filtered_segments:
             if segment[3] == 0:  # ploidy == 0
