@@ -276,7 +276,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
 
         self.bposn = [self.candidate_numbers[i] for i in range(self.candidates_count) if self.b[i]]
         self.border_numbers = [-1] + [i for i in range(self.candidates_count) if self.b[i]] + [self.candidates_count]
-        acum_counts = [0] + self.bposn + [self.last_snp_number]
+        acum_counts = [0] + [x + 1 for x in self.bposn] + [self.last_snp_number + 1]
         self.counts = [acum_counts[i + 1] - acum_counts[i] for i in range(len(acum_counts) - 1)]
 
         for i in range(len(self.b)):
