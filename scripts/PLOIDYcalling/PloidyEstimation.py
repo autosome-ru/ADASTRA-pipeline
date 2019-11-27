@@ -107,7 +107,7 @@ class Segmentation(ABC):
         elif self.sub_chrom.b_penalty == 'DENS':
             return -1 * 0.1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
         elif self.sub_chrom.b_penalty == 'INF':
-            return float('inf')
+            return -1 * float('inf')
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
