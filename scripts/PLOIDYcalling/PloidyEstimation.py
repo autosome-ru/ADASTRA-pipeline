@@ -91,20 +91,20 @@ class Segmentation(ABC):
             N = self.LINES
         else:
             N = self.sub_chrom.chrom.LINES
-        if self.sub_chrom.chrom.b_penalty == 'CAIC':
+        if self.sub_chrom.b_penalty == 'CAIC':
             return -1 / 2 * k * (float(sys.argv[2]) * np.log(self.SUM_COV) + 1)
-        elif self.sub_chrom.chrom.b_penalty == 'AIC':
+        elif self.sub_chrom.b_penalty == 'AIC':
             return -1 / 2 * k
-        elif self.sub_chrom.chrom.b_penalty == 'SQRT':
+        elif self.sub_chrom.b_penalty == 'SQRT':
             return -1 / 2 * k * (np.sqrt(N) + 1)
-        elif self.sub_chrom.chrom.b_penalty == 'MIX':
+        elif self.sub_chrom.b_penalty == 'MIX':
             return -1 / 2 * k * (np.sqrt(N) + 1) \
                 if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
-        elif self.sub_chrom.chrom.b_penalty == 'CBRT':
+        elif self.sub_chrom.b_penalty == 'CBRT':
             return -1 / 2 * k * (N ** (1 / 3) + 1)
-        elif self.sub_chrom.chrom.b_penalty == 'DENS':
+        elif self.sub_chrom.b_penalty == 'DENS':
             return -1 * 0.1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
-        elif self.sub_chrom.chrom.b_penalty == 'INF':
+        elif self.sub_chrom.b_penalty == 'INF':
             return float('inf')
         else:
             raise ValueError(self.sub_chrom.b_penalty)
@@ -180,6 +180,10 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
 
         self.SNPS, self.LINES = SNPS, LINES
         self.SUM_COV = sum(x[1] + x[2] for x in self.SNPS)
+        if self.LINES <= chrom.NUM_TR:
+            self.b_penalty = 'INF'
+        else:
+            self.b_penalty = chrom.b_penalty
 
         self.start = 0
         self.end = (self.LINES - 1) - 1  # index from 0 and #borders = #snps - 1
@@ -335,7 +339,6 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
 
 class ChromosomeSegmentation:  # chrom
     def __init__(self, seg, CHR, length=0):
-        super().__init__()  # ??
         self.CHR = CHR  # name
         self.length = length  # length, bp
         self.RESOLUTION = seg.RESOLUTION
@@ -351,8 +354,7 @@ class ChromosomeSegmentation:  # chrom
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
         if self.LINES == 0:
             return
-        if self.LINES <= seg.NUM_TR:
-            self.b_penalty = 'INF'
+        self.NUM_TR = seg.NUM_TR
         self.CRITICAL_GAP_FACTOR = 1 - 10 ** (- 1 / np.sqrt(self.LINES))
         self.CRITICAL_GAP = None
         self.snp_filter = seg.ISOLATED_SNP_FILTER
