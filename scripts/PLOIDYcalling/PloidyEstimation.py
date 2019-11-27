@@ -6,8 +6,10 @@ import time
 from abc import ABC, abstractmethod
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_path
+from scripts.HELPERS.paths import ploidy_path, parameters_path
 from scripts.HELPERS.helpers import unpack, ChromPos, pack
+
+log_filename = parameters_path + 'segmentation_stats.tsv'
 
 
 class Segmentation(ABC):
@@ -335,6 +337,11 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         self.estimate()
         self.estimate_Is()
         print('\n'.join(map(str, zip(self.ests, self.counts))))
+
+        with open(log_filename, 'a') as log:
+            # snps, effective length, sumcov, bare best likelyhood, total likelyhood, counts
+            log.write(pack([self.LINES, self.LENGTH, self.SUM_COV, self.sc[self.candidates_count],
+                            self.L[0, self.candidates_count], ','.join(map(str, self.counts))]))
 
 
 class ChromosomeSegmentation:  # chrom
