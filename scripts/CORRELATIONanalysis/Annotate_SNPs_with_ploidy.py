@@ -12,7 +12,7 @@ def unpack_ploidy_segments(line):
         return [''] * 6
     line = line.strip().split('\t')
 
-    return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[7])]
+    return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[7]), int(line[8])]
 
 
 def unpack_snps(line):
@@ -66,10 +66,11 @@ if __name__ == '__main__':
 
             with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
                 out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list) + '\n')
-                for chr, pos, ref, alt, in_intersection, segment_ploidy, qual, segn \
+                for chr, pos, ref, alt, in_intersection, segment_ploidy, qual, segn, sumcov \
                         in Intersection(table, ploidy,
                                         unpack_segments_function=unpack_ploidy_segments, unpack_snp_function=unpack_snps,
                                         write_intersect=True, write_segment_args=True):
                     if not in_intersection:
                         continue
-                    out.write(pack([chr, pos, ref, alt, corrected_BADs_dict.get(segment_ploidy, segment_ploidy), qual, segn]))
+                    out.write(pack([chr, pos, ref, alt, corrected_BADs_dict.get(segment_ploidy, segment_ploidy),
+                                    qual, segn, sumcov]))

@@ -108,10 +108,17 @@ class Segmentation(ABC):
             return -1 * float('inf')
         elif self.sub_chrom.b_penalty == 'ZERO':
             return 0
-        elif self.sub_chrom.b_penalty == 'CAIC_SC1':
+        elif self.sub_chrom.b_penalty == 'CAIC_SC':
             return -1 / 2 * k * (np.log(self.SUM_COV) + 1)
         elif self.sub_chrom.b_penalty == 'CAIC_SC10':
             return -1 / 2 * k * (10 * np.log(self.SUM_COV) + 1)
+        elif self.sub_chrom.b_penalty == 'SQRT_SC':
+            return -1 / 2 * k * (np.sqrt(self.SUM_COV) + 1)
+        elif self.sub_chrom.b_penalty == 'SEGMENTS':
+            if borders <= 200 * self.sub_chrom.LENGTH / sum(ChromPos.chrs[chr] for chr in ChromPos.chrs):
+                return -1 / 2 * k * (np.log(self.SUM_COV) + 1)
+            else:
+                return -1 / 2 * k * (np.sqrt(self.SUM_COV) + 1)
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
@@ -211,6 +218,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         self.quals = []  # qualities of estimations
         self.Q1 = []  # diploid quality
         self.counts = []  # number of snps in segments
+        self.sum_covs = []  # sums of covers for each segment
 
         self.name = name
 
@@ -282,6 +290,8 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         self.border_numbers = [-1] + [i for i in range(self.candidates_count) if self.b[i]] + [self.candidates_count]
         acum_counts = [0] + [x + 1 for x in self.bposn] + [self.last_snp_number + 1]
         self.counts = [acum_counts[i + 1] - acum_counts[i] for i in range(len(acum_counts) - 1)]
+        self.sum_covs = [sum(x[1] + x[2] for x in self.SNPS[acum_counts[i]:acum_counts[i + 1]]) for i in
+                         range(len(acum_counts) - 1)]
 
         for i in range(len(self.b)):
             if self.b[i]:
@@ -345,7 +355,8 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         with open(log_filename, 'a') as log:
             # snps, effective length, sumcov, bare best likelyhood, total likelyhood, counts
             log.write(pack([self.LINES, self.LENGTH, self.SUM_COV, self.sc[self.candidates_count],
-                            self.L[0, self.candidates_count], ','.join(map(str, self.counts))]))
+                            self.L[0, self.candidates_count], ','.join(map(str, self.counts)),
+                            ','.join(map(str, self.sum_covs))]))
 
 
 class ChromosomeSegmentation:  # chrom
@@ -465,7 +476,7 @@ class ChromosomeSegmentation:  # chrom
                 quals = sub_chrom.quals
                 Q1 = sub_chrom.Q1
                 counts = sub_chrom.counts
-                sum_cover = sub_chrom.SUM_COV
+                sum_cover = sub_chrom.sum_covs
 
             self.bpos += bpos
             if ed != self.LINES:
@@ -605,11 +616,11 @@ if __name__ == '__main__':
 
     mode = 'corrected'
     states = [1.5, 6]
-    b_penalty = 'MIX'
+    b_penalty = sys.argv[2]
 
     merged_vcfs_path = ploidy_path + 'merged_vcfs/' + key + ".tsv"
 
-    model = 'Corrected-6'
+    model = b_penalty
     log_filename = parameters_path + 'segmentation_stats_' + model + '.tsv'
 
     t = time.clock()

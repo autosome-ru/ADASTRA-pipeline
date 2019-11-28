@@ -136,7 +136,7 @@ if __name__ == '__main__':
             heatmap_data_file = heatmap_data_dir + file_name
 
             # print('reading SNP ' + type)
-            number_of_datasets, lab, SNP_objects, aligns, segments_number = reader.read_SNPs(method='normal')
+            number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(method='normal')
 
             segment_numbers[model] = segments_number
             corr_to_objects[model], lm_coefficients[model] = correlation_with_cosmic(
@@ -146,7 +146,7 @@ if __name__ == '__main__':
             )
 
         for naive_mode in naive_modes:
-            number_of_datasets, lab, SNP_objects, aligns, segments_number = reader.read_SNPs(method=naive_mode)
+            number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(method=naive_mode)
 
             corr_to_objects[naive_mode], _ = correlation_with_cosmic(SNP_objects, mode='normal')
 
@@ -158,7 +158,7 @@ if __name__ == '__main__':
         corr_to_objects_chip_nearest, _ = correlation_with_cosmic(nearest_cgh_objects, mode='total')
         out_line = '\t'.join(map(lambda x: '\t'.join(map(str, x)),
 
-                                 [[cell_line_name, lab, aligns, len(SNP_objects), number_of_datasets,
+                                 [[cell_line_name, lab, aligns, len(SNP_objects), sum_cov, number_of_datasets,
                                    count_cosmic_segments()]] +
 
                                  [[segment_numbers[model], corr_to_objects[model]]
