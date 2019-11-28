@@ -6,8 +6,10 @@ import time
 from abc import ABC, abstractmethod
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_path
+from scripts.HELPERS.paths import ploidy_path, parameters_path
 from scripts.HELPERS.helpers import unpack, ChromPos, pack
+
+log_filename = parameters_path + 'segmentation_stats_' + sys.argv[2] + '.tsv'
 
 
 class Segmentation(ABC):
@@ -105,7 +107,7 @@ class Segmentation(ABC):
         elif self.sub_chrom.b_penalty == 'DENS':
             return -1 * 0.1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
         elif self.sub_chrom.b_penalty == 'INF':
-            return float('inf')
+            return -1 * float('inf')
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
@@ -274,7 +276,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
 
         self.bposn = [self.candidate_numbers[i] for i in range(self.candidates_count) if self.b[i]]
         self.border_numbers = [-1] + [i for i in range(self.candidates_count) if self.b[i]] + [self.candidates_count]
-        acum_counts = [0] + self.bposn + [self.last_snp_number]
+        acum_counts = [0] + [x + 1 for x in self.bposn] + [self.last_snp_number + 1]
         self.counts = [acum_counts[i + 1] - acum_counts[i] for i in range(len(acum_counts) - 1)]
 
         for i in range(len(self.b)):
@@ -335,6 +337,11 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         self.estimate()
         self.estimate_Is()
         print('\n'.join(map(str, zip(self.ests, self.counts))))
+
+        with open(log_filename, 'a') as log:
+            # snps, effective length, sumcov, bare best likelyhood, total likelyhood, counts
+            log.write(pack([self.LINES, self.LENGTH, self.SUM_COV, self.sc[self.candidates_count],
+                            self.L[0, self.candidates_count], ','.join(map(str, self.counts))]))
 
 
 class ChromosomeSegmentation:  # chrom
@@ -570,11 +577,11 @@ class GenomeSegmentator:  # seg
             else:  # k сегмент хороший
                 if is_bad_segment and not is_bad_left and k > 1:  # а k-1 плохой и k-2 хороший
                     if segments[k][3] < segments[k - 1][3] and segments[k - 2][3] < segments[k - 1][3]:
-                        # если CNR k-1 сегмента больше CNR k-2 и k сегментов
-                        if segments[k][3] > segments[k - 2][3]:  # если CNR k сегмента больше CNR k-2
-                            segments[k - 1][3] = segments[k][3]  # присвоить CNR k сегмента
-                        else:  # если CNR k-2 сегмента больше CNR k
-                            segments[k - 1][3] = segments[k - 2][3]  # присвоить CNR k-2 сегмента
+                        # если BAD k-1 сегмента больше BAD k-2 и k сегментов
+                        if segments[k][3] > segments[k - 2][3]:  # если BAD k сегмента больше BAD k-2
+                            segments[k - 1][3] = segments[k][3]  # присвоить BAD k сегмента
+                        else:  # если BAD k-2 сегмента больше BAD k
+                            segments[k - 1][3] = segments[k - 2][3]  # присвоить BAD k-2 сегмента
 
                         for j in range(4, 7):
                             segments[k - 1][j] = 0
