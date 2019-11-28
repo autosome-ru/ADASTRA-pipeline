@@ -129,7 +129,10 @@ if __name__ == '__main__':
 
             heatmap_data_dir = heatmap_data_path + model + '_tables/'
             if not os.path.isdir(heatmap_data_dir):
-                os.mkdir(heatmap_data_dir)
+                try:
+                    os.mkdir(heatmap_data_dir)
+                except:
+                    pass
             heatmap_data_file = heatmap_data_dir + file_name
 
             # print('reading SNP ' + type)

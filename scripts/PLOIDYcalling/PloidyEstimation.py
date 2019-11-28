@@ -9,6 +9,8 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import ploidy_path, parameters_path
 from scripts.HELPERS.helpers import unpack, ChromPos, pack
 
+log_filename = parameters_path + 'segmentation_stats_' + sys.argv[2] + '.tsv'
+
 
 class Segmentation(ABC):
     def __init__(self):
@@ -601,14 +603,23 @@ if __name__ == '__main__':
     states = [1.5, 6]
     b_penalty = 'MIX'
 
-    merged_vcfs_path = ploidy_path + key + ".tsv"
+    merged_vcfs_path = ploidy_path + 'merged_vcfs/' + key + ".tsv"
 
     model = 'Corrected-6'
     log_filename = parameters_path + 'segmentation_stats_' + model + '.tsv'
 
     t = time.clock()
+
     if not os.path.isdir(ploidy_path + model):
-        os.mkdir(ploidy_path + model)
+        if not os.path.isdir(ploidy_path):
+            try:
+                os.mkdir(ploidy_path)
+            except:
+                pass
+        try:
+            os.mkdir(ploidy_path + model)
+        except:
+            pass
     GS = GenomeSegmentator(merged_vcfs_path, ploidy_path + model + '/' + key + "_ploidy.tsv", mode, states, b_penalty)
     GS.estimate_ploidy()
     print('Total time: {} s'.format(time.clock() - t))
