@@ -9,8 +9,6 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import ploidy_path, parameters_path
 from scripts.HELPERS.helpers import unpack, ChromPos, pack
 
-log_filename = parameters_path + 'segmentation_stats_' + sys.argv[2] + '.tsv'
-
 
 class Segmentation(ABC):
     def __init__(self):
@@ -94,7 +92,7 @@ class Segmentation(ABC):
         else:
             N = self.sub_chrom.chrom.LINES
         if self.sub_chrom.b_penalty == 'CAIC':
-            return -1 / 2 * k * (float(sys.argv[2]) * np.log(self.SUM_COV) + 1)
+            return -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.b_penalty == 'AIC':
             return -1 / 2 * k
         elif self.sub_chrom.b_penalty == 'SQRT':
@@ -108,6 +106,12 @@ class Segmentation(ABC):
             return -1 * 0.1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
         elif self.sub_chrom.b_penalty == 'INF':
             return -1 * float('inf')
+        elif self.sub_chrom.b_penalty == 'ZERO':
+            return 0
+        elif self.sub_chrom.b_penalty == 'CAIC_SC1':
+            return -1 / 2 * k * (np.log(self.SUM_COV) + 1)
+        elif self.sub_chrom.b_penalty == 'CAIC_SC10':
+            return -1 / 2 * k * (10 * np.log(self.SUM_COV) + 1)
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
