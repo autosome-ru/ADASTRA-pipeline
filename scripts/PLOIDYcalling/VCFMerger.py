@@ -35,6 +35,6 @@ if __name__ == '__main__':
         if os.path.isfile(path):
             arr.append(path)
     
-    out_file = ploidy_path + key + ".tsv"
+    out_file = ploidy_path + 'merged_vcfs/' + key + ".tsv"
     
     merge_vcfs(out_file, arr)

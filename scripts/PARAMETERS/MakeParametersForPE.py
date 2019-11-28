@@ -22,13 +22,13 @@ test_names = [
 if __name__ == "__main__":
     with open(ploidy_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
-    #cosmic_names, _ = read_synonims()
+    cosmic_names, _ = read_synonims()
     keys = sorted(d.keys())
     with open(out_path, 'w') as file:
         for key in keys:
-            # name = key.split('!')[0]
-            # if cosmic_names.get(name, '') not in cell_lines:
-            #     continue
+            name = key.split('!')[0]
+            if cosmic_names.get(name, '') not in cell_lines:
+                continue
             is_empty = True
             for value in d[key]:
                 if os.path.isfile(value):

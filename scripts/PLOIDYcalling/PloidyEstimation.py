@@ -599,14 +599,23 @@ if __name__ == '__main__':
     states = [1.5, 6]
     b_penalty = 'CAIC'
 
-    merged_vcfs_path = ploidy_path + key + ".tsv"
+    merged_vcfs_path = ploidy_path + 'merged_vcfs/' + key + ".tsv"
 
     model = 'Corrected-6-coef-' + sys.argv[2]
     print(sys.argv[2])
 
     t = time.clock()
+
     if not os.path.isdir(ploidy_path + model):
-        os.mkdir(ploidy_path + model)
+        if not os.path.isdir(ploidy_path):
+            try:
+                os.mkdir(ploidy_path)
+            except:
+                pass
+        try:
+            os.mkdir(ploidy_path + model)
+        except:
+            pass
     GS = GenomeSegmentator(merged_vcfs_path, ploidy_path + model + '/' + key + "_ploidy.tsv", mode, states, b_penalty)
     GS.estimate_ploidy()
     print('Total time: {} s'.format(time.clock() - t))
