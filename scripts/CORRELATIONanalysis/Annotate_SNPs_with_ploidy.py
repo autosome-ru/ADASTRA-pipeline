@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     modes = []
     for file_name in sorted(os.listdir(ploidy_path)):
-        if os.path.isdir(ploidy_path + file_name):
+        if os.path.isdir(ploidy_path + file_name) and file_name != 'merged_vcfs':
             modes.append(file_name)
 
     file_name = sys.argv[1]
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     names, _ = read_synonims()
     if name in names:
-        table_path = ploidy_path + file_name
+        table_path = ploidy_path + 'merged_vcfs/' + file_name
         for mode in modes:
             if not os.path.isdir(correlation_path + mode + '_tables/'):
                 try:
