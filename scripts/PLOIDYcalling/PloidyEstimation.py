@@ -399,7 +399,7 @@ class ChromosomeSegmentation:  # chrom
         self.b_penalty = seg.b_penalty
         self.FILE = open(seg.FILE, 'r')
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
-        if self.LINES == 0:
+        if self.LINES < 100:
             return
         self.NUM_TR = seg.NUM_TR
         self.CRITICAL_GAP_FACTOR = 1 - 10 ** (- 1 / np.sqrt(self.LINES))
