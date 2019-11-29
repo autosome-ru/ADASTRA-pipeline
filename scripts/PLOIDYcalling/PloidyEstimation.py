@@ -143,7 +143,10 @@ class Segmentation(ABC):
                 return -1 * float('inf')
             return -1 / 2 * k * (np.sqrt(N) + 1) \
                 if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
-
+        elif self.sub_chrom.b_penalty == 'DENS_inf100':
+            if self.sub_chrom.chrom.LINES <= 100:
+                return -1 * float('inf')
+            return -1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
