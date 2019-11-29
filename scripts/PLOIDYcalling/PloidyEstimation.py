@@ -334,11 +334,11 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         for first, last in tuples:
             counter += 1
             print(
-                'Making {} out of {} segments from {} to {} '
-                'for {} (part {} of {}).'.format(counter, len(tuples), first,
-                                                 last, self.chrom.CHR,
-                                                 self.name,
-                                                 len(self.chrom.get_subchromosomes_slices())))
+                'Making {} out of {} segments from {} to {} for {} (part {} of {}).'.format(
+                    counter, len(tuples), first,
+                    last, self.chrom.CHR,
+                    self.name,
+                    len(self.chrom.get_subchromosomes_slices())))
             PS = PieceSegmentation(self, first, last)
             PS.estimate()
             # print(PS.bposn)
