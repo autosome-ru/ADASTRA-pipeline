@@ -334,7 +334,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         for first, last in tuples:
             counter += 1
             print(
-                'Making {} out of {} segments from {} to {} ' +
+                'Making {} out of {} segments from {} to {} '
                 'for {} (part {} of {}).'.format(counter, len(tuples), first,
                                                  last, self.chrom.CHR,
                                                  self.name,
