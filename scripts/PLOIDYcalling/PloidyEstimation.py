@@ -399,7 +399,7 @@ class ChromosomeSegmentation:  # chrom
         self.b_penalty = seg.b_penalty
         self.FILE = open(seg.FILE, 'r')
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
-        if self.LINES < 100:
+        if self.LINES == 0:
             return
         self.NUM_TR = seg.NUM_TR
         self.CRITICAL_GAP_FACTOR = 1 - 10 ** (- 1 / np.sqrt(self.LINES))
@@ -470,7 +470,7 @@ class ChromosomeSegmentation:  # chrom
         return tuples
 
     def estimate_chr(self):
-        if not self.LINES:
+        if not self.LINES or self.LINES < 100:
             return
 
         start_t = time.clock()
@@ -564,7 +564,7 @@ class GenomeSegmentator:  # seg
         segments_to_write = []
         cur = None
         counter = 0
-        if chrom.LINES != 0:
+        if chrom.LINES >= 100:
             for border in chrom.bpos:
                 if cur is None:
                     if isinstance(border, tuple):
@@ -576,7 +576,7 @@ class GenomeSegmentator:  # seg
                                               chrom.quals[counter][0], chrom.quals[counter][1],
                                               chrom.counts[counter], chrom.sum_cover[counter]])
                     cur = border[0] + 1
-                    segments_to_write.append([chrom.CHR, cur, border[1], 0, 0, 0, 0, 0])
+                    segments_to_write.append([chrom.CHR, cur, border[1], 0, 0, 0, 0, 0, 0])
                     cur = border[1]
                     counter += 1
                 else:
@@ -586,6 +586,7 @@ class GenomeSegmentator:  # seg
                          chrom.counts[counter], chrom.sum_cover[counter]])
                     cur = math.floor(border) + 1
                     counter += 1
+
         return segments_to_write
 
     def write_ploidy_to_file(self, chrom):
