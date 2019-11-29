@@ -102,23 +102,14 @@ class Segmentation(ABC):
                 return -1 * float('inf')
             return -1 / 2 * k * (np.sqrt(N) + 1) \
                 if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
-        elif self.sub_chrom.b_penalty == 'MIX_dens1000':
-            if self.sub_chrom.chrom.LINES <= 1000:
-                return -1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
-            return -1 / 2 * k * (np.sqrt(N) + 1) \
-                if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.b_penalty == 'CBRT':
             return -1 / 2 * k * (N ** (1 / 3) + 1)
-        elif self.sub_chrom.b_penalty == 'DENS_inf1000':
-            if self.sub_chrom.chrom.LINES <= 1000:
-                return -1 * float('inf')
-            return -1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
-        elif self.sub_chrom.b_penalty == 'DENS':
-            return -1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
         elif self.sub_chrom.b_penalty == 'INF':
             return -1 * float('inf')
         elif self.sub_chrom.b_penalty == 'ZERO':
             return 0
+        elif self.sub_chrom.b_penalty == 'CONST':
+            return float(sys.argv[2])
         elif self.sub_chrom.b_penalty == 'CAIC_SC_inf1000':
             if self.sub_chrom.chrom.LINES <= 1000:
                 return -1 * float('inf')
@@ -642,11 +633,11 @@ if __name__ == '__main__':
 
     mode = 'corrected'
     states = [1.5, 6]
-    b_penalty = sys.argv[2]
+    b_penalty = 'CONST'
 
     merged_vcfs_path = ploidy_path + 'merged_vcfs/' + key + ".tsv"
 
-    model = b_penalty
+    model = 'CONST_' + sys.argv[2]
     log_filename = parameters_path + 'segmentation_stats_' + model + '.tsv'
 
     t = time.clock()
