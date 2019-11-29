@@ -250,7 +250,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
     @staticmethod
     def split_list(length, l, k):
         result = []
-        if length < l:
+        if length <= l:
             result.append((0, length - 1))
             return result
         length -= k
