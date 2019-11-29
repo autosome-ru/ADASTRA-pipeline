@@ -103,7 +103,7 @@ class Segmentation(ABC):
         elif self.sub_chrom.b_penalty == 'CBRT':
             return -1 / 2 * k * (N ** (1 / 3) + 1)
         elif self.sub_chrom.b_penalty == 'DENS':
-            return -1 * 0.1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
+            return -1  * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
         elif self.sub_chrom.b_penalty == 'INF':
             return -1 * float('inf')
         elif self.sub_chrom.b_penalty == 'ZERO':
