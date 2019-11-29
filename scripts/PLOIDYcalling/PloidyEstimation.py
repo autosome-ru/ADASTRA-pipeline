@@ -103,7 +103,7 @@ class Segmentation(ABC):
         elif self.sub_chrom.b_penalty == 'CBRT':
             return -1 / 2 * k * (N ** (1 / 3) + 1)
         elif self.sub_chrom.b_penalty == 'DENS':
-            return -1 * 0.1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
+            return -1  * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
         elif self.sub_chrom.b_penalty == 'INF':
             return -1 * float('inf')
         elif self.sub_chrom.b_penalty == 'ZERO':
@@ -334,11 +334,11 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         for first, last in tuples:
             counter += 1
             print(
-                'Making {} out of {} segments from {} to {} ' +
-                'for {} (part {} of {}).'.format(counter, len(tuples), first,
-                                                 last, self.chrom.CHR,
-                                                 self.name,
-                                                 len(self.chrom.get_subchromosomes_slices())))
+                'Making {} out of {} segments from {} to {} for {} (part {} of {}).'.format(
+                    counter, len(tuples), first,
+                    last, self.chrom.CHR,
+                    self.name,
+                    len(self.chrom.get_subchromosomes_slices())))
             PS = PieceSegmentation(self, first, last)
             PS.estimate()
             # print(PS.bposn)
