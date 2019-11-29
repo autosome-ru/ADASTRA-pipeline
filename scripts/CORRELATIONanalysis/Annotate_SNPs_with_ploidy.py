@@ -9,7 +9,7 @@ from scripts.HELPERS.helpers import Intersection, pack, read_synonims, corrected
 
 def unpack_ploidy_segments(line):
     if line[0] == '#':
-        return [''] * 6
+        return [''] * 7
     line = line.strip().split('\t')
 
     return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[7]), int(line[8])]
