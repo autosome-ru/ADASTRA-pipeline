@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     file_name = sys.argv[1]
 
-    assert os.path.isfile(ploidy_path + file_name)
+    assert os.path.isfile(ploidy_path + 'merged_vcfs/' + file_name)
 
     name = file_name.split('!')[0]
     lab = file_name.split('!')[1][:-4]
