@@ -221,6 +221,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
 
         self.SNPS, self.LINES = SNPS, LINES
         self.SUM_COV = sum(x[1] + x[2] for x in self.SNPS)
+        self.b_penalty = chrom.b_penalty
 
         self.start = 0
         self.end = (self.LINES - 1) - 1  # index from 0 and #borders = #snps - 1
