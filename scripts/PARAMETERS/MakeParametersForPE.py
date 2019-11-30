@@ -235,8 +235,6 @@ if __name__ == "__main__":
     keys = sorted(d.keys())
     with open(out_path, 'w') as file:
         for key in keys:
-            if key not in small:
-                continue
             name = key.split('!')[0]
             if cosmic_names.get(name, '') not in cell_lines:
                 continue
