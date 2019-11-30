@@ -4,7 +4,7 @@ import json
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import ploidy_dict_path, ploidy_path, correlation_path
-from scripts.HELPERS.helpers import Intersection, pack, read_synonims, corrected_BADs_dict
+from scripts.HELPERS.helpers import Intersection, pack, read_synonims
 
 
 def unpack_ploidy_segments(line):
@@ -72,5 +72,5 @@ if __name__ == '__main__':
                                         write_intersect=True, write_segment_args=True):
                     if not in_intersection:
                         continue
-                    out.write(pack([chr, pos, ref, alt, corrected_BADs_dict.get(segment_ploidy, segment_ploidy),
+                    out.write(pack([chr, pos, ref, alt, segment_ploidy,
                                     qual, segn, sumcov]))
