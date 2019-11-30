@@ -104,6 +104,11 @@ class Segmentation(ABC):
         elif self.sub_chrom.b_penalty == 'MIX':
             return -1 / 2 * k * (np.sqrt(N) + 1) \
                 if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
+        elif self.sub_chrom.b_penalty == 'MIX_release':
+            if self.sub_chrom.chrom.genome_total_snps <= 500000:
+                return -1 / 2 * k * (np.log(N) + 1)
+            else:
+                return -1 / 2 * k * (np.sqrt(N) + 1)
         elif self.sub_chrom.b_penalty == 'MIX_scaled':
             return -1 / 2 * k * (np.sqrt(N) + 1) \
                 if N > 330000 * self.sub_chrom.chrom.effective_length / ChromPos.genome_length \
@@ -639,8 +644,12 @@ if __name__ == '__main__':
     print(key)
 
     mode = 'corrected'
-    states = [1.5, 6]
     b_penalty = sys.argv[2]
+
+    if b_penalty == 'MIX_release':
+        states = [1.5, 6]
+    else:
+        states = [4/3, 1.5, 2.5, 6]
 
     merged_vcfs_path = ploidy_path + 'merged_vcfs/' + key + ".tsv"
 
