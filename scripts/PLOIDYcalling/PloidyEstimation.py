@@ -101,6 +101,10 @@ class Segmentation(ABC):
             return -1 / 2 * k
         elif self.sub_chrom.b_penalty == 'SQRT':
             return -1 / 2 * k * (np.sqrt(N) + 1)
+        elif self.sub_chrom.b_penalty == 'MIX_by_total_500k':
+            if self.sub_chrom.chrom.genome_total_snps <= 500000:
+                return -1 / 2 * k * (np.log(N) + 1)
+            return -1 / 2 * k * (np.sqrt(N) + 1)
         elif self.sub_chrom.b_penalty == 'MIX':
             return -1 / 2 * k * (np.sqrt(N) + 1) \
                 if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
@@ -410,6 +414,8 @@ class ChromosomeSegmentation:  # chrom
         self.sum_cover = []  # cover of SNPs in segments
         self.effective_length = self.positions[-1] - self.positions[0]
 
+        self.genome_total_snps = seg.TOTAL_SNPS
+
     def read_file_len(self):
         count = 0
         snps = []
@@ -548,6 +554,8 @@ class GenomeSegmentator:  # seg
         self.ISOLATED_SNP_FILTER = 2
         self.chr_segmentations = []  # chroms
 
+        self.TOTAL_SNPS = 0
+
         self.b_penalty = b_penalty
         if prior is None:
             self.prior = dict(zip(self.i_list, [1] * len(self.i_list)))
@@ -555,6 +563,7 @@ class GenomeSegmentator:  # seg
         for CHR in self.chrs:
             chrom = ChromosomeSegmentation(self, CHR, ChromPos.chrs[CHR])
             print('{} total SNP count: {}'.format(CHR, chrom.LINES))
+            self.TOTAL_SNPS += chrom.LINES
             self.chr_segmentations.append(chrom)
 
     @staticmethod
@@ -640,11 +649,11 @@ if __name__ == '__main__':
 
     mode = 'corrected'
     states = [1.5, 6]
-    b_penalty = 'MIX'
+    b_penalty = 'MIX_by_total_500k'
 
     merged_vcfs_path = ploidy_path + key + ".tsv"
 
-    model = 'Corrected-6'
+    model = 'Release_MIX_500k_model'
 
     t = time.clock()
     if not os.path.isdir(ploidy_path + model):

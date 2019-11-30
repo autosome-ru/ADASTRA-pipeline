@@ -152,9 +152,6 @@ if __name__ == "__main__":
     with open(out_path, 'w') as file:
         for key in keys:
 
-            if key not in good_boys:
-                continue
-
             is_empty = True
             for value in d[key]:
                 if os.path.isfile(value):

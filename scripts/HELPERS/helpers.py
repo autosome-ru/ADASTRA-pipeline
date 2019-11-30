@@ -17,6 +17,7 @@ expected_args = {"CL": "TF", "TF": "CL"}
 
 class ChromPos:
     chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], chr_l))
+    genome_length = sum(chr_l)
 
     def __init__(self, chr, pos):
         if chr not in self.chrs:
