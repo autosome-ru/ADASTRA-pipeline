@@ -674,5 +674,9 @@ if __name__ == '__main__':
         except:
             pass
     GS = GenomeSegmentator(merged_vcfs_path, ploidy_path + model + '/' + key + "_ploidy.tsv", mode, states, b_penalty)
-    GS.estimate_ploidy()
+    try:
+        GS.estimate_ploidy()
+    except Exception as e:
+        print(sys.argv[1])
+        raise e
     print('Total time: {} s'.format(time.clock() - t))
