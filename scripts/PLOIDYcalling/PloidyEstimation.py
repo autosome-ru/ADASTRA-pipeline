@@ -106,7 +106,7 @@ class Segmentation(ABC):
                 if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.b_penalty == 'MIX_scaled':
             return -1 / 2 * k * (np.sqrt(N) + 1) \
-                if N > 30000 * self.sub_chrom.LENGTH / sum(ChromPos.chrs[chr] for chr in ChromPos.chrs) \
+                if N > 330000 * self.sub_chrom.chrom.effective_length / ChromPos.genome_length \
                 else -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.b_penalty == 'CBRT':
             return -1 / 2 * k * (N ** (1 / 3) + 1)
@@ -122,22 +122,22 @@ class Segmentation(ABC):
             return -1 / 2 * k * (np.sqrt(self.SUM_COV) + 1)
 
         elif self.sub_chrom.b_penalty == 'SEGMENTS_200':
-            if borders <= 200 * self.sub_chrom.LENGTH / sum(ChromPos.chrs[chr] for chr in ChromPos.chrs):
+            if borders <= 200 * self.sub_chrom.LENGTH / ChromPos.genome_length:
                 return -1 / 2 * k * (np.log(N) + 1)
             else:
                 return -1 / 2 * k * (np.sqrt(N) + 1)
         elif self.sub_chrom.b_penalty == 'SEGMENTS_100':
-            if borders <= 100 * self.sub_chrom.LENGTH / sum(ChromPos.chrs[chr] for chr in ChromPos.chrs):
+            if borders <= 100 * self.sub_chrom.LENGTH / ChromPos.genome_length:
                 return -1 / 2 * k * (np.log(N) + 1)
             else:
                 return -1 / 2 * k * (np.sqrt(N) + 1)
         elif self.sub_chrom.b_penalty == 'SEGMENTS_200_inf':
-            if borders <= 200 * self.sub_chrom.LENGTH / sum(ChromPos.chrs[chr] for chr in ChromPos.chrs):
+            if borders <= 200 * self.sub_chrom.LENGTH / ChromPos.genome_length:
                 return -1 / 2 * k * (np.log(N) + 1)
             else:
                 return -1 * float('inf')
         elif self.sub_chrom.b_penalty == 'SEGMENTS_100_inf':
-            if borders <= 100 * self.sub_chrom.LENGTH / sum(ChromPos.chrs[chr] for chr in ChromPos.chrs):
+            if borders <= 100 * self.sub_chrom.LENGTH / ChromPos.genome_length:
                 return -1 / 2 * k * (np.log(N) + 1)
             else:
                 return -1 * float('inf')
@@ -396,6 +396,7 @@ class ChromosomeSegmentation:  # chrom
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
         if self.LINES == 0:
             return
+        self.SUM_COV = sum(x[1] + x[2] for x in self.SNPS)
         self.NUM_TR = seg.NUM_TR
         self.CRITICAL_GAP_FACTOR = 1 - 10 ** (- 1 / np.sqrt(self.LINES))
         self.CRITICAL_GAP = None
