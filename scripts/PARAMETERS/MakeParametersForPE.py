@@ -8,7 +8,7 @@ from scripts.HELPERS.helpers import read_synonims
 
 out_path = parallel_parameters_path + 'PE_parameters.cfg'
 
-cell_lines = ['K-562', 'MCF7', 'HCT-116']
+cell_lines = ['K-562']#, 'MCF7', 'HCT-116']
 test_names = [
     # "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS357NWO_", it's too big
     "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS603CUX_",
