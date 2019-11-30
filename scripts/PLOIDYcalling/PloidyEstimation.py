@@ -551,8 +551,7 @@ class GenomeSegmentator:  # seg
             self.chr_segmentations.append(chrom)
 
     @staticmethod
-    def append_ploidy_segments(chrom):
-        segments_to_write = []
+    def generate_ploidy_segments(chrom):
         cur = None
         counter = 0
         if chrom.LINES >= 100:
@@ -563,28 +562,22 @@ class GenomeSegmentator:  # seg
                     else:
                         cur = 1
                 elif isinstance(border, tuple):
-                    segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
-                                              chrom.quals[counter][0], chrom.quals[counter][1],
-                                              chrom.counts[counter], chrom.sum_cover[counter]])
+                    yield [chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
+                           chrom.quals[counter][0], chrom.quals[counter][1],
+                           chrom.counts[counter], chrom.sum_cover[counter]]
                     cur = border[0] + 1
-                    segments_to_write.append([chrom.CHR, cur, border[1], 0, 0, 0, 0, 0, 0])
+                    yield [chrom.CHR, cur, border[1], 0, 0, 0, 0, 0, 0]
                     cur = border[1]
                     counter += 1
                 else:
-                    segments_to_write.append(
-                        [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter], chrom.Q1[counter],
-                         chrom.quals[counter][0], chrom.quals[counter][1],
-                         chrom.counts[counter], chrom.sum_cover[counter]])
+                    yield [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter], chrom.Q1[counter],
+                           chrom.quals[counter][0], chrom.quals[counter][1],
+                           chrom.counts[counter], chrom.sum_cover[counter]]
                     cur = math.floor(border) + 1
                     counter += 1
 
-        return segments_to_write
-
     def write_ploidy_to_file(self, chrom):
-        segments = self.append_ploidy_segments(chrom)
-
-        filtered_segments = self.filter_segments(segments, self.ISOLATED_SNP_FILTER)
-        for segment in filtered_segments:
+        for segment in self.filter_segments(chrom, self.ISOLATED_SNP_FILTER):
             if segment[3] == 0:  # ploidy == 0
                 continue
             self.OUT.write(pack(segment))
@@ -599,12 +592,13 @@ class GenomeSegmentator:  # seg
             self.write_ploidy_to_file(chrom)
             self.chr_segmentations[j] = None
 
-    @staticmethod
-    def filter_segments(segments, snp_number_tr=2):
+    def filter_segments(self, chrom, snp_number_tr=2):
         is_bad_left = False
         is_bad_segment = False
-        for k in range(len(segments)):
-            if segments[k][7] <= snp_number_tr and segments[k][3] != 0:  # если k сегмент "плохой"
+        prev1 = None
+        prev2 = None
+        for k, segment in enumerate(self.generate_ploidy_segments(chrom)):
+            if segment[7] <= snp_number_tr and segment[3] != 0:  # если k сегмент "плохой"
                 if is_bad_segment:  # если k-1 тоже "плохой"
                     is_bad_left = True
                 else:
@@ -612,19 +606,22 @@ class GenomeSegmentator:  # seg
                 is_bad_segment = True  # текущий сегмент плохой, следующий шаг цикла
             else:  # k сегмент хороший
                 if is_bad_segment and not is_bad_left and k > 1:  # а k-1 плохой и k-2 хороший
-                    if segments[k][3] < segments[k - 1][3] and segments[k - 2][3] < segments[k - 1][3]:
+                    if segment[3] < prev1[3] and prev2[3] < prev1[3]:
                         # если BAD k-1 сегмента больше BAD k-2 и k сегментов
-                        if segments[k][3] > segments[k - 2][3]:  # если BAD k сегмента больше BAD k-2
-                            segments[k - 1][3] = segments[k][3]  # присвоить BAD k сегмента
+                        if segment[3] > prev2[3]:  # если BAD k сегмента больше BAD k-2
+                            prev1[3] = segment[3]  # присвоить BAD k сегмента
                         else:  # если BAD k-2 сегмента больше BAD k
-                            segments[k - 1][3] = segments[k - 2][3]  # присвоить BAD k-2 сегмента
+                            prev1[3] = prev2[3]  # присвоить BAD k-2 сегмента
 
                         for j in range(4, 8):
-                            segments[k - 1][j] = 0
+                            prev1[j] = 0
                     is_bad_left = True
                 is_bad_segment = False  # текущий сегмент хороший, следующий шаг цикла
+            yield prev1
+            prev2 = prev1
+            prev1 = segment
 
-        return segments
+        yield prev1
 
 
 if __name__ == '__main__':
