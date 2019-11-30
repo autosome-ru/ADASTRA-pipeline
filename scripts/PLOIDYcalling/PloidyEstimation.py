@@ -617,7 +617,10 @@ class GenomeSegmentator:  # seg
                             prev1[j] = 0
                     is_bad_left = True
                 is_bad_segment = False  # текущий сегмент хороший, следующий шаг цикла
-            yield prev1
+            if prev1 is not None:
+                yield prev1
+            else:
+                yield segment
             prev2 = prev1
             prev1 = segment
 
