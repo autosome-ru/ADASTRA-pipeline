@@ -656,7 +656,7 @@ if __name__ == '__main__':
     else:
         states = [4/3, 1.5, 2.5, 6]
 
-    merged_vcfs_path = ploidy_path + key + ".tsv"
+    merged_vcfs_path = ploidy_path + 'merged_vcfs/' + key + ".tsv"
 
     model = b_penalty
 
