@@ -662,7 +662,15 @@ if __name__ == '__main__':
 
     t = time.clock()
     if not os.path.isdir(ploidy_path + model):
-        os.mkdir(ploidy_path + model)
+        if not os.path.isdir(ploidy_path):
+            try:
+                os.mkdir(ploidy_path)
+            except:
+                pass
+        try:
+            os.mkdir(ploidy_path + model)
+        except:
+            pass
     GS = GenomeSegmentator(merged_vcfs_path, ploidy_path + model + '/' + key + "_ploidy.tsv", mode, states, b_penalty)
     GS.estimate_ploidy()
     print('Total time: {} s'.format(time.clock() - t))
