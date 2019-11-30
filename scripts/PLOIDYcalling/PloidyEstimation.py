@@ -101,7 +101,7 @@ class Segmentation(ABC):
             return -1 / 2 * k
         elif self.sub_chrom.b_penalty == 'SQRT':
             return -1 / 2 * k * (np.sqrt(N) + 1)
-        elif self.sub_chrom.b_penalty == 'MIX_by_total_500k':
+        elif self.sub_chrom.b_penalty == 'MIX_release':
             if self.sub_chrom.chrom.genome_total_snps <= 500000:
                 return -1 / 2 * k * (np.log(N) + 1)
             return -1 / 2 * k * (np.sqrt(N) + 1)
@@ -649,11 +649,16 @@ if __name__ == '__main__':
 
     mode = 'corrected'
     states = [1.5, 6]
-    b_penalty = 'MIX_by_total_500k'
+    b_penalty = sys.argv[2]
+
+    if b_penalty == 'MIX_release':
+        states = [1.5, 6]
+    else:
+        states = [4/3, 1.5, 2.5, 6]
 
     merged_vcfs_path = ploidy_path + key + ".tsv"
 
-    model = 'Release_MIX_500k_model'
+    model = b_penalty
 
     t = time.clock()
     if not os.path.isdir(ploidy_path + model):
