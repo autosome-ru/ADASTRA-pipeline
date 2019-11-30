@@ -489,7 +489,9 @@ class ChromosomeSegmentation:  # chrom
                 counts = [ed - st]
                 sum_cover = [0]
             else:
-                sub_chrom = SubChromosomeSegmentation(self, self.SNPS[st:ed], ed - st, part)
+                good_snps = [snp for snp in self.SNPS[st:ed] if snp[1] + snp[2] >= 8]
+                sub_chrom = SubChromosomeSegmentation(self,  good_snps,
+                                                      len(good_snps), part)
                 sub_chrom.estimate_sub_chr()
 
                 bpos = sub_chrom.bpos
