@@ -91,62 +91,57 @@ class Segmentation(ABC):
             N = self.LINES
         else:
             N = self.sub_chrom.chrom.LINES
+
+        if self.sub_chrom.chrom.LINES <= 100:
+            return -1 * float('inf')
+
         if self.sub_chrom.b_penalty == 'CAIC':
             return -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.b_penalty == 'AIC':
             return -1 / 2 * k
         elif self.sub_chrom.b_penalty == 'SQRT':
             return -1 / 2 * k * (np.sqrt(N) + 1)
-        elif self.sub_chrom.b_penalty == 'MIX_inf1000':
-            if self.sub_chrom.chrom.LINES <= 1000:
-                return -1 * float('inf')
+        elif self.sub_chrom.b_penalty == 'MIX':
             return -1 / 2 * k * (np.sqrt(N) + 1) \
                 if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
-        elif self.sub_chrom.b_penalty == 'MIX_dens1000':
-            if self.sub_chrom.chrom.LINES <= 1000:
-                return -1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
+        elif self.sub_chrom.b_penalty == 'MIX_scaled':
             return -1 / 2 * k * (np.sqrt(N) + 1) \
-                if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
+                if N > 30000 * self.sub_chrom.LENGTH / sum(ChromPos.chrs[chr] for chr in ChromPos.chrs) \
+                else -1 / 2 * k * (np.log(N) + 1)
         elif self.sub_chrom.b_penalty == 'CBRT':
             return -1 / 2 * k * (N ** (1 / 3) + 1)
-        elif self.sub_chrom.b_penalty == 'DENS_inf1000':
-            if self.sub_chrom.chrom.LINES <= 1000:
-                return -1 * float('inf')
-            return -1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
-        elif self.sub_chrom.b_penalty == 'DENS':
-            return -1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
         elif self.sub_chrom.b_penalty == 'INF':
             return -1 * float('inf')
         elif self.sub_chrom.b_penalty == 'ZERO':
             return 0
-        elif self.sub_chrom.b_penalty == 'CAIC_SC_inf1000':
-            if self.sub_chrom.chrom.LINES <= 1000:
-                return -1 * float('inf')
+        elif self.sub_chrom.b_penalty == 'CAIC_SC':
             return -1 / 2 * k * (np.log(self.SUM_COV) + 1)
-        elif self.sub_chrom.b_penalty == 'CAIC_SC10_inf1000':
-            if self.sub_chrom.chrom.LINES <= 1000:
-                return -1 * float('inf')
+        elif self.sub_chrom.b_penalty == 'CAIC_SC10':
             return -1 / 2 * k * (10 * np.log(self.SUM_COV) + 1)
-        elif self.sub_chrom.b_penalty == 'SQRT_SC_inf1000':
-            if self.sub_chrom.chrom.LINES <= 1000:
-                return -1 * float('inf')
+        elif self.sub_chrom.b_penalty == 'SQRT_SC':
             return -1 / 2 * k * (np.sqrt(self.SUM_COV) + 1)
-        elif self.sub_chrom.b_penalty == 'SEGMENTS_inf1000':
-            if self.sub_chrom.chrom.LINES <= 1000:
-                return -1 * float('inf')
+
+        elif self.sub_chrom.b_penalty == 'SEGMENTS_200':
             if borders <= 200 * self.sub_chrom.LENGTH / sum(ChromPos.chrs[chr] for chr in ChromPos.chrs):
-                return -1 / 2 * k * (np.log(self.SUM_COV) + 1)
+                return -1 / 2 * k * (np.log(N) + 1)
             else:
-                return -1 / 2 * k * (np.sqrt(self.SUM_COV) + 1)
-        elif self.sub_chrom.b_penalty == 'MIX_inf100':
-            if self.sub_chrom.chrom.LINES <= 100:
+                return -1 / 2 * k * (np.sqrt(N) + 1)
+        elif self.sub_chrom.b_penalty == 'SEGMENTS_100':
+            if borders <= 100 * self.sub_chrom.LENGTH / sum(ChromPos.chrs[chr] for chr in ChromPos.chrs):
+                return -1 / 2 * k * (np.log(N) + 1)
+            else:
+                return -1 / 2 * k * (np.sqrt(N) + 1)
+        elif self.sub_chrom.b_penalty == 'SEGMENTS_200_inf':
+            if borders <= 200 * self.sub_chrom.LENGTH / sum(ChromPos.chrs[chr] for chr in ChromPos.chrs):
+                return -1 / 2 * k * (np.log(N) + 1)
+            else:
                 return -1 * float('inf')
-            return -1 / 2 * k * (np.sqrt(N) + 1) \
-                if N > 30000 else -1 / 2 * k * (np.log(N) + 1)
-        elif self.sub_chrom.b_penalty == 'DENS_inf100':
-            if self.sub_chrom.chrom.LINES <= 100:
+        elif self.sub_chrom.b_penalty == 'SEGMENTS_100_inf':
+            if borders <= 100 * self.sub_chrom.LENGTH / sum(ChromPos.chrs[chr] for chr in ChromPos.chrs):
+                return -1 / 2 * k * (np.log(N) + 1)
+            else:
                 return -1 * float('inf')
-            return -1 * borders * C * (1 - np.log1p(1 / np.sqrt(C)))
+
         else:
             raise ValueError(self.sub_chrom.b_penalty)
 
