@@ -376,11 +376,11 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         self.estimate_Is()
         print('\n'.join(map(str, zip(self.ests, self.counts))))
 
-        # with open(log_filename, 'a') as log:
-        #     # snps, effective length, sumcov, bare best likelyhood, total likelyhood, counts
-        #     log.write(pack([self.LINES, self.LENGTH, self.SUM_COV, self.sc[self.candidates_count],
-        #                     self.L[0, self.candidates_count], ','.join(map(str, self.counts)),
-        #                     ','.join(map(str, self.sum_covs))]))
+        with open(log_filename, 'a') as log:
+            # snps, effective length, sumcov, bare best likelyhood, total likelyhood, counts
+            log.write(pack([self.LINES, self.LENGTH, self.SUM_COV, self.sc[self.candidates_count],
+                            self.L[0, self.candidates_count], ','.join(map(str, self.counts)),
+                            ','.join(map(str, self.sum_covs))]))
 
 
 class ChromosomeSegmentation:  # chrom
@@ -659,8 +659,10 @@ if __name__ == '__main__':
     merged_vcfs_path = ploidy_path + 'merged_vcfs/' + key + ".tsv"
 
     model = b_penalty
+    log_filename = parameters_path + 'segmentation_stats_' + model + '.tsv'
 
     t = time.clock()
+
     if not os.path.isdir(ploidy_path + model):
         if not os.path.isdir(ploidy_path):
             try:
