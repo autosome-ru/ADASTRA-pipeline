@@ -8,7 +8,7 @@ from scripts.HELPERS.helpers import read_synonims
 
 out_path = parallel_parameters_path + 'PE_parameters.cfg'
 
-cell_lines = ['K-562']#, 'MCF7', 'HCT-116']
+cell_lines = ['K-562', 'MCF7', 'HCT-116']
 test_names = [
     # "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS357NWO_", it's too big
     "K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS603CUX_",
@@ -248,8 +248,6 @@ if __name__ == "__main__":
     with open(out_path, 'w') as file:
         for key in keys:
             name = key.split('!')[0]
-            if key in large:
-                continue
             if cosmic_names.get(name, '') not in cell_lines:
                 continue
             is_empty = True
