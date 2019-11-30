@@ -586,8 +586,7 @@ class GenomeSegmentator:  # seg
     def estimate_ploidy(self):
         self.OUT.write(pack(['#chr', 'start', 'end', 'BAD', 'Q1', 'qual_left', 'qual_right', 'SNP_count',
                              'sum_coverage']))
-        for j in range(len(self.chr_segmentations)):
-            chrom = self.chr_segmentations[j]
+        for j, chrom in enumerate(self.chr_segmentations):
             chrom.estimate_chr()
             self.write_ploidy_to_file(chrom)
             self.chr_segmentations[j] = None
@@ -624,7 +623,8 @@ class GenomeSegmentator:  # seg
             prev2 = prev1
             prev1 = segment
 
-        yield prev1
+        if prev1 is not None:
+            yield prev1
 
 
 if __name__ == '__main__':
