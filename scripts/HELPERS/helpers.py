@@ -262,11 +262,12 @@ def read_synonims():
 class CorrelationReader:
     CGH_path = ''
     SNP_path = ''
-    
+
     def read_SNPs(self, method='normal'):
         with open(self.SNP_path, 'r') as file:
             result = []
             uniq_segments_count = 0
+            sum_cov = 0
             previous_segment = []
             for line in file:
                 line = line.strip()
@@ -286,6 +287,7 @@ class CorrelationReader:
                 current_segment = [float(line[4]), int(line[5]), int(line[6])]
                 if previous_segment != current_segment:
                     uniq_segments_count += 1
+                    sum_cov += int(line[7])
                     previous_segment = current_segment
                 if method == 'normal':
                     if line[4] == 0:
@@ -300,7 +302,7 @@ class CorrelationReader:
                 else:
                     raise KeyError(method)
 
-            return datasets_number, lab, result, aligns, uniq_segments_count
+            return datasets_number, lab, result, aligns, uniq_segments_count, sum_cov
     
     def read_CGH(self, cgh_name):
         cgnames = ['BR:MCF7', 'BR:MDA-MB-231', 'BR:HS 578T', 'BR:BT-549', 'BR:T-47D', 'CNS:SF-268', 'CNS:SF-295',
