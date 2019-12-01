@@ -8,14 +8,8 @@ from scripts.HELPERS.paths import make_black_list, parameters_path
 with open(parameters_path + "Master-lines.tsv", 'r') as file:
     blacklist = make_black_list()
     controls = set()
-    flag = False
     for line in file:
         line = line.strip().split('\t')
-        if line[0] == 'EXP000623':
-            flag = True
-            continue
-        if not flag:
-            continue
         if line[0] not in blacklist:
             al_path = "/home/abramov/Alignments/" + "EXP/" + line[1] + "/" + line[0] + "/" + line[6] + '.vcf.gz'
             chr11_path = '/home/abramov/Alignments_chr11/' + "EXP/" + line[1] + "/" + line[0] + "/" + line[
