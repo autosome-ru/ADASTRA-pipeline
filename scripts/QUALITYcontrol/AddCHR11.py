@@ -30,6 +30,7 @@ with open(parameters_path + "Master-lines.tsv", 'r') as file:
                             if line[0] == '#':
                                 continue
                             al.write(line)
+                    print('DONE: {}'.format(al_path))
                 except:
                     print("EXCEPTION {}, {}".format(e.args[0], al_path))
 
@@ -55,6 +56,7 @@ with open(parameters_path + "Master-lines.tsv", 'r') as file:
                             if line[0] == '#':
                                 continue
                             al.write(line)
+                    print('DONE ctrl: {}'.format(al_path))
                 except Exception as e:
                     print("EXCEPTION {}, {}".format(e.args[0], al_path))
             controls.add(al_path)
