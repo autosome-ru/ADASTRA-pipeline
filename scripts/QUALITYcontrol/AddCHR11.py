@@ -34,7 +34,7 @@ with open(parameters_path + "Master-lines.tsv", 'r') as file:
                 except Exception as e:
                     print("EXCEPTION {}, {}".format(e.args[0], al_path))
 
-        if len(line) >= 10 and line[10] not in blacklist:
+        if len(line) > 10 and line[10] not in blacklist:
             al_path = "/home/abramov/Alignments/" + "CTRL/" + line[10] + "/" + line[14] + '.vcf.gz'
             chr11_path = '/home/abramov/Alignments_chr11/' + "CTRL/" + line[10] + "/" + line[14] + '.vcf.gz'
 
