@@ -26,12 +26,12 @@ with open(parameters_path + "Master-lines.tsv", 'r') as file:
             else:
                 try:
                     with gzip.open(chr11_path, 'rt') as chr11, gzip.open(al_path, 'at') as al:
-                        for line in chr11:
-                            if line[0] == '#':
+                        for line_exp in chr11:
+                            if line_exp[0] == '#':
                                 continue
-                            al.write(line)
+                            al.write(line_exp)
                     print('DONE: {}'.format(al_path))
-                except:
+                except Exception as e:
                     print("EXCEPTION {}, {}".format(e.args[0], al_path))
 
         if len(line) >= 10 and line[10] not in blacklist:
@@ -52,10 +52,10 @@ with open(parameters_path + "Master-lines.tsv", 'r') as file:
             else:
                 try:
                     with gzip.open(chr11_path, 'rt') as chr11, gzip.open(al_path, 'at') as al:
-                        for line in chr11:
-                            if line[0] == '#':
+                        for line_ctrl in chr11:
+                            if line_ctrl[0] == '#':
                                 continue
-                            al.write(line)
+                            al.write(line_ctrl)
                     print('DONE ctrl: {}'.format(al_path))
                 except Exception as e:
                     print("EXCEPTION {}, {}".format(e.args[0], al_path))
