@@ -15,11 +15,10 @@ for file_name in os.listdir(Correlation_path):
 
 with open(out_path, 'w') as out:
     out.write('\t'.join(map(lambda x: '\t'.join(x),
-                            [['#cell_line', 'cells', 'aligns', 'total_snps', '#_of_merged_datasets',
+                            [['#cell_line', 'cells', 'aligns', 'total_snps', 'sum_cov', '#_of_merged_datasets',
                               'total_regions']] +
                             [['number_of_segments_' + get_name_by_dir(snp_dir),
-                              'cor_by_snp_' + get_name_by_dir(snp_dir),
-                              'SNP_linear_model_intercept', 'SNP_linear_model_slope']
+                              'cor_by_snp_' + get_name_by_dir(snp_dir)]
                              for snp_dir in snp_dirs] +
                             [['cor_by_snp_naive',
                               'cor_by_probe_CGH', 'cor_by_snp_probe_CGH']]
