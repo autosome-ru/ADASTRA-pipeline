@@ -12,4 +12,4 @@ if [ "$flag" == --merge ]; then
 fi
 
 python3 "$ScriptsFolder"PARAMETERS/SortParameters.py
-parallel --jobs "$njobs" python3 "$ScriptsFolder"PLOIDYcalling/PloidyEstimation.py :::: "$ParametersListsFolder"/PE_parameters.cfg
+parallel --jobs "$njobs" python3 "$ScriptsFolder"PLOIDYcalling/PloidyEstimation.py :::: "$ParametersListsFolder"PE_parameters.cfg :::: "$ParametersListsFolder"Podgonians.cfg
