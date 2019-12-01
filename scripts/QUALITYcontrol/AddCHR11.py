@@ -5,7 +5,7 @@ import gzip
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import make_black_list, parameters_path
 
-with open(parameters_path + "Master-lines.tsv", 'r') as file:
+with open(parameters_path + "MasterListForBadVCF.tsv", 'r') as file:
     blacklist = make_black_list()
     controls = set()
     for line in file:
