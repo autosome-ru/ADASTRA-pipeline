@@ -3,7 +3,7 @@
 DownloadPath=$1
 BamPath=$2
 
-if ! scp :"$DownloadPath" "$BamPath"
+if ! cp :"$DownloadPath" "$BamPath"
 then
   echo "Failed to download ALIGNEXP $EXP"
   exit 1
