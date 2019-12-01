@@ -14,6 +14,9 @@ with open(parameters_path + "MasterListForBadVCF.tsv", 'r') as file:
             al_path = "/home/abramov/Alignments/" + "EXP/" + line[1] + "/" + line[0] + "/" + line[6] + '.vcf.gz'
             chr11_path = '/home/abramov/Alignments_chr11/' + "EXP/" + line[1] + "/" + line[0] + "/" + line[
                 6] + '.vcf.gz'
+            if line[0] == 'EXP044642':
+                al_path = "/home/abramov/Alignments/" + "CTRL/" + line[0] + "/" + line[6] + '.vcf.gz'
+                chr11_path = '/home/abramov/Alignments_chr11/' + "CTRL/" + line[0] + "/" + line[6] + '.vcf.gz'
 
             a = os.path.isfile(al_path)
             c = os.path.isfile(chr11_path)
