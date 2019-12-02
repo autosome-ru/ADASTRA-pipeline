@@ -30,6 +30,7 @@ def logit_combine_p_values(pvalues):
 
 def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar, postfix=''):  # return part of the dictionary with fdr from table
     keys = list(dictionary.keys())
+    print(postfix)
     for index in range(len(ps_ref)):
         key = keys[index]
         if bool_ar[index]:
