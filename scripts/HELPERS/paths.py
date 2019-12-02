@@ -36,8 +36,8 @@ def create_path_from_GTRD_function(line, for_what, ctrl=False):
         return alignments_path + "EXP/" + line[1] + "/" + line[0] + "/" + line[6] + end
 
 
-def create_ploidy_path_function(string):
-    return ploidy_path + "CAIC/" + string + "_ploidy.tsv"
+def create_ploidy_path_function(string, model):
+    return ploidy_path + model + "/" + string + "_ploidy.tsv"
 
 
 def make_black_list():

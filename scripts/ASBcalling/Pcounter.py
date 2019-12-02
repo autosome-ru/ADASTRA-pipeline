@@ -1,14 +1,15 @@
 import json
 import sys
 from scipy.stats import binom_test, binom
+import pandas as pd
 
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_dict_path, create_ploidy_path_function
+from scripts.HELPERS.paths import ploidy_dict_path, correlation_path, create_ploidy_path_function
 from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection
 
 
-corrected = {1: 1, 1.5: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 6}
+corrected = {1: 1, 4/3: 1.5, 1.5: 2, 2: 3, 2.5: 3, 3: 4, 4: 5, 5: 6, 6: 6}
 
 
 def count_p(x, n, p, alternative, cut_off=2):
@@ -44,7 +45,19 @@ if __name__ == '__main__':
         d = json.loads(read_file.readline())
         rev_d = make_reverse_dict(d)
 
-    ploidy = create_ploidy_path_function(rev_d[key])
+    ploidy_file_name = rev_d[key]
+
+    cor_stats = pd.read_table(correlation_path + 'cor_stats_test.tsv')
+    names = cor_stats['#cell_line'] + '!' + cor_stats['cells']
+    cor_stats['names'] = names
+
+    sum_cov = int(cor_stats[cor_stats['names'] == ploidy_file_name]['sum_cov'])
+    if sum_cov < 15000000:
+        model = 'CAIC'
+    else:
+        model = 'SQRT'
+
+    ploidy = create_ploidy_path_function(ploidy_file_name, model)
 
     print('Now doing {} \n with ploidy file {}'.format(table_annotated, rev_d[key]))
 
@@ -64,7 +77,7 @@ if __name__ == '__main__':
             if in_intersection:
                 #  p_value counting
                 p = 1 / (float(ploidy) + 1)
-                p = corrected.get(p, p)  # up-correct ploidy
+                p = corrected[p]  # up-correct ploidy
                 n = ref_c + alt_c
 
                 p_ref, p_ref_cor, p_ref_bal = count_p(ref_c, n, p, 'greater')
