@@ -15,6 +15,11 @@ from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_exp
 
 def logit_combine_p_values(pvalues):
     pvalues = np.array([p for p in pvalues if 1 > p > 0])
+    if len(pvalues) == 0:
+        return 1
+    elif len(pvalues) == 1:
+        return pvalues[0]
+
     statistic = -np.sum(np.log(pvalues)) + np.sum(np.log1p(-pvalues))
     k = len(pvalues)
     nu = 5 * k + 4
