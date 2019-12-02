@@ -88,9 +88,8 @@ if __name__ == '__main__':
                          p_ref_cor, p_alt_cor,
                          p_ref_bal, p_alt_bal,
                          ) = unpack(line, use_in="Aggregation")
-                    except ValueError:
-                        print('ERROR')
-                        continue
+                    except ValueError as e:
+                        raise e
                     if p_ref == '.':
                         continue
                     cov = ref_c + alt_c
