@@ -14,6 +14,7 @@ from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_exp
 
 
 def logit_combine_p_values(pvalues):
+    pvalues = np.array(pvalues)
     statistic = -np.sum(np.log(pvalues)) + np.sum(np.log1p(-pvalues))
     k = len(pvalues)
     nu = 5 * k + 4
@@ -22,13 +23,13 @@ def logit_combine_p_values(pvalues):
     return pval
 
 
-def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return part of the dictionary with fdr from table
+def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar, postfix=''):  # return part of the dictionary with fdr from table
     keys = list(dictionary.keys())
     for index in range(len(ps_ref)):
         key = keys[index]
         if bool_ar[index]:
-            dictionary[key]['m_fdr_ref'] = ps_ref[index]
-            dictionary[key]['m_fdr_alt'] = ps_alt[index]
+            dictionary[key]['m_fdr_ref' + postfix] = ps_ref[index]
+            dictionary[key]['m_fdr_alt' + postfix] = ps_alt[index]
         else:
             del dictionary[key]
 
@@ -151,6 +152,10 @@ if __name__ == '__main__':
             c_segc = []
             c_pref = []
             c_palt = []
+            c_pref_cor = []
+            c_palt_cor = []
+            c_pref_bal = []
+            c_palt_bal = []
             c_cover = []
             c_m1 = []
             c_m2 = []
@@ -183,6 +188,10 @@ if __name__ == '__main__':
                 c_segc.append(seg_c)
                 c_pref.append(p_ref)
                 c_palt.append(p_alt)
+                c_pref_cor.append(p_ref_cor)
+                c_palt_cor.append(p_alt_cor)
+                c_pref_bal.append(p_ref_bal)
+                c_palt_bal.append(p_alt_bal)
                 c_cover.append(cov)
 
                 c_ref.append(ref_c)
@@ -206,8 +215,15 @@ if __name__ == '__main__':
             m_q = np.round(np.mean(c_q), 1)
             m_segc = np.round(np.mean(c_segc), 1)
             m_datasets = len(value)
-            m_logpref = stats.combine_pvalues(c_pref, method='mudholkar_george')[1]
-            m_logpalt = stats.combine_pvalues(c_palt, method='mudholkar_george')[1]
+
+            m_logpref = logit_combine_p_values(c_pref)
+            m_logpalt = logit_combine_p_values(c_palt)
+
+            m_logpref_cor = logit_combine_p_values(c_pref_cor)
+            m_logpalt_cor = logit_combine_p_values(c_palt_cor)
+
+            m_logpref_bal = logit_combine_p_values(c_pref_bal)
+            m_logpalt_bal = logit_combine_p_values(c_palt_bal)
 
             c_m1_ref = [x for x in c_m1 if x > 0]
             if c_m1_ref:
@@ -236,7 +252,8 @@ if __name__ == '__main__':
             m1_dict = dict()
             m2_dict = dict()
             p_dict = dict()
-            refalt_dict = dict()
+            ref_dict = dict()
+            alt_dict = dict()
 
             for method, sort_key in (('maxdepth', lambda j: c_cover[j]),
                                      ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
@@ -245,12 +262,14 @@ if __name__ == '__main__':
                                   if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_logpalt - m_logpref)],
                                  key=sort_key)
                 except ValueError:
-                    refalt_dict[method] = 'NaN'
+                    ref_dict[method] = 'NaN'
+                    alt_dict[method] = 'NaN'
                     p_dict[method] = 'NaN'
                     m1_dict[method] = 'NaN'
                     m2_dict[method] = 'NaN'
                     continue
-                refalt_dict[method] = str(c_ref[i_most]) + '/' + str(c_alt[i_most])
+                ref_dict[method] = str(c_ref[i_most])
+                alt_dict[method] = str(c_alt[i_most])
                 p_dict[method] = c_ploidy[i_most]
                 x = c_ref[i_most] / (c_ref[i_most] + c_alt[i_most])
                 p = 1 / (c_ploidy[i_most] + 1)
@@ -264,29 +283,59 @@ if __name__ == '__main__':
             out.write(pack(
                 [chr, pos, ID, ref, alt, repeat, m_total_callers, m_unique_callers,
                  m_ploidy, m_q, m_dipq, m_segc, m_datasets,
-                 refalt_dict['maxdepth'], p_dict['maxdepth'], m1_dict['maxdepth'], m2_dict['maxdepth'],
-                 refalt_dict['mostsig'], p_dict['mostsig'], m1_dict['mostsig'], m2_dict['mostsig'],
+                 ref_dict['maxdepth'], alt_dict['maxdepth'], p_dict['maxdepth'],
+                 m1_dict['maxdepth'], m2_dict['maxdepth'],
+                 ref_dict['mostsig'], alt_dict['mostsig'], p_dict['mostsig'],
+                 m1_dict['mostsig'], m2_dict['mostsig'],
                  min_cover, max_cover, med_cover, total_cover,
                  m1_ref, m1_alt, m2_ref, m2_alt,
-                 m_logpref, m_logpalt]))
+                 m_logpref, m_logpalt,
+                 m_logpref_cor, m_logpalt_cor,
+                 m_logpref_bal, m_logpalt_bal]))
             origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': c_table_names,
                                                             expected_args[what_for]: c_another_agr,
                                                             'ref_counts': c_ref, 'alt_counts': c_alt,
-                                                            'ref_pvalues': c_pref, 'alt_pvalues': c_palt}
+                                                            'ref_pvalues': c_pref, 'alt_pvalues': c_palt,
+                                                            'ref_pvalues_corrected': c_pref_cor,
+                                                            'alt_pvalues_corrected': c_palt_cor,
+                                                            'ref_pvalues_balanced': c_pref_bal,
+                                                            'alt_pvalues_balanced': c_palt_bal}
 
     print("Counting FDR")
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
         table = pd.read_table(f)
+
     bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpref"],
                                                                              alpha=0.05, method='fdr_bh')
     bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt"],
                                                                              alpha=0.05, method='fdr_bh')
     table["m_fdr_ref"] = pd.Series(p_val_ref)
     table["m_fdr_alt"] = pd.Series(p_val_alt)
+
+    bool_ar_ref_cor, p_val_ref_cor, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpref_cor"],
+                                                                                     alpha=0.05, method='fdr_bh')
+    bool_ar_alt_cor, p_val_alt_cor, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt_cor"],
+                                                                                     alpha=0.05, method='fdr_bh')
+    table["m_fdr_ref_cor"] = pd.Series(p_val_ref)
+    table["m_fdr_alt_cor"] = pd.Series(p_val_alt)
+
+    bool_ar_ref_bal, p_val_ref_bal, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpref_bal"],
+                                                                                     alpha=0.05, method='fdr_bh')
+    bool_ar_alt_bal, p_val_alt_bal, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt_bal"],
+                                                                                     alpha=0.05, method='fdr_bh')
+    table["m_fdr_ref_bal"] = pd.Series(p_val_ref)
+    table["m_fdr_alt_bal"] = pd.Series(p_val_alt)
+
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', "w") as w:
         table.to_csv(w, sep="\t", index=False)
+
     bool_ar = bool_ar_ref + bool_ar_alt
+    bool_ar_cor = bool_ar_ref_cor + bool_ar_alt_cor
+    bool_ar_bal = bool_ar_ref_bal + bool_ar_alt_bal
+
     annotate_snp_with_tables(origin_of_snp_dict, p_val_ref, p_val_alt, bool_ar)
+    annotate_snp_with_tables(origin_of_snp_dict, p_val_ref_cor, p_val_alt_cor, bool_ar_cor, postfix='_cor')
+    annotate_snp_with_tables(origin_of_snp_dict, p_val_ref_bal, p_val_alt_bal, bool_ar_bal, postfix='_bal')
 
     with open(results_path + what_for + '_DICTS/' + key_name + '_DICT.json', 'w') as out:
         json.dump(origin_of_snp_dict, out)
