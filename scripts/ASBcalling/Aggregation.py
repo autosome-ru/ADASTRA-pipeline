@@ -33,8 +33,8 @@ def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return par
     for index in range(len(ps_ref)):
         key = keys[index]
         if bool_ar[index]:
-            dictionary[key]['m_fdr_ref'] = ps_ref[index]
-            dictionary[key]['m_fdr_alt'] = ps_alt[index]
+            dictionary[key]['logitp_ref'] = ps_ref[index]
+            dictionary[key]['logitp_alt'] = ps_alt[index]
         else:
             del dictionary[key]
 
@@ -119,15 +119,17 @@ if __name__ == '__main__':
     print('Writing {}'.format(key_name))
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'w') as out:
-        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'total_callers', 'unique_callers', 'm_ploidy',
-                        'm_q', 'm_dipq', 'm_segc', 'm_datasets',
-                        'maxdepth_ref', 'maxdepth_alt', 'maxdepth_ploidy', 'maxdepth_m1', 'maxdepth_m2',
-                        'mostsig_ref', 'mostsig_alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
-                        'min_cover', 'max_cover', 'med_cover', 'total_cover', 'm1_ref', 'm1_alt',
-                        'm2_ref', 'm2_alt',
-                        'm_logpref', 'm_logpalt',
-                        'm_logpref_cor', 'm_logpalt_cor',
-                        'm_logpref_bal', 'm_logpalt_bal']))
+        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peal_callers',
+                        'mean_sBAD',
+                        'mean_deltaL_neighborBAD ', 'mean_deltaL_bad1', 'mean_SNP_per_segment', 'n_aggregated',
+                        'refc_maxdepth', 'altc_maxdepth', 'sBAD_maxdepth', 'm1_maxdepth', 'm2_maxdepth',
+                        'refc_mostsig', 'altc_mostsig', 'sBAD_mostsig', 'm1_mostsig', 'm2_mostsig',
+                        'min_cover', 'max_cover', 'median_cover', 'total_cover',
+                        'm1_mean_ref', 'm1_mean_alt',
+                        'm2_mean_ref', 'm2_mean_alt',
+                        'logitp_ref', 'logitp_alt',
+                        'logitp_ref_cor', 'logitp_alt_cor',
+                        'logitp_ref_bal', 'logitp_alt_bal']))
 
         filtered_snps = dict()
         for key in common_snps:
@@ -316,22 +318,22 @@ if __name__ == '__main__':
                                                                              alpha=0.05, method='fdr_bh')
     bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt"],
                                                                              alpha=0.05, method='fdr_bh')
-    table["m_fdr_ref"] = pd.Series(p_val_ref)
-    table["m_fdr_alt"] = pd.Series(p_val_alt)
+    table["fdrp_ref"] = pd.Series(p_val_ref)
+    table["fdrp_alt"] = pd.Series(p_val_alt)
 
     bool_ar_ref_cor, p_val_ref_cor, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpref_cor"],
                                                                                      alpha=0.05, method='fdr_bh')
     bool_ar_alt_cor, p_val_alt_cor, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt_cor"],
                                                                                      alpha=0.05, method='fdr_bh')
-    table["m_fdr_ref_cor"] = pd.Series(p_val_ref_cor)
-    table["m_fdr_alt_cor"] = pd.Series(p_val_alt_cor)
+    table["fdrp_ref_cor"] = pd.Series(p_val_ref_cor)
+    table["fdrp_alt_cor"] = pd.Series(p_val_alt_cor)
 
     bool_ar_ref_bal, p_val_ref_bal, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpref_bal"],
                                                                                      alpha=0.05, method='fdr_bh')
     bool_ar_alt_bal, p_val_alt_bal, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt_bal"],
                                                                                      alpha=0.05, method='fdr_bh')
-    table["m_fdr_ref_bal"] = pd.Series(p_val_ref_bal)
-    table["m_fdr_alt_bal"] = pd.Series(p_val_alt_bal)
+    table["fdrp_ref_bal"] = pd.Series(p_val_ref_bal)
+    table["fdrp_alt_bal"] = pd.Series(p_val_alt_bal)
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', "w") as w:
         table.to_csv(w, sep="\t", index=False)
