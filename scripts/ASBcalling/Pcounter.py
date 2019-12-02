@@ -47,6 +47,8 @@ if __name__ == '__main__':
 
     ploidy_file_name = rev_d[key]
 
+    print('Now doing {} \n with ploidy file {}'.format(table_annotated, ploidy_file_name))
+
     cor_stats = pd.read_table(correlation_path + 'cor_stats_test.tsv')
     names = cor_stats['#cell_line'] + '!' + cor_stats['cells']
     cor_stats['names'] = names
@@ -62,8 +64,6 @@ if __name__ == '__main__':
         model = 'SQRT'
 
     ploidy = create_ploidy_path_function(ploidy_file_name, model)
-
-    print('Now doing {} \n with ploidy file {}'.format(table_annotated, rev_d[key]))
 
     with open(ploidy, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts',
