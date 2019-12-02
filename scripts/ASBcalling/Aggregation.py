@@ -14,7 +14,7 @@ from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_exp
 
 
 def logit_combine_p_values(pvalues):
-    pvalues = np.array(pvalues)
+    pvalues = np.array([p for p in pvalues if 1 > p > 0])
     statistic = -np.sum(np.log(pvalues)) + np.sum(np.log1p(-pvalues))
     k = len(pvalues)
     nu = 5 * k + 4
@@ -120,7 +120,9 @@ if __name__ == '__main__':
                         'mostsig_ref', 'mostsig_alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
                         'min_cover', 'max_cover', 'med_cover', 'total_cover', 'm1_ref', 'm1_alt',
                         'm2_ref', 'm2_alt',
-                        'm_logpref', 'm_logpalt']))
+                        'm_logpref', 'm_logpalt',
+                        'm_logpref_cor', 'm_logpalt_cor',
+                        'm_logpref_bal', 'm_logpalt_bal']))
 
         filtered_snps = dict()
         for key in common_snps:
