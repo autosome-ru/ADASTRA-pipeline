@@ -1,6 +1,7 @@
 import json
 import sys
-from scipy.stats import binom_test
+from scipy.stats import binom_test, binom
+
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import ploidy_dict_path, create_ploidy_path_function
@@ -14,9 +15,12 @@ def count_p(x, n, p, alternative, cut_off=2):
     if x <= cut_off or x >= n - cut_off:
         raise ValueError('Read-counts {} must be greater than cut off value {}'.format(x, cut_off))
     tail = binom_test(cut_off, n, p, alternative='less') + binom_test(n - cut_off, n, p, alternative='greater')
+
     pv = (binom_test(x, n, p, alternative) + binom_test(x, n, 1 - p, alternative)) / 2
-    corrected_pv = 0.5 + (pv - 0.5) / (1 - tail)
-    return corrected_pv
+    pv_corrected = 0.5 + (pv - 0.5) / (1 - tail)
+    pv_balanced = pv_corrected - binom(n, p).pmf(x) / 2
+
+    return pv, pv_corrected, pv_balanced
 
 
 def make_reverse_dict(dictionary):
@@ -47,10 +51,14 @@ if __name__ == '__main__':
     with open(ploidy, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts',
                         'repeat_type'] + callers_names + ['BAD', 'Q1', 'left_qual', 'right_qual', 'SNP_count',
-                                                          'p_value_ref', 'p_value_alt']))
+                                                          'sum_cover',
+                                                          'p_value_ref', 'p_value_alt',
+                                                          'p_value_ref_corrected', 'p_value_alt_corrected',
+                                                          'p_value_ref_balanced', 'p_value_alt_balanced',
+                                                          ]))
 
         for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, \
-            in_intersection, ploidy, dip_qual, lq, rq, seg_c in \
+            in_intersection, ploidy, dip_qual, lq, rq, seg_c, sum_cov in \
                 Intersection(table_file, ploidy_file, write_segment_args=True, write_intersect=True,
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter')):
             if in_intersection:
@@ -58,13 +66,19 @@ if __name__ == '__main__':
                 p = 1 / (float(ploidy) + 1)
                 p = corrected.get(p, p)  # up-correct ploidy
                 n = ref_c + alt_c
-                p_ref = count_p(ref_c, n, p, 'greater')
-                p_alt = count_p(ref_c, n, p, 'less')
+
+                p_ref, p_ref_cor, p_ref_bal = count_p(ref_c, n, p, 'greater')
+                p_alt, p_alt_cor, p_alt_bal = count_p(ref_c, n, p, 'less')
             else:
                 ploidy = 0
-                p_ref = '.'
-                p_alt = '.'
+
+                p_ref, p_ref_cor, p_ref_bal = '.', '.', '.'
+                p_alt, p_alt_cor, p_alt_bal = '.', '.', '.'
 
             out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type] +
                            [in_callers[name] for name in callers_names] +
-                           [ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt]))
+                           [ploidy, dip_qual, lq, rq, seg_c, sum_cov,
+                            p_ref, p_alt,
+                            p_ref_cor, p_alt_cor,
+                            p_ref_bal, p_alt_bal,
+                            ]))

@@ -51,26 +51,24 @@ if __name__ == '__main__':
         al_list = []
         print(file_name)
 
-    names, _ = read_synonims()
-    if name in names:
-        table_path = ploidy_path + 'merged_vcfs/' + file_name
-        for mode in modes:
-            if not os.path.isdir(correlation_path + mode + '_tables/'):
-                try:
-                    os.mkdir(correlation_path + mode + '_tables')
-                except:
-                    pass
-            ploidy_file_path = ploidy_path + mode + '/' + name + '!' + lab + '_ploidy.tsv'
-            out_path = correlation_path + mode + '_tables/' + name + '_' + lab.replace('_', '-') + '.tsv'
-            print(out_path)
+    table_path = ploidy_path + 'merged_vcfs/' + file_name
+    for mode in modes:
+        if not os.path.isdir(correlation_path + mode + '_tables/'):
+            try:
+                os.mkdir(correlation_path + mode + '_tables')
+            except:
+                pass
+        ploidy_file_path = ploidy_path + mode + '/' + name + '!' + lab + '_ploidy.tsv'
+        out_path = correlation_path + mode + '_tables/' + name + '_' + lab.replace('_', '-') + '.tsv'
+        print(out_path)
 
-            with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
-                out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list) + '\n')
-                for chr, pos, ref, alt, in_intersection, segment_ploidy, qual, segn, sumcov \
-                        in Intersection(table, ploidy,
-                                        unpack_segments_function=unpack_ploidy_segments, unpack_snp_function=unpack_snps,
-                                        write_intersect=True, write_segment_args=True):
-                    if not in_intersection:
-                        continue
-                    out.write(pack([chr, pos, ref, alt, segment_ploidy,
-                                    qual, segn, sumcov]))
+        with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
+            out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list) + '\n')
+            for chr, pos, ref, alt, in_intersection, segment_ploidy, qual, segn, sumcov \
+                    in Intersection(table, ploidy,
+                                    unpack_segments_function=unpack_ploidy_segments, unpack_snp_function=unpack_snps,
+                                    write_intersect=True, write_segment_args=True):
+                if not in_intersection:
+                    continue
+                out.write(pack([chr, pos, ref, alt, segment_ploidy,
+                                qual, segn, sumcov]))

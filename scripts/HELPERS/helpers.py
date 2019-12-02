@@ -189,15 +189,16 @@ def unpack(line, use_in):
     if use_in == "Pcounter":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
     ploidy = float(line_split[8 + difference])
-    dip_qual, lq, rq, seg_c = map(int, line_split[9 + difference:13 + difference])
+    dip_qual, lq, rq, seg_c, sum_cov = map(int, line_split[9 + difference:13 + difference])
 
     if line_split[13 + difference] == '.':
-        p_ref = '.'
-        p_alt = '.'
+        p_ref, p_ref_cor, p_ref_bal = '.', '.', '.'
+        p_alt, p_alt_cor, p_alt_bal = '.', '.', '.'
     else:
-        p_ref, p_alt = map(float, line_split[13 + difference:15 + difference])
+        p_ref, p_alt, p_ref_cor, p_alt_cor, p_ref_bal, p_alt_bal = map(float, line_split[13 + difference:19 + difference])
     if use_in == "Aggregation":
-        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt
+        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, dip_qual, \
+               lq, rq, seg_c, sum_cov, p_ref, p_alt, p_ref_cor, p_alt_cor, p_ref_bal, p_alt_bal
 
     raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
 
@@ -252,10 +253,9 @@ def read_synonims():
     with open(synonims_path, 'r') as file:
         for line in file:
             line = line.strip('\n').split('\t')
-            if line[1]:
-                name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
-                cosmic_names[name] = line[1]
-                cgh_names[name] = line[2]
+            name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
+            cosmic_names[name] = line[1]
+            cgh_names[name] = line[2]
     return cosmic_names, cgh_names
 
 

@@ -609,7 +609,7 @@ class GenomeSegmentator:  # seg
     # noinspection PyTypeChecker
     def estimate_ploidy(self):
         self.OUT.write(pack(['#chr', 'start', 'end', 'BAD', 'Q1', 'qual_left', 'qual_right', 'SNP_count',
-                             'sum_coverage']))
+                             'sum_cover']))
         for j in range(len(self.chr_segmentations)):
             chrom = self.chr_segmentations[j]
             chrom.estimate_chr()

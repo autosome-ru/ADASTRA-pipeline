@@ -13,6 +13,15 @@ from scripts.HELPERS.paths import results_path, cl_dict_path, tf_dict_path
 from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, expected_args
 
 
+def logit_combine_p_values(pvalues):
+    statistic = -np.sum(np.log(pvalues)) + np.sum(np.log1p(-pvalues))
+    k = len(pvalues)
+    nu = 5 * k + 4
+    approx_factor = np.sqrt(3 * nu / (k * np.pi ** 2 * (nu - 2)))
+    pval = stats.distributions.t.sf(statistic * approx_factor, nu)
+    return pval
+
+
 def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return part of the dictionary with fdr from table
     keys = list(dictionary.keys())
     for index in range(len(ps_ref)):
@@ -73,28 +82,41 @@ if __name__ == '__main__':
                 for line in file:
                     try:
                         (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
-                         ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt) = unpack(line, use_in="Aggregation")
+                         ploidy, dip_qual, lq, rq, seg_c, sum_cov,
+                         p_ref, p_alt,
+                         p_ref_cor, p_alt_cor,
+                         p_ref_bal, p_alt_bal,
+                         ) = unpack(line, use_in="Aggregation")
                     except ValueError:
                         continue
-                    if p_ref == '.' or p_ref == 0 or p_alt == 0 or ploidy == 0:
+                    if p_ref == '.':
                         continue
                     cov = ref_c + alt_c
 
                     try:
                         common_snps[(chr, pos, ID, ref, alt, repeat)].append(
                             (cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq,
-                             seg_c, p_ref, p_alt, table_name, another_agr))
+                             seg_c, sum_cov,
+                             p_ref, p_alt,
+                             p_ref_cor, p_alt_cor,
+                             p_ref_bal, p_alt_bal,
+                             table_name, another_agr))
                     except KeyError:
-                        common_snps[(chr, pos, ID, ref, alt, repeat)] = [(cov, ref_c, alt_c, in_callers, ploidy,
-                                                                          dip_qual, lq, rq, seg_c, p_ref, p_alt,
-                                                                          table_name, another_agr)]
+                        common_snps[(chr, pos, ID, ref, alt, repeat)] = [
+                            (cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq,
+                             seg_c, sum_cov,
+                             p_ref, p_alt,
+                             p_ref_cor, p_alt_cor,
+                             p_ref_bal, p_alt_bal,
+                             table_name, another_agr)]
 
     print('Writing {}'.format(key_name))
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'total_callers', 'unique_callers', 'm_ploidy',
-                        'm_q', 'm_dipq', 'm_segc', 'm_datasets', 'maxdepth_ref/alt', 'maxdepth_ploidy', 'maxdepth_m1',
-                        'maxdepth_m2', 'mostsig_ref/alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
+                        'm_q', 'm_dipq', 'm_segc', 'm_datasets',
+                        'maxdepth_ref', 'maxdepth_alt', 'maxdepth_ploidy', 'maxdepth_m1', 'maxdepth_m2',
+                        'mostsig_ref', 'mostsig_alt', 'mostsig_ploidy', 'mostsig_m1', 'mostsig_m2',
                         'min_cover', 'max_cover', 'med_cover', 'total_cover', 'm1_ref', 'm1_alt',
                         'm2_ref', 'm2_alt',
                         'm_logpref', 'm_logpalt']))
@@ -121,7 +143,7 @@ if __name__ == '__main__':
             counter += 1
             if counter % 10000 == 0:
                 print('done {}'.format(counter))
-            c_uniq_callers = dict(zip(callers_names, [False]*len(callers_names)))
+            c_uniq_callers = dict(zip(callers_names, [False] * len(callers_names)))
             m_total_callers = 0
             c_ploidy = []
             c_dipq = []
@@ -138,8 +160,12 @@ if __name__ == '__main__':
             c_alt = []
 
             for v in value:
-                cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt, table_name, another_agr \
-                    = v
+                cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, \
+                rq, seg_c, sum_cov, \
+                p_ref, p_alt, \
+                p_ref_cor, p_alt_cor, \
+                p_ref_bal, p_alt_bal, \
+                table_name, another_agr = v
 
                 c_table_names.append(table_name)
                 c_another_agr.append(another_agr)
