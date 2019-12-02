@@ -53,10 +53,7 @@ if __name__ == '__main__':
     names = cor_stats['#cell_line'] + '!' + cor_stats['cells']
     cor_stats['names'] = names
 
-    try:
-        sum_cov = int(cor_stats[cor_stats['names'] == ploidy_file_name]['sum_cov'])
-    except:
-        print(cor_stats[cor_stats['names'] == ploidy_file_name])
+    sum_cov = int(cor_stats[cor_stats['names'] == ploidy_file_name]['sum_cov'])
 
     if sum_cov < 15000000:
         model = 'CAIC'
