@@ -76,8 +76,8 @@ if __name__ == '__main__':
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter')):
             if in_intersection:
                 #  p_value counting
-                sBAD = corrected[BAD]  # up-correct BAD
-                p = 1 / (float(sBAD) + 1)
+                sBAD = corrected[float(BAD)]  # up-correct BAD
+                p = 1 / (sBAD + 1)
                 n = ref_c + alt_c
 
                 p_ref, p_ref_cor, p_ref_bal = count_p(ref_c, n, p, 'greater')
