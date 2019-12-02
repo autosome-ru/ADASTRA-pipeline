@@ -324,15 +324,15 @@ if __name__ == '__main__':
                                                                                      alpha=0.05, method='fdr_bh')
     bool_ar_alt_cor, p_val_alt_cor, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt_cor"],
                                                                                      alpha=0.05, method='fdr_bh')
-    table["m_fdr_ref_cor"] = pd.Series(p_val_ref)
-    table["m_fdr_alt_cor"] = pd.Series(p_val_alt)
+    table["m_fdr_ref_cor"] = pd.Series(p_val_ref_cor)
+    table["m_fdr_alt_cor"] = pd.Series(p_val_alt_cor)
 
     bool_ar_ref_bal, p_val_ref_bal, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpref_bal"],
                                                                                      alpha=0.05, method='fdr_bh')
     bool_ar_alt_bal, p_val_alt_bal, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt_bal"],
                                                                                      alpha=0.05, method='fdr_bh')
-    table["m_fdr_ref_bal"] = pd.Series(p_val_ref)
-    table["m_fdr_alt_bal"] = pd.Series(p_val_alt)
+    table["m_fdr_ref_bal"] = pd.Series(p_val_ref_bal)
+    table["m_fdr_alt_bal"] = pd.Series(p_val_alt_bal)
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', "w") as w:
         table.to_csv(w, sep="\t", index=False)
