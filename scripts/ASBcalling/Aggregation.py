@@ -28,14 +28,13 @@ def logit_combine_p_values(pvalues):
     return pval
 
 
-def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar, postfix=''):  # return part of the dictionary with fdr from table
+def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return part of the dictionary with fdr from table
     keys = list(dictionary.keys())
-    print(postfix)
     for index in range(len(ps_ref)):
         key = keys[index]
         if bool_ar[index]:
-            dictionary[key]['m_fdr_ref' + postfix] = ps_ref[index]
-            dictionary[key]['m_fdr_alt' + postfix] = ps_alt[index]
+            dictionary[key]['m_fdr_ref'] = ps_ref[index]
+            dictionary[key]['m_fdr_alt'] = ps_alt[index]
         else:
             del dictionary[key]
 
@@ -342,8 +341,6 @@ if __name__ == '__main__':
     bool_ar_bal = bool_ar_ref_bal + bool_ar_alt_bal
 
     annotate_snp_with_tables(origin_of_snp_dict, p_val_ref, p_val_alt, bool_ar)
-    annotate_snp_with_tables(origin_of_snp_dict, p_val_ref_cor, p_val_alt_cor, bool_ar_cor, postfix='_cor')
-    annotate_snp_with_tables(origin_of_snp_dict, p_val_ref_bal, p_val_alt_bal, bool_ar_bal, postfix='_bal')
 
     with open(results_path + what_for + '_DICTS/' + key_name + '_DICT.json', 'w') as out:
         json.dump(origin_of_snp_dict, out)
