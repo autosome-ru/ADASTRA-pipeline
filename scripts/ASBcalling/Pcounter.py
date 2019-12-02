@@ -71,26 +71,26 @@ if __name__ == '__main__':
                                                           ]))
 
         for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, \
-            in_intersection, ploidy, dip_qual, lq, rq, seg_c, sum_cov in \
+            in_intersection, BAD, dip_qual, lq, rq, seg_c, sum_cov in \
                 Intersection(table_file, ploidy_file, write_segment_args=True, write_intersect=True,
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter')):
             if in_intersection:
                 #  p_value counting
-                p = 1 / (float(ploidy) + 1)
-                p = corrected[p]  # up-correct ploidy
+                sBAD = corrected[BAD]  # up-correct BAD
+                p = 1 / (float(sBAD) + 1)
                 n = ref_c + alt_c
 
                 p_ref, p_ref_cor, p_ref_bal = count_p(ref_c, n, p, 'greater')
                 p_alt, p_alt_cor, p_alt_bal = count_p(ref_c, n, p, 'less')
             else:
-                ploidy = 0
+                sBAD = 0
 
                 p_ref, p_ref_cor, p_ref_bal = '.', '.', '.'
                 p_alt, p_alt_cor, p_alt_bal = '.', '.', '.'
 
             out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type] +
                            [in_callers[name] for name in callers_names] +
-                           [ploidy, dip_qual, lq, rq, seg_c, sum_cov,
+                           [sBAD, dip_qual, lq, rq, seg_c, sum_cov,
                             p_ref, p_alt,
                             p_ref_cor, p_alt_cor,
                             p_ref_bal, p_alt_bal,
