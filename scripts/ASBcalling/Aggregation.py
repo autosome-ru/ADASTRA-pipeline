@@ -81,7 +81,6 @@ if __name__ == '__main__':
                                           what_for)  # returns name of cell-line for aggregation on TF and vice versa
             with open(table, 'r') as file:
                 for line in file:
-                    print(line, len(line))
                     try:
                         (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
                          ploidy, dip_qual, lq, rq, seg_c, sum_cov,
@@ -90,6 +89,7 @@ if __name__ == '__main__':
                          p_ref_bal, p_alt_bal,
                          ) = unpack(line, use_in="Aggregation")
                     except ValueError:
+                        print('ERROR')
                         continue
                     if p_ref == '.':
                         continue
