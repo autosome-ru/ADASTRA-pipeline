@@ -314,23 +314,23 @@ if __name__ == '__main__':
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
         table = pd.read_table(f)
 
-    bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpref"],
+    bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"],
                                                                              alpha=0.05, method='fdr_bh')
-    bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt"],
+    bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"],
                                                                              alpha=0.05, method='fdr_bh')
     table["fdrp_ref"] = pd.Series(p_val_ref)
     table["fdrp_alt"] = pd.Series(p_val_alt)
 
-    bool_ar_ref_cor, p_val_ref_cor, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpref_cor"],
+    bool_ar_ref_cor, p_val_ref_cor, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref_cor"],
                                                                                      alpha=0.05, method='fdr_bh')
-    bool_ar_alt_cor, p_val_alt_cor, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt_cor"],
+    bool_ar_alt_cor, p_val_alt_cor, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_palt_cor"],
                                                                                      alpha=0.05, method='fdr_bh')
     table["fdrp_ref_cor"] = pd.Series(p_val_ref_cor)
     table["fdrp_alt_cor"] = pd.Series(p_val_alt_cor)
 
-    bool_ar_ref_bal, p_val_ref_bal, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpref_bal"],
+    bool_ar_ref_bal, p_val_ref_bal, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref_bal"],
                                                                                      alpha=0.05, method='fdr_bh')
-    bool_ar_alt_bal, p_val_alt_bal, _, _ = statsmodels.stats.multitest.multipletests(table["m_logpalt_bal"],
+    bool_ar_alt_bal, p_val_alt_bal, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt_bal"],
                                                                                      alpha=0.05, method='fdr_bh')
     table["fdrp_ref_bal"] = pd.Series(p_val_ref_bal)
     table["fdrp_alt_bal"] = pd.Series(p_val_alt_bal)
