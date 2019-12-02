@@ -323,7 +323,7 @@ if __name__ == '__main__':
 
     bool_ar_ref_cor, p_val_ref_cor, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref_cor"],
                                                                                      alpha=0.05, method='fdr_bh')
-    bool_ar_alt_cor, p_val_alt_cor, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_palt_cor"],
+    bool_ar_alt_cor, p_val_alt_cor, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt_cor"],
                                                                                      alpha=0.05, method='fdr_bh')
     table["fdrp_ref_cor"] = pd.Series(p_val_ref_cor)
     table["fdrp_alt_cor"] = pd.Series(p_val_alt_cor)
