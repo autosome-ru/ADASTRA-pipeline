@@ -133,10 +133,11 @@ if __name__ == '__main__':
 
         filtered_snps = dict()
         for key in common_snps:
-            for value in common_snps[key]:
-                if value[0] >= 10:
-                    filtered_snps[key] = common_snps[key]
-                    break
+            filtered_snps[key] = [value for value in common_snps[key] if value[0] >= 8]
+            # for value in common_snps[key]:
+                # if value[0] >= 10:
+                #     filtered_snps[key] = common_snps[key]
+                #     break
 
         counter = 0
         print('{} snps'.format(len(filtered_snps)))
