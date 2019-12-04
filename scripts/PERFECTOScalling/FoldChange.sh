@@ -13,6 +13,7 @@ REFERENCE="/home/abramov/REFERENCE/"
 PWM="/home/abramov/PERFECTOScalling/pwms"
 FA=$REFERENCE/"genome-norm.fasta"
 OUT="/home/abramov/RESULTS/TF_FC/FilteredMaxCover/"
+path =
 for file in /home/abramov/RESULTS/TFs_for_PERFECTOS/*
 do
    
