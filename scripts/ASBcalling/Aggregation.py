@@ -119,7 +119,7 @@ if __name__ == '__main__':
     print('Writing {}'.format(key_name))
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'w') as out:
-        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peal_callers',
+        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
                         'mean_sBAD',
                         'mean_deltaL_neighborBAD', 'mean_deltaL_bad1', 'mean_SNP_per_segment', 'n_aggregated',
                         'refc_maxdepth', 'altc_maxdepth', 'sBAD_maxdepth', 'm1_maxdepth', 'm2_maxdepth',
