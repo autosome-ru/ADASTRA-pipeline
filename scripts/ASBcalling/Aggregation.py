@@ -302,7 +302,7 @@ if __name__ == '__main__':
                  ref_dict['mostsig'], alt_dict['mostsig'], p_dict['mostsig'],
                  m1_dict['mostsig'], m2_dict['mostsig'],
                  min_cover, max_cover, med_cover, total_cover,
-                 m1_ref, m1_alt, m2_ref, m2_alt,
+                 m1_ref, abs(m1_alt), m2_ref, abs(m2_alt),
                  m_logpref, m_logpalt,
                  m_logpref_cor, m_logpalt_cor,
                  m_logpref_bal, m_logpalt_bal]))
