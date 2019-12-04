@@ -121,7 +121,7 @@ if __name__ == '__main__':
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
                         'mean_sBAD',
-                        'mean_deltaL_neighborBAD', 'mean_deltaL_bad1', 'mean_SNP_per_segment', 'n_aggregated',
+                        'mean_deltaL_neighborBAD', 'mean_deltaL_BAD1', 'mean_SNP_per_segment', 'n_aggregated',
                         'refc_maxdepth', 'altc_maxdepth', 'sBAD_maxdepth', 'm1_maxdepth', 'm2_maxdepth',
                         'refc_mostsig', 'altc_mostsig', 'sBAD_mostsig', 'm1_mostsig', 'm2_mostsig',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
@@ -133,13 +133,15 @@ if __name__ == '__main__':
 
         filtered_snps = dict()
         for key in common_snps:
-            values = [value for value in common_snps[key] if value[0] >= 8]
-            if values:
+            values = []
+            accept = False
+            for value in common_snps[key]:
+                if value[0] >= 8:
+                    values.append(value)
+                if value[0] >= 25:
+                    accept = True
+            if accept:
                 filtered_snps[key] = values
-            # for value in common_snps[key]:
-                # if value[0] >= 10:
-                #     filtered_snps[key] = common_snps[key]
-                #     break
 
         counter = 0
         print('{} snps'.format(len(filtered_snps)))
