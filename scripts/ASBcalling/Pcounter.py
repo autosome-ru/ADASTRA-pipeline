@@ -6,10 +6,7 @@ import pandas as pd
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import ploidy_dict_path, correlation_path, create_ploidy_path_function
-from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection
-
-
-corrected = {1: 1, 4/3: 1.5, 1.5: 2, 2: 3, 2.5: 3, 3: 4, 4: 5, 5: 6, 6: 6}
+from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, sBAD_dict
 
 
 def count_p(x, n, p, alternative, cut_off=2):
@@ -77,7 +74,7 @@ if __name__ == '__main__':
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter')):
             if in_intersection:
                 #  p_value counting
-                sBAD = corrected[float(BAD)]  # up-correct BAD
+                sBAD = sBAD_dict[float(BAD)]  # up-correct BAD
                 p = 1 / (sBAD + 1)
                 n = ref_c + alt_c
 

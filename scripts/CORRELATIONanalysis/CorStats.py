@@ -1,8 +1,6 @@
 import os
 import sys
-import numpy as np
 from scipy.stats import kendalltau
-from sklearn import linear_model
 
 sys.path.insert(1, '/home/abramov/ASB-Project')
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos
@@ -71,11 +69,9 @@ def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
     if len(snp_ploidy) != 0:
         kt = kendalltau(snp_ploidy, cosm_ploidy)[0]
         if kt == 'nan':
-            return 'NaN', ('NaN', 'NaN')
-        lm = linear_model.LinearRegression(fit_intercept=False)
-        lm.fit(np.array(snp_ploidy).reshape(-1, 1), np.array(cosm_ploidy).reshape(-1, 1))
-        return kt, tuple(map(float, lm.predict(np.array([0, 1]).reshape(-1, 1))))
-    return 'NaN', ('NaN', 'NaN')
+            return 'NaN'
+        return kt
+    return 'NaN'
 
 
 def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
@@ -140,19 +136,17 @@ if __name__ == '__main__':
 
             segment_numbers[model] = segments_number
             if cosmic_names[cell_line_name]:
-                corr_to_objects[model], lm_coefficients[model] = correlation_with_cosmic(
-                                                                                        SNP_objects,
-                                                                                        mode='normal',
-                                                                                        heatmap_data_file=heatmap_data_file
-                )
+                corr_to_objects[model] = correlation_with_cosmic(SNP_objects, mode='normal',
+                                                                 heatmap_data_file=heatmap_data_file)
             else:
                 corr_to_objects[model], lm_coefficients[model] = 'NaN', ('NaN', 'NaN')
 
         for naive_mode in naive_modes:
             if cosmic_names[cell_line_name]:
-                number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(method=naive_mode)
+                number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(
+                    method=naive_mode)
 
-                corr_to_objects[naive_mode], _ = correlation_with_cosmic(SNP_objects, mode='normal')
+                corr_to_objects[naive_mode] = correlation_with_cosmic(SNP_objects, mode='normal')
             else:
                 corr_to_objects[naive_mode] = 'NaN'
 
@@ -161,8 +155,8 @@ if __name__ == '__main__':
         nearest_cgh_objects = find_nearest_probe_to_SNP(SNP_objects, CGH_objects)
 
         if cosmic_names[cell_line_name]:
-            corr_to_objects_chip, _ = correlation_with_cosmic(CGH_objects, mode='total')
-            corr_to_objects_chip_nearest, _ = correlation_with_cosmic(nearest_cgh_objects, mode='total')
+            corr_to_objects_chip = correlation_with_cosmic(CGH_objects, mode='total')
+            corr_to_objects_chip_nearest = correlation_with_cosmic(nearest_cgh_objects, mode='total')
         else:
             corr_to_objects_chip = 'NaN'
             corr_to_objects_chip_nearest = 'NaN'
