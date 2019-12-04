@@ -260,6 +260,10 @@ def read_synonims():
     return cosmic_names, cgh_names
 
 
+def encode_GTRD_cell_line_name(x):
+    return x.replace('-', '_').replace('(', '').replace('(', '').replace(' ', '')  # .replace('\'', '_')
+
+
 class CorrelationReader:
     CGH_path = ''
     SNP_path = ''
