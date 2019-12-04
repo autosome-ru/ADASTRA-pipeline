@@ -23,7 +23,8 @@ fix = ''
 
 pt = pt[(pt.perfectos_p1 <= perf_tr) & (pt.perfectos_p2 <= perf_tr)]
 pt.log_fc = np.log10(pt.perfectos_fc)
-pt.log_pv = np.sign(pt['fdr_alt' + fix] - pt['fdr_ref' + fix]) * np.log10(min(pt['fdr_alt' + fix], pt['fdr_ref' + fix]))
+pt.log_pv = np.sign(pt['fdrp_alt' + fix] - pt['fdrp_ref' + fix]) * np.log10(
+    min(pt['fdrp_alt' + fix], pt['fdrp_ref' + fix]))
 pt['col'] = pt.apply(lambda x: get_color(x.log_pv, x.log_fc), axis=1)
 
 blue = len(pt[pt.col == get_color(1000, 1000)].index)
