@@ -33,8 +33,7 @@ with open(path, 'r') as file:
     red = 0
     perf_tr = 0.05
     # header по умолчанию
-    header = 'chr    pos     ID      ref     alt     m_callers       m_ploidy        m_q     m_dipq  m_segc  m_datasets      m_hpref m_hpalt m_fpref m_fpalt m_stpref        m_stpalt        perfectos_p1    perfectos_p2    perfectos_fc    motif_pos       orientation'.split(
-        '\t')
+    header = 'chr    pos     ID      ref     alt     m_callers       m_ploidy        m_q     m_dipq  m_segc  m_datasets      m_hpref m_hpalt m_fpref m_fpalt m_stpref        m_stpalt        perfectos_p1    perfectos_p2    perfectos_fc    motif_pos       orientation'
     for line in file:
         if line == "":
             continue
