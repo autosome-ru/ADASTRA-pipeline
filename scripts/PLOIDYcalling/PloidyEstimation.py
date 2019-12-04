@@ -636,7 +636,7 @@ class GenomeSegmentator:  # seg
                         else:  # если BAD k-2 сегмента больше BAD k
                             segments[k - 1][3] = segments[k - 2][3]  # присвоить BAD k-2 сегмента
 
-                        for j in range(4, 8):
+                        for j in range(4, 7):
                             segments[k - 1][j] = 0
                     is_bad_left = True
                 is_bad_segment = False  # текущий сегмент хороший, следующий шаг цикла
