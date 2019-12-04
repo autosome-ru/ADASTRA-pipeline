@@ -13,11 +13,11 @@ def merge_vcfs(out_file_name, in_files):
     for file in in_files:
         with gzip.open(file, 'rt') as vcf:
             make_dict_from_vcf(vcf, vcf_dict)
-    
+
     vcf_keys = list(vcf_dict.keys())
     vcf_keys.sort(key=lambda cords: cords[1])
     vcf_keys.sort(key=lambda cords: cords[0])
-    
+
     with open(out_file_name, 'w') as out:
         for (chr, pos, ID, REF, ALT) in vcf_keys:
             (R, A) = vcf_dict[(chr, pos, ID, REF, ALT)]
@@ -29,12 +29,16 @@ if __name__ == '__main__':
         d = json.loads(read_file.readline())
     key = sys.argv[1]
     print(key)
-    
+
     arr = []
     for path in d[key]:
         if os.path.isfile(path):
             arr.append(path)
-    
-    out_file = ploidy_path + key + ".tsv"
-    
+    if not os.path.isdir(ploidy_path + 'merged_vcfs/'):
+        try:
+            os.mkdir(ploidy_path + 'merged_vcfs/')
+        except:
+            pass
+    out_file = ploidy_path + 'merged_vcfs/' + key + ".tsv"
+
     merge_vcfs(out_file, arr)

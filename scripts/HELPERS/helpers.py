@@ -17,6 +17,7 @@ expected_args = {"CL": "TF", "TF": "CL"}
 
 class ChromPos:
     chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], chr_l))
+    genome_length = sum(chr_l)
 
     def __init__(self, chr, pos):
         if chr not in self.chrs:
@@ -103,7 +104,6 @@ class Intersection:
     def get_next_segment(self):
         try:
             seg_chr, start_pos, end_pos, *self.seg_args = self.unpack_segments_function(next(self.segments))
-
             self.segment_start = ChromPos(seg_chr, start_pos)
             self.segment_end = ChromPos(seg_chr, end_pos)
         except StopIteration:
@@ -189,15 +189,16 @@ def unpack(line, use_in):
     if use_in == "Pcounter":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
     ploidy = float(line_split[8 + difference])
-    dip_qual, lq, rq, seg_c = map(int, line_split[9 + difference:13 + difference])
+    dip_qual, lq, rq, seg_c, sum_cov = map(int, line_split[9 + difference:14 + difference])
 
-    if line_split[13 + difference] == '.':
-        p_ref = '.'
-        p_alt = '.'
+    if line_split[14 + difference] == '.':
+        p_ref, p_ref_cor, p_ref_bal = '.', '.', '.'
+        p_alt, p_alt_cor, p_alt_bal = '.', '.', '.'
     else:
-        p_ref, p_alt = map(float, line_split[13 + difference:15 + difference])
+        p_ref, p_alt, p_ref_cor, p_alt_cor, p_ref_bal, p_alt_bal = map(float, line_split[14 + difference:20 + difference])
     if use_in == "Aggregation":
-        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, dip_qual, lq, rq, seg_c, p_ref, p_alt
+        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, dip_qual, \
+               lq, rq, seg_c, sum_cov, p_ref, p_alt, p_ref_cor, p_alt_cor, p_ref_bal, p_alt_bal
 
     raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
 
@@ -252,21 +253,21 @@ def read_synonims():
     with open(synonims_path, 'r') as file:
         for line in file:
             line = line.strip('\n').split('\t')
-            if line[1]:
-                name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
-                cosmic_names[name] = line[1]
-                cgh_names[name] = line[2]
+            name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
+            cosmic_names[name] = line[1]
+            cgh_names[name] = line[2]
     return cosmic_names, cgh_names
 
 
 class CorrelationReader:
     CGH_path = ''
     SNP_path = ''
-    
+
     def read_SNPs(self, method='normal'):
         with open(self.SNP_path, 'r') as file:
             result = []
             uniq_segments_count = 0
+            sum_cov = 0
             previous_segment = []
             for line in file:
                 line = line.strip()
@@ -286,6 +287,7 @@ class CorrelationReader:
                 current_segment = [float(line[4]), int(line[5]), int(line[6])]
                 if previous_segment != current_segment:
                     uniq_segments_count += 1
+                    sum_cov += int(line[7])
                     previous_segment = current_segment
                 if method == 'normal':
                     if line[4] == 0:
@@ -300,7 +302,7 @@ class CorrelationReader:
                 else:
                     raise KeyError(method)
 
-            return datasets_number, lab, result, aligns, uniq_segments_count
+            return datasets_number, lab, result, aligns, uniq_segments_count, sum_cov
     
     def read_CGH(self, cgh_name):
         cgnames = ['BR:MCF7', 'BR:MDA-MB-231', 'BR:HS 578T', 'BR:BT-549', 'BR:T-47D', 'CNS:SF-268', 'CNS:SF-295',
@@ -312,6 +314,8 @@ class CorrelationReader:
                    'LC:NCI-H460', 'LC:NCI-H522', 'OV:IGROV1', 'OV:OVCAR-3', 'OV:OVCAR-4', 'OV:OVCAR-5', 'OV:OVCAR-8',
                    'OV:SK-OV-3', 'OV:NCI/ADR-RES', 'PR:PC-3', 'PR:DU-145', 'RE:786-0', 'RE:A498', 'RE:ACHN',
                    'RE:CAKI-1', 'RE:RXF 393', 'RE:SN12C', 'RE:TK-10', 'RE:UO-31']
+        if cgh_name not in cgnames:
+            return []
         idx = cgnames.index(cgh_name) + 3
         with open(self.CGH_path, 'r') as file:
             result = []

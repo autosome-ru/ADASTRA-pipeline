@@ -14,6 +14,7 @@ if __name__ == "__main__":
     keys = sorted(d.keys())
     with open(out_path, 'w') as file:
         for key in keys:
+
             is_empty = True
             for value in d[key]:
                 if os.path.isfile(value):

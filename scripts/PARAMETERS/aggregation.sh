@@ -3,8 +3,8 @@
 ParametersListsFolder="/home/abramov/ParallelParameters/"
 ScriptsFolder="/home/abramov/ASB-Project/scripts/"
 
-indicator=$1
-njobs=$2
+njobs=$1
+indicator=$2
 
 if [ "$indicator" == "--forCL" ];then
   python3 "$ScriptsFolder"PARAMETERS/MakeParametersForAgr.py "CL"
