@@ -23,5 +23,5 @@ for align_path in cell_lines_dict[name]:
         sum_df = df[['ref_read_counts', 'alt_read_counts']]
     else:
         sum_df.append(df[['ref_read_counts', 'alt_read_counts']])
-    print(sum_df)
+    print(len(sum_df.index))
 print(sum_df['ref_read_counts'].value_counts())
