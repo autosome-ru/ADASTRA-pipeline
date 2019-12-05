@@ -15,6 +15,7 @@ sum_df = None
 for align_path in cell_lines_dict[name]:
     if not os.path.isfile(align_path):
         continue
+    print(align_path)
     df = pd.read_table(align_path)
     if df.empty:
         continue
