@@ -18,6 +18,7 @@ for align_path in cell_lines_dict[name]:
     print(align_path)
     df = pd.read_table(align_path)
     if df.empty:
+        print("WHAAAT")
         continue
     if sum_df is None:
         sum_df = df[['#chr', 'pos', 'ref_read_counts', 'alt_read_counts']]
