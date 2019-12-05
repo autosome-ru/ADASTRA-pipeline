@@ -2,6 +2,8 @@ import sys
 import numpy as np
 from collections import deque
 
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.helpers import ChromPos
 
 fasta = open(sys.argv[2], 'r')
 table = open(sys.argv[1], 'r')
@@ -13,14 +15,10 @@ nuc = dict(zip([1, 2, 3, 4, 5], ['a', 'c', 'g', 't', 'N']))
 positions = dict()
 gen = dict()
 
+for chr_name in ChromPos.chrs:
+    positions[chr_name] = deque()
+    gen[chr_name] = np.zeros(ChromPos.chrs[chr_name], np.int8)
 
-for i in range(1, 23):
-    positions['chr'+str(i)] = deque()
-    gen['chr'+str(i)] = np.zeros(25*10**7, np.int8)
-positions['chrX'] = deque()
-positions['chrY'] = deque()
-gen['chrX'] = np.zeros(25*10**7, np.int8)
-gen['chrY'] = np.zeros(25*10**7, np.int8)
 
 for line in table:
     if line[0] == '#':
@@ -47,7 +45,7 @@ for line in fasta:
     if line[0] == '>':
         chr = line[1:-1]
         print(chr)
-        if chr not in positions.keys():
+        if chr not in ChromPos.chrs:
             skip_to_next_chr = True
             continue
         else:
