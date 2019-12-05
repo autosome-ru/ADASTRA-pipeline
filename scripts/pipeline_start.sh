@@ -12,7 +12,6 @@ ScriptsFolder="/home/abramov/ASB-Project/scripts/"
 njobs=$1
 flag=$2
 
-python3 "$ScriptsFolder"PARAMETERS/MakeParametersForPE.py
 if [ "$flag" == --pvalue ]; then
   bash "$ScriptsFolder"PARAMETERS/p_value_count.sh "$njobs"
 fi
