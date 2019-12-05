@@ -23,7 +23,7 @@ for align_path in cell_lines_dict[name]:
         sum_df = df[['ref_read_counts', 'alt_read_counts']]
     else:
         sum_df = sum_df.append(df[['ref_read_counts', 'alt_read_counts']])
-with open(parameters_path + 'ref_statistics.tsv') as out:
+with open(parameters_path + 'ref_statistics.tsv', 'w') as out:
     sum_df['ref_read_counts'].value_counts().to_csv(out, sep="\t", index=False)
-with open(parameters_path + 'alt_statistics.tsv') as out:
+with open(parameters_path + 'alt_statistics.tsv', 'w') as out:
     sum_df['alt_read_counts'].value_counts().to_csv(out, sep="\t", index=False)
