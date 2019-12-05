@@ -18,11 +18,10 @@ for align_path in cell_lines_dict[name]:
     print(align_path)
     df = pd.read_table(align_path)
     if df.empty:
-        print("WHAAAT")
         continue
     if sum_df is None:
-        sum_df = df[['#chr', 'pos', 'ref_read_counts', 'alt_read_counts']]
+        sum_df = df[['ref_read_counts', 'alt_read_counts']]
     else:
-        sum_df.append(df[['#chr', 'pos', 'ref_read_counts', 'alt_read_counts']])
+        sum_df = sum_df.append(df[['#chr', 'pos', 'ref_read_counts', 'alt_read_counts']])
     print(len(sum_df.index))
 print(sum_df['ref_read_counts'].value_counts())
