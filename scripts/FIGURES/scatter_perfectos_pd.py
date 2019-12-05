@@ -6,12 +6,12 @@ import seaborn as sns
 
 
 def get_color(pv, fc):
-    if abs(fc) < fc_tr or pv < fdr_tr:
+    if abs(fc) < fc_tr or abs(pv) < fdr_tr:
         return 'grey'
     if fc * pv > 0:
         return 'blue'
     else:
-        return 'green'
+        return 'red'
 
 
 pt = pd.read_table(sys.argv[1])
@@ -39,16 +39,17 @@ grey = len(pt[pt.col == get_color(0, 0)].index)
 print(pt['log_pv'])
 
 fig, ax = plt.subplots(figsize=(10, 8))
-sns.scatterplot(x=list(pt['log_pv']), y=list(pt['log_fc']))#, c=pt['col'])
+plt.scatter(x=list(pt['log_pv']), y=list(pt['log_fc']), c=pt['col'], s=5)
 plt.grid(True)
 plt.title(
-    '\n'.join(['perfectos_pv <= {}', 'fold_change >= {}', 'fdr <= {}', fix]).format(perf_tr, 10 ** fc_tr, 10 ** fdr_tr))
-
+    '\n'.join(['perfectos_pv <= {}', 'fold_change >= {}', 'fdr <= {}', fix]).format(perf_tr, 10 ** fc_tr, round(10 ** (-fdr_tr), 2)))
+plt.xlabel('signed -log10 fdr_p')
+plt.ylabel('log10 prefectos foldchange')
 label = 'blue/red: {0}/{1}({2}%),\ngrey/all={3}%'.format(blue, red,
                                                          round(blue / (blue + red) * 100, 1),
                                                          round(grey / (grey + blue + red) * 100, 1))
 plt.text(x=max(pt.log_pv) / 5, y=min(pt.log_fc) / 2, s=label)
 plt.text(x=min(pt.log_pv) * 4 / 5, y=min(pt.log_fc) / 2,
-         s='P-value treshold: {},\nFC treshold: {}'.format(round(fdr_tr, 1), round(fc_tr, 1)))
+         s=' log P-value treshold: {},\nlog FC treshold: {}'.format(round(fdr_tr, 1), round(fc_tr, 1)))
 
 plt.savefig('_'.join(map(str, [sys.argv[1].split('/')[-1], perf_tr, fc_tr, fdr_tr, fix])) + '.png')
