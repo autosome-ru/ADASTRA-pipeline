@@ -4,7 +4,7 @@ import json
 import pandas as pd
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import cl_dict_path
+from scripts.HELPERS.paths import cl_dict_path, parameters_path
 
 
 name = 'HUES64_embryonic_stem_cells'
@@ -23,5 +23,7 @@ for align_path in cell_lines_dict[name]:
         sum_df = df[['ref_read_counts', 'alt_read_counts']]
     else:
         sum_df = sum_df.append(df[['ref_read_counts', 'alt_read_counts']])
-    print(len(sum_df.index))
-print(sum_df['ref_read_counts'].value_counts())
+with open(parameters_path + 'ref_statistics.tsv') as out:
+    sum_df['ref_read_counts'].value_counts().to_csv(out, sep="\t", index=False)
+with open(parameters_path + 'alt_statistics.tsv') as out:
+    sum_df['alt_read_counts'].value_counts().to_csv(out, sep="\t", index=False)
