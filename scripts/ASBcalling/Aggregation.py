@@ -16,14 +16,14 @@ from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_exp
 def logit_combine_p_values(pvalues):
     pvalues = np.array([p for p in pvalues if 1 > p > 0])
     if len(pvalues) == 0:
-        return 1
+        return 1.0
     elif len(pvalues) == 1:
         return pvalues[0]
 
     statistic = -np.sum(np.log(pvalues)) + np.sum(np.log1p(-pvalues))
     k = len(pvalues)
-    nu = 5 * k + 4
-    approx_factor = np.sqrt(3 * nu / (k * np.pi ** 2 * (nu - 2)))
+    nu = np.int_(5 * k + 4)
+    approx_factor = np.sqrt(np.int_(3) * nu / (np.int_(k) * np.square(np.pi) * (nu - np.int_(2))))
     pval = stats.distributions.t.sf(statistic * approx_factor, nu)
     return pval
 
@@ -269,7 +269,7 @@ if __name__ == '__main__':
             ref_dict = dict()
             alt_dict = dict()
 
-            for method, sort_key in (('maxdepth', lambda j: c_cover[j]),
+            for method, sort_key in (('maxdepth', lambda j: -1*c_cover[j]),
                                      ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
                 try:
                     i_most = min([i for i in range(len(c_cover))

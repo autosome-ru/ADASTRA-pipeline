@@ -15,8 +15,8 @@ def count_p(x, n, p, alternative, cut_off=2):
     tail = binom_test(cut_off, n, p, alternative='less') + binom_test(n - cut_off, n, p, alternative='greater')
 
     pv = (binom_test(x, n, p, alternative) + binom_test(x, n, 1 - p, alternative)) / 2
-    pv_corrected = 0.5 + (pv - 0.5) / (1 - tail)
-    pv_balanced = pv_corrected - binom(n, p).pmf(x) / 2
+    pv_corrected = 0.5 - 1 / (1 - tail) * 0.5 + pv / (1 - tail)
+    pv_balanced = pv_corrected - (binom(n, p).pmf(x) + binom(n, 1-p).pmf(x)) / 4
 
     return pv, pv_corrected, pv_balanced
 
