@@ -9,50 +9,54 @@ GETNAME(){
 		echo "${vartmp%_*_*}"
 }
 
-REFERENCE="/home/abramov/REFERENCE/"
-PWM="/home/abramov/PERFECTOScalling/pwms"
-FA=$REFERENCE/"genome-norm.fasta"
-OUT="/home/abramov/RESULTS/TF_FC/FilteredMaxCover/"
-path =
-for file in /home/abramov/RESULTS/TFs_for_PERFECTOS/*
+ReferencePath="/home/abramov/ReferencePath/"
+PWMs_path="/home/abramov/PERFECTOScalling/pwms"
+FA=$ReferencePath/"genome-norm.fasta"
+OutPath="/home/abramov/RESULTS/TF_FC/FilteredMaxCover/"
+ThresholdsPath="/home/abramov/ThresholdsPath"
+ResultsPath="/home/abramov/RESULTS/"
+for file in "${ResultsPath}TFs_for_PERFECTOS/"*
 do
-   
-	EXPFILE=$( GETNAME "$file" )
-	EXPNAME=${EXPFILE%.*}
+	ExpFile=$( GETNAME "$file" )
+	ExpName=${ExpFile%.*}
 
-	echo $PWM"$EXPNAME"/
-	if [ -d $PWM/"$EXPNAME"/ ]; then
+	echo $PWMs_path"$ExpName"/
+	if [ -d $PWMs_path/"$ExpName"/ ]; then
 		# shellcheck disable=SC2154
-		$python3 extract_ape_data.py "$file" $FA "${OUT}${EXPNAME}_ape_data.txt"
 
-		if [ $? != 0 ]; then
+
+		if ! $python3 extract_ape_data.py "$file" $FA "${OutPath}${ExpName}_ape_data.txt"
+		then
     			echo "Failed to extract adjacent nucleotides"
     			continue
 		fi
 
-		if [ -f "${OUT}${EXPNAME}_ape_data.txt" ]; then
+		if [ -f "${OutPath}${ExpName}_ape_data.txt" ]; then
 			echo "Make perfectos"
 			# shellcheck disable=SC2154
-			$Java -cp ape.jar ru.autosome.perfectosape.SNPScan $PWM/"$EXPNAME"/ "${OUT}${EXPNAME}_ape_data.txt" -P 1 -F 1 > "${OUT}${EXPNAME}_ape.txt"
 
-			if [ $? != 0 ]; then
+			if ! $Java -cp ape.jar ru.autosome.perfectosape.SNPScan $PWMs_path/"$ExpName/" \
+			                        "${OutPath}${ExpName}_ape_data.txt" --precalc "$ThresholdsPath" \
+			                        -P 1 -F 1 > ${OutPath}
+			then
     				echo "Failed perfectos-ape"
     				continue
 			fi
 
-			$python3 adjust_table.py $file "${OUT}${EXPNAME}_ape.txt" "${OUT}${EXPNAME}_fc.txt"
 
-			if [ $? != 0 ]; then
+
+			if ! $python3 adjust_table.py $file "${OutPath}${ExpName}_ape.txt" "${OutPath}${ExpName}_fc.txt";
+			then
 				echo "Failed to add fc to the table"
 				continue
 			fi
 
-			rm "${OUT}${EXPNAME}_ape_data.txt"
-			rm "${OUT}${EXPNAME}_ape.txt"
+			rm "${OutPath}${ExpName}_ape_data.txt"
+			rm "${OutPath}${ExpName}_ape.txt"
 		else
-			echo "NO ASB found for ${EXPNAME}"
+			echo "NO ASB found for ${ExpName}"
 		fi
 	else
-		echo "No PWM found for $EXPNAME"
+		echo "No PWMs_path found for $ExpName"
 	fi
 done
