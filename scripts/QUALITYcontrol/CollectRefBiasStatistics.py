@@ -22,6 +22,6 @@ for align_path in cell_lines_dict[name]:
     if sum_df is None:
         sum_df = df[['ref_read_counts', 'alt_read_counts']]
     else:
-        sum_df = sum_df.append(df[['#chr', 'pos', 'ref_read_counts', 'alt_read_counts']])
+        sum_df = sum_df.append(df[['ref_read_counts', 'alt_read_counts']])
     print(len(sum_df.index))
 print(sum_df['ref_read_counts'].value_counts())
