@@ -23,7 +23,7 @@ for key in cell_lines_dict:
         df = pd.read_table(align_path)
         if df.empty:
             continue
-        sum_df = df[['ref_read_counts', 'alt_read_counts']]
+        sum_df = df[df['BAD'] == 1][['ref_read_counts', 'alt_read_counts']]
 
         if out_t is None:
             out_t = pd.DataFrame()
