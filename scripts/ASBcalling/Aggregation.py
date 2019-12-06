@@ -293,8 +293,8 @@ if __name__ == '__main__':
                 else:
                     m1_dict[method] = 0
                     m2_dict[method] = 0
-                if ID == 'rs57012956':
-                    print(m1_dict, m2_dict)
+            if ID == 'rs57012956':
+                print(m1_dict, m2_dict)
             out.write(pack(
                 [chr, pos, ID, ref, alt, repeat, m_total_callers, m_unique_callers,
                  m_ploidy, m_q, m_dipq, m_segc, m_datasets,
