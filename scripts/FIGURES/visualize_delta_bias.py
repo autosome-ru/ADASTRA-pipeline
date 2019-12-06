@@ -7,7 +7,7 @@ import seaborn as sns
 
 #n = int(sys.argv[1])
 
-stats = pd.read_table('~/cover_bias_statistics.tsv')
+stats = pd.read_table('~/cover_bias_statistics_poly.tsv')
 
 for n in range(10, 101, 5):
     statsplot = pd.DataFrame(stats.loc[stats['cover'] == n])
@@ -20,9 +20,8 @@ for n in range(10, 101, 5):
                 ax=ax, dodge=False,
                 palette='husl')
 
-    plt.title('ref-alt bias for BAD=1 n={}'.format(n))
+    plt.title('ref-alt bias for BAD>=2 n={}'.format(n))
     ax.legend().remove()
     plt.ylabel('count')
     plt.xlabel('ref_read_counts')
-    plt.savefig(os.path.expanduser('~/ref-alt_bias_BAD1_n-{}.png'.format(n)))
-plt.show()
+    plt.savefig(os.path.expanduser('~/ref-alt_bias_BAD>=2_n-{}.png'.format(n)))

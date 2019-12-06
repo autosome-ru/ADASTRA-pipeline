@@ -6,6 +6,7 @@ import pandas as pd
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import cl_dict_path, parameters_path
 
+
 def collectRefAltStatistics(key_name=None, BAD=None):
     with open(cl_dict_path, "r") as read_file:
         cell_lines_dict = json.loads(read_file.readline())
@@ -23,7 +24,7 @@ def collectRefAltStatistics(key_name=None, BAD=None):
             if df.empty:
                 continue
             if BAD is not None:
-                sum_df = df[df['BAD'] == BAD][['ref_read_counts', 'alt_read_counts']] # <------
+                sum_df = df[df['BAD'] == BAD][['ref_read_counts', 'alt_read_counts']]  # <------
             else:
                 sum_df = df[['ref_read_counts', 'alt_read_counts']]
 
@@ -65,7 +66,7 @@ def collectCoverStatistics(key_name=None, BAD=None):
             if df.empty:
                 continue
             if BAD is not None:
-                sum_df = df[df['BAD'] >= BAD][['ref_read_counts', 'alt_read_counts']]  # <------
+                sum_df = df[df['BAD'] == BAD][['ref_read_counts', 'alt_read_counts']]  # <------
             else:
                 sum_df = df[['ref_read_counts', 'alt_read_counts']]
 
@@ -89,4 +90,60 @@ def collectCoverStatistics(key_name=None, BAD=None):
 
 
 if __name__ == "__main__":
-    collectCoverStatistics(BAD=2)
+    embryonic = ['H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'BGO3_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H9_embryonic_stem_cells',
+                 'WA09_embryonic_stem_cells',
+                 'human_embryonic_stem_cells,_H1_WA01',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'HUES64_embryonic_stem_cells',
+                 'H9_embryonic_stem_cells',
+                 'H9_embryonic_stem_cells',
+                 'H9_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'embryonic_stem_cells',
+                 'CyT49_embryonic_stem_cells',
+                 'H9_embryonic_stem_cells',
+                 'H9_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'VAL-3_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'embryonic_stem_cells',
+                 'embryonic_stem_cells',
+                 'H9_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'BGO3_embryonic_stem_cells',
+                 'H9_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H9_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'embryonic_stem_cells',
+                 'H9_embryonic_stem_cells',
+                 'embryonic_stem_cell-derived_pancreatic_cells',
+                 'H9_embryonic_stem_cells',
+                 'embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'HUES64_embryonic_stem_cells',
+                 'H9_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'H1_embryonic_stem_cells',
+                 'embryonic_stem_cell-derived_neural_progenitors',
+                 'embryonic_stem_cell-_derived_mid_radial_glial_neural_progenitors',
+                 'H9_embryonic_stem_cells']
+    collectCoverStatistics(key_name=embryonic, BAD=1)
