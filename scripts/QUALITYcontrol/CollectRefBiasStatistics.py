@@ -11,8 +11,7 @@ name = '*'
 
 with open(cl_dict_path, "r") as read_file:
     cell_lines_dict = json.loads(read_file.readline())
-sum_df = None
-out_t = pd.DataFrame()
+out_t = None
 
 for key in cell_lines_dict:
     for align_path in cell_lines_dict[key]:
@@ -24,7 +23,8 @@ for key in cell_lines_dict:
             continue
         sum_df = df[['ref_read_counts', 'alt_read_counts']]
 
-        if sum_df is None:
+        if out_t is None:
+            out_t = pd.DataFrame()
             out_t['ref'] = sum_df['ref_read_counts'].value_counts()
             out_t['alt'] = sum_df['alt_read_counts'].value_counts()
             out_t['allele_reads'] = out_t.index
