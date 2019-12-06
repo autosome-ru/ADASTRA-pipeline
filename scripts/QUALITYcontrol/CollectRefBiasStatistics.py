@@ -72,8 +72,6 @@ def collectCoverStatistics(key_name):
                 out_t['cover'] = (sum_df['ref_read_counts'] + sum_df['alt_read_counts']).value_counts()
                 out_t['delta'] = (sum_df['ref_read_counts'] - sum_df['alt_read_counts']).value_counts()
                 out_t = out_t.groupby(['cover', 'delta']).size().reset_index(name='counts')
-                out_t['allele_reads'] = out_t.index
-                out_t = out_t.reset_index(drop=True)
                 out_t.fillna(0, inplace=True)
             else:
                 tmp_df = pd.DataFrame()
