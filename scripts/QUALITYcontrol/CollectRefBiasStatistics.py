@@ -27,11 +27,11 @@ with open(parameters_path + 'ref_statistics.tsv', 'w') as out:
     out_t = pd.DataFrame()
     ser = sum_df['ref_read_counts'].value_counts()
     out_t['ref'] = ser.index
-    out_t['count'] = ser
+    out_t['count'] = ser.reset_index(drop=True)
     out_t.to_csv(out, sep="\t")
 with open(parameters_path + 'alt_statistics.tsv', 'w') as out:
     out_t = pd.DataFrame()
     ser = sum_df['alt_read_counts'].value_counts()
     out_t['alt'] = ser.index
-    out_t['count'] = ser
+    out_t['count'] = ser.reset_index(drop=True)
     out_t.to_csv(out, sep="\t")
