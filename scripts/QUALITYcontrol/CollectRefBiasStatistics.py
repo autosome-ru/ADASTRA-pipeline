@@ -70,7 +70,7 @@ def collectCoverStatistics(key_name):
             if out_t is None:
                 out_t = pd.DataFrame()
                 out_t['cover'] = (sum_df['ref_read_counts'] + sum_df['alt_read_counts'])
-                out_t['ref_counts'] = ['ref_read_counts']
+                out_t['ref_counts'] = sum_df['ref_read_counts']
                 out_t = out_t.groupby(['cover', 'delta']).size().reset_index(name='counts')
                 out_t.fillna(0, inplace=True)
             else:
