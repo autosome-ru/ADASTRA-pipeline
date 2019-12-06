@@ -7,15 +7,15 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import cl_dict_path, parameters_path
 
 
-# name = [sys.argv[1]]
+name = [sys.argv[1]]  # <------
 
 with open(cl_dict_path, "r") as read_file:
     cell_lines_dict = json.loads(read_file.readline())
 out_t = None
 
 for key in cell_lines_dict:
-    #if key not in name:
-     #   continue
+    if key not in name:  # <------
+        continue
     for align_path in cell_lines_dict[key]:
         if not os.path.isfile(align_path):
             continue
@@ -23,7 +23,8 @@ for key in cell_lines_dict:
         df = pd.read_table(align_path)
         if df.empty:
             continue
-        sum_df = df[df['BAD'] == 1][['ref_read_counts', 'alt_read_counts']]
+        # sum_df = df[df['BAD'] == 1][['ref_read_counts', 'alt_read_counts']] # <------
+        sum_df = df[['ref_read_counts', 'alt_read_counts']]
 
         if out_t is None:
             out_t = pd.DataFrame()
