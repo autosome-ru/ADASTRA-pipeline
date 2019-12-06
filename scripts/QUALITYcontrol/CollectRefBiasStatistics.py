@@ -23,7 +23,7 @@ def collectRefAltStatistics(key_name=None, BAD=None):
             if df.empty:
                 continue
             if BAD is not None:
-                sum_df = df[df['BAD'] == 1][['ref_read_counts', 'alt_read_counts']] # <------
+                sum_df = df[df['BAD'] == BAD][['ref_read_counts', 'alt_read_counts']] # <------
             else:
                 sum_df = df[['ref_read_counts', 'alt_read_counts']]
 
@@ -65,7 +65,7 @@ def collectCoverStatistics(key_name=None, BAD=None):
             if df.empty:
                 continue
             if BAD is not None:
-                sum_df = df[df['BAD'] == 1][['ref_read_counts', 'alt_read_counts']]  # <------
+                sum_df = df[df['BAD'] >= BAD][['ref_read_counts', 'alt_read_counts']]  # <------
             else:
                 sum_df = df[['ref_read_counts', 'alt_read_counts']]
 
@@ -89,4 +89,4 @@ def collectCoverStatistics(key_name=None, BAD=None):
 
 
 if __name__ == "__main__":
-    collectCoverStatistics(BAD=1)
+    collectCoverStatistics(BAD=2)
