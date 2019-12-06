@@ -14,8 +14,8 @@ with open(cl_dict_path, "r") as read_file:
 out_t = None
 
 for key in cell_lines_dict:
-    if key not in name:
-        continue
+    #if key not in name:
+     #   continue
     for align_path in cell_lines_dict[key]:
         if not os.path.isfile(align_path):
             continue
