@@ -19,7 +19,8 @@ def ncr(n, r):
 def make_ncr_array(n_max):
     rv = np.zeros((n_max + 1, n_max + 1), dtype=np.float128)
     for n in range(n_max + 1):
-        n_pow = 2 ** (-n)
+        # n_pow = 2 ** (-n)
+        n_pow = 1
         for k in range(n + 1):
             rv[n, k] = ncr(n, k) * n_pow
     return rv
@@ -57,6 +58,16 @@ def make_derivative(counts, nck, n_min, n_max):
     return target
 
 
+def make_derivative_p(counts, nck, n_min, n_max):
+    def target(p):
+        return -1 * sum(
+            sum(counts[n, k] * (k - n * p) / (p * (1 - p))
+                for k in range(0, n + 1))
+            for n in range(n_min, n_max + 1))
+
+    return target
+
+
 if __name__ == '__main__':
     n_min = 16
     n_max = 502
@@ -66,17 +77,19 @@ if __name__ == '__main__':
     nck = make_ncr_array(n_max)
     print('made ncr')
 
-    #x = [(a / 1000) for a in range(1, 101)]
-    #values = [make_derivative(counts, nck, n_min, n_max)(a / 100) for a in range(1, 101)]
-
+    # x = [(a / 1000) for a in range(1, 101)]
+    # values = [make_derivative(counts, nck, n_min, n_max)(a / 100) for a in range(1, 101)]
+    #
     # plt.scatter(x, values)
     # plt.grid(True)
+    #
+    # print(optimize.brenth(f=make_derivative_p(counts, nck, n_min, n_max), a=0.3, b=0.9999))
 
     weights = []
     for n_min in range(16, 500):
         n_max = n_min + 2
         print(n_max + 1)
-        weights.append(optimize.brenth(f=make_derivative(counts, nck, n_min, n_max), a=0, b=0.9999))
+        weights.append(optimize.brenth(f=make_derivative_p(counts, nck, n_min, n_max), a=0.3, b=0.9999))
 
     print(weights)
 
@@ -84,8 +97,9 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('weight of correction')
+    plt.title('Binomial p ML fit on BAD=1')
     plt.show()
 
     #print(optimize.minimize(fun=make_target(counts, nck, n_min, n_max), x0=0, method='TNC',
     #                        jac=make_derivative(counts, nck, n_min, n_max), bounds=[(0, 0.5)]))
-    # plt.show()
+    plt.show()
