@@ -272,6 +272,8 @@ if __name__ == '__main__':
             for method, sort_key in (('maxdepth', lambda j: -1*c_cover[j]),
                                      ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
                 try:
+                    if ID == 'rs57012956':
+                        print(c_ref, c_alt)
                     i_most = min([i for i in range(len(c_cover))
                                   if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_logpalt - m_logpref)],
                                  key=sort_key)
@@ -293,8 +295,7 @@ if __name__ == '__main__':
                 else:
                     m1_dict[method] = 0
                     m2_dict[method] = 0
-            if ID == 'rs57012956':
-                print(m1_dict, m2_dict)
+
             out.write(pack(
                 [chr, pos, ID, ref, alt, repeat, m_total_callers, m_unique_callers,
                  m_ploidy, m_q, m_dipq, m_segc, m_datasets,
