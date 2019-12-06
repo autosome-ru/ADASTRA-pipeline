@@ -7,13 +7,15 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import cl_dict_path, parameters_path
 
 
-name = '*'
+name = [sys.argv[2]]
 
 with open(cl_dict_path, "r") as read_file:
     cell_lines_dict = json.loads(read_file.readline())
 out_t = None
 
 for key in cell_lines_dict:
+    if key not in name:
+        continue
     for align_path in cell_lines_dict[key]:
         if not os.path.isfile(align_path):
             continue
