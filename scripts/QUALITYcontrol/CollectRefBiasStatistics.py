@@ -43,7 +43,8 @@ def collectRefAltStatistics(key_name):
                 tmp_df = tmp_df.reset_index(drop=True)
                 tmp_df.fillna(0, inplace=True)
                 out_t = out_t.append(tmp_df).groupby('allele_reads', as_index=False).sum()
-
+    if out_t is None:
+        return
     with open(parameters_path + 'bias_statistics.tsv', 'w') as out:
         out_t.to_csv(out, sep="\t")
 
@@ -81,7 +82,8 @@ def collectCoverStatistics(key_name):
                 tmp_df = tmp_df.size().reset_index(name='counts')
                 tmp_df.fillna(0, inplace=True)
                 out_t = out_t.append(tmp_df).groupby('counts', as_index=False).sum()
-
+    if out_t is None:
+        return
     with open(parameters_path + 'bias_statistics.tsv', 'w') as out:
         out_t.to_csv(out, sep="\t")
 
