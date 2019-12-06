@@ -87,4 +87,4 @@ def collectCoverStatistics(key_name):
 
 
 if __name__ == "__main__":
-    collectRefAltStatistics(name)
+    collectCoverStatistics(name)
