@@ -10,14 +10,15 @@ from scripts.HELPERS.paths import cl_dict_path, parameters_path
 name = [sys.argv[1]]  # <------
 
 
-def collectRefAltStatistics(key_name):
+def collectRefAltStatistics(key_name=None, BAD=None):
     with open(cl_dict_path, "r") as read_file:
         cell_lines_dict = json.loads(read_file.readline())
     out_t = None
 
     for key in cell_lines_dict:
-        if key not in key_name:  # <------
-            continue
+        if key_name is not None:
+            if key not in key_name:  # <------
+                continue
         for align_path in cell_lines_dict[key]:
             if not os.path.isfile(align_path):
                 continue
@@ -25,8 +26,10 @@ def collectRefAltStatistics(key_name):
             df = pd.read_table(align_path)
             if df.empty:
                 continue
-            # sum_df = df[df['BAD'] == 1][['ref_read_counts', 'alt_read_counts']] # <------
-            sum_df = df[['ref_read_counts', 'alt_read_counts']]
+            if BAD is not None:
+                sum_df = df[df['BAD'] == 1][['ref_read_counts', 'alt_read_counts']] # <------
+            else:
+                sum_df = df[['ref_read_counts', 'alt_read_counts']]
 
             if out_t is None:
                 out_t = pd.DataFrame()
@@ -49,14 +52,15 @@ def collectRefAltStatistics(key_name):
         out_t.to_csv(out, sep="\t")
 
 
-def collectCoverStatistics(key_name):
+def collectCoverStatistics(key_name=None, BAD=None):
     with open(cl_dict_path, "r") as read_file:
         cell_lines_dict = json.loads(read_file.readline())
     out_t = None
 
     for key in cell_lines_dict:
-        if key not in key_name:  # <------
-            continue
+        if key_name is not None:
+            if key not in key_name:  # <------
+                continue
         for align_path in cell_lines_dict[key]:
             if not os.path.isfile(align_path):
                 continue
@@ -64,8 +68,10 @@ def collectCoverStatistics(key_name):
             df = pd.read_table(align_path)
             if df.empty:
                 continue
-            # sum_df = df[df['BAD'] == 1][['ref_read_counts', 'alt_read_counts']] # <------
-            sum_df = df[['ref_read_counts', 'alt_read_counts']]
+            if BAD is not None:
+                sum_df = df[df['BAD'] == 1][['ref_read_counts', 'alt_read_counts']]  # <------
+            else:
+                sum_df = df[['ref_read_counts', 'alt_read_counts']]
 
             if out_t is None:
                 out_t = pd.DataFrame()
@@ -88,4 +94,4 @@ def collectCoverStatistics(key_name):
 
 
 if __name__ == "__main__":
-    collectCoverStatistics(name)
+    collectCoverStatistics(BAD=1)
