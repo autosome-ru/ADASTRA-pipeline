@@ -7,7 +7,7 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import cl_dict_path, parameters_path
 
 
-name = [sys.argv[2]]
+name = [sys.argv[1]]
 
 with open(cl_dict_path, "r") as read_file:
     cell_lines_dict = json.loads(read_file.readline())
