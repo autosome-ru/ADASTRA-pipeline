@@ -79,6 +79,7 @@ def collectCoverStatistics(key_name):
                 tmp_df['delta'] = (sum_df['ref_read_counts'] - sum_df['alt_read_counts'])
                 tmp_df = tmp_df.groupby(['cover', 'delta']).size().reset_index(name='counts')
                 tmp_df.fillna(0, inplace=True)
+                print(tmp_df)
                 out_t = out_t.append(tmp_df).groupby('counts', as_index=False).sum()
     if out_t is None:
         return
