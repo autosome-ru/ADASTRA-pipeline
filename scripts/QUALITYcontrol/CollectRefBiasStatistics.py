@@ -6,10 +6,6 @@ import pandas as pd
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import cl_dict_path, parameters_path
 
-
-name = [sys.argv[1]]  # <------
-
-
 def collectRefAltStatistics(key_name=None, BAD=None):
     with open(cl_dict_path, "r") as read_file:
         cell_lines_dict = json.loads(read_file.readline())
@@ -85,7 +81,6 @@ def collectCoverStatistics(key_name=None, BAD=None):
                 tmp_df['ref_counts'] = sum_df['ref_read_counts']
                 tmp_df = tmp_df.groupby(['cover', 'ref_counts']).size().reset_index(name='counts')
                 tmp_df.fillna(0, inplace=True)
-                print(tmp_df)
                 out_t = out_t.append(tmp_df).groupby(['cover', 'ref_counts'], as_index=False).sum()
     if out_t is None:
         return
