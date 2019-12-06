@@ -28,6 +28,7 @@ with open(parameters_path + 'bias_statistics.tsv', 'w') as out:
     ser = sum_df['ref_read_counts'].value_counts()
     out_t['ref'] = sum_df['ref_read_counts'].value_counts()
     out_t['alt'] = sum_df['alt_read_counts'].value_counts()
-    out_t['count'] = out_t.index
+    out_t['allele_reads'] = out_t.index
     out_t.reset_index(drop=True)
+    out_t.fillna(0, inplace=True)
     out_t.to_csv(out, sep="\t")
