@@ -84,7 +84,7 @@ def collectCoverStatistics(key_name):
                 out_t = out_t.append(tmp_df).groupby('counts', as_index=False).sum()
     if out_t is None:
         return
-    with open(parameters_path + 'bias_statistics.tsv', 'w') as out:
+    with open(parameters_path + 'cover_bias_statistics.tsv', 'w') as out:
         out_t.to_csv(out, sep="\t")
 
 
