@@ -83,7 +83,7 @@ def collectCoverStatistics(key_name):
     if out_t is None:
         return
     with open(parameters_path + 'cover_bias_statistics.tsv', 'w') as out:
-        out_t.to_csv(out, sep="\t")
+        out_t.to_csv(out, sep="\t", index=False)
 
 
 if __name__ == "__main__":
