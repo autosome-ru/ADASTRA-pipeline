@@ -18,31 +18,54 @@ def ncr(n, r):
     return numer / denom
 
 
-def make_ncr_array(n_max):
-    rv = np.zeros((n_max + 1, n_max + 1), dtype=np.float128)
-    for n in range(n_max + 1):
-        n_pow = 2 ** (-n)
+def make_ncr_array(n_max, ns=None):
+    rv = np.zeros((n_max + 1 + window, n_max + 1 + window), dtype=np.float128)
+    for n in range(n_max + 1 + window):
+        if ns:
+            if n not in ns: continue
+        print(n)
+        # n_pow = 2 ** (-n)
+        f = st.binom(n, 0.5).pmf
         for k in range(n + 1):
-            rv[n, k] = ncr(n, k) * n_pow
+            rv[n, k] = f(k)
     return rv
 
 
-def make_ncr_array_p(n_max):
-    rv = np.zeros((n_max + 1, n_max + 1), dtype=np.float128)
-    for n in range(n_max + 1):
+def make_ncr_array_full(n_max, ns=None):
+    n_real_max = min(max(stats['cover']), n_max + window)
+    rv = np.zeros((n_real_max + 1, n_real_max + 1), dtype=np.float128)
+    noise = np.zeros((n_real_max + 1, n_real_max + 1), dtype=np.float128)
+    for n in range(n_max + 1 + window):
+        print(n)
+        # n_pow = 2 ** (-n)
+        f = st.binom(n, 0.5).pmf
         for k in range(n + 1):
-            rv[n, k] = ncr(n, k)
-    return rv
+            rv[n, k] = f(k)
+            noise[n, k] = 2 * k / (n * (n + 1)) if n != 0 else 0
+    return rv, noise
 
 
-def make_counts_array(stats, n_max):
-    c = np.zeros((n_max + 1, n_max + 1), dtype=np.int64)
-    for n in range(n_max + 1):
+def make_counts_array(stats, n_max, ns=None):
+    c = np.zeros((n_max + 1 + window, n_max + 1 + window), dtype=np.int64)
+    for n in range(n_max + 1 + window):
+        if ns:
+            if n not in ns: continue
+        print(n)
         for k in range(n + 1):
             slice = stats[(stats['cover'] == n) & (stats['ref_counts'] == k)]
             if not slice.empty:
                 assert len(slice.index) == 1
                 c[n, k] = np.int64(slice['counts'])
+    return c
+
+
+def make_counts_array_full(n_max, stats):
+    n_real_max = min(max(stats['cover']), n_max + window)
+    c = np.zeros((n_real_max + 1, n_real_max + 1), dtype=np.int64)
+    for index, row in stats.iterrows():
+        n, k, cts = row['cover'], row['ref_counts'], row['counts']
+        if n > n_real_max: continue
+        c[n, k] = cts
     return c
 
 
@@ -59,15 +82,15 @@ def make_target(counts, nck, n_min, n_max):
 def make_derivative(counts, nck, n_min, n_max):
     def target(alpha):
         return -1 * sum(
-            sum(counts[n, k] * (nck[n, k] * (-1) + 2 * k / (n * (n + 1))) /
-                (nck[n, k] * (1 - alpha) + 2 * k / (n * (n + 1)) * alpha)
+            sum(counts[n, k] * (nck[n, k] * (-1) + noise[n, k]) /
+                (nck[n, k] * (1 - alpha) + noise[n, k] * alpha)
                 for k in range(0, n + 1))
             for n in range(n_min, n_max + 1))
 
     return target
 
 
-def make_derivative_p(counts, nck, n_min, n_max):
+def make_derivative_p(counts, n_min, n_max):
     def target(p):
         return -1 * sum(
             sum(counts[n, k] * (k - n * p) / (p * (1 - p))
@@ -77,18 +100,38 @@ def make_derivative_p(counts, nck, n_min, n_max):
     return target
 
 
+def make_ns(s_ns, window):
+    ns = []
+    for n in s_ns:
+        for k in range(n - window, n + window + 1):
+            if k >= n_min and k not in ns:
+                ns.append(k)
+    return ns
+
+
 if __name__ == '__main__':
     n_min = 16
-    n_max = 501
+    n_max = 2401
+    window = 0
     mode = 'alpha'
-    stats = pd.read_table('~/cover_bias_statistics.tsv')
-    counts = make_counts_array(stats, n_max)
+    # s_ns = list(range(n_min, min(n_max, 500))) + (list(range(500, 5000, 50)) if n_max > 500 else [])
+    s_ns = list(range(n_min, 500, 10)) + list(range(501, n_max, 5))
+    ns = make_ns(s_ns, window)
+    print(s_ns)
+    print(ns)
+    stats = pd.read_table('~/cover_bias_statistics_curated_diploids.tsv')
+    stats['cover'] = stats['cover'].astype(int)
+    stats['ref_counts'] = stats['ref_counts'].astype(int)
+    counts = make_counts_array_full(n_max, stats)
     print('made counts')
     if mode == 'p':
-        nck = make_ncr_array_p(n_max)
+        pass
     elif mode == 'alpha':
-        nck = make_ncr_array(n_max)
+        nck, noise = make_ncr_array_full(n_max, ns)
     print('made ncr')
+
+    plot_histograms = False
+    count_stat_significance = False
 
     # x = [(a / 1000) for a in range(1, 101)]
     # values = [make_derivative(counts, nck, n_min, n_max)(a / 100) for a in range(1, 101)]
@@ -100,48 +143,116 @@ if __name__ == '__main__':
 
     nrange = range(n_min + 1, n_max)
 
-    weights = []
-    for n_min in range(n_min, n_max - 1):
-        n_max = n_min + 2
-        print(n_max + 1)
+    weights = dict()
+    for n in s_ns:
+        # n_max_t = n + window
+        n_max_t = n_max + window
+        n_min_t = max(n - window, n_min)
+        if ns:
+            if n not in ns: continue
+        print(n, n_min_t, n_max_t)
+
+        # x = [(a / 1000) for a in range(1, 101)]
+        # values = [make_derivative(counts, nck, n_min_t, n_max_t)(a / 100) for a in range(1, 101)]
+        # print(values)
+        #
+        # plt.scatter(x, values)
+        # plt.grid(True)
+        # plt.show()
+
         if mode == 'p':
-            weights.append(optimize.brenth(f=make_derivative_p(counts, nck, n_min, n_max), a=0.3, b=0.9999))
+            weights[n] = (optimize.brenth(f=make_derivative_p(counts, n_min_t, n_max_t), a=0.3, b=0.9999))
         elif mode == 'alpha':
-            weights.append(optimize.brenth(f=make_derivative(counts, nck, n_min, n_max), a=0, b=0.9999))
+            try:
+                weights[n] = (optimize.brenth(f=make_derivative(counts, nck, n_min_t, n_max_t), a=0.05, b=0.6))
+            except ValueError:
+                f = make_derivative(counts, nck, n_min_t, n_max_t)
+                if np.sign(f(0)) == np.sign(f(0.9999)):
+                    if np.sign(f(0.9999)) > 0:
+                        weights[n] = 1
+                    elif np.sign(f(0)) < 0:
+                        weights[n] = 0
+                    else:
+                        weights[n] = 'NaN'
     print(weights)
 
-    # plt.scatter(nrange, weights)
-    # plt.grid(True)
-    # plt.xlabel('cover')
-    # plt.ylabel('weight of correction')
-    # plt.title('Binomial p ML fit on BAD=1')
-    # plt.show()
-
-    p_values = []
-
-    for ind, n in enumerate(nrange):
-        w = weights[ind]
-        v_list = list(itertools.chain.from_iterable([k] * int(counts[n, k]) for k in range(n + 1)))
-        if mode == 'p':
-            p_values.append(
-                -np.log10(st.kstest(v_list,
-                                    lambda x: st.binom(n, w).cdf(x))[1]))
-        elif mode == 'alpha':
-            p_values.append(
-                -np.log10(st.kstest(v_list,
-                                    lambda x: st.binom(n, 0.5).cdf(x)*(1 - w) + x * (x + 1) / (n * (n + 1)) * w)[1]))
-
-    print(p_values)
-
-    plt.scatter(nrange, p_values)
+    plt.scatter(s_ns, [weights[k] for k in s_ns])
     plt.grid(True)
     plt.xlabel('cover')
-    plt.ylabel('goodness of fit (-log10 p-value)')
     if mode == 'p':
-        plt.title('KS-test of Binomial p ML fit on BAD=1')
+        plt.ylabel('p')
+        plt.title('Binomial p ML fit on BAD=1')
     elif mode == 'alpha':
-        plt.title('KS-test of linear density correction fit on BAD=1')
+        plt.ylabel('weight of correction')
+        plt.title('Weight of correction ML fit on BAD=1\ncurated diploids, window +- {}'.format(window))
     plt.show()
 
-    # print(optimize.minimize(fun=make_target(counts, nck, n_min, n_max), x0=0, method='TNC',
-    #                        jac=make_derivative(counts, nck, n_min, n_max), bounds=[(0, 0.5)]))
+    if plot_histograms:
+        for n in s_ns:
+            # statsplot = pd.DataFrame(stats.loc[stats['cover'] == n])
+            # statsplot['ref_counts'] = statsplot['ref_counts'].astype(int)
+            # statsplot['counts'] = statsplot['counts'].astype(int)
+            # statsplot['color'] = np.abs(statsplot['ref_counts'] - n / 2)
+            print('made data for n={}'.format(n))
+            total_snps = sum(counts[n, k] for k in range(n + 1))
+
+            fig, ax = plt.subplots(figsize=(10, 8))
+            sns.barplot(x=list(range(n + 1)), y=counts[n, 0:n + 1] / total_snps, ax=ax)
+            plt.axvline(x=n / 2, color='black')
+
+            w = weights[n]
+            print(w)
+
+            if mode == 'alpha':
+                norm = sum(st.binom(n, 0.5).pmf(x) * (1 - w) + 2 * x / (n * (n + 1)) * w for x in range(3, n - 2))
+                density = [0] * 3 + \
+                          [(st.binom(n, 0.5).pmf(x) * (1 - w) + 2 * x / (n * (n + 1)) * w) / norm for x in
+                           range(3, n - 2)] + \
+                          [0] * 3
+                label = 'weight of linear noize: {}\ntotal observations: {}'.format(round(w, 2), total_snps)
+            elif mode == 'p':
+                norm = sum(st.binom(n, w).pmf(x) for x in range(3, n - 2))
+                density = [0] * 3 + [(st.binom(n, w).pmf(x)) / norm for x in range(3, n - 2)] + [0] * 3
+                label = 'fitted binomial p: {}\ntotal observations: {}'.format(round(w, 2), total_snps)
+
+            plt.plot(list(range(n + 1)), density)
+            plt.text(s=label, x=0.65 * n, y=max(density) * 0.6)
+
+            plt.title('ref-alt bias for BAD=1 (binomial shift fit) n={}'.format(n))
+            ax.legend().remove()
+            plt.ylabel('count')
+            plt.xlabel('ref_read_counts')
+            plt.savefig(os.path.expanduser('~/ref-alt_bias_BAD=1_p_fit_n-{}.png'.format(n)))
+            # plt.show()
+
+    if count_stat_significance:
+        p_values = []
+
+        for ind, n in enumerate(nrange):
+            w = weights[ind]
+            v_list = list(itertools.chain.from_iterable([k] * int(counts[n, k]) for k in range(n + 1)))
+            if mode == 'p':
+                p_values.append(
+                    -np.log10(st.kstest(v_list,
+                                        lambda x: st.binom(n, w).cdf(x))[1]))
+            elif mode == 'alpha':
+                p_values.append(
+                    -np.log10(st.kstest(v_list,
+                                        lambda x: st.binom(n, 0.5).cdf(x) * (1 - w) + x * (x + 1) / (n * (n + 1)) * w)[
+                                  1]))
+
+        print(p_values)
+
+        plt.scatter(nrange, p_values)
+        plt.grid(True)
+        plt.xlabel('cover')
+        plt.ylabel('goodness of fit (-log10 p-value)')
+        if mode == 'p':
+            plt.title('KS-test of Binomial p ML fit on BAD=1')
+        elif mode == 'alpha':
+            plt.title('KS-test of linear density correction fit on BAD=1')
+
+        # plt.show()
+
+        # print(optimize.minimize(fun=make_target(counts, nck, n_min, n_max), x0=0, method='TNC',
+        #                        jac=make_derivative(counts, nck, n_min, n_max), bounds=[(0, 0.5)]))
