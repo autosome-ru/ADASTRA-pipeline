@@ -6,8 +6,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 from scipy import optimize
 from scipy import stats as st
-import itertools
-
+from sklearn import metrics
 
 def make_binom_matrix(valid_n, p):
     n_max_from_valid_n = max(valid_n)
@@ -118,9 +117,24 @@ def get_window_up(n, nonzero_dict):
     return window
 
 
+def plot_fit(weights, BAD):
+    plt.scatter(list(weights.keys()), [weights[k] for k in weights])
+    plt.grid(True)
+    plt.xlabel('cover')
+    plt.ylabel('weight of correction')
+    plt.title('Weight of correction ML fit on BAD={}\nall datasets, {}'.format(BAD, mode))
+    plt.show()
+
+
+def calculate_mse(weights, count_matrix, BAD):
+    for n in weights:
+        metrics.mean_squared_error()
+
+    return
+
+
 if __name__ == '__main__':
-    n_min = 16
-    n_max = 301
+
     BAD = 2
     mode = "up_window"
     stats = pd.read_table('~/cover_bias_statistics_triploids.tsv')
@@ -129,31 +143,21 @@ if __name__ == '__main__':
     counts, dict_of_nonzero_N = make_counts_matrix_and_nonzero_dict(stats)
     print('made counts')
 
-
-    # s_ns = list(range(n_min, min(n_max, 500))) + (list(range(500, 5000, 50)) if n_max > 500 else [])
-    # s_ns = (list(range(n_min, 501, 10)) if n_min <= 500 else []) + list(range(max(501, n_min), n_max, 5))
-    # s_ns = list(range(1000, 1501, 100))
-    # s_ns = list(range(n_min, 300))
     s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
 
     plot_histograms = True
     count_stat_significance = False
-    calculate_weights = False
+    calculate_weights = True
+    calculate_fit_quality = True
+    plot_fit_weights = True
 
     if calculate_weights:
         weights = fit_weights_for_n_array(s_ns, counts, dict_of_nonzero_N, BAD)
+        if plot_fit_weights:
+            plot_fit(weights, BAD)
 
-        # plot_ns = [n for n in true_ns if n <= 300]
-        #
-        # plt.scatter(plot_ns, [weights[k] for k in plot_ns])
-        # plt.grid(True)
-        # plt.xlabel('cover')
-        # plt.ylabel('weight of correction')
-        # # plt.title('Weight of correction ML fit on BAD=1\ncurated diploids, window +- {}'.format(window))
-        # # plt.title('Weight of correction ML fit on BAD=1\ncurated diploids, cumulative up to {}'.format(n_max - 1))
-        # plt.title('Weight of correction ML fit on BAD={}}\nall datasets, window +- {}'.format(BAD, window))
-        # plt.show()
-
+        if calculate_fit_quality:
+            calculated_fit_metrics = calculate_mse(weights, counts, BAD)
     # if plot_histograms:
     #     for n in s_ns:
     #         # statsplot = pd.DataFrame(stats.loc[stats['cover'] == n])
@@ -201,35 +205,3 @@ if __name__ == '__main__':
     #         plt.xlabel('ref_read_counts')
     #         plt.savefig(os.path.expanduser('~/ref-alt_bias_BAD=2_w=04_cn-{}.png'.format(n)))
     #         # plt.show()
-
-    if count_stat_significance:
-        p_values = []
-
-        for ind, n in enumerate(nrange):
-            w = weights[ind]
-            v_list = list(itertools.chain.from_iterable([k] * int(counts[n, k]) for k in range(n + 1)))
-            if mode == 'p':
-                p_values.append(
-                    -np.log10(st.kstest(v_list,
-                                        lambda x: st.binom(n, w).cdf(x))[1]))
-            elif mode == 'alpha':
-                p_values.append(
-                    -np.log10(st.kstest(v_list,
-                                        lambda x: st.binom(n, 0.5).cdf(x) * (1 - w) + x * (x + 1) / (n * (n + 1)) * w)[
-                                  1]))
-
-        print(p_values)
-
-        plt.scatter(nrange, p_values)
-        plt.grid(True)
-        plt.xlabel('cover')
-        plt.ylabel('goodness of fit (-log10 p-value)')
-        if mode == 'p':
-            plt.title('KS-test of Binomial p ML fit on BAD=1')
-        elif mode == 'alpha':
-            plt.title('KS-test of linear density correction fit on BAD=1')
-
-        # plt.show()
-
-        # print(optimize.minimize(fun=make_target(counts, nck, n_min, n_max), x0=0, method='TNC',
-        #                        jac=make_derivative(counts, nck, n_min, n_max), bounds=[(0, 0.5)]))
