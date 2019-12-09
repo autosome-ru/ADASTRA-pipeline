@@ -31,7 +31,7 @@ def make_ncr_array(n_max, ns=None):
     return rv
 
 
-def make_ncr_array_full(n_max, ns=None):
+def make_ncr_array_full(n_max, p):
     n_real_max = min(max(stats['cover']), n_max + window)
     rv = np.zeros((n_real_max + 1, n_real_max + 1), dtype=np.float128)
     noise = np.zeros((n_real_max + 1, n_real_max + 1), dtype=np.float128)
@@ -39,8 +39,12 @@ def make_ncr_array_full(n_max, ns=None):
         print(n)
         # n_pow = 2 ** (-n)
         # f = st.binom(n, 0.5).pmf
-        f1 = st.binom(n, 0.33).pmf
-        f2 = st.binom(n, 0.67).pmf
+        if p != 0.5:
+            f1 = st.binom(n, p).pmf
+            f2 = st.binom(n, 1 - p).pmf
+        else:
+            f1 = st.binom(n, p).pmf
+            f2 = f1
         for k in range(n + 1):
             # rv[n, k] = f(k)
             rv[n, k] = 0.5 * (f1(k) + f2(k))
@@ -136,6 +140,52 @@ def make_nonzero_dict(c, n_max, stats):
     return nonzero
 
 
+def fit_alpha(n_min, n_max, noise_matrix, binom_matrix, counts_matrix):
+    try:
+        alpha_coefficient = optimize.brenth(
+            f=make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, nonzero_dict, n_min, n_max),
+            a=0.01, b=0.999)
+    except ValueError:
+        f = make_derivative(counts, nck, n_min_t, n_max_t)
+        if np.sign(f(0)) == np.sign(f(0.9999)):
+            if np.sign(f(0.9999)) > 0:
+                return 1
+            if np.sign(f(0)) < 0:
+                return 0
+            else:
+                return 'NaN'
+        else:
+            return 1
+    return alpha_coefficient
+
+
+def fit_weights_for_window(n_min_input, n_max_input):
+    print('made ncr and noize')
+    nck, noise = make_ncr_array_full(n_max, ns)
+    for n in true_ns:
+
+        ## window definition from n
+        # n_max_t = n + window
+        # n_max_t = n_max + window
+        # n_min_t = max(n - window, n_min)
+        n_min_t = n - window
+        n_max_t = n + window + 1
+
+        if ns:
+            if n not in ns:
+                continue
+        print(n, n_min_t, n_max_t)
+
+        weights[n] = fit_alpha(n_min=n_min_t, n_max=n_max_t, counts_matrix=counts, binom_matrix=nck,
+                               noise_matrix=noise)
+    print(weights)
+    return weights
+
+
+def make_array_of_for_valid_N():
+    pass
+
+
 if __name__ == '__main__':
     n_min = 16
     n_max = 301
@@ -164,19 +214,17 @@ if __name__ == '__main__':
     counts = make_counts_array_full(n_max, stats)
     print('made counts')
 
-    if calculate_weights:
-        nck, noise = make_ncr_array_full(n_max, ns)
     nonzero_dict = make_nonzero_dict(counts, n_max, stats)
-    print('made ncr and noize')
 
     nrange = range(n_min + 1, n_max)
-
-    weights = dict()
 
     true_ns = [n for n in s_ns if [key for key in nonzero_dict if max(n - window, n_min) <= key <= n_max + window]]
     # n-s from ns that happen at least once
 
+    weights = dict()
     if calculate_weights:
+        print('made ncr and noize')
+        nck, noise = make_ncr_array_full(n_max, ns)
         for n in true_ns:
 
             ## window definition from n
@@ -186,28 +234,13 @@ if __name__ == '__main__':
             n_min_t = n - window
             n_max_t = n + window + 1
 
-
             if ns:
-                if n not in ns: continue
+                if n not in ns:
+                    continue
             print(n, n_min_t, n_max_t)
 
-            try:
-                w = optimize.brenth(
-                    f=make_derivative_nonzero(counts, nck, noise, nonzero_dict, n_min_t, n_max_t),
-                    a=0.01, b=0.999)
-                print(w)
-                weights[n] = w
-            except ValueError:
-                f = make_derivative(counts, nck, n_min_t, n_max_t)
-                if np.sign(f(0)) == np.sign(f(0.9999)):
-                    if np.sign(f(0.9999)) > 0:
-                        weights[n] = 1
-                    elif np.sign(f(0)) < 0:
-                        weights[n] = 0
-                    else:
-                        weights[n] = 'NaN'
-                else:
-                    weights[n] = 1
+            weights[n] = fit_alpha(n_min=n_min_t, n_max=n_max_t, counts_matrix=counts, binom_matrix=nck,
+                                   noise_matrix=noise)
         print(weights)
 
         plot_ns = [n for n in true_ns if n <= 300]
@@ -248,10 +281,10 @@ if __name__ == '__main__':
                 #           [0] * 3
                 # label = 'weight of linear noize: {}\ntotal observations: {}'.format(round(w, 2), total_snps)
                 norm = sum((0.5 * (st.binom(n, 0.33).pmf(x) + st.binom(n, 0.67).pmf(x)) * (1 - w) +
-                                  2 * x / (n * (n + 1)) * w) for x in range(3, n - 2))
+                            2 * x / (n * (n + 1)) * w) for x in range(3, n - 2))
                 density = [0] * 3 + \
                           [(0.5 * (st.binom(n, 0.33).pmf(x) + st.binom(n, 0.67).pmf(x)) * (1 - w) + 2 * x / (
-                                      n * (n + 1)) * w) / norm for x in
+                                  n * (n + 1)) * w) / norm for x in
                            range(3, n - 2)] + [0] * 3
                 label = 'total observations: {}'.format(total_snps)
             elif mode == 'p':
