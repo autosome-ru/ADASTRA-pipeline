@@ -8,8 +8,16 @@ from scipy import optimize
 from scipy import stats as st
 from sklearn import metrics
 
+
 def make_binom_matrix(valid_n, p):
+    if os.path.isfile(filename + '_binom.precalc.npy') and os.path.isfile(filename + '_linear.precalc.npy'):
+        rv = np.load(filename + '_binom.precalc.npy')
+        noise = np.load(filename + '_linear.precalc.npy')
+        return rv, noise
+
     n_max_from_valid_n = max(valid_n)
+    print('n_max = {}'.format(n_max_from_valid_n))
+    print('unique n = {}'.format(len(valid_n)))
     rv = np.zeros((n_max_from_valid_n + 1, n_max_from_valid_n + 1), dtype=np.float128)
     noise = np.zeros((n_max_from_valid_n + 1, n_max_from_valid_n + 1), dtype=np.float128)
     for n in valid_n:
@@ -28,6 +36,8 @@ def make_binom_matrix(valid_n, p):
                 noise[n, k] = 2 * k / (n * (n + 1)) if n != 0 else 0
             else:
                 rv[n, k] = f(k)
+    np.save(filename + '_binom.precalc.npy', rv)
+    np.save(filename + '_linear.precalc.npy', noise)
     return rv, noise
 
 
@@ -47,7 +57,7 @@ def make_counts_matrix_and_nonzero_dict(stats_pandas_dataframe):
 
 
 def make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window):
-    #TODO: DOMASHNEE ZADANIE
+    # TODO: DOMASHNEE ZADANIE
     """
     :param counts_matrix:
     :param binom_matrix:
@@ -55,6 +65,7 @@ def make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window):
     :param window:
     :return:
     """
+
     def target(alpha):
         return -1 * sum(
             sum(counts_matrix[n, k] * (binom_matrix[n, k] * (-1) + noise_matrix[n, k]) /
@@ -67,6 +78,10 @@ def make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window):
 
 def fit_alpha(noise_matrix, binom_matrix, counts_matrix, window):
     try:
+        x = [v/100 for v in range(1, 100)]
+
+
+
         alpha_coefficient = optimize.brenth(
             f=make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window), a=0.01, b=0.999)
     except ValueError:
@@ -83,15 +98,17 @@ def fit_alpha(noise_matrix, binom_matrix, counts_matrix, window):
     return alpha_coefficient
 
 
-def fit_weights_for_n_array(n_array, counts, nonzero_dict, BAD):
+def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, BAD):
     print('made ncr and noize')
     valid_n = make_array_for_valid_N(n_array, nonzero_dict)
-    binom_matrix, noise = make_binom_matrix(valid_n, 1 / (BAD + 1))
-    for n in valid_n:
-        weights[n] = fit_alpha(counts_matrix=counts,
+    binom_matrix, noise = make_binom_matrix(valid_n, get_p(BAD))
+    weights = {}
+    for n in n_array:
+        print('fitting for n={}'.format(n))
+        weights[n] = fit_alpha(counts_matrix=counts_matrix,
                                binom_matrix=binom_matrix,
                                noise_matrix=noise, window=get_window(n, nonzero_dict))
-    # print(weights)
+        print(weights[n])
     return weights
 
 
@@ -126,18 +143,52 @@ def plot_fit(weights, BAD):
     plt.show()
 
 
-def calculate_mse(weights, count_matrix, BAD):
-    for n in weights:
-        metrics.mean_squared_error()
+def plot_quality(scores, BAD):
+    plt.scatter(list(scores.keys()), [scores[k] for k in scores])
+    plt.grid(True)
+    plt.xlabel('cover')
+    plt.ylabel('MSE scores')
+    plt.title('MSE scores of correction ML fit on BAD={}\nall datasets, {}'.format(BAD, mode))
+    plt.show()
 
-    return
+
+def calculate_mse(weights, counts_matrix, BAD):
+    mse_scores = dict()
+    for n in weights:
+        expected = get_probability_density(n, weights[n], BAD)
+        norm, observed = get_observed(n, counts_matrix)
+        print(n, norm, norm >= (n + 1) ** 2)
+        mse_scores[n] = metrics.mean_squared_error(observed, expected)
+    return mse_scores
+
+
+def get_p(BAD):
+    return 1 / (BAD + 1)
+
+
+def get_observed(n, counts_matrix):
+    norm = counts_matrix[n, :n + 1].sum()
+    observed = counts_matrix[n, :n + 1] / norm
+    return norm, observed
+
+
+def get_probability_density(n, alpha, BAD):
+    p = get_p(BAD)
+    norm = sum((0.5 * (st.binom(n, p).pmf(x) + st.binom(n, 1 - p).pmf(x)) * (1 - alpha) +
+                2 * x / (n * (n + 1)) * alpha) for x in range(3, n - 2))
+    density = [0] * 3 + \
+              [(0.5 * (st.binom(n, p).pmf(alpha) + st.binom(n, 1 - p).pmf(x)) * (1 - alpha) + 2 * x / (
+                      n * (n + 1)) * alpha) / norm for x in
+               range(3, n - 2)] + [0] * 3
+    return density
 
 
 if __name__ == '__main__':
 
-    BAD = 2
+    BAD = 1
     mode = "up_window"
-    stats = pd.read_table('~/cover_bias_statistics_triploids.tsv')
+    filename = os.path.expanduser('~/cover_bias_statistics_curated_diploids.tsv')
+    stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
     stats['ref_counts'] = stats['ref_counts'].astype(int)
     counts, dict_of_nonzero_N = make_counts_matrix_and_nonzero_dict(stats)
@@ -145,11 +196,12 @@ if __name__ == '__main__':
 
     s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
 
-    plot_histograms = True
+    plot_histograms = False
     count_stat_significance = False
     calculate_weights = True
     calculate_fit_quality = True
     plot_fit_weights = True
+    plot_fit_quality = True
 
     if calculate_weights:
         weights = fit_weights_for_n_array(s_ns, counts, dict_of_nonzero_N, BAD)
@@ -158,6 +210,10 @@ if __name__ == '__main__':
 
         if calculate_fit_quality:
             calculated_fit_metrics = calculate_mse(weights, counts, BAD)
+            
+            if plot_fit_quality:
+                plot_quality(calculated_fit_metrics, BAD)
+                
     # if plot_histograms:
     #     for n in s_ns:
     #         # statsplot = pd.DataFrame(stats.loc[stats['cover'] == n])
