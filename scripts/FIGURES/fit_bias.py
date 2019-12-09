@@ -38,9 +38,12 @@ def make_ncr_array_full(n_max, ns=None):
     for n in range(n_min, n_max + 1 + window):
         print(n)
         # n_pow = 2 ** (-n)
-        f = st.binom(n, 0.5).pmf
+        # f = st.binom(n, 0.5).pmf
+        f1 = st.binom(n, 0.33).pmf
+        f2 = st.binom(n, 0.67).pmf
         for k in range(n + 1):
-            rv[n, k] = f(k)
+            # rv[n, k] = f(k)
+            rv[n, k] = 0.5 * (f1(k) + f2(k))
             noise[n, k] = 2 * k / (n * (n + 1)) if n != 0 else 0
     return rv, noise
 
@@ -135,79 +138,76 @@ def make_nonzero_dict(c, n_max, stats):
 
 if __name__ == '__main__':
     n_min = 16
-    n_max = 201
-    window = 0
-    mode = 'alpha'
+    n_max = 301
+    window = 1
+    BAD = 2
+
     # s_ns = list(range(n_min, min(n_max, 500))) + (list(range(500, 5000, 50)) if n_max > 500 else [])
     # s_ns = (list(range(n_min, 501, 10)) if n_min <= 500 else []) + list(range(max(501, n_min), n_max, 5))
     # s_ns = list(range(1000, 1501, 100))
-    # s_ns = list(range(n_min, 500))
+    # s_ns = list(range(n_min, 300))
     s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
+    # n-s that we wish to examine
 
     plot_histograms = True
     count_stat_significance = False
     calculate_weights = False
 
     ns = make_ns(s_ns, window)
+    # n-s from s-ns +- window
+
     print(s_ns)
     print(ns)
-    stats = pd.read_table('~/cover_bias_statistics_curated_diploids.tsv')
+    stats = pd.read_table('~/cover_bias_statistics_triploids.tsv')
     stats['cover'] = stats['cover'].astype(int)
     stats['ref_counts'] = stats['ref_counts'].astype(int)
     counts = make_counts_array_full(n_max, stats)
     print('made counts')
-    if mode == 'p':
-        pass
-    elif mode == 'alpha':
-        if calculate_weights:
-            nck, noise = make_ncr_array_full(n_max, ns)
-        nonzero_dict = make_nonzero_dict(counts, n_max, stats)
-    print('made ncr')
 
-
+    if calculate_weights:
+        nck, noise = make_ncr_array_full(n_max, ns)
+    nonzero_dict = make_nonzero_dict(counts, n_max, stats)
+    print('made ncr and noize')
 
     nrange = range(n_min + 1, n_max)
 
     weights = dict()
 
     true_ns = [n for n in s_ns if [key for key in nonzero_dict if max(n - window, n_min) <= key <= n_max + window]]
+    # n-s from ns that happen at least once
 
     if calculate_weights:
         for n in true_ns:
+
+            ## window definition from n
             # n_max_t = n + window
-            n_max_t = n_max + window
-            n_min_t = max(n - window, n_min)
+            # n_max_t = n_max + window
+            # n_min_t = max(n - window, n_min)
+            n_min_t = n - window
+            n_max_t = n + window + 1
+
+
             if ns:
                 if n not in ns: continue
             print(n, n_min_t, n_max_t)
 
-            # if n == 955:
-            #     x = [(a / 1000) for a in range(1, 101)]
-            #     values = [make_derivative(counts, nck, n_min_t, n_max_t)(a / 100) for a in range(1, 101)]
-            #     print(values)
-            #
-            #     plt.scatter(x, values)
-            #     plt.grid(True)
-            #     plt.show()
-
-            if mode == 'p':
-                weights[n] = (optimize.brenth(f=make_derivative_p(counts, n_min_t, n_max_t), a=0.3, b=0.9999))
-            elif mode == 'alpha':
-                try:
-                    w = optimize.brenth(
-                        f=make_derivative_nonzero(counts, nck, noise, nonzero_dict, n_min_t, n_max_t),
-                        a=0.01, b=0.999)
-                    print(w)
-                    weights[n] = w
-                except ValueError:
-                    f = make_derivative(counts, nck, n_min_t, n_max_t)
-                    if np.sign(f(0)) == np.sign(f(0.9999)):
-                        if np.sign(f(0.9999)) > 0:
-                            weights[n] = 1
-                        elif np.sign(f(0)) < 0:
-                            weights[n] = 0
-                        else:
-                            weights[n] = 'NaN'
+            try:
+                w = optimize.brenth(
+                    f=make_derivative_nonzero(counts, nck, noise, nonzero_dict, n_min_t, n_max_t),
+                    a=0.01, b=0.999)
+                print(w)
+                weights[n] = w
+            except ValueError:
+                f = make_derivative(counts, nck, n_min_t, n_max_t)
+                if np.sign(f(0)) == np.sign(f(0.9999)):
+                    if np.sign(f(0.9999)) > 0:
+                        weights[n] = 1
+                    elif np.sign(f(0)) < 0:
+                        weights[n] = 0
+                    else:
+                        weights[n] = 'NaN'
+                else:
+                    weights[n] = 1
         print(weights)
 
         plot_ns = [n for n in true_ns if n <= 300]
@@ -215,13 +215,10 @@ if __name__ == '__main__':
         plt.scatter(plot_ns, [weights[k] for k in plot_ns])
         plt.grid(True)
         plt.xlabel('cover')
-        if mode == 'p':
-            plt.ylabel('p')
-            plt.title('Binomial p ML fit on BAD=1')
-        elif mode == 'alpha':
-            plt.ylabel('weight of correction')
-            # plt.title('Weight of correction ML fit on BAD=1\ncurated diploids, window +- {}'.format(window))
-            plt.title('Weight of correction ML fit on BAD=1\ncurated diploids, cumulative up to {}'.format(n_max - 1))
+        plt.ylabel('weight of correction')
+        # plt.title('Weight of correction ML fit on BAD=1\ncurated diploids, window +- {}'.format(window))
+        # plt.title('Weight of correction ML fit on BAD=1\ncurated diploids, cumulative up to {}'.format(n_max - 1))
+        plt.title('Weight of correction ML fit on BAD={}}\nall datasets, window +- {}'.format(BAD, window))
         plt.show()
 
     if plot_histograms:
@@ -241,15 +238,22 @@ if __name__ == '__main__':
                 w = weights[n]
                 print(w)
             else:
-                w = 0.15
+                w = 0.4
 
             if mode == 'alpha':
-                norm = sum(st.binom(n, 0.5).pmf(x) * (1 - w) + 2 * x / (n * (n + 1)) * w for x in range(3, n - 2))
+                # norm = sum(st.binom(n, 0.5).pmf(x) * (1 - w) + 2 * x / (n * (n + 1)) * w for x in range(3, n - 2))
+                # density = [0] * 3 + \
+                #           [(st.binom(n, 0.5).pmf(x) * (1 - w) + 2 * x / (n * (n + 1)) * w) / norm for x in
+                #            range(3, n - 2)] + \
+                #           [0] * 3
+                # label = 'weight of linear noize: {}\ntotal observations: {}'.format(round(w, 2), total_snps)
+                norm = sum((0.5 * (st.binom(n, 0.33).pmf(x) + st.binom(n, 0.67).pmf(x)) * (1 - w) +
+                                  2 * x / (n * (n + 1)) * w) for x in range(3, n - 2))
                 density = [0] * 3 + \
-                          [(st.binom(n, 0.5).pmf(x) * (1 - w) + 2 * x / (n * (n + 1)) * w) / norm for x in
-                           range(3, n - 2)] + \
-                          [0] * 3
-                label = 'weight of linear noize: {}\ntotal observations: {}'.format(round(w, 2), total_snps)
+                          [(0.5 * (st.binom(n, 0.33).pmf(x) + st.binom(n, 0.67).pmf(x)) * (1 - w) + 2 * x / (
+                                      n * (n + 1)) * w) / norm for x in
+                           range(3, n - 2)] + [0] * 3
+                label = 'total observations: {}'.format(total_snps)
             elif mode == 'p':
                 norm = sum(st.binom(n, w).pmf(x) for x in range(3, n - 2))
                 density = [0] * 3 + [(st.binom(n, w).pmf(x)) / norm for x in range(3, n - 2)] + [0] * 3
@@ -258,11 +262,11 @@ if __name__ == '__main__':
             plt.plot(list(range(n + 1)), density)
             plt.text(s=label, x=0.65 * n, y=max(density) * 0.6)
 
-            plt.title('ref-alt bias for BAD=1 (curated) (binomial shift fit) n={}'.format(n))
+            plt.title('ref-alt bias for BAD=2 n={}'.format(n))
             ax.legend().remove()
             plt.ylabel('count')
             plt.xlabel('ref_read_counts')
-            plt.savefig(os.path.expanduser('~/ref-alt_bias_BAD=1_curated_n-{}.png'.format(n)))
+            plt.savefig(os.path.expanduser('~/ref-alt_bias_BAD=2_w=04_cn-{}.png'.format(n)))
             # plt.show()
 
     if count_stat_significance:
