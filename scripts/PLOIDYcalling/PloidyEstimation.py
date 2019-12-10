@@ -39,7 +39,7 @@ class Segmentation(ABC):
         """
         binomial tail of 3
         """
-        return p ** N + N * p ** (N - 1) * (1 - p) + N * (N - 1) / 2 * p ** (N - 2) * (1 - p) ** 2
+        return 1.0 - (p ** N + N * p ** (N - 1) * (1 - p) + N * (N - 1) / 2 * p ** (N - 2) * (1 - p) ** 2)
 
     def loglikelyhood(self, N, X, i):
         """
