@@ -167,7 +167,7 @@ def plot_fit(weights_of_correction, save=True):
         plt.show()
 
 
-def plot_quality(scores, binom_scores, save=True):
+def plot_quality(scores, binom_scores, metric_mode, save=True):
     print(scores, binom_scores)
     fig, ax = plt.subplots(figsize=(10, 8))
     plt.scatter(list(scores.keys()), [scores[k] for k in scores], label='fit')
@@ -180,16 +180,22 @@ def plot_quality(scores, binom_scores, save=True):
     plt.title('Scores of correction ML fit on BAD={}\nall_datasets, {}'.format(BAD, mode))
     plt.legend()
     if save:
-        plt.savefig(os.path.expanduser('~/plots/qual_of_fit_BAD={}_mode={}.png'.format(BAD, mode)))
+        plt.savefig(os.path.expanduser('~/plots/qual_of_fit_{}_BAD={}_mode={}.png'.format(metric_mode, BAD, mode)))
     else:
         plt.show()
 
 
-def calculate_score(weights_of_correction, counts_matrix):
+def calculate_score(weights_of_correction, counts_matrix, metric_mode):
     scores = dict()
     binom_scores = dict()
     for n in weights_of_correction:
-        norm, observed = get_observed(n, counts_matrix)
+        if metric_mode == 'rmse':
+            norm, observed = get_observed(n, counts_matrix)
+        elif metric_mode == 'chi_sq':
+            norm, observed = get_observed(n, counts_matrix, normalize=False)
+        else:
+            raise ValueError(metric_mode)
+
         if norm == 0:
             continue
         expected = get_probability_density(n, weights_of_correction[n])
@@ -199,8 +205,15 @@ def calculate_score(weights_of_correction, counts_matrix):
 
         # plot_distributions(n, expected, expected_binom, observed)
 
-        scores[n] = metric(expected, observed)
-        binom_scores[n] = metric(expected_binom, observed)
+        if metric_mode == 'rmse':
+            scores[n] = np.sqrt(metrics.mean_squared_error(expected, observed))
+            binom_scores[n] = np.sqrt(metrics.mean_squared_error(expected_binom, observed))
+        elif metric_mode == 'chi_sq':
+            expected = [x * norm for x in expected]
+            expected_binom = [x * norm for x in expected_binom]
+
+            scores[n] = st.chisquare(observed, expected)[1]
+            binom_scores[n] = st.chisquare(observed, expected_binom)[1]
 
     return scores, binom_scores
 
@@ -218,11 +231,13 @@ def get_p():
     return 1 / (BAD + 1)
 
 
-def get_observed(n, counts_matrix):
+def get_observed(n, counts_matrix, normalize=True):
     norm = counts_matrix[n, :n + 1].sum()
     if norm == 0:
         return 0, counts_matrix[n, :n + 1]
-    observed = counts_matrix[n, :n + 1] / norm
+    observed = counts_matrix[n, :n + 1]
+    if normalize:
+        observed = observed / norm
     return norm, observed
 
 
@@ -303,8 +318,7 @@ if __name__ == '__main__':
 
     BAD = 1
     mode = "up_window_n_sq"
-    metric = metrics.mean_squared_error
-    # metric = lambda x, y: st.chisquare(x, y)[1]
+    metric_modes = ['rmse']
     filename = os.path.expanduser('~/cover_bias_statistics.tsv')
     stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
@@ -314,7 +328,8 @@ if __name__ == '__main__':
     print('made counts')
 
     # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
-    s_ns = range(10, max(stats['cover']) + 1, 10)
+    # s_ns = range(10, max(stats['cover']) + 1, 100)
+    s_ns = [10, 12]
 
     max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
@@ -339,10 +354,11 @@ if __name__ == '__main__':
             plot_fit(weights)
 
         if calculate_fit_quality:
-            calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts)
+            for metric in metric_modes:
+                calculated_fit_metrics, calculated_binom_metrics = calculate_score([0.01, 0.01], counts, metric)
 
-            if plot_fit_quality:
-                plot_quality(calculated_fit_metrics, calculated_binom_metrics)
+                if plot_fit_quality:
+                    plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric)
 
         if plot_histograms:
             for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
