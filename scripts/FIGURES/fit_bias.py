@@ -33,9 +33,9 @@ def make_binom_matrix(valid_n, p):
         for k in range(n + 1):
             if p != 0.5:
                 rv[n, k] = 0.5 * (f1(k) + f2(k))
-                noise[n, k] = 2 * k / (n * (n + 1)) if n != 0 else 0
             else:
                 rv[n, k] = f(k)
+            noise[n, k] = 2 * k / (n * (n + 1)) if n != 0 else 0
     np.save(filename + '_binom.precalc.npy', rv)
     np.save(filename + '_linear.precalc.npy', noise)
     return rv, noise
@@ -78,24 +78,28 @@ def make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window):
 
 def fit_alpha(noise_matrix, binom_matrix, counts_matrix, window):
     try:
-        x = [v/100 for v in range(1, 100)]
-
-
-
         alpha_coefficient = optimize.brenth(
             f=make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window), a=0.01, b=0.999)
     except ValueError:
         f = make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window)
         if np.sign(f(0)) == np.sign(f(0.9999)):
-            if np.sign(f(0.9999)) > 0:
+            if np.sign(f(0.9999)) < 0:
                 return 1
-            if np.sign(f(0)) < 0:
+            if np.sign(f(0)) > 0:
                 return 0
             else:
                 return 'NaN'
         else:
             return 1
     return alpha_coefficient
+
+
+def plot_target_function(f):
+    x = [v / 100 for v in range(1, 100)]
+    y = [f(v) for v in x]
+    plt.scatter(x, y)
+    plt.grid(True)
+    plt.show()
 
 
 def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, BAD):
@@ -139,27 +143,47 @@ def plot_fit(weights, BAD):
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('weight of correction')
-    plt.title('Weight of correction ML fit on BAD={}\nall datasets, {}'.format(BAD, mode))
+    plt.title('Weight of correction ML fit on BAD={}\ncurated diploids, {}'.format(BAD, mode))
     plt.show()
 
 
-def plot_quality(scores, BAD):
-    plt.scatter(list(scores.keys()), [scores[k] for k in scores])
+def plot_quality(scores, binom_scores, BAD):
+    plt.scatter(list(scores.keys()), [scores[k] for k in scores], label='fit')
+    plt.scatter(list(binom_scores.keys()), [binom_scores[k] for k in binom_scores], label='binom')
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('MSE scores')
-    plt.title('MSE scores of correction ML fit on BAD={}\nall datasets, {}'.format(BAD, mode))
+    plt.title('MSE scores of correction ML fit on BAD={}\ncurated diploids, {}'.format(BAD, mode))
+    plt.legend()
     plt.show()
 
 
-def calculate_mse(weights, counts_matrix, BAD):
-    mse_scores = dict()
+def calculate_score(weights, counts_matrix, BAD):
+    scores = dict()
+    binom_scores = dict()
     for n in weights:
         expected = get_probability_density(n, weights[n], BAD)
+        fit_sample_weights = [x ** (-0.5) if x != 0 else 0 for x in expected]
+        expected_binom = get_probability_density(n, 0, BAD)
+        binom_sample_weights = [x ** (-0.5) if x != 0 else 0 for x in expected_binom]
         norm, observed = get_observed(n, counts_matrix)
         print(n, norm, norm >= (n + 1) ** 2)
-        mse_scores[n] = metrics.mean_squared_error(observed, expected)
-    return mse_scores
+
+        # plot_distributions(n, expected, expected_binom, observed)
+
+        scores[n] = metric(expected, observed)
+        binom_scores[n] = metric(expected_binom, observed)
+
+    return scores, binom_scores
+
+
+def plot_distributions(n, expected, expected_binom, observed):
+    plt.scatter(list(range(n + 1)), expected, label='fit')
+    plt.scatter(list(range(n + 1)), expected_binom, label='binom')
+    plt.scatter(list(range(n + 1)), observed, label='observed')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
 
 
 def get_p(BAD):
@@ -174,12 +198,13 @@ def get_observed(n, counts_matrix):
 
 def get_probability_density(n, alpha, BAD):
     p = get_p(BAD)
-    norm = sum((0.5 * (st.binom(n, p).pmf(x) + st.binom(n, 1 - p).pmf(x)) * (1 - alpha) +
+    f1 = st.binom(n, p).pmf
+    f2 = st.binom(n, 1 - p).pmf
+    norm = sum((0.5 * (f1(x) + f2(x)) * (1 - alpha) +
                 2 * x / (n * (n + 1)) * alpha) for x in range(3, n - 2))
     density = [0] * 3 + \
-              [(0.5 * (st.binom(n, p).pmf(alpha) + st.binom(n, 1 - p).pmf(x)) * (1 - alpha) + 2 * x / (
-                      n * (n + 1)) * alpha) / norm for x in
-               range(3, n - 2)] + [0] * 3
+              [(0.5 * (f1(x) + f2(x)) * (1 - alpha) +
+                2 * x / (n * (n + 1)) * alpha) / norm for x in range(3, n - 2)] + [0] * 3
     return density
 
 
@@ -187,6 +212,7 @@ if __name__ == '__main__':
 
     BAD = 1
     mode = "up_window"
+    metric = metrics.mean_squared_error
     filename = os.path.expanduser('~/cover_bias_statistics_curated_diploids.tsv')
     stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
@@ -194,7 +220,8 @@ if __name__ == '__main__':
     counts, dict_of_nonzero_N = make_counts_matrix_and_nonzero_dict(stats)
     print('made counts')
 
-    s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
+    # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
+    s_ns = range(10, 401, 5)
 
     plot_histograms = False
     count_stat_significance = False
@@ -209,10 +236,10 @@ if __name__ == '__main__':
             plot_fit(weights, BAD)
 
         if calculate_fit_quality:
-            calculated_fit_metrics = calculate_mse(weights, counts, BAD)
+            calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts, BAD)
             
             if plot_fit_quality:
-                plot_quality(calculated_fit_metrics, BAD)
+                plot_quality(calculated_fit_metrics, calculated_binom_metrics, BAD)
                 
     # if plot_histograms:
     #     for n in s_ns:
