@@ -1,12 +1,11 @@
-import sys
 import os
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-import seaborn as sns
 from scipy import optimize
 from scipy import stats as st
 from sklearn import metrics
+import seaborn as sns
 
 
 def make_binom_matrix(valid_n, p):
@@ -102,18 +101,18 @@ def plot_target_function(f):
     plt.show()
 
 
-def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, BAD):
+def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict):
     print('made ncr and noize')
     valid_n = make_array_for_valid_N(n_array, nonzero_dict)
-    binom_matrix, noise = make_binom_matrix(valid_n, get_p(BAD))
-    weights = {}
+    binom_matrix, noise = make_binom_matrix(valid_n, get_p())
+    weights_of_correction = {}
     for n in n_array:
         print('fitting for n={}'.format(n))
-        weights[n] = fit_alpha(counts_matrix=counts_matrix,
-                               binom_matrix=binom_matrix,
-                               noise_matrix=noise, window=get_window(n, nonzero_dict))
-        print(weights[n])
-    return weights
+        weights_of_correction[n] = fit_alpha(counts_matrix=counts_matrix,
+                                             binom_matrix=binom_matrix,
+                                             noise_matrix=noise, window=get_window(n, nonzero_dict))
+        print(weights_of_correction[n])
+    return weights_of_correction
 
 
 def make_array_for_valid_N(n_array, nonzero_dict):
@@ -138,35 +137,39 @@ def get_window_up(n, nonzero_dict):
     return window
 
 
-def plot_fit(weights, BAD):
-    plt.scatter(list(weights.keys()), [weights[k] for k in weights])
+def plot_fit(weights_of_correction):
+    plt.scatter(list(weights_of_correction.keys()), [weights_of_correction[k] for k in weights_of_correction])
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('weight of correction')
-    plt.title('Weight of correction ML fit on BAD={}\ncurated diploids, {}'.format(BAD, mode))
+    plt.title('Weight of correction ML fit on BAD={}\nall_datasets, {}'.format(BAD, mode))
     plt.show()
 
 
-def plot_quality(scores, binom_scores, BAD):
+def plot_quality(scores, binom_scores):
+    print(scores, binom_scores)
     plt.scatter(list(scores.keys()), [scores[k] for k in scores], label='fit')
     plt.scatter(list(binom_scores.keys()), [binom_scores[k] for k in binom_scores], label='binom')
     plt.grid(True)
     plt.xlabel('cover')
-    plt.ylabel('MSE scores')
-    plt.title('MSE scores of correction ML fit on BAD={}\ncurated diploids, {}'.format(BAD, mode))
+    plt.ylabel('Scores')
+    plt.title('Scores of correction ML fit on BAD={}\nall_datasets, {}'.format(BAD, mode))
     plt.legend()
     plt.show()
 
 
-def calculate_score(weights, counts_matrix, BAD):
+def calculate_score(weights_of_correction, counts_matrix):
     scores = dict()
     binom_scores = dict()
-    for n in weights:
-        expected = get_probability_density(n, weights[n], BAD)
-        fit_sample_weights = [x ** (-0.5) if x != 0 else 0 for x in expected]
-        expected_binom = get_probability_density(n, 0, BAD)
-        binom_sample_weights = [x ** (-0.5) if x != 0 else 0 for x in expected_binom]
+    for n in weights_of_correction:
         norm, observed = get_observed(n, counts_matrix)
+        if norm == 0:
+            continue
+        expected = get_probability_density(n, weights_of_correction[n])
+        # fit_sample_weights = [x ** (-0.5) if x != 0 else 0 for x in expected]
+        expected_binom = get_probability_density(n, 0)
+        # binom_sample_weights = [x ** (-0.5) if x != 0 else 0 for x in expected_binom]
+
         print(n, norm, norm >= (n + 1) ** 2)
 
         # plot_distributions(n, expected, expected_binom, observed)
@@ -186,18 +189,20 @@ def plot_distributions(n, expected, expected_binom, observed):
     plt.show()
 
 
-def get_p(BAD):
+def get_p():
     return 1 / (BAD + 1)
 
 
 def get_observed(n, counts_matrix):
     norm = counts_matrix[n, :n + 1].sum()
+    if norm == 0:
+        return 0, counts_matrix[n, :n + 1]
     observed = counts_matrix[n, :n + 1] / norm
     return norm, observed
 
 
-def get_probability_density(n, alpha, BAD):
-    p = get_p(BAD)
+def get_probability_density(n, alpha):
+    p = get_p()
     f1 = st.binom(n, p).pmf
     f2 = st.binom(n, 1 - p).pmf
     norm = sum((0.5 * (f1(x) + f2(x)) * (1 - alpha) +
@@ -210,10 +215,11 @@ def get_probability_density(n, alpha, BAD):
 
 if __name__ == '__main__':
 
-    BAD = 1
+    BAD = 2
     mode = "up_window"
     metric = metrics.mean_squared_error
-    filename = os.path.expanduser('~/cover_bias_statistics_curated_diploids.tsv')
+    # metric = lambda x, y: st.chisquare(x, y)[1]
+    filename = os.path.expanduser('~/cover_bias_statistics_BAD2.tsv')
     stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
     stats['ref_counts'] = stats['ref_counts'].astype(int)
@@ -221,9 +227,9 @@ if __name__ == '__main__':
     print('made counts')
 
     # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
-    s_ns = range(10, 401, 5)
+    s_ns = range(10, max(stats['cover']) + 1, 100)
 
-    plot_histograms = False
+    plot_histograms = True
     count_stat_significance = False
     calculate_weights = True
     calculate_fit_quality = True
@@ -231,60 +237,40 @@ if __name__ == '__main__':
     plot_fit_quality = True
 
     if calculate_weights:
-        weights = fit_weights_for_n_array(s_ns, counts, dict_of_nonzero_N, BAD)
+        weights = fit_weights_for_n_array(s_ns, counts, dict_of_nonzero_N)
         if plot_fit_weights:
-            plot_fit(weights, BAD)
+            plot_fit(weights)
 
         if calculate_fit_quality:
-            calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts, BAD)
-            
+            calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts)
+
             if plot_fit_quality:
-                plot_quality(calculated_fit_metrics, calculated_binom_metrics, BAD)
-                
-    # if plot_histograms:
-    #     for n in s_ns:
-    #         # statsplot = pd.DataFrame(stats.loc[stats['cover'] == n])
-    #         # statsplot['ref_counts'] = statsplot['ref_counts'].astype(int)
-    #         # statsplot['counts'] = statsplot['counts'].astype(int)
-    #         # statsplot['color'] = np.abs(statsplot['ref_counts'] - n / 2)
-    #         print('made data for n={}'.format(n))
-    #         total_snps = sum(counts[n, k] for k in range(n + 1))
-    #
-    #         fig, ax = plt.subplots(figsize=(10, 8))
-    #         sns.barplot(x=list(range(n + 1)), y=counts[n, 0:n + 1] / total_snps, ax=ax)
-    #         plt.axvline(x=n / 2, color='black')
-    #
-    #         if calculate_weights:
-    #             w = weights[n]
-    #             print(w)
-    #         else:
-    #             w = 0.4
-    #
-    #         if mode == 'alpha':
-    #             # norm = sum(st.binom(n, 0.5).pmf(x) * (1 - w) + 2 * x / (n * (n + 1)) * w for x in range(3, n - 2))
-    #             # density = [0] * 3 + \
-    #             #           [(st.binom(n, 0.5).pmf(x) * (1 - w) + 2 * x / (n * (n + 1)) * w) / norm for x in
-    #             #            range(3, n - 2)] + \
-    #             #           [0] * 3
-    #             # label = 'weight of linear noize: {}\ntotal observations: {}'.format(round(w, 2), total_snps)
-    #             norm = sum((0.5 * (st.binom(n, 0.33).pmf(x) + st.binom(n, 0.67).pmf(x)) * (1 - w) +
-    #                         2 * x / (n * (n + 1)) * w) for x in range(3, n - 2))
-    #             density = [0] * 3 + \
-    #                       [(0.5 * (st.binom(n, 0.33).pmf(x) + st.binom(n, 0.67).pmf(x)) * (1 - w) + 2 * x / (
-    #                               n * (n + 1)) * w) / norm for x in
-    #                        range(3, n - 2)] + [0] * 3
-    #             label = 'total observations: {}'.format(total_snps)
-    #         elif mode == 'p':
-    #             norm = sum(st.binom(n, w).pmf(x) for x in range(3, n - 2))
-    #             density = [0] * 3 + [(st.binom(n, w).pmf(x)) / norm for x in range(3, n - 2)] + [0] * 3
-    #             label = 'fitted binomial p: {}\ntotal observations: {}'.format(round(w, 2), total_snps)
-    #
-    #         plt.plot(list(range(n + 1)), density)
-    #         plt.text(s=label, x=0.65 * n, y=max(density) * 0.6)
-    #
-    #         plt.title('ref-alt bias for BAD=2 n={}'.format(n))
-    #         ax.legend().remove()
-    #         plt.ylabel('count')
-    #         plt.xlabel('ref_read_counts')
-    #         plt.savefig(os.path.expanduser('~/ref-alt_bias_BAD=2_w=04_cn-{}.png'.format(n)))
-    #         # plt.show()
+                plot_quality(calculated_fit_metrics, calculated_binom_metrics)
+
+        if plot_histograms:
+            for input_n in s_ns:
+                if input_n < 4000:
+                    continue
+                # statsplot = pd.DataFrame(stats.loc[stats['cover'] == n])
+                # statsplot['ref_counts'] = statsplot['ref_counts'].astype(int)
+                # statsplot['counts'] = statsplot['counts'].astype(int)
+                # statsplot['color'] = np.abs(statsplot['ref_counts'] - n / 2)
+                print('made data for n={}'.format(input_n))
+                current_norm, current_density = get_probability_density(input_n, weights[input_n])
+                total_snps = sum(True for x in current_density if x != 0)
+
+                fig, ax = plt.subplots(figsize=(10, 8))
+                sns.barplot(x=list(range(input_n + 1)), y=counts[input_n, 0:input_n + 1] / total_snps, ax=ax)
+                plt.axvline(x=input_n / 2, color='black')
+
+                label = 'weight of linear noize: {}\ntotal observations: {}'.format(round(weights[input_n], 2),
+                                                                                    total_snps)
+                plt.plot(list(range(input_n + 1)), current_density)
+                plt.text(s=label, x=0.65 * input_n, y=max(current_density) * 0.6)
+
+                plt.title('ref-alt bias for BAD={} n={}'.format(BAD, input_n))
+                ax.legend().remove()
+                plt.ylabel('count')
+                plt.xlabel('ref_read_counts')
+                # plt.savefig(os.path.expanduser('~/ref-alt_bias_BAD=2_w=04_cn-{}.png'.format(n)))
+                plt.show()
