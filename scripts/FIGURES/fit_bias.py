@@ -110,7 +110,7 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
         print('fitting for n={}'.format(n))
         weights_of_correction[n] = fit_alpha(counts_matrix=counts_matrix,
                                              binom_matrix=binom_matrix,
-                                             noise_matrix=noise, window=get_window(n, nonzero_dict))
+                                             noise_matrix=noise, window=get_window(n, nonzero_dict, samples))
         print(weights_of_correction[n])
     return weights_of_correction
 
@@ -154,25 +154,35 @@ def get_window_up_n_sq(n, nonzero_dict, samples):
     return window
 
 
-def plot_fit(weights_of_correction):
+def plot_fit(weights_of_correction, save=True):
+    fig, ax = plt.subplots(figsize=(10, 8))
     plt.scatter(list(weights_of_correction.keys()), [weights_of_correction[k] for k in weights_of_correction])
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('weight of correction')
     plt.title('Weight of correction ML fit on BAD={}\nall_datasets, {}'.format(BAD, mode))
-    plt.show()
+    if save:
+        plt.savefig(os.path.expanduser('~/plots/weights_BAD={}_mode={}.png'.format(BAD, mode)))
+    else:
+        plt.show()
 
 
-def plot_quality(scores, binom_scores):
+def plot_quality(scores, binom_scores, save=True):
     print(scores, binom_scores)
+    fig, ax = plt.subplots(figsize=(10, 8))
     plt.scatter(list(scores.keys()), [scores[k] for k in scores], label='fit')
     plt.scatter(list(binom_scores.keys()), [binom_scores[k] for k in binom_scores], label='binom')
+    max_y = max([binom_scores[k] for k in binom_scores])
+    ax.set_ylim([-1 * max_y / 50, max_y * 1.02])
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('Scores')
     plt.title('Scores of correction ML fit on BAD={}\nall_datasets, {}'.format(BAD, mode))
     plt.legend()
-    plt.show()
+    if save:
+        plt.savefig(os.path.expanduser('~/plots/qual_of_fit_BAD={}_mode={}.png'.format(BAD, mode)))
+    else:
+        plt.show()
 
 
 def calculate_score(weights_of_correction, counts_matrix):
@@ -183,9 +193,7 @@ def calculate_score(weights_of_correction, counts_matrix):
         if norm == 0:
             continue
         expected = get_probability_density(n, weights_of_correction[n])
-        # fit_sample_weights = [x ** (-0.5) if x != 0 else 0 for x in expected]
         expected_binom = get_probability_density(n, 0)
-        # binom_sample_weights = [x ** (-0.5) if x != 0 else 0 for x in expected_binom]
 
         print(n, norm, norm >= (n + 1) ** 2)
 
@@ -230,20 +238,27 @@ def get_probability_density(n, alpha):
     return density
 
 
-def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode):
-    y = [sum(samples[n] for n in get_window(n, nonzero_dict, samples, window_mode)) for n in n_array]
-    plt.scatter(n_array, y)
+def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=True):
+    y = [np.log10(sum(samples[n] for n in get_window(n, nonzero_dict, samples, window_mode))) for n in n_array]
+    fig, ax = plt.subplots(figsize=(10, 8))
+    plt.scatter(n_array, y, label='in window')
+    plt.scatter(n_array, np.log10(np.array(n_array) + 1), s=1, label='linear')
+    plt.scatter(n_array, 2 * np.log10(np.array(n_array) + 1), s=1, label='sq')
     plt.grid(True)
     plt.xlabel('cover')
-    plt.ylabel('number of snps in window')
-    plt.title('Number of observations in window on BAD={}\nall_datasets, {}'.format(BAD, mode))
-    plt.show()
+    plt.ylabel('log10 number of snps in window')
+    plt.title('Number of observations in window on BAD={}\nall_datasets, {}'.format(BAD, window_mode))
+    plt.legend()
+    if save:
+        plt.savefig(os.path.expanduser('~/plots/obs_in_window_BAD={}_mode={}.png'.format(BAD, window_mode)))
+    else:
+        plt.show()
 
 
-def plot_histogram(n, weight, save=False):
+def plot_histogram(n, weight, save=True):
     print('made data for n={}'.format(n))
     current_density = get_probability_density(n, weight)
-    total_snps = sum(x for x in current_density if x != 0)
+    total_snps = counts[n, 0:n + 1].sum()
 
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.barplot(x=list(range(n + 1)), y=counts[n, 0:n + 1] / total_snps, ax=ax)
@@ -265,19 +280,22 @@ def plot_histogram(n, weight, save=False):
 
 
 def get_max_sensible_n(n_array, samples, nonzero_dict, sensible_mode='linear'):
-    current_cumulative_counts = 0
     for i, n in enumerate(n_array):
+        current_cumulative_counts = 0
         if sensible_mode == 'linear':
             required_counts = (n + 1)
         elif sensible_mode == 'sq':
             required_counts = (n + 1) ** 2
+        else:
+            raise ValueError(sensible_mode)
+
         for key in sorted(list(nonzero_dict.keys())):
             if n <= key:
                 current_cumulative_counts += samples[key]
             if current_cumulative_counts >= required_counts:
                 break
         else:
-            return n_array[min(0, i - 1)]
+            return n_array[max(0, i - 1)]
     return n_array[-1]
 
 
@@ -305,8 +323,8 @@ if __name__ == '__main__':
     calculate_weights = True
     plot_fit_weights = True
 
-    calculate_fit_quality = False
-    plot_fit_quality = False
+    calculate_fit_quality = True
+    plot_fit_quality = True
     
     plot_histograms = True
 
