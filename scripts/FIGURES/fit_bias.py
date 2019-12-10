@@ -26,15 +26,19 @@ def make_binom_matrix(valid_n, p):
             f2 = st.binom(n, 1 - p).pmf
             for k in range(n + 1):
                 rv[n, k] = 0.5 * (f1(k) + f2(k))
-                noise[n, k] = 2 * k / (n * (n + 1)) if n != 0 else 0
+                noise[n, k] = get_noise_density(n, k)
         else:
             f = st.binom(n, p).pmf
             for k in range(n + 1):
                 rv[n, k] = f(k)
-                noise[n, k] = 2 * k / (n * (n + 1)) if n != 0 else 0
+                noise[n, k] = get_noise_density(n, k)
     np.save(filename + '_binom.precalc.npy', rv)
     np.save(filename + '_linear.precalc.npy', noise)
     return rv, noise
+
+
+def get_noise_density(n, k):
+    return 2 * k / (n * (n + 1)) if n != 0 else 0
 
 
 def make_counts_matrix_and_nonzero_dict(stats_pandas_dataframe):
@@ -97,9 +101,9 @@ def plot_target_function(f):
     plt.show()
 
 
-def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict):
+def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
     print('made ncr and noize')
-    valid_n = make_array_for_valid_N(n_array, nonzero_dict)
+    valid_n = make_array_for_valid_N(n_array, nonzero_dict, samples)
     binom_matrix, noise = make_binom_matrix(valid_n, get_p())
     weights_of_correction = {}
     for n in n_array:
@@ -111,16 +115,20 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict):
     return weights_of_correction
 
 
-def make_array_for_valid_N(n_array, nonzero_dict):
+def make_array_for_valid_N(n_array, nonzero_dict, samples):
     valid_n = set()
     for n in n_array:
-        valid_n |= get_window(n, nonzero_dict).keys()
+        valid_n |= get_window(n, nonzero_dict, samples).keys()
     return valid_n
 
 
-def get_window(n, nonzero_dict):
-    if mode == "up_window":
+def get_window(n, nonzero_dict, samples, window_mode=None):
+    if window_mode is None:
+        window_mode = mode
+    if window_mode == "up_window":
         return get_window_up(n, nonzero_dict)
+    elif window_mode == "up_window_n_sq":
+        return get_window_up_n_sq(n, nonzero_dict, samples)
     else:
         return
 
@@ -130,6 +138,19 @@ def get_window_up(n, nonzero_dict):
     for key in nonzero_dict:
         if n <= key:
             window[key] = nonzero_dict[key]
+    return window
+
+
+def get_window_up_n_sq(n, nonzero_dict, samples):
+    window = {}
+    current_cumulative_counts = 0
+    required_counts = (n + 1) ** 2
+    for key in sorted(list(nonzero_dict.keys())):
+        if n <= key:
+            window[key] = nonzero_dict[key]
+            current_cumulative_counts += samples[key]
+        if current_cumulative_counts >= required_counts:
+            break
     return window
 
 
@@ -209,21 +230,77 @@ def get_probability_density(n, alpha):
     return density
 
 
+def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode):
+    y = [sum(samples[n] for n in get_window(n, nonzero_dict, samples, window_mode)) for n in n_array]
+    plt.scatter(n_array, y)
+    plt.grid(True)
+    plt.xlabel('cover')
+    plt.ylabel('number of snps in window')
+    plt.title('Number of observations in window on BAD={}\nall_datasets, {}'.format(BAD, mode))
+    plt.show()
+
+
+def plot_histogram(n, weight, save=False):
+    print('made data for n={}'.format(n))
+    current_density = get_probability_density(n, weight)
+    total_snps = sum(x for x in current_density if x != 0)
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.barplot(x=list(range(n + 1)), y=counts[n, 0:n + 1] / total_snps, ax=ax)
+    plt.axvline(x=n / 2, color='black')
+
+    label = 'weight of linear noize: {}\ntotal observations: {}'.format(round(weight, 2),
+                                                                        total_snps)
+    plt.plot(list(range(n + 1)), current_density)
+    plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
+
+    plt.title('ref-alt bias for BAD={} n={}'.format(BAD, n))
+    ax.legend().remove()
+    plt.ylabel('count')
+    plt.xlabel('ref_read_counts')
+    if save:
+        plt.savefig(os.path.expanduser('~/plots/ref-alt_bias_BAD={}_w={}_n-{}.png'.format(BAD, weight, n)))
+    else:
+        plt.show()
+
+
+def get_max_sensible_n(n_array, samples, nonzero_dict, sensible_mode='linear'):
+    current_cumulative_counts = 0
+    for i, n in enumerate(n_array):
+        if sensible_mode == 'linear':
+            required_counts = (n + 1)
+        elif sensible_mode == 'sq':
+            required_counts = (n + 1) ** 2
+        for key in sorted(list(nonzero_dict.keys())):
+            if n <= key:
+                current_cumulative_counts += samples[key]
+            if current_cumulative_counts >= required_counts:
+                break
+        else:
+            return n_array[min(0, i - 1)]
+    return n_array[-1]
+
+
 if __name__ == '__main__':
 
-    BAD = 2
-    mode = "up_window"
+    BAD = 1
+    mode = "up_window_n_sq"
     metric = metrics.mean_squared_error
     # metric = lambda x, y: st.chisquare(x, y)[1]
-    filename = os.path.expanduser('~/cover_bias_statistics_BAD2.tsv')
+    filename = os.path.expanduser('~/cover_bias_statistics.tsv')
     stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
     stats['ref_counts'] = stats['ref_counts'].astype(int)
     counts, dict_of_nonzero_N = make_counts_matrix_and_nonzero_dict(stats)
+    total_snps_with_cover_n = counts.sum(axis=1)
     print('made counts')
 
     # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
-    s_ns = range(10, max(stats['cover']) + 1, 100)
+    s_ns = range(10, max(stats['cover']) + 1, 10)
+
+    max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
+
+    plot_window_counts = True
 
     calculate_weights = True
     plot_fit_weights = True
@@ -233,8 +310,13 @@ if __name__ == '__main__':
     
     plot_histograms = True
 
+    if plot_window_counts:
+        for window_mode in ("up_window", "up_window_n_sq"):
+            plot_window_sizes_in_snps(s_ns, dict_of_nonzero_N, total_snps_with_cover_n, window_mode)
+
     if calculate_weights:
-        weights = fit_weights_for_n_array(s_ns, counts, dict_of_nonzero_N)
+        sensible_n_array = [n for n in s_ns if n <= max_sensible_n]
+        weights = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N, total_snps_with_cover_n)
         if plot_fit_weights:
             plot_fit(weights)
 
@@ -245,29 +327,6 @@ if __name__ == '__main__':
                 plot_quality(calculated_fit_metrics, calculated_binom_metrics)
 
         if plot_histograms:
-            for input_n in s_ns:
-                if input_n < 4000:
-                    continue
-                # statsplot = pd.DataFrame(stats.loc[stats['cover'] == n])
-                # statsplot['ref_counts'] = statsplot['ref_counts'].astype(int)
-                # statsplot['counts'] = statsplot['counts'].astype(int)
-                # statsplot['color'] = np.abs(statsplot['ref_counts'] - n / 2)
-                print('made data for n={}'.format(input_n))
-                current_density = get_probability_density(input_n, weights[input_n])
-                total_snps = sum(x for x in current_density if x != 0)
-
-                fig, ax = plt.subplots(figsize=(10, 8))
-                sns.barplot(x=list(range(input_n + 1)), y=counts[input_n, 0:input_n + 1] / total_snps, ax=ax)
-                plt.axvline(x=input_n / 2, color='black')
-
-                label = 'weight of linear noize: {}\ntotal observations: {}'.format(round(weights[input_n], 2),
-                                                                                    total_snps)
-                plt.plot(list(range(input_n + 1)), current_density)
-                plt.text(s=label, x=0.65 * input_n, y=max(current_density) * 0.6)
-
-                plt.title('ref-alt bias for BAD={} n={}'.format(BAD, input_n))
-                ax.legend().remove()
-                plt.ylabel('count')
-                plt.xlabel('ref_read_counts')
-                # plt.savefig(os.path.expanduser('~/ref-alt_bias_BAD=2_w=04_cn-{}.png'.format(n)))
-                plt.show()
+            for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
+                                                                'sq'), max_sensible_n]:
+                plot_histogram(n, weights[n], save=True)
