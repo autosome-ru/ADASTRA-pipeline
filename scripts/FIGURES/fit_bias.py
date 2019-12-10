@@ -21,20 +21,17 @@ def make_binom_matrix(valid_n, p):
     noise = np.zeros((n_max_from_valid_n + 1, n_max_from_valid_n + 1), dtype=np.float128)
     for n in valid_n:
         print(n)
-        # FIXME ТАК ХОТЕЛ САНЯ, ПОДУМОТЬ КАК ЛУЧЧШЕШЕШЕШЕ
         if p != 0.5:
             f1 = st.binom(n, p).pmf
             f2 = st.binom(n, 1 - p).pmf
-        else:
-            # f1 = st.binom(n, p).pmf
-            # f2 = f1
-            f = st.binom(n, p).pmf
-        for k in range(n + 1):
-            if p != 0.5:
+            for k in range(n + 1):
                 rv[n, k] = 0.5 * (f1(k) + f2(k))
-            else:
+                noise[n, k] = 2 * k / (n * (n + 1)) if n != 0 else 0
+        else:
+            f = st.binom(n, p).pmf
+            for k in range(n + 1):
                 rv[n, k] = f(k)
-            noise[n, k] = 2 * k / (n * (n + 1)) if n != 0 else 0
+                noise[n, k] = 2 * k / (n * (n + 1)) if n != 0 else 0
     np.save(filename + '_binom.precalc.npy', rv)
     np.save(filename + '_linear.precalc.npy', noise)
     return rv, noise
@@ -56,13 +53,12 @@ def make_counts_matrix_and_nonzero_dict(stats_pandas_dataframe):
 
 
 def make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window):
-    # TODO: DOMASHNEE ZADANIE
     """
-    :param counts_matrix:
+    :param counts_matrix: number of counts 2D np.array
     :param binom_matrix:
     :param noise_matrix:
-    :param window:
-    :return:
+    :param window: dict[n] = array of valid k
+    :return: target function for optimization
     """
 
     def target(alpha):
@@ -230,11 +226,11 @@ if __name__ == '__main__':
     s_ns = range(10, max(stats['cover']) + 1, 100)
 
     calculate_weights = True
-
     plot_fit_weights = True
-    calculate_fit_quality = False
 
+    calculate_fit_quality = False
     plot_fit_quality = False
+    
     plot_histograms = True
 
     if calculate_weights:
