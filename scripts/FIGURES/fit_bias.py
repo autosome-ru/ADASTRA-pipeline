@@ -8,29 +8,31 @@ from sklearn import metrics
 import seaborn as sns
 
 
-def make_binom_matrix(valid_n, p):
+def make_binom_matrix(size_of_counts, nonzero_dict, p):
     if os.path.isfile(filename + '_binom.precalc.npy') and os.path.isfile(filename + '_linear.precalc.npy'):
         rv = np.load(filename + '_binom.precalc.npy')
         noise = np.load(filename + '_linear.precalc.npy')
         return rv, noise
 
-    n_max_from_valid_n = max(valid_n)
-    print('n_max = {}'.format(n_max_from_valid_n))
-    print('unique n = {}'.format(len(valid_n)))
-    rv = np.zeros((n_max_from_valid_n + 1, n_max_from_valid_n + 1), dtype=np.float128)
-    noise = np.zeros((n_max_from_valid_n + 1, n_max_from_valid_n + 1), dtype=np.float128)
-    for n in valid_n:
+    print('n_max = {}'.format(size_of_counts))
+    rv = np.zeros((size_of_counts, size_of_counts), dtype=np.float128)
+    noise = np.zeros((size_of_counts, size_of_counts), dtype=np.float128)
+    for n in range(6, size_of_counts):
+        if n not in nonzero_dict:
+            continue
         print(n)
         if p != 0.5:
             f1 = st.binom(n, p).pmf
             f2 = st.binom(n, 1 - p).pmf
-            for k in range(n + 1):
-                rv[n, k] = 0.5 * (f1(k) + f2(k))
+            binom_norm = 1 - sum(0.5 * (f1(k) + f2(k)) for k in [0, 1, 2, n - 2, n - 1, n])
+            for k in range(3, n - 2):
+                rv[n, k] = 0.5 * (f1(k) + f2(k)) / binom_norm
                 noise[n, k] = get_noise_density(n, k)
         else:
             f = st.binom(n, p).pmf
-            for k in range(n + 1):
-                rv[n, k] = f(k)
+            binom_norm = 1 - sum(f(k) for k in [0, 1, 2, n - 2, n - 1, n])
+            for k in range(3, n - 2):
+                rv[n, k] = f(k) / binom_norm
                 noise[n, k] = get_noise_density(n, k)
     np.save(filename + '_binom.precalc.npy', rv)
     np.save(filename + '_linear.precalc.npy', noise)
@@ -38,7 +40,7 @@ def make_binom_matrix(valid_n, p):
 
 
 def get_noise_density(n, k):
-    return 2 * k / (n * (n + 1)) if n != 0 else 0
+    return 2 * k / (n * (n - 5)) if n != 0 else 0
 
 
 def make_counts_matrix_and_nonzero_dict(stats_pandas_dataframe):
@@ -103,8 +105,8 @@ def plot_target_function(f):
 
 def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
     print('made ncr and noize')
-    valid_n = make_array_for_valid_N(n_array, nonzero_dict, samples)
-    binom_matrix, noise = make_binom_matrix(valid_n, get_p())
+    binom_matrix, noise = make_binom_matrix(counts_matrix.shape[0], nonzero_dict, get_p())
+    print(binom_matrix[15, :16])
     weights_of_correction = {}
     for n in n_array:
         print('fitting for n={}'.format(n))
@@ -113,13 +115,6 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
                                              noise_matrix=noise, window=get_window(n, nonzero_dict, samples))
         print(weights_of_correction[n])
     return weights_of_correction
-
-
-def make_array_for_valid_N(n_array, nonzero_dict, samples):
-    valid_n = set()
-    for n in n_array:
-        valid_n |= get_window(n, nonzero_dict, samples).keys()
-    return valid_n
 
 
 def get_window(n, nonzero_dict, samples, window_mode=None):
@@ -328,8 +323,8 @@ if __name__ == '__main__':
     print('made counts')
 
     # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
-    # s_ns = range(10, max(stats['cover']) + 1, 100)
-    s_ns = [10, 12]
+    # s_ns = range(10, max(stats['cover']) + 1, 5)
+    s_ns = range(6, 231, 1)
 
     max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
@@ -355,7 +350,7 @@ if __name__ == '__main__':
 
         if calculate_fit_quality:
             for metric in metric_modes:
-                calculated_fit_metrics, calculated_binom_metrics = calculate_score([0.01, 0.01], counts, metric)
+                calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts, metric)
 
                 if plot_fit_quality:
                     plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric)
