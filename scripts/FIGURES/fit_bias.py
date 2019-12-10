@@ -229,12 +229,13 @@ if __name__ == '__main__':
     # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
     s_ns = range(10, max(stats['cover']) + 1, 100)
 
-    plot_histograms = True
-    count_stat_significance = False
     calculate_weights = True
-    calculate_fit_quality = True
+
     plot_fit_weights = True
-    plot_fit_quality = True
+    calculate_fit_quality = False
+
+    plot_fit_quality = False
+    plot_histograms = True
 
     if calculate_weights:
         weights = fit_weights_for_n_array(s_ns, counts, dict_of_nonzero_N)
@@ -256,8 +257,8 @@ if __name__ == '__main__':
                 # statsplot['counts'] = statsplot['counts'].astype(int)
                 # statsplot['color'] = np.abs(statsplot['ref_counts'] - n / 2)
                 print('made data for n={}'.format(input_n))
-                current_norm, current_density = get_probability_density(input_n, weights[input_n])
-                total_snps = sum(True for x in current_density if x != 0)
+                current_density = get_probability_density(input_n, weights[input_n])
+                total_snps = sum(x for x in current_density if x != 0)
 
                 fig, ax = plt.subplots(figsize=(10, 8))
                 sns.barplot(x=list(range(input_n + 1)), y=counts[input_n, 0:input_n + 1] / total_snps, ax=ax)
