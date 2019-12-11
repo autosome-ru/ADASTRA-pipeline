@@ -194,15 +194,17 @@ def calculate_score(weights_of_correction, counts_matrix, metric_mode):
 
         # plot_distributions(n, expected, expected_binom, observed)
 
+        idxs = (observed != 0)
+
         if metric_mode == 'rmse':
             scores[n] = np.sqrt(metrics.mean_squared_error(expected, observed))
             binom_scores[n] = np.sqrt(metrics.mean_squared_error(expected_binom, observed))
         elif metric_mode == 'chi_sq':
-            scores[n] = st.chisquare(observed[3: n - 2], expected[3: n - 2])[1]
-            binom_scores[n] = st.chisquare(observed[3: n - 2], expected_binom[3: n - 2])[1]
+            scores[n] = st.chisquare(observed[idxs], expected[idxs])[1]
+            binom_scores[n] = st.chisquare(observed[idxs], expected_binom[idxs])[1]
         elif metric_mode == 'g':
-            scores[n] = np.sum(observed[3: n - 2] * np.log(observed[3: n - 2] / expected[3: n - 2])) * 2
-            binom_scores[n] = np.sum(observed[3: n - 2] * np.log(observed[3: n - 2] / expected_binom[3: n - 2])) * 2
+            scores[n] = np.sum(observed[idxs] * np.log(observed[idxs] / expected[idxs])) * 2
+            binom_scores[n] = np.sum(observed[idxs] * np.log(observed[idxs] / expected_binom[idxs])) * 2
 
     return scores, binom_scores
 
@@ -307,7 +309,7 @@ if __name__ == '__main__':
 
     BAD = 1
     mode = "up_window_n_sq"
-    metric_modes = ['rmse', 'g']
+    metric_modes = ['g']
     filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv')
     stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
@@ -317,8 +319,8 @@ if __name__ == '__main__':
     print('made counts')
 
     # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
-    # s_ns = range(10, max(stats['cover']) + 1, 5)
-    s_ns = range(6, 231, 1)
+    s_ns = range(10, max(stats['cover']) + 1, 100)
+    # s_ns = range(6, 231, 1)
 
     max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
@@ -347,7 +349,7 @@ if __name__ == '__main__':
                 calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts, metric)
 
                 if plot_fit_quality:
-                    plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric)
+                    plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric, save=False)
 
         if plot_histograms:
             for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
