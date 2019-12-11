@@ -184,17 +184,11 @@ def calculate_score(weights_of_correction, counts_matrix, metric_mode):
     scores = dict()
     binom_scores = dict()
     for n in weights_of_correction:
-        if metric_mode == 'rmse':
-            norm, observed = get_observed(n, counts_matrix)
-        elif metric_mode == 'chi_sq':
-            norm, observed = get_observed(n, counts_matrix, normalize=False)
-        else:
-            raise ValueError(metric_mode)
-
+        norm, observed = get_observed(n, counts_matrix, normalize=False)
         if norm == 0:
             continue
-        expected = get_probability_density(n, weights_of_correction[n])
-        expected_binom = get_probability_density(n, 0)
+        expected = get_probability_density(n, weights_of_correction[n]) * norm
+        expected_binom = get_probability_density(n, 0) * norm
 
         print(n, norm, norm >= (n + 1) ** 2)
 
@@ -204,11 +198,11 @@ def calculate_score(weights_of_correction, counts_matrix, metric_mode):
             scores[n] = np.sqrt(metrics.mean_squared_error(expected, observed))
             binom_scores[n] = np.sqrt(metrics.mean_squared_error(expected_binom, observed))
         elif metric_mode == 'chi_sq':
-            expected = [x * norm for x in expected]
-            expected_binom = [x * norm for x in expected_binom]
-
-            scores[n] = st.chisquare(observed, expected)[1]
-            binom_scores[n] = st.chisquare(observed, expected_binom)[1]
+            scores[n] = st.chisquare(observed[3: n - 2], expected[3: n - 2])[1]
+            binom_scores[n] = st.chisquare(observed[3: n - 2], expected_binom[3: n - 2])[1]
+        elif metric_mode == 'g':
+            scores[n] = np.sum(observed[3: n - 2] * np.log(observed[3: n - 2] / expected[3: n - 2])) * 2
+            binom_scores[n] = np.sum(observed[3: n - 2] * np.log(observed[3: n - 2] / expected_binom[3: n - 2])) * 2
 
     return scores, binom_scores
 
@@ -233,7 +227,7 @@ def get_observed(n, counts_matrix, normalize=True):
     observed = counts_matrix[n, :n + 1]
     if normalize:
         observed = observed / norm
-    return norm, observed
+    return norm, np.array(observed)
 
 
 def get_probability_density(n, alpha):
@@ -245,7 +239,7 @@ def get_probability_density(n, alpha):
     density = [0] * 3 + \
               [(0.5 * (f1(x) + f2(x)) * (1 - alpha) +
                 2 * x / (n * (n + 1)) * alpha) / norm for x in range(3, n - 2)] + [0] * 3
-    return density
+    return np.array(density)
 
 
 def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=True):
@@ -284,7 +278,7 @@ def plot_histogram(n, weight, save=True):
     plt.ylabel('count')
     plt.xlabel('ref_read_counts')
     if save:
-        plt.savefig(os.path.expanduser('~/plots/ref-alt_bias_BAD={}_w={}_n-{}.png'.format(BAD, weight, n)))
+        plt.savefig(os.path.expanduser('~/plots/ref-alt_bias_n={}_BAD={}_w={}.png'.format(n, BAD, weight)))
     else:
         plt.show()
 
@@ -313,8 +307,8 @@ if __name__ == '__main__':
 
     BAD = 1
     mode = "up_window_n_sq"
-    metric_modes = ['rmse']
-    filename = os.path.expanduser('~/cover_bias_statistics.tsv')
+    metric_modes = ['rmse', 'g']
+    filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv')
     stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
     stats['ref_counts'] = stats['ref_counts'].astype(int)
