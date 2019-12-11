@@ -39,14 +39,14 @@ class Segmentation(ABC):
         """
         binomial tail of 3
         """
-        return 1.0 - (p ** N + N * p ** (N - 1) * (1 - p) + N * (N - 1) / 2 * p ** (N - 2) * (1 - p) ** 2)
+        return - (p ** N + N * p ** (N - 1) * (1 - p) + N * (N - 1) / 2 * p ** (N - 2) * (1 - p) ** 2)
 
     def loglikelyhood(self, N, X, i):
         """
         3 <= X <= N/2
         """
         p = 1.0 / (1.0 + i)
-        log_norm = np.log(self.get_norm(p, N) + self.get_norm(1 - p, N))
+        log_norm = np.log1p(self.get_norm(p, N) + self.get_norm(1 - p, N))
         if (self.sub_chrom.chrom.mode == 'corrected' and N == 2 * X) or self.sub_chrom.chrom.mode == 'binomial':
             return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.sub_chrom.chrom.prior[i]) - log_norm
         elif self.sub_chrom.chrom.mode == 'corrected':
