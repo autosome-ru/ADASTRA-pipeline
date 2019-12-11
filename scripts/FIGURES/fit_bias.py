@@ -124,6 +124,8 @@ def get_window(n, nonzero_dict, samples, window_mode=None):
         return get_window_up(n, nonzero_dict)
     elif window_mode == "up_window_n_sq":
         return get_window_up_n_sq(n, nonzero_dict, samples)
+    elif window_mode == "up_window_2n":
+        return get_window_up_2n(n, nonzero_dict, samples)
     else:
         return
 
@@ -140,6 +142,19 @@ def get_window_up_n_sq(n, nonzero_dict, samples):
     window = {}
     current_cumulative_counts = 0
     required_counts = (n + 1) ** 2
+    for key in sorted(list(nonzero_dict.keys())):
+        if n <= key:
+            window[key] = nonzero_dict[key]
+            current_cumulative_counts += samples[key]
+        if current_cumulative_counts >= required_counts:
+            break
+    return window
+
+
+def get_window_up_2n(n, nonzero_dict, samples):
+    window = {}
+    current_cumulative_counts = 0
+    required_counts = 2 * n
     for key in sorted(list(nonzero_dict.keys())):
         if n <= key:
             window[key] = nonzero_dict[key]
@@ -167,12 +182,13 @@ def plot_quality(scores, binom_scores, metric_mode, save=True):
     fig, ax = plt.subplots(figsize=(10, 8))
     plt.scatter(list(scores.keys()), [scores[k] for k in scores], label='fit')
     plt.scatter(list(binom_scores.keys()), [binom_scores[k] for k in binom_scores], label='binom')
-    max_y = max([binom_scores[k] for k in binom_scores])
+    #max_y = max([binom_scores[k] for k in binom_scores])
+    max_y = max([scores[k] for k in scores])
     ax.set_ylim([-1 * max_y / 50, max_y * 1.02])
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('Scores')
-    plt.title('Scores of correction ML fit on BAD={}\nall_datasets, {}'.format(BAD, mode))
+    plt.title('Scores of correction ML fit on BAD={}\nall_datasets, metric={}, mode={}'.format(BAD, metric_mode, mode))
     plt.legend()
     if save:
         plt.savefig(os.path.expanduser('~/plots/qual_of_fit_{}_BAD={}_mode={}.png'.format(metric_mode, BAD, mode)))
@@ -195,6 +211,10 @@ def calculate_score(weights_of_correction, counts_matrix, metric_mode):
         # plot_distributions(n, expected, expected_binom, observed)
 
         idxs = (observed != 0)
+        df = idxs.sum() - 1
+
+        stat = np.sum(observed[idxs] * np.log(observed[idxs] / expected[idxs])) * 2
+        stat_binom = np.sum(observed[idxs] * np.log(observed[idxs] / expected_binom[idxs])) * 2
 
         if metric_mode == 'rmse':
             scores[n] = np.sqrt(metrics.mean_squared_error(expected, observed))
@@ -203,8 +223,14 @@ def calculate_score(weights_of_correction, counts_matrix, metric_mode):
             scores[n] = st.chisquare(observed[idxs], expected[idxs])[1]
             binom_scores[n] = st.chisquare(observed[idxs], expected_binom[idxs])[1]
         elif metric_mode == 'g':
-            scores[n] = np.sum(observed[idxs] * np.log(observed[idxs] / expected[idxs])) * 2
-            binom_scores[n] = np.sum(observed[idxs] * np.log(observed[idxs] / expected_binom[idxs])) * 2
+            scores[n] = st.distributions.chi2.sf(stat, df)
+            binom_scores[n] = st.distributions.chi2.sf(stat_binom, df)
+        elif metric_mode == 'rmsea':
+            if norm == 1:
+                continue
+            else:
+                scores[n] = np.sqrt(np.max(stat - df, 0) / (df * (norm - 1)))
+                binom_scores[n] = np.sqrt(np.max(stat_binom - df, 0) / (df * (norm - 1)))
 
     return scores, binom_scores
 
@@ -308,8 +334,8 @@ def get_max_sensible_n(n_array, samples, nonzero_dict, sensible_mode='linear'):
 if __name__ == '__main__':
 
     BAD = 1
-    mode = "up_window_n_sq"
-    metric_modes = ['g']
+    mode = "up_window_2n"
+    metric_modes = ['rmsea']
     filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv')
     stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
@@ -319,8 +345,8 @@ if __name__ == '__main__':
     print('made counts')
 
     # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
-    s_ns = range(10, max(stats['cover']) + 1, 100)
-    # s_ns = range(6, 231, 1)
+    # s_ns = range(10, max(stats['cover']) + 1, 15)
+    s_ns = range(10, 401, 1)
 
     max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
@@ -335,7 +361,7 @@ if __name__ == '__main__':
     plot_histograms = True
 
     if plot_window_counts:
-        for window_mode in ("up_window", "up_window_n_sq"):
+        for window_mode in ("up_window", "up_window_n_sq", "up_window_2n"):
             plot_window_sizes_in_snps(s_ns, dict_of_nonzero_N, total_snps_with_cover_n, window_mode)
 
     if calculate_weights:
@@ -349,7 +375,7 @@ if __name__ == '__main__':
                 calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts, metric)
 
                 if plot_fit_quality:
-                    plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric, save=False)
+                    plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric)
 
         if plot_histograms:
             for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,

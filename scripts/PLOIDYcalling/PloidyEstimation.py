@@ -499,7 +499,7 @@ class ChromosomeSegmentation:  # chrom
 
         for part, (st, ed) in enumerate(self.get_subchromosomes_slices(), 1):
             good_snps = [snp for snp in self.SNPS[st:ed] if snp[1] + snp[2] >= 8]
-            length = len(good_snps)
+            length = len(set(snp[0] for snp in good_snps))
             if length <= self.snp_filter:
                 bpos = []
                 ests = [0]
