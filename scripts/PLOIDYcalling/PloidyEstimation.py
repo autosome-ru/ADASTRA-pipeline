@@ -103,8 +103,8 @@ class Segmentation(ABC):
         else:
             N = self.sub_chrom.chrom.LINES
 
-        if self.sub_chrom.chrom.LINES <= 100:
-            return -1 * float('inf')
+        # if self.sub_chrom.chrom.LINES < 1000:
+        #     return -1 * float('inf')
 
         if self.sub_chrom.b_penalty == 'CAIC':
             return -1 / 2 * k * (np.log(N) + 1)
@@ -235,18 +235,14 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
 
         self.start = 0
         self.end = (self.LINES - 1) - 1  # index from 0 and #borders = #snps - 1
-        self.candidate_numbers = [i for i in range(self.LINES - 1)]
-        self.candidates_count = self.LINES - 1
+        self.candidate_numbers = [i for i in range(self.LINES - 1) if self.SNPS[i][0] != self.SNPS[i + 1][0]]
+        self.candidates_count = len(self.candidate_numbers)
         self.last_snp_number = self.LINES - 1
 
         self.P_init = None  # snp-wise log-likelyhoods for each ploidy
 
         self.chrom = chrom
         self.sub_chrom = self
-
-        self.sc = [0] * (self.candidates_count + 1)  # sc[i] = best log-likelyhood among all segmentations of snps[0,i]
-        self.b = [False] * self.candidates_count  # borders, len=LINES. b[i]: (0,0) if there is no border after ith snp
-        self.bnum = [0] * (self.candidates_count + 1)  # bnum[i] = number of borders before ith snp in best segmentation
 
         self.LS = None  # likelyhoods of splited segments for each ploidy
         self.ests = []  # estimated ploidys for splited segments
@@ -382,6 +378,10 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         self.candidates_count = len(self.candidate_numbers)
         print('SNPs in part: {}'.format(len(self.positions)))
         # print('{} candidates'.format(self.candidates_count))
+
+        self.sc = [0] * (self.candidates_count + 1)  # sc[i] = best log-likelyhood among all segmentations of snps[0,i]
+        self.b = [False] * self.candidates_count  # borders, len=LINES. b[i]: (0,0) if there is no border after ith snp
+        self.bnum = [0] * (self.candidates_count + 1)  # bnum[i] = number of borders before ith snp in best segmentation
 
         self.estimate()
         self.estimate_Is()
