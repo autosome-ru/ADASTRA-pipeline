@@ -226,10 +226,11 @@ class PieceSegmentation(Segmentation):
 
 
 class SubChromosomeSegmentation(Segmentation):  # sub_chrom
-    def __init__(self, chrom, SNPS, LINES, name):
+    def __init__(self, chrom, SNPS, name):
         super().__init__()
 
-        self.SNPS, self.LINES = SNPS, LINES
+        self.SNPS = SNPS
+        self.LINES = len(self.SNPS)
         self.SUM_COV = sum(x[1] + x[2] for x in self.SNPS)
         self.b_penalty = chrom.b_penalty
 
@@ -329,7 +330,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
                 self.bpos.append(
                     (self.positions[self.candidate_numbers[i]] + self.positions[self.candidate_numbers[i] + 1]) / 2)
 
-    def estimate_Is(self):
+    def estimate_BADs(self):
         self.LS = np.zeros(len(self.chrom.i_list), dtype=self.dtype)
         for n in range(len(self.border_numbers) - 1):
             first = self.border_numbers[n] + 1
@@ -384,7 +385,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         self.bnum = [0] * (self.candidates_count + 1)  # bnum[i] = number of borders before ith snp in best segmentation
 
         self.estimate()
-        self.estimate_Is()
+        self.estimate_BADs()
         print('\n'.join(map(str, zip(self.ests, self.counts))))
 
         with open(log_filename, 'a') as log:
@@ -509,8 +510,7 @@ class ChromosomeSegmentation:  # chrom
                 counts = [ed - st]
                 sum_cover = [0]
             else:
-                sub_chrom = SubChromosomeSegmentation(self,  good_snps,
-                                                      length, part)
+                sub_chrom = SubChromosomeSegmentation(self,  good_snps, part)
                 sub_chrom.estimate_sub_chr()
 
                 bpos = sub_chrom.bpos
