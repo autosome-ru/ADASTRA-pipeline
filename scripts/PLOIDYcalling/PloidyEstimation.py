@@ -101,7 +101,7 @@ class Segmentation(ABC):
         if isinstance(self, PieceSegmentation):
             N = self.LINES
         else:
-            N = self.sub_chrom.chrom.LINES
+            N = self.sub_chrom.chrom.UNIQUE_LINES
 
         # if self.sub_chrom.chrom.LINES < 1000:
         #     return -1 * float('inf')
@@ -411,6 +411,7 @@ class ChromosomeSegmentation:  # chrom
         self.SNPS, self.LINES, self.positions = self.read_file_len()  # number of snps
         if self.LINES == 0:
             return
+        self.UNIQUE_LINES = len(set(snp[0] for snp in self.SNPS))
         self.SUM_COV = sum(x[1] + x[2] for x in self.SNPS)
         self.NUM_TR = seg.NUM_TR
         self.CRITICAL_GAP_FACTOR = 1 - 10 ** (- 1 / np.sqrt(self.LINES))
