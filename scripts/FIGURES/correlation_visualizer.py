@@ -6,7 +6,7 @@ import seaborn as sns
 import os
 
 if __name__ == '__main__':
-    corstats_path = 'cor_stats_11.tsv'
+    corstats_path = 'cor_stats_independent.tsv'
     heatmapdata_path = '/home/sashok/Documents/ASB/Correlation/HeatmapData/'
 
     out_folder = '/home/sashok/Documents/ASB/corpics/'
