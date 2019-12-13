@@ -214,4 +214,4 @@ if __name__ == "__main__":
                     'T-REx-Jurkat (T-cells)', 'upper lobe of left lung', 'UtE-iPS-4 (induced pluripotent stem cells)',
                     'UtE-iPS-6 (induced pluripotent stem cells)', 'UtE-iPS-7 (induced pluripotent stem cells)',
                     'uterus', 'vagina', 'WI-38 (lung fibroblasts)']
-    collectCoverStatistics(key_name=all_diploids, BAD=4/3)
+    collectCoverStatistics(BAD=4/3)
