@@ -52,11 +52,11 @@ if __name__ == '__main__':
 
     sum_cov = int(cor_stats[cor_stats['names'] == ploidy_file_name]['sum_cov'])
 
-    if sum_cov < 15000000:
-        model = 'CAIC'
-    else:
-        model = 'SQRT'
-
+    # if sum_cov < 15000000:
+    #     model = 'CAIC'
+    # else:
+    #     model = 'SQRT'
+    model = 'CAIC'
     ploidy = create_ploidy_path_function(ploidy_file_name, model)
 
     with open(ploidy, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
@@ -74,21 +74,18 @@ if __name__ == '__main__':
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter')):
             if in_intersection:
                 #  p_value counting
-                sBAD = sBAD_dict[float(BAD)]  # up-correct BAD
-                p = 1 / (sBAD + 1)
+                p = 1 / (float(BAD) + 1)
                 n = ref_c + alt_c
-
                 p_ref, p_ref_cor, p_ref_bal = count_p(ref_c, n, p, 'greater')
                 p_alt, p_alt_cor, p_alt_bal = count_p(ref_c, n, p, 'less')
             else:
-                sBAD = 0
-
+                BAD = 0
                 p_ref, p_ref_cor, p_ref_bal = '.', '.', '.'
                 p_alt, p_alt_cor, p_alt_bal = '.', '.', '.'
 
             out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type] +
                            [in_callers[name] for name in callers_names] +
-                           [sBAD, dip_qual, lq, rq, seg_c, sum_cov,
+                           [BAD, dip_qual, lq, rq, seg_c, sum_cov,
                             p_ref, p_alt,
                             p_ref_cor, p_alt_cor,
                             p_ref_bal, p_alt_bal,
