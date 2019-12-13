@@ -10,12 +10,12 @@ import seaborn as sns
 
 def make_binom_matrix(size_of_counts, nonzero_dict, p):
     if os.path.isfile(filename + '_binom.precalc.npy') and os.path.isfile(filename + '_linear.precalc.npy'):
-        rv = np.load(filename + '_binom.precalc.npy')
+        binom = np.load(filename + '_binom.precalc.npy')
         noise = np.load(filename + '_linear.precalc.npy')
-        return rv, noise
+        return binom, noise
 
     print('n_max = {}'.format(size_of_counts))
-    rv = np.zeros((size_of_counts, size_of_counts), dtype=np.float128)
+    binom = np.zeros((size_of_counts, size_of_counts), dtype=np.float128)
     noise = np.zeros((size_of_counts, size_of_counts), dtype=np.float128)
     for n in range(6, size_of_counts):
         if n not in nonzero_dict:
@@ -26,17 +26,17 @@ def make_binom_matrix(size_of_counts, nonzero_dict, p):
             f2 = st.binom(n, 1 - p).pmf
             binom_norm = 1 - sum(0.5 * (f1(k) + f2(k)) for k in [0, 1, 2, n - 2, n - 1, n])
             for k in range(3, n - 2):
-                rv[n, k] = 0.5 * (f1(k) + f2(k)) / binom_norm
+                binom[n, k] = 0.5 * (f1(k) + f2(k)) / binom_norm
                 noise[n, k] = get_noise_density(n, k)
         else:
             f = st.binom(n, p).pmf
             binom_norm = 1 - sum(f(k) for k in [0, 1, 2, n - 2, n - 1, n])
             for k in range(3, n - 2):
-                rv[n, k] = f(k) / binom_norm
+                binom[n, k] = f(k) / binom_norm
                 noise[n, k] = get_noise_density(n, k)
-    np.save(filename + '_binom.precalc.npy', rv)
+    np.save(filename + '_binom.precalc.npy', binom)
     np.save(filename + '_linear.precalc.npy', noise)
-    return rv, noise
+    return binom, noise
 
 
 def get_noise_density(n, k):
@@ -126,8 +126,18 @@ def get_window(n, nonzero_dict, samples, window_mode=None):
         return get_window_up_n_sq(n, nonzero_dict, samples)
     elif window_mode == "up_window_2n":
         return get_window_up_2n(n, nonzero_dict, samples)
+    elif window_mode.startswith('window'):
+        return get_window_plus_minus(n, nonzero_dict, int(window_mode.split('_')[1]))
     else:
         return
+
+
+def get_window_plus_minus(n, nonzero_dict, width):
+    window = {}
+    for key in nonzero_dict:
+        if n - width <= key <= n + width:
+            window[key] = nonzero_dict[key]
+    return window
 
 
 def get_window_up(n, nonzero_dict):
@@ -182,7 +192,7 @@ def plot_quality(scores, binom_scores, metric_mode, save=True):
     fig, ax = plt.subplots(figsize=(10, 8))
     plt.scatter(list(scores.keys()), [scores[k] for k in scores], label='fit')
     plt.scatter(list(binom_scores.keys()), [binom_scores[k] for k in binom_scores], label='binom')
-    #max_y = max([binom_scores[k] for k in binom_scores])
+    # max_y = max([binom_scores[k] for k in binom_scores])
     max_y = max([scores[k] for k in scores])
     ax.set_ylim([-1 * max_y / 50, max_y * 1.02])
     plt.grid(True)
@@ -258,16 +268,20 @@ def get_observed(n, counts_matrix, normalize=True):
     return norm, np.array(observed)
 
 
-def get_probability_density(n, alpha):
+def get_probability_density(n, alpha, subtract=False):
     p = get_p()
     f1 = st.binom(n, p).pmf
     f2 = st.binom(n, 1 - p).pmf
-    norm = sum((0.5 * (f1(x) + f2(x)) * (1 - alpha) +
+    norm = sum((0.5 * (f1(x) + f2(x)) * (1 - alpha) + (1 - subtract) *
                 2 * x / (n * (n + 1)) * alpha) for x in range(3, n - 2))
     density = [0] * 3 + \
-              [(0.5 * (f1(x) + f2(x)) * (1 - alpha) +
+              [(0.5 * (f1(x) + f2(x)) * (1 - alpha) + (1 - subtract) *
                 2 * x / (n * (n + 1)) * alpha) / norm for x in range(3, n - 2)] + [0] * 3
     return np.array(density)
+
+
+def get_noise_density_array(n):
+    return np.array([0] * 3 + [get_noise_density(n, k) for k in range(3, n - 2)] + [0] * 3)
 
 
 def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=True):
@@ -287,13 +301,14 @@ def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=
         plt.show()
 
 
-def plot_histogram(n, weight, save=True):
+def plot_histogram(n, weight, save=True, subtract_noise=False):
     print('made data for n={}'.format(n))
-    current_density = get_probability_density(n, weight)
+    current_density = get_probability_density(n, weight, subtract=subtract_noise)
     total_snps = counts[n, 0:n + 1].sum()
 
     fig, ax = plt.subplots(figsize=(10, 8))
-    sns.barplot(x=list(range(n + 1)), y=counts[n, 0:n + 1] / total_snps, ax=ax)
+    sns.barplot(x=list(range(n + 1)),
+                y=counts[n, 0:n + 1] / total_snps - subtract_noise * weight * get_noise_density_array(n), ax=ax)
     plt.axvline(x=n / 2, color='black')
 
     label = 'weight of linear noize: {}\ntotal observations: {}'.format(round(weight, 2),
@@ -333,10 +348,10 @@ def get_max_sensible_n(n_array, samples, nonzero_dict, sensible_mode='linear'):
 
 if __name__ == '__main__':
 
-    BAD = 1
-    mode = "up_window_2n"
+    BAD = 2
+    mode = "window_0"
     metric_modes = ['rmsea']
-    filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv')
+    filename = os.path.expanduser('~/cover_bias_statistics_norm_triploids.tsv')
     stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
     stats['ref_counts'] = stats['ref_counts'].astype(int)
@@ -357,11 +372,11 @@ if __name__ == '__main__':
 
     calculate_fit_quality = True
     plot_fit_quality = True
-    
-    plot_histograms = True
+
+    plot_histograms = False
 
     if plot_window_counts:
-        for window_mode in ("up_window", "up_window_n_sq", "up_window_2n"):
+        for window_mode in ("up_window", "up_window_n_sq", "up_window_2n", "window_0"):
             plot_window_sizes_in_snps(s_ns, dict_of_nonzero_N, total_snps_with_cover_n, window_mode)
 
     if calculate_weights:
@@ -378,6 +393,7 @@ if __name__ == '__main__':
                     plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric)
 
         if plot_histograms:
-            for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
-                                                                'sq'), max_sensible_n]:
-                plot_histogram(n, weights[n], save=True)
+            for n in s_ns:
+                # for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
+                #                                                    'sq'), max_sensible_n]:
+                plot_histogram(n, weights[n], save=True, subtract_noise=True)
