@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 from scipy import optimize
 from scipy import stats as st
 from sklearn import metrics
+from statsmodels.nonparametric import smoothers_lowess
 import seaborn as sns
 
 
@@ -114,6 +115,10 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
                                              binom_matrix=binom_matrix,
                                              noise_matrix=noise, window=get_window(n, nonzero_dict, samples))
         print(weights_of_correction[n])
+    if lowess:
+        weights = [weights_of_correction[x] for x in n_array]
+        weights_lowess = smoothers_lowess.lowess(weights, n_array)
+        weights_of_correction = dict(zip(n_array, weights_lowess))
     return weights_of_correction
 
 
@@ -180,9 +185,9 @@ def plot_fit(weights_of_correction, save=True):
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('weight of correction')
-    plt.title('Weight of correction ML fit on BAD={}\nall_datasets, {}'.format(BAD, mode))
+    plt.title('Weight of correction ML fit on BAD={}\nall_datasets, {}, with_lowess={}'.format(BAD, mode, lowess))
     if save:
-        plt.savefig(os.path.expanduser('~/plots/weights_BAD={}_mode={}.png'.format(BAD, mode)))
+        plt.savefig(os.path.expanduser('~/plots/weights_BAD={}_mode={}_lowess={}.png'.format(BAD, mode, lowess)))
     else:
         plt.show()
 
@@ -198,10 +203,12 @@ def plot_quality(scores, binom_scores, metric_mode, save=True):
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('Scores')
-    plt.title('Scores of correction ML fit on BAD={}\nall_datasets, metric={}, mode={}'.format(BAD, metric_mode, mode))
+    plt.title('Scores of correction ML fit on BAD={}\nall_datasets,'
+              ' metric={}, mode={}, with_lowess={}'.format(BAD, metric_mode, mode, lowess))
     plt.legend()
     if save:
-        plt.savefig(os.path.expanduser('~/plots/qual_of_fit_{}_BAD={}_mode={}.png'.format(metric_mode, BAD, mode)))
+        plt.savefig(os.path.expanduser(
+            '~/plots/qual_of_fit_{}_BAD={}_mode={}_lowess={}.png'.format(metric_mode, BAD, mode, lowess)))
     else:
         plt.show()
 
@@ -293,10 +300,12 @@ def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('log10 number of snps in window')
-    plt.title('Number of observations in window on BAD={}\nall_datasets, {}'.format(BAD, window_mode))
+    plt.title('Number of observations in window on BAD={}\nall_datasets, {}, with_lowess={}'.format(
+        BAD, window_mode, lowess))
     plt.legend()
     if save:
-        plt.savefig(os.path.expanduser('~/plots/obs_in_window_BAD={}_mode={}.png'.format(BAD, window_mode)))
+        plt.savefig(
+            os.path.expanduser('~/plots/obs_in_window_BAD={}_mode={}_lowess={}.png'.format(BAD, window_mode, lowess)))
     else:
         plt.show()
 
@@ -351,6 +360,8 @@ if __name__ == '__main__':
     BAD = 2
     mode = "window_0"
     metric_modes = ['rmsea']
+    lowess = True
+
     filename = os.path.expanduser('~/cover_bias_statistics_norm_triploids.tsv')
     stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
@@ -370,6 +381,8 @@ if __name__ == '__main__':
     calculate_weights = True
     plot_fit_weights = True
 
+    calculate_betabinom_weights = True
+    calculate_betabinom_fit_quality = True
     calculate_fit_quality = True
     plot_fit_quality = True
 
@@ -391,6 +404,13 @@ if __name__ == '__main__':
 
                 if plot_fit_quality:
                     plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric)
+
+        # if calculate_betabinom_weights:
+        #
+        #
+        #
+        #
+        #     if calculate_betabinom_fit_quality:
 
         if plot_histograms:
             for n in s_ns:
