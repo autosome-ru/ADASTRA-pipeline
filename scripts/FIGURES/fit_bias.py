@@ -118,8 +118,8 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
     if lowess:
         weights = [weights_of_correction[x] for x in n_array]
         weights_lowess = smoothers_lowess.lowess(weights, n_array)
-        weights_of_correction = dict(zip(n_array, weights_lowess))
-    return weights_of_correction
+        return weights_of_correction, dict(zip(n_array, weights_lowess))
+    return weights_of_correction, None
 
 
 def get_window(n, nonzero_dict, samples, window_mode=None):
@@ -179,9 +179,12 @@ def get_window_up_2n(n, nonzero_dict, samples):
     return window
 
 
-def plot_fit(weights_of_correction, save=True):
+def plot_fit(weights_of_correction, weights_of_lowess_correction, save=True):
     fig, ax = plt.subplots(figsize=(10, 8))
     plt.scatter(list(weights_of_correction.keys()), [weights_of_correction[k] for k in weights_of_correction])
+    if lowess:
+        plt.scatter(list(weights_of_lowess_correction.keys()), [weights_of_lowess_correction[k]
+                                                                for k in weights_of_lowess_correction])
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('weight of correction')
@@ -394,14 +397,17 @@ if __name__ == '__main__':
 
     if calculate_weights:
         sensible_n_array = [n for n in s_ns if n <= max_sensible_n]
-        weights = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N, total_snps_with_cover_n)
+        weights, lowess_weights = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N,
+                                                          total_snps_with_cover_n)
         if plot_fit_weights:
-            plot_fit(weights)
+            plot_fit(weights, lowess_weights)
 
         if calculate_fit_quality:
             for metric in metric_modes:
-                calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts, metric)
-
+                if lowess:
+                    calculated_fit_metrics, calculated_binom_metrics = calculate_score(lowess_weights, counts, metric)
+                else:
+                    calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts, metric)
                 if plot_fit_quality:
                     plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric)
 
