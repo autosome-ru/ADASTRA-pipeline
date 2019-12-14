@@ -117,7 +117,7 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
         print(weights_of_correction[n])
     if lowess:
         weights = [weights_of_correction[x] for x in n_array]
-        weights_lowess = smoothers_lowess.lowess(weights, n_array)
+        weights_lowess = smoothers_lowess.lowess(weights, n_array, return_sorted=False)
         return weights_of_correction, dict(zip(n_array, weights_lowess))
     return weights_of_correction, None
 
