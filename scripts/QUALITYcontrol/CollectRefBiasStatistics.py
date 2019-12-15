@@ -85,7 +85,7 @@ def collectCoverStatistics(key_name=None, BAD=None):
                 out_t = out_t.append(tmp_df).groupby(['cover', 'ref_counts'], as_index=False).sum()
     if out_t is None:
         return
-    with open(parameters_path + 'cover_bias_statistics.tsv', 'w') as out:
+    with open(parameters_path + 'cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD), 'w') as out:
         out_t.to_csv(out, sep="\t", index=False)
 
 
@@ -214,4 +214,5 @@ if __name__ == "__main__":
                     'T-REx-Jurkat (T-cells)', 'upper lobe of left lung', 'UtE-iPS-4 (induced pluripotent stem cells)',
                     'UtE-iPS-6 (induced pluripotent stem cells)', 'UtE-iPS-7 (induced pluripotent stem cells)',
                     'uterus', 'vagina', 'WI-38 (lung fibroblasts)']
-    collectCoverStatistics(BAD=4/3)
+    for BAD in [1, 2, 3, 4, 5, 6, 4/3, 1.5, 2.5]:
+        collectCoverStatistics(BAD=BAD)

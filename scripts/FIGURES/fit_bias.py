@@ -82,17 +82,10 @@ def fit_alpha(noise_matrix, binom_matrix, counts_matrix, window):
     try:
         alpha_coefficient = optimize.brenth(
             f=make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window), a=0.01, b=0.999)
+        if alpha_coefficient <= 0.01:
+            return 'NaN'
     except ValueError:
-        f = make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window)
-        if np.sign(f(0)) == np.sign(f(0.9999)):
-            if np.sign(f(0.9999)) < 0:
-                return 1
-            if np.sign(f(0)) > 0:
-                return 0
-            else:
-                return 'NaN'
-        else:
-            return 1
+        return 'NaN'
     return alpha_coefficient
 
 
@@ -116,8 +109,11 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
                                              noise_matrix=noise, window=get_window(n, nonzero_dict, samples))
         print(weights_of_correction[n])
     if lowess:
+        non_nan_number_of_points = sum(isinstance(weights_of_correction[x], float) for x in weights_of_correction)
+        print(non_nan_number_of_points)
         weights = [weights_of_correction[x] for x in n_array]
-        weights_lowess = smoothers_lowess.lowess(weights, n_array, return_sorted=False)
+        weights_lowess = smoothers_lowess.lowess(weights, n_array, return_sorted=False,
+                                                 frac=min(lowess_points / non_nan_number_of_points, 0.5))
         return weights_of_correction, dict(zip(n_array, weights_lowess))
     return weights_of_correction, None
 
@@ -188,9 +184,11 @@ def plot_fit(weights_of_correction, weights_of_lowess_correction, save=True):
     plt.grid(True)
     plt.xlabel('cover')
     plt.ylabel('weight of correction')
-    plt.title('Weight of correction ML fit on BAD={}\nall_datasets, {}, with_lowess={}'.format(BAD, mode, lowess))
+    plt.title(
+        'Weight of correction ML fit on BAD={}\nall_datasets, {}, lowess_points={}'.format(BAD, mode, lowess_points))
     if save:
-        plt.savefig(os.path.expanduser('~/plots/weights_BAD={}_mode={}_lowess={}.png'.format(BAD, mode, lowess)))
+        plt.savefig(
+            os.path.expanduser('~/plots/weights_BAD={}_mode={}_lowess_points={}.png'.format(BAD, mode, lowess_points)))
     else:
         plt.show()
 
@@ -360,12 +358,13 @@ def get_max_sensible_n(n_array, samples, nonzero_dict, sensible_mode='linear'):
 
 if __name__ == '__main__':
 
-    BAD = 2
+    BAD = 4/3
     mode = "window_0"
     metric_modes = ['rmsea']
     lowess = True
+    lowess_points = 80
 
-    filename = os.path.expanduser('~/cover_bias_statistics_norm_triploids.tsv')
+    filename = os.path.expanduser('~/cover_bias_statistics_norm_BAD43.tsv')
     stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
     stats['ref_counts'] = stats['ref_counts'].astype(int)
@@ -375,19 +374,19 @@ if __name__ == '__main__':
 
     # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
     # s_ns = range(10, max(stats['cover']) + 1, 15)
-    s_ns = range(10, 401, 1)
+    s_ns = range(10, max(stats['cover']), 1)
 
     max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
-    plot_window_counts = True
+    plot_window_counts = False
 
     calculate_weights = True
     plot_fit_weights = True
 
     calculate_betabinom_weights = True
     calculate_betabinom_fit_quality = True
-    calculate_fit_quality = True
-    plot_fit_quality = True
+    calculate_fit_quality = False
+    plot_fit_quality = False
 
     plot_histograms = False
 
