@@ -4,6 +4,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy import optimize
 from scipy import stats as st
+from scipy.special import beta, psi
 from sklearn import metrics
 from statsmodels.nonparametric import smoothers_lowess
 import seaborn as sns
@@ -356,6 +357,29 @@ def get_max_sensible_n(n_array, samples, nonzero_dict, sensible_mode='linear'):
     return n_array[-1]
 
 
+def fit_bb_overdispersion(noise_weights, counts_matrix, nonzero_dict):
+    overdispersion = dict()
+    for n in noise_weights.keys():
+        alpha = noise_weights[n]
+        rho = fit_betabinom_rho(n, alpha, counts_matrix[n, :], nonzero_dict[n])
+    return overdispersion
+
+
+def fit_betabinom_rho(n, alpha, counts_array, nonzero_k):
+    rho = optimize.brenth(
+        f=make_derivative_beta(n, alpha, counts_array, nonzero_k), a=0.1, b=0.999)
+    return rho
+
+
+def make_target_beta(n, alpha, counts_array, nonzero_k):
+    p = get_p()
+    nck = zip(nonzero_k, [beta(k + 1, n - k + 1) for k in nonzero_k])
+    def target(rho):
+        sum(
+            ((1 - alpha) * nck[k] * beta() / beta() + alpha * 2 * k / (n * (n - 5))) ** counts_array[k]
+        for k in nonzero_k)
+
+
 if __name__ == '__main__':
 
     BAD = 4/3
@@ -401,21 +425,19 @@ if __name__ == '__main__':
         if plot_fit_weights:
             plot_fit(weights, lowess_weights)
 
+        if lowess:
+            weights = lowess_weights
+
         if calculate_fit_quality:
             for metric in metric_modes:
-                if lowess:
-                    calculated_fit_metrics, calculated_binom_metrics = calculate_score(lowess_weights, counts, metric)
-                else:
-                    calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts, metric)
+                calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts, metric)
+
                 if plot_fit_quality:
                     plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric)
 
-        # if calculate_betabinom_weights:
-        #
-        #
-        #
-        #
-        #     if calculate_betabinom_fit_quality:
+        if calculate_betabinom_weights:
+            bb_overdispersion = fit_bb_overdispersion(weights, counts, dict_of_nonzero_N)
+            if calculate_betabinom_fit_quality:
 
         if plot_histograms:
             for n in s_ns:
