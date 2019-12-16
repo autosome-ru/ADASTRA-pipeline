@@ -1,13 +1,15 @@
 import os
+import sys
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from scipy import optimize
 from scipy import stats as st
-from scipy.special import beta, psi, poch
+from scipy.special import beta, psi, poch, comb
 from sklearn import metrics
 from statsmodels.nonparametric import smoothers_lowess
 import seaborn as sns
+import subprocess
 
 
 def make_binom_matrix(size_of_counts, nonzero_dict, p):
@@ -186,10 +188,11 @@ def plot_fit(weights_of_correction, weights_of_lowess_correction, save=True):
     plt.xlabel('cover')
     plt.ylabel('weight of correction')
     plt.title(
-        'Weight of correction ML fit on BAD={}\nall_datasets, {}, lowess_points={}'.format(BAD, mode, lowess_points))
+        'Weight of correction ML fit on BAD={}\nall_datasets, {}, lowess={}, span={}'.format(BAD, mode, lowess, r_span))
     if save:
         plt.savefig(
-            os.path.expanduser('~/plots/weights_BAD={}_mode={}_lowess_points={}.png'.format(BAD, mode, lowess_points)))
+            os.path.expanduser(
+                '~/plots/weights_BAD={}_mode={}_lowess={}, span={}.png'.format(BAD, mode, lowess, r_span)))
     else:
         plt.show()
 
@@ -312,7 +315,7 @@ def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=
         plt.show()
 
 
-def plot_histogram(n, weight, save=True, subtract_noise=False):
+def plot_histogram(n, weight, save=True, subtract_noise=False, plot_betabinom=False, betabin_s=None):
     print('made data for n={}'.format(n))
     current_density = get_probability_density(n, weight, subtract=subtract_noise)
     total_snps = counts[n, 0:n + 1].sum()
@@ -327,6 +330,10 @@ def plot_histogram(n, weight, save=True, subtract_noise=False):
     plt.plot(list(range(n + 1)), current_density)
     plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
 
+    if plot_betabinom:
+        beta_density = get_betabinom_density(n, betabin_s, weight)
+        plt.plot(list(range(n + 1)), beta_density)
+
     plt.title('ref-alt bias for BAD={} n={}'.format(BAD, n))
     ax.legend().remove()
     plt.ylabel('count')
@@ -335,6 +342,21 @@ def plot_histogram(n, weight, save=True, subtract_noise=False):
         plt.savefig(os.path.expanduser('~/plots/ref-alt_bias_n={}_BAD={}_w={}.png'.format(n, BAD, weight)))
     else:
         plt.show()
+
+
+def get_betabinom_density(n, s, alpha):
+    rv = np.zeros(n + 1, dtype=np.float128)
+    p = get_p()
+    a = p * s
+    b = (1 - p) * s
+    norm = poch(s, n)
+    tail = sum(
+        comb(n, k, exact=True) / norm * (poch(a, k) * poch(b, n - k) + poch(b, k) * poch(a, n - k)) for k in (0, 1, 2))
+    for k in range(3, n - 2):
+        cnk = comb(n, k, exact=True)
+        rv[k] = (0.5 * cnk / norm * (poch(a, k) * poch(b, n - k) + poch(b, k) * poch(a, n - k)) * (1 / (1 - tail)) *
+                 (1 - alpha) + 2 * k / (n * (n - 5)) * alpha)
+    return rv
 
 
 def get_max_sensible_n(n_array, samples, nonzero_dict, sensible_mode='linear'):
@@ -407,66 +429,93 @@ def make_derivative_beta(n, alpha, counts_array, nonzero_k):
 
 
 if __name__ == '__main__':
+    for BAD in [4]: #[1, 4 / 3, 3 / 2, 2, 5 / 2, 3, 4, 5, 6]:
+        mode = "window_0"
+        metric_modes = ['rmsea']
+        lowess = 'R'
+        r_span = 0.15
+        lowess_points = 80
 
-    BAD = 1
-    mode = "window_0"
-    metric_modes = ['rmsea']
-    lowess = True
-    lowess_points = 80
+        # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
+        filename = os.path.expanduser('~/cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
+        stats = pd.read_table(filename)
+        stats['cover'] = stats['cover'].astype(int)
+        stats['ref_counts'] = stats['ref_counts'].astype(int)
+        counts, dict_of_nonzero_N = make_counts_matrix_and_nonzero_dict(stats)
+        total_snps_with_cover_n = counts.sum(axis=1)
+        print('made counts')
 
-    filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv')
-    stats = pd.read_table(filename)
-    stats['cover'] = stats['cover'].astype(int)
-    stats['ref_counts'] = stats['ref_counts'].astype(int)
-    counts, dict_of_nonzero_N = make_counts_matrix_and_nonzero_dict(stats)
-    total_snps_with_cover_n = counts.sum(axis=1)
-    print('made counts')
+        # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
+        # s_ns = range(10, max(stats['cover']) + 1, 15)
+        s_ns = range(10, max(stats['cover']), 1)
 
-    # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
-    # s_ns = range(10, max(stats['cover']) + 1, 15)
-    s_ns = range(10, 150, 5)
+        max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
-    max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
+        plot_window_counts = False
 
-    plot_window_counts = False
+        calculate_weights = True
+        plot_fit_weights = False
 
-    calculate_weights = True
-    plot_fit_weights = False
+        calculate_betabinom_weights = False
+        calculate_betabinom_fit_quality = False
+        calculate_fit_quality = False
+        plot_fit_quality = False
 
-    calculate_betabinom_weights = True
-    calculate_betabinom_fit_quality = False
-    calculate_fit_quality = False
-    plot_fit_quality = False
+        plot_histograms = True
 
-    plot_histograms = True
+        if plot_window_counts:
+            for window_mode in ("up_window", "up_window_n_sq", "up_window_2n", "window_0"):
+                plot_window_sizes_in_snps(s_ns, dict_of_nonzero_N, total_snps_with_cover_n, window_mode)
 
-    if plot_window_counts:
-        for window_mode in ("up_window", "up_window_n_sq", "up_window_2n", "window_0"):
-            plot_window_sizes_in_snps(s_ns, dict_of_nonzero_N, total_snps_with_cover_n, window_mode)
+        if calculate_weights:
+            sensible_n_array = [n for n in s_ns if n <= max_sensible_n]
+            weights, lowess_weights = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N,
+                                                              total_snps_with_cover_n)
+            non_nan_weights_n_array = [n for n in sensible_n_array if weights[n] != 'NaN']
 
-    if calculate_weights:
-        sensible_n_array = [n for n in s_ns if n <= max_sensible_n]
-        weights, lowess_weights = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N,
-                                                          total_snps_with_cover_n)
-        if plot_fit_weights:
-            plot_fit(weights, lowess_weights)
+            if lowess == 'R':
+                sv = pd.DataFrame({'alpha': [weights[x] for x in weights if weights[x] != 'NaN'],
+                                   'snps': np.log(total_snps_with_cover_n[non_nan_weights_n_array])})
+                sv.index = non_nan_weights_n_array
+                sv.to_csv(os.path.expanduser('~/weights_BAD={:.1f}.tsv'.format(BAD)), sep='\t')
 
-        if lowess:
-            weights = lowess_weights
+                bash_command = "Rscript {} {:.1f} {}".format(os.path.expanduser('~/betabin_fit.R'), BAD, str(r_span))
+                process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
+                output, error = process.communicate()
 
-        if calculate_fit_quality:
-            for metric in metric_modes:
-                calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts, metric)
+                sv_r = pd.read_table(os.path.expanduser('~/r_weights_BAD={:.1f}.tsv'.format(BAD)))
+                sv_r.index = non_nan_weights_n_array
+                print(sv_r.head())
+                beta_s = dict(zip(non_nan_weights_n_array, sv_r['betabin_s']))
+                lowess_r_weights = dict(zip(non_nan_weights_n_array, sv_r['lowess_r_weights']))
 
-                if plot_fit_quality:
-                    plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric)
+                lowess_weights = lowess_r_weights
+                print(lowess_weights)
 
-        if calculate_betabinom_weights:
-            bb_overdispersion = fit_bb_overdispersion(weights, counts, dict_of_nonzero_N)
-            # if calculate_betabinom_fit_quality:
+            if plot_fit_weights:
+                plot_fit(weights, lowess_weights)
 
-        if plot_histograms:
-            for n in s_ns:
-                # for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
-                #                                                    'sq'), max_sensible_n]:
-                plot_histogram(n, weights[n], save=True, subtract_noise=False)
+            if lowess:
+                weights = lowess_weights
+
+            if calculate_fit_quality:
+                for metric in metric_modes:
+                    calculated_fit_metrics, calculated_binom_metrics = calculate_score(weights, counts, metric)
+
+                    if plot_fit_quality:
+                        plot_quality(calculated_fit_metrics, calculated_binom_metrics, metric)
+
+            if calculate_betabinom_weights:
+                bb_overdispersion = fit_bb_overdispersion(weights, counts, dict_of_nonzero_N)
+                # if calculate_betabinom_fit_quality:
+
+            if plot_histograms:
+                for n in non_nan_weights_n_array:
+                    if n >= 150: continue
+                #for n in [100, 150]:
+                    #if n not in non_nan_weights_n_array:
+                    #    continue
+                    # for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
+                    #                                                    'sq'), max_sensible_n]:
+                    plot_histogram(n, weights[n], save=True, subtract_noise=False, plot_betabinom=True,
+                                   betabin_s=beta_s[n])
