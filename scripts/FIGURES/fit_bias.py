@@ -4,7 +4,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy import optimize
 from scipy import stats as st
-from scipy.special import beta, psi
+from scipy.special import beta, psi, poch
 from sklearn import metrics
 from statsmodels.nonparametric import smoothers_lowess
 import seaborn as sns
@@ -361,34 +361,60 @@ def fit_bb_overdispersion(noise_weights, counts_matrix, nonzero_dict):
     overdispersion = dict()
     for n in noise_weights.keys():
         alpha = noise_weights[n]
-        rho = fit_betabinom_rho(n, alpha, counts_matrix[n, :], nonzero_dict[n])
+        s = fit_betabinom_rho(n, alpha, counts_matrix[n, :], nonzero_dict[n])
+        overdispersion[n] = s
+        print(n, s)
     return overdispersion
 
 
 def fit_betabinom_rho(n, alpha, counts_array, nonzero_k):
-    rho = optimize.brenth(
-        f=make_derivative_beta(n, alpha, counts_array, nonzero_k), a=0.1, b=0.999)
-    return rho
+    try:
+        s = optimize.root_scalar(
+            f=make_derivative_beta(n, alpha, counts_array, nonzero_k), bracket=(2, 80), x0=5)
+    except ValueError:
+
+        return 'NaN'
+    return s
 
 
-def make_target_beta(n, alpha, counts_array, nonzero_k):
+def make_derivative_beta(n, alpha, counts_array, nonzero_k):
     p = get_p()
-    nck = zip(nonzero_k, [beta(k + 1, n - k + 1) for k in nonzero_k])
-    def target(rho):
-        sum(
-            ((1 - alpha) * nck[k] * beta() / beta() + alpha * 2 * k / (n * (n - 5))) ** counts_array[k]
-        for k in nonzero_k)
+    nck = dict(zip(nonzero_k, [beta(k + 1, n - k + 1) for k in nonzero_k]))
+
+    def target(s):
+        rv = 0
+        poch_sn = poch(s, n)
+        psi_comb = psi(s) - p * psi(p * s) - psi(n + s) - (1 - p) * psi((1 - p) * s)
+        for k in nonzero_k:
+            poch_sym = poch(p * s, -k + n) * poch(s - p * s, k)
+            poch_antisym = poch(p * s, k) * poch(s - p * s, -k + n)
+            binom_nk = nck[k]
+            psi_nk_1ps = psi(-k + n + (1 - p) * s)
+            psi_nk_ps = psi(-k + n + p * s)
+            psi_k_1ps = psi(k + (1 - p) * s)
+            psi_k_ps = psi(k + p * s)
+
+            rv -= counts_array[k] * (((-5 + n) * n * (-1 + alpha) * binom_nk * poch_sn *
+                                      (poch_antisym * (psi_comb + (1 - p) * psi_nk_1ps + p * psi_k_ps) +
+                                       poch_sym * (psi_comb + (1 - p) * psi_k_1ps + p * psi_nk_ps))) /
+                                     (3 * (-(1 / 3) * poch_sn +
+                                           binom_nk * (poch_sym + poch_antisym)) *
+                                      (-4 * k * alpha * poch_sn - (n * (n - 5) * (1 - alpha) - 12 * k * alpha) *
+                                       binom_nk * (poch_sym + poch_antisym))))
+        return rv
+
+    return target
 
 
 if __name__ == '__main__':
 
-    BAD = 4/3
+    BAD = 1
     mode = "window_0"
     metric_modes = ['rmsea']
     lowess = True
     lowess_points = 80
 
-    filename = os.path.expanduser('~/cover_bias_statistics_norm_BAD43.tsv')
+    filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv')
     stats = pd.read_table(filename)
     stats['cover'] = stats['cover'].astype(int)
     stats['ref_counts'] = stats['ref_counts'].astype(int)
@@ -398,17 +424,17 @@ if __name__ == '__main__':
 
     # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
     # s_ns = range(10, max(stats['cover']) + 1, 15)
-    s_ns = range(10, max(stats['cover']), 1)
+    s_ns = range(10, 400, 1)
 
     max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
     plot_window_counts = False
 
     calculate_weights = True
-    plot_fit_weights = True
+    plot_fit_weights = False
 
     calculate_betabinom_weights = True
-    calculate_betabinom_fit_quality = True
+    calculate_betabinom_fit_quality = False
     calculate_fit_quality = False
     plot_fit_quality = False
 
@@ -437,7 +463,7 @@ if __name__ == '__main__':
 
         if calculate_betabinom_weights:
             bb_overdispersion = fit_bb_overdispersion(weights, counts, dict_of_nonzero_N)
-            if calculate_betabinom_fit_quality:
+            # if calculate_betabinom_fit_quality:
 
         if plot_histograms:
             for n in s_ns:
