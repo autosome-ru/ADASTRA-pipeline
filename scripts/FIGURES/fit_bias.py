@@ -424,7 +424,7 @@ if __name__ == '__main__':
 
     # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
     # s_ns = range(10, max(stats['cover']) + 1, 15)
-    s_ns = range(10, 400, 1)
+    s_ns = range(10, 150, 5)
 
     max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
@@ -438,7 +438,7 @@ if __name__ == '__main__':
     calculate_fit_quality = False
     plot_fit_quality = False
 
-    plot_histograms = False
+    plot_histograms = True
 
     if plot_window_counts:
         for window_mode in ("up_window", "up_window_n_sq", "up_window_2n", "window_0"):
@@ -469,4 +469,4 @@ if __name__ == '__main__':
             for n in s_ns:
                 # for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
                 #                                                    'sq'), max_sensible_n]:
-                plot_histogram(n, weights[n], save=True, subtract_noise=True)
+                plot_histogram(n, weights[n], save=True, subtract_noise=False)
