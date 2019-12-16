@@ -82,6 +82,8 @@ def make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window):
 
 
 def fit_alpha(noise_matrix, binom_matrix, counts_matrix, window):
+    # f = make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window)
+    # plot_target_function(f)
     try:
         alpha_coefficient = optimize.brenth(
             f=make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window), a=0.01, b=0.999)
@@ -315,7 +317,8 @@ def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=
         plt.show()
 
 
-def plot_histogram(n, weight, save=True, subtract_noise=False, plot_betabinom=False, betabin_s=None):
+def plot_histogram(n, weight, save=True, subtract_noise=False, plot_betabinom=False, betabin_s=None,
+                   subtract_binom=False):
     print('made data for n={}'.format(n))
     current_density = get_probability_density(n, weight, subtract=subtract_noise)
     total_snps = counts[n, 0:n + 1].sum()
@@ -333,6 +336,9 @@ def plot_histogram(n, weight, save=True, subtract_noise=False, plot_betabinom=Fa
     if plot_betabinom:
         beta_density = get_betabinom_density(n, betabin_s, weight)
         plt.plot(list(range(n + 1)), beta_density)
+
+    binom_density = get_probability_density(n, 0)
+    plt.plot(list(range(n + 1)), binom_density, c='C2')
 
     plt.title('ref-alt bias for BAD={} n={}'.format(BAD, n))
     ax.legend().remove()
@@ -447,7 +453,8 @@ if __name__ == '__main__':
 
         # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
         # s_ns = range(10, max(stats['cover']) + 1, 15)
-        s_ns = range(10, max(stats['cover']), 1)
+        # s_ns = range(10, max(stats['cover']), 1)
+        s_ns = [10,11,12,13,14,15]
 
         max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
