@@ -13,38 +13,56 @@ import subprocess
 
 
 def make_binom_matrix(size_of_counts, nonzero_dict, p):
-    if os.path.isfile(filename + '_binom.precalc.npy') and os.path.isfile(filename + '_linear.precalc.npy'):
+    if os.path.isfile(filename + '_binom.precalc.npy'):
         binom = np.load(filename + '_binom.precalc.npy')
-        noise = np.load(filename + '_linear.precalc.npy')
-        return binom, noise
+    else:
+        print('n_max = {}'.format(size_of_counts))
+        binom = np.zeros((size_of_counts, size_of_counts), dtype=np.float128)
+        for n in range(6, size_of_counts):
+            if n not in nonzero_dict:
+                continue
+            print(n)
+            if p != 0.5:
+                f1 = st.binom(n, p).pmf
+                f2 = st.binom(n, 1 - p).pmf
+                binom_norm = 1 - sum(0.5 * (f1(k) + f2(k)) for k in [0, 1, 2, n - 2, n - 1, n])
+                for k in range(3, n - 2):
+                    binom[n, k] = 0.5 * (f1(k) + f2(k)) / binom_norm
+            else:
+                f = st.binom(n, p).pmf
+                binom_norm = 1 - sum(f(k) for k in [0, 1, 2, n - 2, n - 1, n])
+                for k in range(3, n - 2):
+                    binom[n, k] = f(k) / binom_norm
+        np.save(filename + '_binom.precalc.npy', binom)
 
-    print('n_max = {}'.format(size_of_counts))
-    binom = np.zeros((size_of_counts, size_of_counts), dtype=np.float128)
-    noise = np.zeros((size_of_counts, size_of_counts), dtype=np.float128)
-    for n in range(6, size_of_counts):
-        if n not in nonzero_dict:
-            continue
-        print(n)
-        if p != 0.5:
-            f1 = st.binom(n, p).pmf
-            f2 = st.binom(n, 1 - p).pmf
-            binom_norm = 1 - sum(0.5 * (f1(k) + f2(k)) for k in [0, 1, 2, n - 2, n - 1, n])
+    if fit_type == 'one_line':
+        prefix = '_linear'
+    elif fit_type == 'V':
+        prefix = '_V'
+    else:
+        raise
+
+    if os.path.isfile(filename + prefix + '.precalc.npy'):
+        noise = np.load(filename + prefix + '.precalc.npy')
+    else:
+        noise = np.zeros((size_of_counts, size_of_counts), dtype=np.float128)
+        for n in range(6, size_of_counts):
+            if n not in nonzero_dict:
+                continue
+            print(n)
             for k in range(3, n - 2):
-                binom[n, k] = 0.5 * (f1(k) + f2(k)) / binom_norm
                 noise[n, k] = get_noise_density(n, k)
-        else:
-            f = st.binom(n, p).pmf
-            binom_norm = 1 - sum(f(k) for k in [0, 1, 2, n - 2, n - 1, n])
-            for k in range(3, n - 2):
-                binom[n, k] = f(k) / binom_norm
-                noise[n, k] = get_noise_density(n, k)
-    np.save(filename + '_binom.precalc.npy', binom)
-    np.save(filename + '_linear.precalc.npy', noise)
+        np.save(filename + prefix + '.precalc.npy', noise)
     return binom, noise
 
 
 def get_noise_density(n, k):
-    return 2 * k / (n * (n - 5)) if n != 0 else 0
+    if fit_type == 'one_line':
+        return 2 * k / (n * (n - 5)) if n != 0 else 0
+    elif fit_type == 'V':
+        if n == 6:
+            return 1
+        return abs(n / 2 - k) / ((n // 2 + 1) * (n - n // 2) * 0.5 - 3 * (n / 2 - 1))
 
 
 def make_counts_matrix_and_nonzero_dict(stats_pandas_dataframe):
@@ -94,6 +112,38 @@ def fit_alpha(noise_matrix, binom_matrix, counts_matrix, window):
     return alpha_coefficient
 
 
+def fit_alpha_beta(noise_matrix, binom_matrix, counts_matrix, window, samples):
+    try:
+        if sum(samples[n] for n in window) < 5:
+            raise ValueError
+        res = optimize.minimize(
+            fun=make_v_likelyhood(counts_matrix, binom_matrix, noise_matrix, window),
+            bounds=((0, 0.5), (0, 0.5)),
+            x0=(0.25, 0.25)
+        )
+        alpha_coefficient, beta_coefficient = res.x
+        if not res.success or res.nit == 1:
+            raise ValueError
+    except ValueError:
+        return 'NaN', 'NaN'
+    noise_level = alpha_coefficient + beta_coefficient
+    asymmetry = beta_coefficient - alpha_coefficient
+    return noise_level, asymmetry
+
+
+def make_v_likelyhood(counts_matrix, binom_matrix, noise_matrix, window):
+    def target(x):
+        a = x[0]
+        b = x[1]
+        return -1 * sum(
+            sum(counts_matrix[n, k] * np.log(binom_matrix[n, k] * (1 - a - b)
+                                             + noise_matrix[n, k] * (a if k < n / 2 else b))
+                for k in window[n])
+            for n in window)
+
+    return target
+
+
 def plot_target_function(f):
     x = [v / 100 for v in range(1, 100)]
     y = [f(v) for v in x]
@@ -121,6 +171,21 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
                                                  frac=min(lowess_points / non_nan_number_of_points, 0.5))
         return weights_of_correction, dict(zip(n_array, weights_lowess))
     return weights_of_correction, None
+
+
+def fit_v_type_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
+    print('made ncr and noize')
+    binom_matrix, noise = make_binom_matrix(counts_matrix.shape[0], nonzero_dict, get_p())
+    print(binom_matrix[15, :16])
+    weights_of_correction = {}
+    for n in n_array:
+        print('fitting for n={}'.format(n))
+        weights_of_correction[n] = fit_alpha_beta(counts_matrix=counts_matrix,
+                                                  binom_matrix=binom_matrix,
+                                                  noise_matrix=noise, window=get_window(n, nonzero_dict, samples),
+                                                  samples=samples)
+        print(weights_of_correction[n])
+    return weights_of_correction
 
 
 def get_window(n, nonzero_dict, samples, window_mode=None):
@@ -199,6 +264,42 @@ def plot_fit(weights_of_correction, weights_of_lowess_correction, save=True):
         plt.show()
 
 
+def plot_v_fit(weights_of_correction, weights_of_lowess_correction, save=True):
+    fig, ax = plt.subplots(figsize=(10, 8))
+    plt.scatter(list(weights_of_correction.keys()), [weights_of_correction[k][0] for k in weights_of_correction])
+    if lowess:
+        plt.scatter(list(weights_of_lowess_correction.keys()), [weights_of_lowess_correction[k][0]
+                                                                for k in weights_of_lowess_correction])
+    plt.grid(True)
+    plt.xlabel('cover')
+    plt.ylabel('weight of noise correction')
+    plt.title(
+        'Weight of noise correction ML fit on BAD={}\nall_datasets, {}, lowess={}, span={}'.format(BAD, mode, lowess, r_span))
+    if save:
+        plt.savefig(
+            os.path.expanduser(
+                '~/plots/weights_noise_BAD={}_mode={}_lowess={}, span={}.png'.format(BAD, mode, lowess, r_span)))
+    else:
+        plt.show()
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    plt.scatter(list(weights_of_correction.keys()), [weights_of_correction[k][1] for k in weights_of_correction])
+    if lowess:
+        plt.scatter(list(weights_of_lowess_correction.keys()), [weights_of_lowess_correction[k][1]
+                                                                for k in weights_of_lowess_correction])
+    plt.grid(True)
+    plt.xlabel('cover')
+    plt.ylabel('weight of asymmetry correction')
+    plt.title(
+        'Weight of asymmetry correction ML fit on BAD={}\nall_datasets, {}, lowess={}, span={}'.format(BAD, mode, lowess, r_span))
+    if save:
+        plt.savefig(
+            os.path.expanduser(
+                '~/plots/weights_asymmetry_BAD={}_mode={}_lowess={}, span={}.png'.format(BAD, mode, lowess, r_span)))
+    else:
+        plt.show()
+
+
 def plot_quality(scores, binom_scores, metric_mode, save=True):
     print(scores, binom_scores)
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -224,10 +325,18 @@ def calculate_score(weights_of_correction, counts_matrix, metric_mode):
     scores = dict()
     binom_scores = dict()
     for n in weights_of_correction:
+        if n > 400:
+            continue
         norm, observed = get_observed(n, counts_matrix, normalize=False)
         if norm == 0:
             continue
-        expected = get_probability_density(n, weights_of_correction[n]) * norm
+        if fit_type == 'one_line':
+            expected = get_probability_density(n, weights_of_correction[n]) * norm
+        elif fit_type == 'V':
+            expected = get_probability_v_density(n, weights_of_correction[n][0], weights_of_correction[n][1]) * norm
+        else:
+            raise ValueError
+
         expected_binom = get_probability_density(n, 0) * norm
 
         print(n, norm, norm >= (n + 1) ** 2)
@@ -294,6 +403,17 @@ def get_probability_density(n, alpha, subtract=False):
     return np.array(density)
 
 
+def get_probability_v_density(n, a, b):
+    p = get_p()
+    f1 = st.binom(n, p).pmf
+    f2 = st.binom(n, 1 - p).pmf
+    norm = sum((0.5 * (f1(x) + f2(x)) * (1 - a - b)) for x in range(3, n - 2)) + a + b
+    density = [0] * 3 + \
+              [(0.5 * (f1(k) + f2(k)) * (1 - a - b) + get_noise_density(n, k) * (a if k < n / 2 else b)) / norm
+               for k in range(3, n - 2)] + [0] * 3
+    return np.array(density)
+
+
 def get_noise_density_array(n):
     return np.array([0] * 3 + [get_noise_density(n, k) for k in range(3, n - 2)] + [0] * 3)
 
@@ -317,35 +437,41 @@ def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=
         plt.show()
 
 
-def plot_histogram(n, weight, save=True, subtract_noise=False, plot_betabinom=False, betabin_s=None,
-                   subtract_binom=False):
+def plot_histogram(n, weight1, weight2=None, save=True, subtract_noise=False, plot_betabinom=False, betabin_s=None):
     print('made data for n={}'.format(n))
-    current_density = get_probability_density(n, weight, subtract=subtract_noise)
+
     total_snps = counts[n, 0:n + 1].sum()
 
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.barplot(x=list(range(n + 1)),
-                y=counts[n, 0:n + 1] / total_snps - subtract_noise * weight * get_noise_density_array(n), ax=ax)
+                y=counts[n, 0:n + 1] / total_snps - subtract_noise * weight1 * get_noise_density_array(n), ax=ax)
     plt.axvline(x=n / 2, color='black')
 
-    label = 'weight of linear noize: {}\ntotal observations: {}'.format(round(weight, 2),
-                                                                        total_snps)
-    plt.plot(list(range(n + 1)), current_density)
-    plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
+    if fit_type == 'one_line':
+        current_density = get_probability_density(n, weight1, subtract=subtract_noise)
+        label = 'weight of linear noize: {:.2f}\ntotal observations: {}'.format(weight1, total_snps)
+        plt.plot(list(range(n + 1)), current_density)
+        plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
+    elif fit_type == 'V':
+        weight1, weight2 = (weight1 - weight2) / 2, (weight1 + weight2) / 2
+        current_density = get_probability_v_density(n, weight1, weight2)
+        label = 'weight, asym: {:.2f}, {:.2f}\ntotal observations: {}'.format(weight1, weight2, total_snps)
+        plt.plot(list(range(n + 1)), current_density)
+        plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
 
     if plot_betabinom:
-        beta_density = get_betabinom_density(n, betabin_s, weight)
+        beta_density = get_betabinom_density(n, betabin_s, weight1)
         plt.plot(list(range(n + 1)), beta_density)
 
-    binom_density = get_probability_density(n, 0)
-    plt.plot(list(range(n + 1)), binom_density, c='C2')
+    # binom_density = get_probability_density(n, 0)
+    # plt.plot(list(range(n + 1)), binom_density, c='C2')
 
     plt.title('ref-alt bias for BAD={} n={}'.format(BAD, n))
     ax.legend().remove()
     plt.ylabel('count')
     plt.xlabel('ref_read_counts')
     if save:
-        plt.savefig(os.path.expanduser('~/plots/ref-alt_bias_n={}_BAD={}_w={}.png'.format(n, BAD, weight)))
+        plt.savefig(os.path.expanduser('~/plots/BAD{:.1f}_V/ref-alt_bias_n={}_BAD={:.1f}.png'.format(BAD, n, BAD)))
     else:
         plt.show()
 
@@ -434,13 +560,51 @@ def make_derivative_beta(n, alpha, counts_array, nonzero_k):
     return target
 
 
+def make_r_lowess(weights_dict, n_array):
+    if fit_type == 'one_line':
+        sv = pd.DataFrame({'alpha': [weights_dict[x] for x in weights_dict if weights_dict[x] != 'NaN'],
+                           'snps': np.log(total_snps_with_cover_n[n_array])})
+        sv.index = n_array
+        sv.to_csv(os.path.expanduser('~/weights_BAD={:.1f}.tsv'.format(BAD)), sep='\t')
+
+        bash_command = "Rscript {} {:.1f} {}".format(os.path.expanduser('~/betabin_fit.R'), BAD,
+                                                     str(r_span))
+        process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
+        process.communicate()
+
+        sv_r = pd.read_table(os.path.expanduser('~/r_weights_BAD={:.1f}.tsv'.format(BAD)))
+        sv_r.index = n_array
+        print(sv_r.head())
+        beta_s = dict(zip(n_array, sv_r['betabin_s']))
+        lowess_r_weights = dict(zip(n_array, sv_r['lowess_r_weights']))
+        return lowess_r_weights, beta_s
+    elif fit_type == 'V':
+        sv = pd.DataFrame({'alpha': [weights_dict[x][0] for x in weights_dict if weights_dict[x][0] != 'NaN'],
+                           'beta': [weights_dict[x][1] for x in weights_dict if weights_dict[x][1] != 'NaN'],
+                           'snps': np.log(total_snps_with_cover_n[n_array])})
+        sv.index = n_array
+        sv.to_csv(os.path.expanduser('~/weights_BAD={:.1f}.tsv'.format(BAD)), sep='\t')
+
+        bash_command = "Rscript {} {:.1f} {}".format(os.path.expanduser('~/lowess_v.R'), BAD,
+                                                     str(r_span))
+        process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
+        process.communicate()
+
+        sv_r = pd.read_table(os.path.expanduser('~/r_weights_BAD={:.1f}.tsv'.format(BAD)))
+        sv_r.index = n_array
+        print(sv_r.head())
+        lowess_r_weights = list(zip(sv_r['lowess_r_weights_a'], sv_r['lowess_r_weights_b']))
+        return dict(zip(n_array, lowess_r_weights))
+
+
 if __name__ == '__main__':
-    for BAD in [4]: #[1, 4 / 3, 3 / 2, 2, 5 / 2, 3, 4, 5, 6]:
+    for BAD in [1, 4 / 3, 3 / 2, 2, 5 / 2, 3, 4, 5, 6]:
         mode = "window_0"
         metric_modes = ['rmsea']
         lowess = 'R'
         r_span = 0.15
         lowess_points = 80
+        fit_type = 'V'
 
         # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
         filename = os.path.expanduser('~/cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
@@ -453,8 +617,8 @@ if __name__ == '__main__':
 
         # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
         # s_ns = range(10, max(stats['cover']) + 1, 15)
-        # s_ns = range(10, max(stats['cover']), 1)
-        s_ns = [10,11,12,13,14,15]
+        s_ns = range(10, max(stats['cover']), 1)
+        # s_ns = [10, 11, 12, 13, 14, 15]
 
         max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
@@ -465,10 +629,10 @@ if __name__ == '__main__':
 
         calculate_betabinom_weights = False
         calculate_betabinom_fit_quality = False
-        calculate_fit_quality = False
-        plot_fit_quality = False
+        calculate_fit_quality = True
+        plot_fit_quality = True
 
-        plot_histograms = True
+        plot_histograms = False
 
         if plot_window_counts:
             for window_mode in ("up_window", "up_window_n_sq", "up_window_2n", "window_0"):
@@ -476,34 +640,37 @@ if __name__ == '__main__':
 
         if calculate_weights:
             sensible_n_array = [n for n in s_ns if n <= max_sensible_n]
-            weights, lowess_weights = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N,
-                                                              total_snps_with_cover_n)
-            non_nan_weights_n_array = [n for n in sensible_n_array if weights[n] != 'NaN']
+            if fit_type == 'V':
+                weights = fit_v_type_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N,
+                                                         total_snps_with_cover_n)
+                print(weights)
+                non_nan_weights_n_array = [n for n in sensible_n_array if weights[n] != ('NaN', 'NaN')]
 
-            if lowess == 'R':
-                sv = pd.DataFrame({'alpha': [weights[x] for x in weights if weights[x] != 'NaN'],
-                                   'snps': np.log(total_snps_with_cover_n[non_nan_weights_n_array])})
-                sv.index = non_nan_weights_n_array
-                sv.to_csv(os.path.expanduser('~/weights_BAD={:.1f}.tsv'.format(BAD)), sep='\t')
+                if lowess == 'R':
+                    lowess_r_weights = make_r_lowess(weights, non_nan_weights_n_array)
 
-                bash_command = "Rscript {} {:.1f} {}".format(os.path.expanduser('~/betabin_fit.R'), BAD, str(r_span))
-                process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
-                output, error = process.communicate()
+                if plot_fit_weights:
+                    plot_v_fit(weights, lowess_r_weights)
 
-                sv_r = pd.read_table(os.path.expanduser('~/r_weights_BAD={:.1f}.tsv'.format(BAD)))
-                sv_r.index = non_nan_weights_n_array
-                print(sv_r.head())
-                beta_s = dict(zip(non_nan_weights_n_array, sv_r['betabin_s']))
-                lowess_r_weights = dict(zip(non_nan_weights_n_array, sv_r['lowess_r_weights']))
+                if lowess:
+                    weights = lowess_r_weights
 
-                lowess_weights = lowess_r_weights
-                print(lowess_weights)
+            else:
+                weights, lowess_weights = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N,
+                                                                  total_snps_with_cover_n)
+                non_nan_weights_n_array = [n for n in sensible_n_array if weights[n] != 'NaN']
 
-            if plot_fit_weights:
-                plot_fit(weights, lowess_weights)
+                if lowess == 'R':
+                    lowess_r_weights = make_r_lowess(weights, non_nan_weights_n_array)
 
-            if lowess:
-                weights = lowess_weights
+                    lowess_weights = lowess_r_weights
+                    print(lowess_weights)
+
+                if plot_fit_weights:
+                        plot_fit(weights, lowess_weights)
+
+                if lowess:
+                    weights = lowess_weights
 
             if calculate_fit_quality:
                 for metric in metric_modes:
@@ -518,11 +685,13 @@ if __name__ == '__main__':
 
             if plot_histograms:
                 for n in non_nan_weights_n_array:
-                    if n >= 150: continue
-                #for n in [100, 150]:
-                    #if n not in non_nan_weights_n_array:
+                    if n >= 150:
+                        continue
+                    if n % 5 != 0:
+                        continue
+                    # for n in [100, 150]:
+                    # if n not in non_nan_weights_n_array:
                     #    continue
                     # for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
                     #                                                    'sq'), max_sensible_n]:
-                    plot_histogram(n, weights[n], save=True, subtract_noise=False, plot_betabinom=True,
-                                   betabin_s=beta_s[n])
+                    plot_histogram(n, weights[n][0], weights[n][1], save=True, subtract_noise=False)
