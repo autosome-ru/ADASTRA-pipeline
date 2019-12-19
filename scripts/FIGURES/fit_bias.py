@@ -279,6 +279,7 @@ def plot_fit(weights_of_correction, weights_of_lowess_correction, save=True):
                 '~/plots/weights_{}_BAD={}_mode={}_lowess={}, span={}.png'.format(fit_type, BAD, mode, lowess, r_span)))
     else:
         plt.show()
+    plt.close(fig)
 
 
 def plot_v_fit(weights_of_correction, weights_of_lowess_correction, save=True):
@@ -318,6 +319,7 @@ def plot_v_fit(weights_of_correction, weights_of_lowess_correction, save=True):
                 '~/plots/weights_right_BAD={}_mode={}_lowess={}, span={}.png'.format(BAD, mode, lowess, r_span)))
     else:
         plt.show()
+    plt.close(fig)
 
 
 def plot_quality(scores, binom_scores, metric_mode, save=True):
@@ -339,6 +341,7 @@ def plot_quality(scores, binom_scores, metric_mode, save=True):
             '~/plots/qual_of_fit_{}_BAD={}_mode={}_lowess={}.png'.format(metric_mode, BAD, mode, lowess)))
     else:
         plt.show()
+    plt.close(fig)
 
 
 def calculate_score(weights_of_correction, counts_matrix, binom_matrix, noise_matrix, metric_mode):
@@ -423,8 +426,7 @@ def get_probability_density(n, alpha, binom_matrix, noise_matrix, subtract=False
                     get_noise_density(n, x) * alpha) / norm for x in range(5, n - 4)] + [0] * 5
     else:
         density = (binom_matrix[n, : n + 1] * (1 - alpha) +
-                   noise_matrix[n, : n + 1] * alpha *
-                   get_half_binom_norm(n, binom_matrix))
+                   noise_matrix[n, : n + 1] * alpha)
 
     return np.array(density)
 
@@ -461,6 +463,7 @@ def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=
             os.path.expanduser('~/plots/obs_in_window_BAD={}_mode={}_lowess={}.png'.format(BAD, window_mode, lowess)))
     else:
         plt.show()
+    plt.close(fig)
 
 
 def plot_histogram(n, counts_matrix, binom_matrix, noise_matrix, weight1, weight2=None, save=True, subtract_noise=False,
@@ -496,7 +499,7 @@ def plot_histogram(n, counts_matrix, binom_matrix, noise_matrix, weight1, weight
     # plt.plot(list(range(n + 1)), binom_density, c='C2')
 
     plt.title('ref-alt bias for BAD={} n={}'.format(BAD, n))
-    ax.legend().remove()
+    #ax.legend().remove()
     plt.ylabel('count')
     plt.xlabel('ref_read_counts')
     if save:
@@ -506,6 +509,7 @@ def plot_histogram(n, counts_matrix, binom_matrix, noise_matrix, weight1, weight
             os.path.expanduser('~/plots/{}/BAD{:.1f}/ref-alt_bias_n={}_BAD={:.1f}.png'.format(fit_type, BAD, n, BAD)))
     else:
         plt.show()
+    plt.close(fig)
 
 
 def get_betabinom_density(n, s, alpha):
@@ -665,6 +669,7 @@ def plot_butterfly_hist(counts_matrix, n):
 
     plt.title('butterfly for n={}, BAD={}'.format(n, BAD))
     plt.savefig(os.path.expanduser('~/plots/{}/BAD{:.1f}/butterfly_n={}_BAD={:.1f}.png'.format(fit_type, BAD, n, BAD)))
+    plt.close(fig)
 
 
 def plot_ratio_hist(counts_matrix, n):
@@ -684,6 +689,7 @@ def plot_ratio_hist(counts_matrix, n):
 
     plt.title('symmetric ratio for n={}, BAD={}'.format(n, BAD))
     plt.savefig(os.path.expanduser('~/plots/{}/BAD{:.1f}/ratio_n={}_BAD={:.1f}.png'.format(fit_type, BAD, n, BAD)))
+    plt.close(fig)
 
 
 if __name__ == '__main__':
