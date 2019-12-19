@@ -11,6 +11,8 @@ from statsmodels.nonparametric import smoothers_lowess
 import seaborn as sns
 import subprocess
 
+pd.set_option('display.max_columns', 7)
+
 
 def make_binom_matrix(size_of_counts, nonzero_dict, p):
     if os.path.isfile(filename + '_binom.precalc.npy'):
@@ -126,9 +128,9 @@ def fit_alpha_beta(noise_matrix, binom_matrix, counts_matrix, window, samples):
             raise ValueError
     except ValueError:
         return 'NaN', 'NaN'
-    noise_level = alpha_coefficient + beta_coefficient
-    asymmetry = beta_coefficient - alpha_coefficient
-    return noise_level, asymmetry
+    # noise_level = alpha_coefficient + beta_coefficient
+    # asymmetry = beta_coefficient - alpha_coefficient
+    return alpha_coefficient, beta_coefficient
 
 
 def make_v_likelyhood(counts_matrix, binom_matrix, noise_matrix, window):
@@ -266,19 +268,21 @@ def plot_fit(weights_of_correction, weights_of_lowess_correction, save=True):
 
 def plot_v_fit(weights_of_correction, weights_of_lowess_correction, save=True):
     fig, ax = plt.subplots(figsize=(10, 8))
+    print(weights_of_correction)
     plt.scatter(list(weights_of_correction.keys()), [weights_of_correction[k][0] for k in weights_of_correction])
     if lowess:
         plt.scatter(list(weights_of_lowess_correction.keys()), [weights_of_lowess_correction[k][0]
                                                                 for k in weights_of_lowess_correction])
     plt.grid(True)
     plt.xlabel('cover')
-    plt.ylabel('weight of noise correction')
+    plt.ylabel('weight of alt bias correction')
     plt.title(
-        'Weight of noise correction ML fit on BAD={}\nall_datasets, {}, lowess={}, span={}'.format(BAD, mode, lowess, r_span))
+        'Weight of left correction ML fit on BAD={}\nall_datasets, {}, lowess={}, span={}'.format(BAD, mode, lowess,
+                                                                                                  r_span))
     if save:
         plt.savefig(
             os.path.expanduser(
-                '~/plots/weights_noise_BAD={}_mode={}_lowess={}, span={}.png'.format(BAD, mode, lowess, r_span)))
+                '~/plots/weights_left_BAD={}_mode={}_lowess={}, span={}.png'.format(BAD, mode, lowess, r_span)))
     else:
         plt.show()
 
@@ -289,13 +293,14 @@ def plot_v_fit(weights_of_correction, weights_of_lowess_correction, save=True):
                                                                 for k in weights_of_lowess_correction])
     plt.grid(True)
     plt.xlabel('cover')
-    plt.ylabel('weight of asymmetry correction')
+    plt.ylabel('weight of ref bias correction')
     plt.title(
-        'Weight of asymmetry correction ML fit on BAD={}\nall_datasets, {}, lowess={}, span={}'.format(BAD, mode, lowess, r_span))
+        'Weight of right correction ML fit on BAD={}\nall_datasets, {}, lowess={}, span={}'.format(BAD, mode, lowess,
+                                                                                                   r_span))
     if save:
         plt.savefig(
             os.path.expanduser(
-                '~/plots/weights_asymmetry_BAD={}_mode={}_lowess={}, span={}.png'.format(BAD, mode, lowess, r_span)))
+                '~/plots/weights_right_BAD={}_mode={}_lowess={}, span={}.png'.format(BAD, mode, lowess, r_span)))
     else:
         plt.show()
 
@@ -437,14 +442,15 @@ def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=
         plt.show()
 
 
-def plot_histogram(n, weight1, weight2=None, save=True, subtract_noise=False, plot_betabinom=False, betabin_s=None):
+def plot_histogram(n, weight1, counts_matrix, weight2=None, save=True, subtract_noise=False, plot_betabinom=False,
+                   betabin_s=None):
     print('made data for n={}'.format(n))
 
-    total_snps = counts[n, 0:n + 1].sum()
+    total_snps = counts_matrix[n, 0:n + 1].sum()
 
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.barplot(x=list(range(n + 1)),
-                y=counts[n, 0:n + 1] / total_snps - subtract_noise * weight1 * get_noise_density_array(n), ax=ax)
+                y=counts_matrix[n, 0:n + 1] / total_snps - subtract_noise * weight1 * get_noise_density_array(n), ax=ax)
     plt.axvline(x=n / 2, color='black')
 
     if fit_type == 'one_line':
@@ -453,9 +459,10 @@ def plot_histogram(n, weight1, weight2=None, save=True, subtract_noise=False, pl
         plt.plot(list(range(n + 1)), current_density)
         plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
     elif fit_type == 'V':
-        weight1, weight2 = (weight1 - weight2) / 2, (weight1 + weight2) / 2
+        # weight1, weight2 = (weight1 - weight2) / 2, (weight1 + weight2) / 2
         current_density = get_probability_v_density(n, weight1, weight2)
-        label = 'weight, asym: {:.2f}, {:.2f}\ntotal observations: {}'.format(weight1, weight2, total_snps)
+        label = 'weights of alt, ref noizes: {:.2f}, {:.2f}\ntotal observations: {}'.format(weight1, weight2,
+                                                                                            total_snps)
         plt.plot(list(range(n + 1)), current_density)
         plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
 
@@ -491,7 +498,7 @@ def get_betabinom_density(n, s, alpha):
     return rv
 
 
-def get_max_sensible_n(n_array, samples, nonzero_dict, sensible_mode='linear'):
+def get_max_sensible_n_right_tail(n_array, samples, nonzero_dict, sensible_mode='linear'):
     for i, n in enumerate(n_array):
         current_cumulative_counts = 0
         if sensible_mode == 'linear':
@@ -509,6 +516,22 @@ def get_max_sensible_n(n_array, samples, nonzero_dict, sensible_mode='linear'):
         else:
             return n_array[max(0, i - 1)]
     return n_array[-1]
+
+
+def get_seinsible_n_array(n_array, samples, nonzero_dict, sensible_mode='linear'):
+    rv = []
+    for n in n_array:
+        current_cumulative_counts = 0
+        if sensible_mode == 'linear':
+            required_counts = (n + 1)
+        elif sensible_mode == 'sq':
+            required_counts = (n + 1) ** 2
+        else:
+            raise ValueError(sensible_mode)
+
+        if samples[n] >= required_counts:
+            rv.append(n)
+    return rv
 
 
 def fit_bb_overdispersion(noise_weights, counts_matrix, nonzero_dict):
@@ -562,7 +585,7 @@ def make_derivative_beta(n, alpha, counts_array, nonzero_k):
 
 def make_r_lowess(weights_dict, n_array):
     if fit_type == 'one_line':
-        sv = pd.DataFrame({'alpha': [weights_dict[x] for x in weights_dict if weights_dict[x] != 'NaN'],
+        sv = pd.DataFrame({'alpha': [weights_dict[x] for x in weights_dict],
                            'snps': np.log(total_snps_with_cover_n[n_array])})
         sv.index = n_array
         sv.to_csv(os.path.expanduser('~/weights_BAD={:.1f}.tsv'.format(BAD)), sep='\t')
@@ -574,6 +597,7 @@ def make_r_lowess(weights_dict, n_array):
 
         sv_r = pd.read_table(os.path.expanduser('~/r_weights_BAD={:.1f}.tsv'.format(BAD)))
         sv_r.index = n_array
+        sv_r['lowess_r_weights'] = sv_r['lowess_r_weights'].apply(lambda x: max(x, 0))
         print(sv_r.head())
         beta_s = dict(zip(n_array, sv_r['betabin_s']))
         lowess_r_weights = dict(zip(n_array, sv_r['lowess_r_weights']))
@@ -592,9 +616,49 @@ def make_r_lowess(weights_dict, n_array):
 
         sv_r = pd.read_table(os.path.expanduser('~/r_weights_BAD={:.1f}.tsv'.format(BAD)))
         sv_r.index = n_array
+        sv_r['lowess_r_weights_a'] = sv_r['lowess_r_weights_a'].apply(lambda x: max(x, 0))
+        sv_r['lowess_r_weights_b'] = sv_r['lowess_r_weights_b'].apply(lambda x: max(x, 0))
         print(sv_r.head())
         lowess_r_weights = list(zip(sv_r['lowess_r_weights_a'], sv_r['lowess_r_weights_b']))
         return dict(zip(n_array, lowess_r_weights))
+
+
+def plot_butterfly_hist(counts_matrix, n):
+    print('butterfly_for_n={}'.format(n))
+    total_snps = counts_matrix[n, 0:n + 1].sum()
+
+    data = pd.DataFrame({'x': np.array(range(n + 1)),
+                         'y': counts_matrix[n, 0:n + 1] / total_snps,
+                         'type': 'original'})
+    data = data.append(pd.DataFrame({'x': np.array(range(n + 1)),
+                                     'y': counts_matrix[n, n::-1] / total_snps,
+                                     'type': 'symmetrical'}))
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.barplot(x='x', y='y', data=data, ax=ax, hue='type', dodge=False)
+    plt.axvline(x=n / 2, color='black')
+
+    plt.title('butterfly for n={}, BAD={}'.format(n, BAD))
+    plt.savefig(os.path.expanduser('~/plots/BAD{:.1f}_V/butterfly_n={}_BAD={:.1f}.png'.format(BAD, n, BAD)))
+
+
+def plot_ratio_hist(counts_matrix, n):
+    print('ratio_for_n={}'.format(n))
+    y = [0]*3
+    for k in range(3, n-2):
+        if counts_matrix[n, n - k] == 0:
+            y.append(0)
+        else:
+            y.append(counts_matrix[n, k] / counts_matrix[n, n - k])
+    y += [0]*3
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.barplot(x=np.array(range(n + 1)), y=y, ax=ax)
+    plt.axvline(x=n / 2, color='black')
+    plt.axhline(y=1, color='black')
+
+    plt.title('symmetric ratio for n={}, BAD={}'.format(n, BAD))
+    plt.savefig(os.path.expanduser('~/plots/BAD{:.1f}_V/ratio_n={}_BAD={:.1f}.png'.format(BAD, n, BAD)))
 
 
 if __name__ == '__main__':
@@ -620,31 +684,34 @@ if __name__ == '__main__':
         s_ns = range(10, max(stats['cover']), 1)
         # s_ns = [10, 11, 12, 13, 14, 15]
 
-        max_sensible_n = get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
+        sensible_n_array = get_seinsible_n_array(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
         plot_window_counts = False
 
-        calculate_weights = True
+        calculate_weights = False
         plot_fit_weights = False
 
         calculate_betabinom_weights = False
         calculate_betabinom_fit_quality = False
-        calculate_fit_quality = True
-        plot_fit_quality = True
+        calculate_fit_quality = False
+        plot_fit_quality = False
 
         plot_histograms = False
+        plot_butterfly = False
+        plot_ratio = True
 
         if plot_window_counts:
             for window_mode in ("up_window", "up_window_n_sq", "up_window_2n", "window_0"):
                 plot_window_sizes_in_snps(s_ns, dict_of_nonzero_N, total_snps_with_cover_n, window_mode)
 
         if calculate_weights:
-            sensible_n_array = [n for n in s_ns if n <= max_sensible_n]
             if fit_type == 'V':
                 weights = fit_v_type_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N,
                                                          total_snps_with_cover_n)
-                print(weights)
+
                 non_nan_weights_n_array = [n for n in sensible_n_array if weights[n] != ('NaN', 'NaN')]
+                weights = dict(zip(non_nan_weights_n_array, [weights[n] for n in non_nan_weights_n_array]))
+                print(weights)
 
                 if lowess == 'R':
                     lowess_r_weights = make_r_lowess(weights, non_nan_weights_n_array)
@@ -655,7 +722,7 @@ if __name__ == '__main__':
                 if lowess:
                     weights = lowess_r_weights
 
-            else:
+            elif fit_type == 'one_line':
                 weights, lowess_weights = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N,
                                                                   total_snps_with_cover_n)
                 non_nan_weights_n_array = [n for n in sensible_n_array if weights[n] != 'NaN']
@@ -667,10 +734,12 @@ if __name__ == '__main__':
                     print(lowess_weights)
 
                 if plot_fit_weights:
-                        plot_fit(weights, lowess_weights)
+                    plot_fit(weights, lowess_weights)
 
                 if lowess:
                     weights = lowess_weights
+            else:
+                raise ValueError(fit_type)
 
             if calculate_fit_quality:
                 for metric in metric_modes:
@@ -685,13 +754,19 @@ if __name__ == '__main__':
 
             if plot_histograms:
                 for n in non_nan_weights_n_array:
-                    if n >= 150:
-                        continue
-                    if n % 5 != 0:
+                    if n >= 20 and n % 5 != 0:
                         continue
                     # for n in [100, 150]:
                     # if n not in non_nan_weights_n_array:
                     #    continue
                     # for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
                     #                                                    'sq'), max_sensible_n]:
-                    plot_histogram(n, weights[n][0], weights[n][1], save=True, subtract_noise=False)
+                    plot_histogram(n, counts, weights[n][0], weights[n][1], save=True, subtract_noise=False)
+
+        for n in s_ns:
+            if n >= 60 and n % 5 != 0 or n > 150:
+                continue
+            if plot_butterfly:
+                plot_butterfly_hist(counts, n)
+            if plot_ratio:
+                plot_ratio_hist(counts, n)
