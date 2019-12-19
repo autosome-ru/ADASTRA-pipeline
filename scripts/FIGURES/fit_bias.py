@@ -66,13 +66,13 @@ def get_noise_density(n, k):
     elif fit_type == 'V':
         if n == 10:
             return 1
-        return abs(n / 2 - k) / ((n // 2 + 1) * (n - n // 2) * 0.5 - 10 * (n / 2 - 1))
+        return abs(n / 2 - k) / (1 / 2 * (n - 5 - n // 2) * (n // 2 - 4))
     elif fit_type == 'one_side':
         if n == 10:
             return 1
         if k <= 4 or k >= n - 4:
             return 0
-        return max(k - n/2, 0) / ((n // 2 + 1) * (n - n // 2) * 0.5 - 10 * (n / 2 - 1))
+        return max(k - n / 2, 0) / (1 / 2 * (n - 5 - n // 2) * (n // 2 - 4))
 
 
 def make_counts_matrix_and_nonzero_dict(stats_pandas_dataframe):
@@ -92,7 +92,7 @@ def make_counts_matrix_and_nonzero_dict(stats_pandas_dataframe):
     return counts_matrix, nonzero_dict
 
 
-def make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window):
+def make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window, binom_norm_dict=None):
     """
     :param counts_matrix: number of counts 2D np.array
     :param binom_matrix:
@@ -103,20 +103,34 @@ def make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window):
 
     def target(alpha):
         return -1 * sum(
-            sum(counts_matrix[n, k] * (binom_matrix[n, k] * (-1) + noise_matrix[n, k]) /
-                (binom_matrix[n, k] * (1 - alpha) + noise_matrix[n, k] * alpha)
+            sum(counts_matrix[n, k] * (
+                        binom_matrix[n, k] / (binom_norm_dict[n] if fit_type == 'one_side' else 1) * (-1) +
+                        noise_matrix[n, k])
+                / (binom_matrix[n, k] / (binom_norm_dict[n] if fit_type == 'one_side' else 1) * (1 - alpha) +
+                   noise_matrix[n, k] * alpha)
                 for k in window[n])
             for n in window)
 
     return target
 
 
-def fit_alpha(noise_matrix, binom_matrix, counts_matrix, window):
+def get_binom_norm(n):
+    if n % 2 == 1:
+        return 0.5
+    else:
+        p = get_p()
+        f1 = st.binom(n, p).pmf((n + 1) // 2)
+        f2 = st.binom(n, 1 - p).pmf((n + 1) // 2)
+        return 0.5 * (1 - (f1 + f2))
+
+
+def fit_alpha(noise_matrix, binom_matrix, counts_matrix, window, binom_norm_dict=None):
     # f = make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window)
     # plot_target_function(f)
     try:
         alpha_coefficient = optimize.brenth(
-            f=make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window), a=0.01, b=0.999)
+            f=make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window, binom_norm_dict),
+            a=0.01, b=0.999)
         if alpha_coefficient <= 0.01:
             return 'NaN'
     except ValueError:
@@ -169,33 +183,20 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
     binom_matrix, noise = make_binom_matrix(counts_matrix.shape[0], nonzero_dict, get_p())
     print(binom_matrix[15, :16])
     weights_of_correction = {}
+    if fit_type == 'one_side':
+        binom_norm_dict = {}
+        for n in n_array:
+            binom_norm_dict[n] = get_binom_norm(n)
+    else:
+        binom_norm_dict = None
+
     for n in n_array:
         print('fitting for n={}'.format(n))
+        print(n, get_window(n, nonzero_dict, samples))
         weights_of_correction[n] = fit_alpha(counts_matrix=counts_matrix,
                                              binom_matrix=binom_matrix,
-                                             noise_matrix=noise, window=get_window(n, nonzero_dict, samples))
-        print(weights_of_correction[n])
-    if lowess:
-        non_nan_number_of_points = sum(isinstance(weights_of_correction[x], float) for x in weights_of_correction)
-        print(non_nan_number_of_points)
-        weights = [weights_of_correction[x] for x in n_array]
-        weights_lowess = smoothers_lowess.lowess(weights, n_array, return_sorted=False,
-                                                 frac=min(lowess_points / non_nan_number_of_points, 0.5))
-        return weights_of_correction, dict(zip(n_array, weights_lowess))
-    return weights_of_correction, None
-
-
-def fit_one_side_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
-    print('made ncr and noize')
-    binom_matrix, noise = make_binom_matrix(counts_matrix.shape[0], nonzero_dict, get_p())
-    print(binom_matrix[15, :16])
-    weights_of_correction = {}
-    for n in n_array:
-        print('fitting for n={}'.format(n))
-        weights_of_correction[n] = fit_alpha_beta(counts_matrix=counts_matrix,
-                                                  binom_matrix=binom_matrix,
-                                                  noise_matrix=noise, window=get_window(n, nonzero_dict, samples),
-                                                  samples=samples)
+                                             noise_matrix=noise, window=get_window(n, nonzero_dict, samples),
+                                             binom_norm_dict=binom_norm_dict)
         print(weights_of_correction[n])
     return weights_of_correction
 
@@ -234,7 +235,10 @@ def get_window_plus_minus(n, nonzero_dict, width):
     window = {}
     for key in nonzero_dict:
         if n - width <= key <= n + width:
-            window[key] = nonzero_dict[key]
+            if fit_type == 'one_side':
+                window[key] = [k for k in nonzero_dict[key] if k > key / 2]
+            else:
+                window[key] = nonzero_dict[key]
     return window
 
 
@@ -286,7 +290,7 @@ def plot_fit(weights_of_correction, weights_of_lowess_correction, save=True):
     if save:
         plt.savefig(
             os.path.expanduser(
-                '~/plots/weights_BAD={}_mode={}_lowess={}, span={}.png'.format(BAD, mode, lowess, r_span)))
+                '~/plots/weights_{}_BAD={}_mode={}_lowess={}, span={}.png'.format(fit_type, BAD, mode, lowess, r_span)))
     else:
         plt.show()
 
@@ -426,10 +430,10 @@ def get_probability_density(n, alpha, subtract=False):
     f1 = st.binom(n, p).pmf
     f2 = st.binom(n, 1 - p).pmf
     norm = sum((0.5 * (f1(x) + f2(x)) * (1 - alpha) + (1 - subtract) *
-                2 * x / (n * (n + 1)) * alpha) for x in range(3, n - 2))
-    density = [0] * 3 + \
+                get_noise_density(n, x) * alpha) for x in range(5, n - 4))
+    density = [0] * 5 + \
               [(0.5 * (f1(x) + f2(x)) * (1 - alpha) + (1 - subtract) *
-                2 * x / (n * (n + 1)) * alpha) / norm for x in range(3, n - 2)] + [0] * 3
+                get_noise_density(n, x) * alpha) / norm for x in range(5, n - 4)] + [0] * 5
     return np.array(density)
 
 
@@ -437,15 +441,15 @@ def get_probability_v_density(n, a, b):
     p = get_p()
     f1 = st.binom(n, p).pmf
     f2 = st.binom(n, 1 - p).pmf
-    norm = sum((0.5 * (f1(x) + f2(x)) * (1 - a - b)) for x in range(3, n - 2)) + a + b
-    density = [0] * 3 + \
+    norm = sum((0.5 * (f1(x) + f2(x)) * (1 - a - b)) for x in range(5, n - 4)) + a + b
+    density = [0] * 5 + \
               [(0.5 * (f1(k) + f2(k)) * (1 - a - b) + get_noise_density(n, k) * (a if k < n / 2 else b)) / norm
-               for k in range(3, n - 2)] + [0] * 3
+               for k in range(3, n - 2)] + [0] * 5
     return np.array(density)
 
 
 def get_noise_density_array(n):
-    return np.array([0] * 3 + [get_noise_density(n, k) for k in range(3, n - 2)] + [0] * 3)
+    return np.array([0] * 5 + [get_noise_density(n, k) for k in range(5, n - 4)] + [0] * 5)
 
 
 def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=True):
@@ -467,7 +471,7 @@ def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=
         plt.show()
 
 
-def plot_histogram(n, weight1, counts_matrix, weight2=None, save=True, subtract_noise=False, plot_betabinom=False,
+def plot_histogram(n, counts_matrix, weight1, weight2=None, save=True, subtract_noise=False, plot_betabinom=False,
                    betabin_s=None):
     print('made data for n={}'.format(n))
 
@@ -478,9 +482,9 @@ def plot_histogram(n, weight1, counts_matrix, weight2=None, save=True, subtract_
                 y=counts_matrix[n, 0:n + 1] / total_snps - subtract_noise * weight1 * get_noise_density_array(n), ax=ax)
     plt.axvline(x=n / 2, color='black')
 
-    if fit_type == 'one_line':
+    if fit_type in {'one_line', 'one_side'}:
         current_density = get_probability_density(n, weight1, subtract=subtract_noise)
-        label = 'weight of linear noize: {:.2f}\ntotal observations: {}'.format(weight1, total_snps)
+        label = 'weight of {} noize: {:.2f}\ntotal observations: {}'.format(fit_type, weight1, total_snps)
         plt.plot(list(range(n + 1)), current_density)
         plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
     elif fit_type == 'V':
@@ -503,7 +507,10 @@ def plot_histogram(n, weight1, counts_matrix, weight2=None, save=True, subtract_
     plt.ylabel('count')
     plt.xlabel('ref_read_counts')
     if save:
-        plt.savefig(os.path.expanduser('~/plots/BAD{:.1f}_V/ref-alt_bias_n={}_BAD={:.1f}.png'.format(BAD, n, BAD)))
+        if not os.path.isdir(os.path.expanduser('~/plots/{}/BAD{:.1f}'.format(fit_type, BAD))):
+            os.mkdir(os.path.expanduser('~/plots/{}/BAD{:.1f}'.format(fit_type, BAD)))
+        plt.savefig(
+            os.path.expanduser('~/plots/{}/BAD{:.1f}/ref-alt_bias_n={}_BAD={:.1f}.png'.format(fit_type, BAD, n, BAD)))
     else:
         plt.show()
 
@@ -609,7 +616,7 @@ def make_derivative_beta(n, alpha, counts_array, nonzero_k):
 
 
 def make_r_lowess(weights_dict, n_array):
-    if fit_type == 'one_line':
+    if fit_type in {'one_line', 'one_side'}:
         sv = pd.DataFrame({'alpha': [weights_dict[x] for x in weights_dict],
                            'snps': np.log(total_snps_with_cover_n[n_array])})
         sv.index = n_array
@@ -664,18 +671,18 @@ def plot_butterfly_hist(counts_matrix, n):
     plt.axvline(x=n / 2, color='black')
 
     plt.title('butterfly for n={}, BAD={}'.format(n, BAD))
-    plt.savefig(os.path.expanduser('~/plots/BAD{:.1f}_V/butterfly_n={}_BAD={:.1f}.png'.format(BAD, n, BAD)))
+    plt.savefig(os.path.expanduser('~/plots/{}/BAD{:.1f}/butterfly_n={}_BAD={:.1f}.png'.format(fit_type, BAD, n, BAD)))
 
 
 def plot_ratio_hist(counts_matrix, n):
     print('ratio_for_n={}'.format(n))
-    y = [0]*3
-    for k in range(3, n-2):
+    y = [0] * 3
+    for k in range(3, n - 2):
         if counts_matrix[n, n - k] == 0:
             y.append(0)
         else:
             y.append(counts_matrix[n, k] / counts_matrix[n, n - k])
-    y += [0]*3
+    y += [0] * 3
 
     fig, ax = plt.subplots(figsize=(10, 8))
     sns.barplot(x=np.array(range(n + 1)), y=y, ax=ax)
@@ -683,7 +690,7 @@ def plot_ratio_hist(counts_matrix, n):
     plt.axhline(y=1, color='black')
 
     plt.title('symmetric ratio for n={}, BAD={}'.format(n, BAD))
-    plt.savefig(os.path.expanduser('~/plots/BAD{:.1f}_V/ratio_n={}_BAD={:.1f}.png'.format(BAD, n, BAD)))
+    plt.savefig(os.path.expanduser('~/plots/{}/BAD{:.1f}/ratio_n={}_BAD={:.1f}.png'.format(fit_type, BAD, n, BAD)))
 
 
 if __name__ == '__main__':
@@ -693,7 +700,7 @@ if __name__ == '__main__':
         lowess = 'R'
         r_span = 0.15
         lowess_points = 80
-        fit_type = 'V'
+        fit_type = 'one_side'
 
         # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
         filename = os.path.expanduser('~/cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
@@ -713,16 +720,16 @@ if __name__ == '__main__':
 
         plot_window_counts = False
 
-        calculate_weights = False
-        plot_fit_weights = False
+        calculate_weights = True
+        plot_fit_weights = True
 
         calculate_betabinom_weights = False
         calculate_betabinom_fit_quality = False
         calculate_fit_quality = False
         plot_fit_quality = False
 
-        plot_histograms = False
-        plot_butterfly = False
+        plot_histograms = True
+        plot_butterfly = True
         plot_ratio = True
 
         if plot_window_counts:
@@ -741,28 +748,25 @@ if __name__ == '__main__':
                 if lowess == 'R':
                     lowess_r_weights = make_r_lowess(weights, non_nan_weights_n_array)
 
-                if plot_fit_weights:
-                    plot_v_fit(weights, lowess_r_weights)
+                    if plot_fit_weights:
+                        plot_v_fit(weights, lowess_r_weights)
 
-                if lowess:
                     weights = lowess_r_weights
 
-            elif fit_type == 'one_line':
-                weights, lowess_weights = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N,
-                                                                  total_snps_with_cover_n)
+            elif fit_type in {'one_line', 'one_side'}:
+                weights = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N,
+                                                  total_snps_with_cover_n)
                 non_nan_weights_n_array = [n for n in sensible_n_array if weights[n] != 'NaN']
+                weights = dict(zip(non_nan_weights_n_array, [weights[n] for n in non_nan_weights_n_array]))
 
                 if lowess == 'R':
-                    lowess_r_weights = make_r_lowess(weights, non_nan_weights_n_array)
+                    lowess_r_weights, beta_s = make_r_lowess(weights, non_nan_weights_n_array)
 
-                    lowess_weights = lowess_r_weights
-                    print(lowess_weights)
+                    if plot_fit_weights:
+                        plot_fit(weights, lowess_r_weights)
 
-                if plot_fit_weights:
-                    plot_fit(weights, lowess_weights)
+                    weights = lowess_r_weights
 
-                if lowess:
-                    weights = lowess_weights
             else:
                 raise ValueError(fit_type)
 
@@ -786,7 +790,10 @@ if __name__ == '__main__':
                     #    continue
                     # for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
                     #                                                    'sq'), max_sensible_n]:
-                    plot_histogram(n, counts, weights[n][0], weights[n][1], save=True, subtract_noise=False)
+                    if fit_type == 'V':
+                        plot_histogram(n, counts, weights[n][0], weights[n][1], save=True, subtract_noise=False)
+                    else:
+                        plot_histogram(n, counts, weights[n], save=True, subtract_noise=False)
 
         for n in s_ns:
             if n >= 60 and n % 5 != 0 or n > 150:
