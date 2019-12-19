@@ -104,11 +104,9 @@ def make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window):
     def target(alpha):
         return -1 * sum(
             sum(counts_matrix[n, k] * (
-                    binom_matrix[n, k] / (get_half_binom_norm(n, binom_matrix)
-                                          if fit_type == 'one_side' else 1) * (-1) +
+                    binom_matrix[n, k] * (-1) +
                     noise_matrix[n, k])
-                / (binom_matrix[n, k] / (get_half_binom_norm(n, binom_matrix)
-                                         if fit_type == 'one_side' else 1) * (1 - alpha) +
+                / (binom_matrix[n, k] * (1 - alpha) +
                    noise_matrix[n, k] * alpha)
                 for k in window[n])
             for n in window)
@@ -127,7 +125,7 @@ def fit_alpha(noise_matrix, binom_matrix, counts_matrix, window):
         alpha_coefficient = optimize.brenth(
             f=make_derivative_nonzero(counts_matrix, binom_matrix, noise_matrix, window),
             a=0.01, b=0.999)
-        if alpha_coefficient <= 0.01:
+        if alpha_coefficient <= 0.001:
             return 'NaN'
     except ValueError:
         return 'NaN'
@@ -424,9 +422,10 @@ def get_probability_density(n, alpha, binom_matrix, noise_matrix, subtract=False
                   [(0.5 * (f1(x) + f2(x)) * (1 - alpha) + (1 - subtract) *
                     get_noise_density(n, x) * alpha) / norm for x in range(5, n - 4)] + [0] * 5
     else:
-        density = list(binom_matrix[n, 0: n // 2 + 1]) + list(binom_matrix[n, n // 2 + 1: n + 1] * (1 - alpha) +
-                                                              noise_matrix[n, n // 2 + 1: n + 1] * alpha *
-                                                              get_half_binom_norm(n, binom_matrix))
+        density = (binom_matrix[n, : n + 1] * (1 - alpha) +
+                   noise_matrix[n, : n + 1] * alpha *
+                   get_half_binom_norm(n, binom_matrix))
+
     return np.array(density)
 
 
@@ -464,7 +463,8 @@ def plot_window_sizes_in_snps(n_array, nonzero_dict, samples, window_mode, save=
         plt.show()
 
 
-def plot_histogram(n, counts_matrix, binom_matrix, noise_matrix, weight1, weight2=None, save=True, subtract_noise=False, plot_betabinom=False,
+def plot_histogram(n, counts_matrix, binom_matrix, noise_matrix, weight1, weight2=None, save=True, subtract_noise=False,
+                   plot_betabinom=False,
                    betabin_s=None):
     print('made data for n={}'.format(n))
 
@@ -748,7 +748,7 @@ if __name__ == '__main__':
 
             elif fit_type in {'one_line', 'one_side'}:
                 weights, binom_dens, noise_dens = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N,
-                                                  total_snps_with_cover_n)
+                                                                          total_snps_with_cover_n)
                 non_nan_weights_n_array = [n for n in sensible_n_array if weights[n] != 'NaN']
                 weights = dict(zip(non_nan_weights_n_array, [weights[n] for n in non_nan_weights_n_array]))
 
@@ -785,7 +785,8 @@ if __name__ == '__main__':
                     # for n in [min(sensible_n_array), get_max_sensible_n(s_ns, total_snps_with_cover_n, dict_of_nonzero_N,
                     #                                                    'sq'), max_sensible_n]:
                     if fit_type == 'V':
-                        plot_histogram(n, counts, binom_dens, noise_dens, weights[n][0], weights[n][1], save=True, subtract_noise=False)
+                        plot_histogram(n, counts, binom_dens, noise_dens, weights[n][0], weights[n][1], save=True,
+                                       subtract_noise=False)
                     else:
                         plot_histogram(n, counts, binom_dens, noise_dens, weights[n], save=True, subtract_noise=False)
 
