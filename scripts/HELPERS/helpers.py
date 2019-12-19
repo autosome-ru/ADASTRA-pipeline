@@ -156,7 +156,7 @@ def make_dict_from_vcf(vcf, vcf_dict):
             print(line)
             print(vcf)
         A = int(Inf[1].split(',')[1])
-        if min(R, A) < 3:
+        if min(R, A) < 5:
             continue
         GT = Inf[0]
         if GT != '0/1':
@@ -191,7 +191,7 @@ def make_list_from_vcf(vcf):
             print(line)
             print(vcf)
         A = int(Inf[1].split(',')[1])
-        if min(R, A) < 3:
+        if min(R, A) < 5:
             continue
         GT = Inf[0]
         if GT != '0/1':

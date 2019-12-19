@@ -41,6 +41,8 @@ def make_binom_matrix(size_of_counts, nonzero_dict, p):
         prefix = '_linear'
     elif fit_type == 'V':
         prefix = '_V'
+    elif fit_type == 'one_side':
+        prefix = '_one_side'
     else:
         raise
 
@@ -65,6 +67,10 @@ def get_noise_density(n, k):
         if n == 6:
             return 1
         return abs(n / 2 - k) / ((n // 2 + 1) * (n - n // 2) * 0.5 - 3 * (n / 2 - 1))
+    elif fit_type == 'one_side':
+        if k <= 4 or k >= n - 4:
+            return 0
+        return max(k - n/2, 0) / ((n // 2 + 1) * (n - n // 2) * 0.5 - 3 * (n / 2 - 1))
 
 
 def make_counts_matrix_and_nonzero_dict(stats_pandas_dataframe):
@@ -173,6 +179,10 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
                                                  frac=min(lowess_points / non_nan_number_of_points, 0.5))
         return weights_of_correction, dict(zip(n_array, weights_lowess))
     return weights_of_correction, None
+
+
+def fit_one_side_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
+
 
 
 def fit_v_type_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):

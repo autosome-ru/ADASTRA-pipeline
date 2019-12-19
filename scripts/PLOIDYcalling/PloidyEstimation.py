@@ -39,11 +39,13 @@ class Segmentation(ABC):
         """
         binomial tail of 3
         """
-        return - (p ** N + N * p ** (N - 1) * (1 - p) + N * (N - 1) / 2 * p ** (N - 2) * (1 - p) ** 2)
+        return - (p ** N + N * p ** (N - 1) * (1 - p) + N * (N - 1) / 2 * p ** (N - 2) * (1 - p) ** 2 +
+                  N * (N - 1) * (N - 2) / 6 * p ** (N - 3) * (1 - p) ** 3 +
+                  N * (N - 1) * (N - 2) * (N - 3) / 24 * p ** (N - 4) * (1 - p) ** 4)
 
     def loglikelyhood(self, N, X, i):
         """
-        3 <= X <= N/2
+        5 <= X <= N/2
         """
         p = 1.0 / (1.0 + i)
         log_norm = np.log1p(self.get_norm(p, N) + self.get_norm(1 - p, N))
