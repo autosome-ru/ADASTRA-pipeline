@@ -176,6 +176,7 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
     print('made ncr and noize')
     binom_matrix, noise = make_binom_matrix(counts_matrix.shape[0], nonzero_dict, get_p())
     print(binom_matrix[15, :16])
+    print(binom_matrix[15, :16])
     weights_of_correction = {}
 
     for n in n_array:
@@ -190,7 +191,6 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
 def fit_v_type_weights_for_n_array(n_array, counts_matrix, nonzero_dict, samples):
     print('made ncr and noize')
     binom_matrix, noise = make_binom_matrix(counts_matrix.shape[0], nonzero_dict, get_p())
-    print(binom_matrix[15, :16])
     weights_of_correction = {}
     for n in n_array:
         print('fitting for n={}'.format(n))
@@ -221,10 +221,10 @@ def get_window_plus_minus(n, nonzero_dict, width):
     window = {}
     for key in nonzero_dict:
         if n - width <= key <= n + width:
-            if fit_type == 'one_side':
-                window[key] = [k for k in nonzero_dict[key] if k > key / 2]
-            else:
-                window[key] = nonzero_dict[key]
+            # if fit_type == 'one_side':
+            #     window[key] = [k for k in nonzero_dict[key] if k > key / 2]
+            # else:
+            window[key] = nonzero_dict[key]
     return window
 
 
@@ -353,7 +353,7 @@ def calculate_score(weights_of_correction, counts_matrix, binom_matrix, noise_ma
         norm, observed = get_observed(n, counts_matrix, normalize=False)
         if norm == 0:
             continue
-        if fit_type == 'one_line':
+        if fit_type in {'one_line', 'one_side'}:
             expected = get_probability_density(n, weights_of_correction[n], binom_matrix, noise_matrix) * norm
         elif fit_type == 'V':
             expected = get_probability_v_density(n, weights_of_correction[n][0], weights_of_correction[n][1]) * norm
@@ -693,7 +693,7 @@ def plot_ratio_hist(counts_matrix, n):
 
 
 if __name__ == '__main__':
-    for BAD in [1, 4 / 3, 3 / 2, 2, 5 / 2, 3, 4, 5, 6]:
+    for BAD in [1, 4/3, 3/2, 2, 5/2, 3, 4, 5, 6]:
         mode = "window_0"
         metric_modes = ['rmsea']
         lowess = 'R'
@@ -724,12 +724,12 @@ if __name__ == '__main__':
 
         calculate_betabinom_weights = False
         calculate_betabinom_fit_quality = False
-        calculate_fit_quality = False
-        plot_fit_quality = False
+        calculate_fit_quality = True
+        plot_fit_quality = True
 
         plot_histograms = True
-        plot_butterfly = False
-        plot_ratio = False
+        plot_butterfly = True
+        plot_ratio = True
 
         if plot_window_counts:
             for window_mode in ("up_window", "up_window_n_sq", "up_window_2n", "window_0"):
