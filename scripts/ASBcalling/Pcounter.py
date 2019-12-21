@@ -22,10 +22,7 @@ def count_p(ref_c, alt_c, BADs):
         precalc_data['noise_sum_alt'] = np.load(filename + '_noise_sum_alt.precalc.npy')
         precalc_data['weights'] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
 
-        print(len(BADs))
         idcs = np.where(BADs == BAD)
-        print(idcs)
-        print(n, type(n))
         n_BAD = n[idcs]
         ref_c_BAD = ref_c[idcs]
         alt_c_BAD = alt_c[idcs]
@@ -45,8 +42,9 @@ if __name__ == '__main__':
     print('Now counting P-value for {}'.format(table_BAD))
 
     df_with_BAD = pd.read_table(table_BAD)
-    p_ref, p_alt = count_p(df_with_BAD["ref_read_counts"], df_with_BAD["alt_read_counts"],
-                           df_with_BAD["BAD"])
+    p_ref, p_alt = count_p(np.array(df_with_BAD["ref_read_counts"], dtype=np.int_),
+                           np.array(df_with_BAD["alt_read_counts"], dtype=np.int_),
+                           np.array(df_with_BAD["BAD"], dtype=np.float_))
     df_with_BAD['p_value_ref'] = p_ref
     df_with_BAD['p_value_alt'] = p_alt
     df_with_BAD.to_csv(output, sep="\t", index=False)
