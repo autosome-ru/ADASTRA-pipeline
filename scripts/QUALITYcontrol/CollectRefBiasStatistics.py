@@ -17,6 +17,7 @@ def collectRefAltStatistics(key_name=None, BAD=None):
             if key not in key_name:  # <------
                 continue
         for align_path in cell_lines_dict[key]:
+            align_path = align_path.replace('table_p', 'table_BADs')
             if not os.path.isfile(align_path):
                 continue
             print(align_path)

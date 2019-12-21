@@ -5,10 +5,8 @@ library(limma)
 sysargv = commandArgs(trailingOnly=TRUE)
 BAD = sysargv[1]
 sp = sysargv[2]
-counts_file = paste0('~/PARAMETERS/cover_bias_statistics_BAD=', BAD, '.tsv')
 weights_file = paste0('~/PARAMETERS/weights_BAD=', BAD, '.tsv')
 
-cm = read.table(counts_file, header=TRUE)
 weights_df = read.table(weights_file, header=TRUE)
 
 weights_df$lowess_r_weights = weightedLowess(as.numeric(row.names(weights_df)), weights_df$alpha, weights=weights_df$snps, span=as.numeric(sp))$fitted

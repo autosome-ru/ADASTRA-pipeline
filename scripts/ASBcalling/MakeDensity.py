@@ -8,6 +8,7 @@ import subprocess
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import parameters_path
+from scripts.HELPERS.helpers import states
 
 
 def make_binom_matrix(size_of_counts, nonzero_dict, p, filename):
@@ -168,7 +169,7 @@ def extrapolate_weights(weights_of_correction, n_max):
 
 
 if __name__ == '__main__':
-    for BAD in [1, 4/3, 3/2, 2, 5/2, 3, 4, 5, 6]:
+    for BAD in states:
         filename = parameters_path + 'cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD)
         stats = pd.read_table(filename)
         stats['cover'] = stats['cover'].astype(int)

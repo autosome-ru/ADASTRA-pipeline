@@ -14,6 +14,8 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
 Nucleotides = {'A', 'T', 'G', 'C'}
 expected_args = {"CL": "TF", "TF": "CL"}
 
+states = [1, 4/3, 3/2, 2, 5/2, 3, 4, 5, 6]
+
 
 class ChromPos:
     chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], chr_l))
