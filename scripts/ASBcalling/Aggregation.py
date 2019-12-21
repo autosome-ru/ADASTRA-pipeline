@@ -291,7 +291,7 @@ if __name__ == '__main__':
 
     print("Counting FDR")
     table = pd.read_table(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv')
-    print(table["logitp_ref"])
+    print(table["logitp_ref"], table["logitp_ref"].min())
 
     bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"],
                                                                              alpha=0.05, method='fdr_bh')
