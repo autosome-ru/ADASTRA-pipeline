@@ -5,7 +5,6 @@ from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_functio
     synonims_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
-sBAD_dict = {1: 1, 4/3: 1.5, 1.5: 2, 2: 3, 2.5: 3, 3: 4, 4: 5, 5: 6, 6: 7}
 
 chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
          145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
@@ -224,14 +223,10 @@ def unpack(line, use_in):
     ploidy = float(line_split[8 + difference])
     dip_qual, lq, rq, seg_c, sum_cov = map(int, line_split[9 + difference:14 + difference])
 
-    if line_split[14 + difference] == '.':
-        p_ref, p_ref_cor, p_ref_bal = '.', '.', '.'
-        p_alt, p_alt_cor, p_alt_bal = '.', '.', '.'
-    else:
-        p_ref, p_alt, p_ref_cor, p_alt_cor, p_ref_bal, p_alt_bal = map(float, line_split[14 + difference:20 + difference])
+    p_ref, p_alt = map(float, line_split[14 + difference:16 + difference])
     if use_in == "Aggregation":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, dip_qual, \
-               lq, rq, seg_c, sum_cov, p_ref, p_alt, p_ref_cor, p_alt_cor, p_ref_bal, p_alt_bal
+               lq, rq, seg_c, sum_cov, p_ref, p_alt
 
     raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
 

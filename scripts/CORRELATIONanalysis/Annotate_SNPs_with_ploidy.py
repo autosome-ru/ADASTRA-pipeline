@@ -4,7 +4,7 @@ import json
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import ploidy_dict_path, ploidy_path, correlation_path
-from scripts.HELPERS.helpers import Intersection, pack, sBAD_dict
+from scripts.HELPERS.helpers import Intersection, pack
 
 
 def unpack_ploidy_segments(line):

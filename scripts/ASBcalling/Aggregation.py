@@ -89,10 +89,7 @@ if __name__ == '__main__':
                     try:
                         (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
                          ploidy, dip_qual, lq, rq, seg_c, sum_cov,
-                         p_ref, p_alt,
-                         p_ref_cor, p_alt_cor,
-                         p_ref_bal, p_alt_bal,
-                         ) = unpack(line, use_in="Aggregation")
+                         p_ref, p_alt) = unpack(line, use_in="Aggregation")
                     except ValueError:
                         continue
                     if p_ref == '.':
@@ -104,16 +101,12 @@ if __name__ == '__main__':
                             (cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq,
                              seg_c, sum_cov,
                              p_ref, p_alt,
-                             p_ref_cor, p_alt_cor,
-                             p_ref_bal, p_alt_bal,
                              table_name, another_agr))
                     except KeyError:
                         common_snps[(chr, pos, ID, ref, alt, repeat)] = [
                             (cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq,
                              seg_c, sum_cov,
                              p_ref, p_alt,
-                             p_ref_cor, p_alt_cor,
-                             p_ref_bal, p_alt_bal,
                              table_name, another_agr)]
 
     print('Writing {}'.format(key_name))
@@ -128,8 +121,7 @@ if __name__ == '__main__':
                         'm1_mean_ref', 'm1_mean_alt',
                         'm2_mean_ref', 'm2_mean_alt',
                         'logitp_ref', 'logitp_alt',
-                        'logitp_ref_cor', 'logitp_alt_cor',
-                        'logitp_ref_bal', 'logitp_alt_bal']))
+                        'fisherp_ref', 'fisherp_alt']))
 
         filtered_snps = dict()
         for key in common_snps:
@@ -138,7 +130,7 @@ if __name__ == '__main__':
             for value in common_snps[key]:
                 if value[0] >= 8:
                     values.append(value)
-                if value[0] >= 25:
+                if value[0] >= 8:
                     accept = True
             if accept:
                 filtered_snps[key] = values
@@ -166,10 +158,6 @@ if __name__ == '__main__':
             c_segc = []
             c_pref = []
             c_palt = []
-            c_pref_cor = []
-            c_palt_cor = []
-            c_pref_bal = []
-            c_palt_bal = []
             c_cover = []
             c_m1 = []
             c_m2 = []
@@ -182,8 +170,6 @@ if __name__ == '__main__':
                 cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, \
                 rq, seg_c, sum_cov, \
                 p_ref, p_alt, \
-                p_ref_cor, p_alt_cor, \
-                p_ref_bal, p_alt_bal, \
                 table_name, another_agr = v
 
                 c_table_names.append(table_name)
@@ -202,10 +188,6 @@ if __name__ == '__main__':
                 c_segc.append(seg_c)
                 c_pref.append(p_ref)
                 c_palt.append(p_alt)
-                c_pref_cor.append(p_ref_cor)
-                c_palt_cor.append(p_alt_cor)
-                c_pref_bal.append(p_ref_bal)
-                c_palt_bal.append(p_alt_bal)
                 c_cover.append(cov)
 
                 c_ref.append(ref_c)
@@ -233,11 +215,8 @@ if __name__ == '__main__':
             m_logpref = logit_combine_p_values(c_pref)
             m_logpalt = logit_combine_p_values(c_palt)
 
-            m_logpref_cor = logit_combine_p_values(c_pref_cor)
-            m_logpalt_cor = logit_combine_p_values(c_palt_cor)
-
-            m_logpref_bal = logit_combine_p_values(c_pref_bal)
-            m_logpalt_bal = logit_combine_p_values(c_palt_bal)
+            fisherp_ref = stats.combine_pvalues(c_pref)
+            fisherp_alt = stats.combine_pvalues(c_palt)
 
             c_m1_ref = [x for x in c_m1 if x > 0]
             if c_m1_ref:
@@ -269,7 +248,7 @@ if __name__ == '__main__':
             ref_dict = dict()
             alt_dict = dict()
 
-            for method, sort_key in (('maxdepth', lambda j: -1*c_cover[j]),
+            for method, sort_key in (('maxdepth', lambda j: -1 * c_cover[j]),
                                      ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
                 try:
                     i_most = min([i for i in range(len(c_cover))
@@ -304,16 +283,11 @@ if __name__ == '__main__':
                  min_cover, max_cover, med_cover, total_cover,
                  m1_ref, abs(m1_alt), m2_ref, abs(m2_alt),
                  m_logpref, m_logpalt,
-                 m_logpref_cor, m_logpalt_cor,
-                 m_logpref_bal, m_logpalt_bal]))
+                 fisherp_ref, fisherp_alt]))
             origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': c_table_names,
                                                             expected_args[what_for]: c_another_agr,
                                                             'ref_counts': c_ref, 'alt_counts': c_alt,
-                                                            'ref_pvalues': c_pref, 'alt_pvalues': c_palt,
-                                                            'ref_pvalues_corrected': c_pref_cor,
-                                                            'alt_pvalues_corrected': c_palt_cor,
-                                                            'ref_pvalues_balanced': c_pref_bal,
-                                                            'alt_pvalues_balanced': c_palt_bal}
+                                                            'ref_pvalues': c_pref, 'alt_pvalues': c_palt}
 
     print("Counting FDR")
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
@@ -326,26 +300,17 @@ if __name__ == '__main__':
     table["fdrp_ref"] = pd.Series(p_val_ref)
     table["fdrp_alt"] = pd.Series(p_val_alt)
 
-    bool_ar_ref_cor, p_val_ref_cor, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref_cor"],
-                                                                                     alpha=0.05, method='fdr_bh')
-    bool_ar_alt_cor, p_val_alt_cor, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt_cor"],
-                                                                                     alpha=0.05, method='fdr_bh')
-    table["fdrp_ref_cor"] = pd.Series(p_val_ref_cor)
-    table["fdrp_alt_cor"] = pd.Series(p_val_alt_cor)
-
-    bool_ar_ref_bal, p_val_ref_bal, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref_bal"],
-                                                                                     alpha=0.05, method='fdr_bh')
-    bool_ar_alt_bal, p_val_alt_bal, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt_bal"],
-                                                                                     alpha=0.05, method='fdr_bh')
-    table["fdrp_ref_bal"] = pd.Series(p_val_ref_bal)
-    table["fdrp_alt_bal"] = pd.Series(p_val_alt_bal)
+    bool_ar_ref_fisher, p_val_ref_fisher, _, _ = statsmodels.stats.multitest.multipletests(table["fisherp_ref"],
+                                                                                           alpha=0.05, method='fdr_bh')
+    bool_ar_alt_fisher, p_val_alt_fisher, _, _ = statsmodels.stats.multitest.multipletests(table["fisherp_alt"],
+                                                                                           alpha=0.05, method='fdr_bh')
+    table["fdrp_ref_fisher"] = pd.Series(p_val_ref_fisher)
+    table["fdrp_alt_fisher"] = pd.Series(p_val_alt_fisher)
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', "w") as w:
         table.to_csv(w, sep="\t", index=False)
 
     bool_ar = bool_ar_ref + bool_ar_alt
-    bool_ar_cor = bool_ar_ref_cor + bool_ar_alt_cor
-    bool_ar_bal = bool_ar_ref_bal + bool_ar_alt_bal
 
     annotate_snp_with_tables(origin_of_snp_dict, p_val_ref, p_val_alt, bool_ar)
 
