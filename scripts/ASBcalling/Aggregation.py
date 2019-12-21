@@ -138,7 +138,7 @@ if __name__ == '__main__':
             for value in common_snps[key]:
                 if value[0] >= 8:
                     values.append(value)
-                if value[0] >= 25:
+                if value[0] >= 8:
                     accept = True
             if accept:
                 filtered_snps[key] = values

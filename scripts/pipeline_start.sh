@@ -12,7 +12,11 @@ ScriptsFolder="/home/abramov/ASB-Project/scripts/"
 njobs=$1
 flag=$2
 
-if [ "$flag" == --pvalue ]; then
+if [ "$flag" == --BAD ]; then
+  bash "$ScriptsFolder"PARAMETERS/BAD_annotation.sh "$njobs"
+fi
+
+if [ "$flag" == --pvalue ] || [ "$flag" == --BAD ]; then
   bash "$ScriptsFolder"PARAMETERS/p_value_count.sh "$njobs"
 fi
 
