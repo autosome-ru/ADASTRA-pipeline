@@ -8,16 +8,15 @@ from scripts.HELPERS.helpers import states
 
 
 def count_p(ref_c, alt_c, BAD):
-    if BAD not in states:
-        raise ValueError(BAD)
     n = ref_c + alt_c
     w = precalc_data[BAD]['weights'][n]
+
     p_ref = (1 - w) * precalc_data[BAD]['binom_sum'][n, min(ref_c, alt_c)] +\
             w * precalc_data[BAD]['noise_sum_ref'][n, ref_c]
-    p_alt = (1 - w) * precalc_data[BAD]['binom_sum'][n, min(ref_c, alt_c)] +\
-            w * precalc_data[BAD]['noise_sum_ref'][n, ref_c]
-    assert 0 <= p_ref <= 1
-    assert 0 <= p_alt <= 1
+    p_alt = (1 - w) * precalc_data[BAD]['binom_sum'][n, max(ref_c, alt_c)] +\
+            w * precalc_data[BAD]['noise_sum_alt'][n, ref_c]
+    # assert 0 <= p_ref <= 1
+    # assert 0 <= p_alt <= 1
     return p_ref, p_alt
 
 
@@ -32,9 +31,9 @@ if __name__ == '__main__':
     for BAD in states:
         precalc_data[BAD] = {}
         filename = parameters_path + 'cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD)
-        precalc_data[BAD]['binom_sum'] = np.load(filename + '_binom_sum.precalc.npy')
-        precalc_data[BAD]['noise_sum_ref'] = np.load(filename + '_noise_sum_ref.precalc.npy')
-        precalc_data[BAD]['noise_sum_alt'] = np.load(filename + '_noise_sum_alt.precalc.npy')
+        precalc_data[BAD]['binom_sum'] = filename + '_binom_sum.precalc.npy'
+        precalc_data[BAD]['noise_sum_ref'] = filename + '_noise_sum_ref.precalc.npy'
+        precalc_data[BAD]['noise_sum_alt'] = filename + '_noise_sum_alt.precalc.npy'
         precalc_data[BAD]['weights'] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
 
     df_with_BAD = pd.read_table(table_BAD)
