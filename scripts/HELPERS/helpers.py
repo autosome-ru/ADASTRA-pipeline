@@ -223,14 +223,10 @@ def unpack(line, use_in):
     ploidy = float(line_split[8 + difference])
     dip_qual, lq, rq, seg_c, sum_cov = map(int, line_split[9 + difference:14 + difference])
 
-    if line_split[14 + difference] == '.':
-        p_ref, p_ref_cor, p_ref_bal = '.', '.', '.'
-        p_alt, p_alt_cor, p_alt_bal = '.', '.', '.'
-    else:
-        p_ref, p_alt, p_ref_cor, p_alt_cor, p_ref_bal, p_alt_bal = map(float, line_split[14 + difference:20 + difference])
+    p_ref, p_alt = map(float, line_split[14 + difference:16 + difference])
     if use_in == "Aggregation":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, dip_qual, \
-               lq, rq, seg_c, sum_cov, p_ref, p_alt, p_ref_cor, p_alt_cor, p_ref_bal, p_alt_bal
+               lq, rq, seg_c, sum_cov, p_ref, p_alt
 
     raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
 
