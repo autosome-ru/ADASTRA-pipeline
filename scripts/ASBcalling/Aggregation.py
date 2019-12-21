@@ -16,7 +16,7 @@ from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_exp
 def logit_combine_p_values(pvalues):
     pvalues = np.array([p for p in pvalues if 1 > p > 0])
     if len(pvalues) == 0:
-        return 1.0
+        return "Nan"
     elif len(pvalues) == 1:
         return pvalues[0]
 
@@ -167,10 +167,8 @@ if __name__ == '__main__':
             c_alt = []
 
             for v in value:
-                cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, \
-                rq, seg_c, sum_cov, \
-                p_ref, p_alt, \
-                table_name, another_agr = v
+                cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq, seg_c, sum_cov, p_ref, p_alt, table_name, \
+                another_agr = v
 
                 c_table_names.append(table_name)
                 c_another_agr.append(another_agr)
@@ -212,11 +210,15 @@ if __name__ == '__main__':
             m_segc = np.round(np.mean(c_segc), 1)
             m_datasets = len(value)
 
-            m_logpref = logit_combine_p_values(c_pref)
-            m_logpalt = logit_combine_p_values(c_palt)
-
-            fisherp_ref = stats.combine_pvalues(c_pref)
-            fisherp_alt = stats.combine_pvalues(c_palt)
+            p_ref_fisher = [x for x in c_pref if 0 < x < 1]
+            p_alt_fisher = [x for x in c_palt if 0 < x < 1]
+            if len(p_alt_fisher) == 0 or len(p_ref_fisher) == 0:
+                continue
+            else:
+                fisherp_ref = stats.combine_pvalues(p_ref_fisher)[1]
+                fisherp_alt = stats.combine_pvalues(p_alt_fisher)[1]
+                m_logpref = logit_combine_p_values(c_pref)
+                m_logpalt = logit_combine_p_values(c_palt)
 
             c_m1_ref = [x for x in c_m1 if x > 0]
             if c_m1_ref:
@@ -290,8 +292,9 @@ if __name__ == '__main__':
                                                             'ref_pvalues': c_pref, 'alt_pvalues': c_palt}
 
     print("Counting FDR")
-    with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
-        table = pd.read_table(f)
+    table = pd.read_table(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv')
+    if table.empty:
+        sys.exit(0)
 
     bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"],
                                                                              alpha=0.05, method='fdr_bh')
