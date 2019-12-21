@@ -22,6 +22,7 @@ def count_p(ref_c, alt_c, BADs):
         precalc_data['noise_sum_alt'] = np.load(filename + '_noise_sum_alt.precalc.npy')
         precalc_data['weights'] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
 
+        print(len(BADs))
         idcs = np.where(BADs == BAD)
         print(idcs)
         n_BAD = n[idcs]
