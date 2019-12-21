@@ -290,8 +290,8 @@ if __name__ == '__main__':
                                                             'ref_pvalues': c_pref, 'alt_pvalues': c_palt}
 
     print("Counting FDR")
-    with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
-        table = pd.read_table(f)
+    table = pd.read_table(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv')
+    print(table["logitp_ref"])
 
     bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"],
                                                                              alpha=0.05, method='fdr_bh')
