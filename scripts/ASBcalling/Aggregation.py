@@ -214,7 +214,7 @@ if __name__ == '__main__':
 
             m_logpref = logit_combine_p_values(c_pref)
             m_logpalt = logit_combine_p_values(c_palt)
-
+            print(c_palt, c_pref)
             fisherp_ref = stats.combine_pvalues(c_pref)[1]
             fisherp_alt = stats.combine_pvalues(c_palt)[1]
 
