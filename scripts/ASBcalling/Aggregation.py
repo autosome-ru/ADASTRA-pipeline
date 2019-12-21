@@ -167,10 +167,8 @@ if __name__ == '__main__':
             c_alt = []
 
             for v in value:
-                cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, \
-                rq, seg_c, sum_cov, \
-                p_ref, p_alt, \
-                table_name, another_agr = v
+                cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq, seg_c, sum_cov, p_ref, p_alt, table_name, \
+                another_agr = v
 
                 c_table_names.append(table_name)
                 c_another_agr.append(another_agr)
@@ -214,16 +212,8 @@ if __name__ == '__main__':
 
             m_logpref = logit_combine_p_values(c_pref)
             m_logpalt = logit_combine_p_values(c_palt)
-            fisherp_ref = stats.combine_pvalues(c_pref)[1]
-            fisherp_alt = stats.combine_pvalues(c_palt)[1]
-            if fisherp_alt == 0:
-                print("ALT")
-                print(c_pref, c_palt)
-                print(ref_c, alt_c)
-            if fisherp_ref == 0:
-                print("REF")
-                print(c_pref, c_palt)
-                print(ref_c, alt_c)
+            fisherp_ref = stats.combine_pvalues([x for x in c_pref if 0 < x])[1]
+            fisherp_alt = stats.combine_pvalues([x for x in c_palt if 0 < x])[1]
 
             c_m1_ref = [x for x in c_m1 if x > 0]
             if c_m1_ref:

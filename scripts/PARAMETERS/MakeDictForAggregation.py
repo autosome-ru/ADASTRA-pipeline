@@ -22,7 +22,7 @@ def makedict(what_for):
             except KeyError:
                 d[ln[1]] = [path]
         if what_for == "CL":
-            cell_line = encode_GTRD_cell_line_name(ln[4])
+            cell_line = encode_GTRD_cell_line_name(ln[4]).replace("'", "_").replace("\"", "_")
             try:
                 d[cell_line].append(path)
             except KeyError:
