@@ -122,11 +122,12 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, BAD):
     binom_matrix, noise_matrix = make_binom_matrix(counts_matrix.shape[0], nonzero_dict, 1/(BAD + 1), filename)
     weights_of_correction = {}
 
-    for n in n_array:
-        weights_of_correction[n] = fit_alpha(counts_matrix_row=counts_matrix[n, :],
-                                             binom_matrix_row=binom_matrix[n, :],
-                                             noise_matrix_row=noise_matrix[n, :])
-    return weights_of_correction, binom_matrix, noise_matrix
+    #for n in n_array:
+    #    weights_of_correction[n] = fit_alpha(counts_matrix_row=counts_matrix[n, :],
+    #                                         binom_matrix_row=binom_matrix[n, :],
+    #                                         noise_matrix_row=noise_matrix[n, :])
+    #return weights_of_correction, binom_matrix, noise_matrix
+    return None, None
 
 
 def make_r_lowess(weights_dict, n_array, BAD, samples, span):
