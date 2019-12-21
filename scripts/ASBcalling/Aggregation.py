@@ -214,7 +214,6 @@ if __name__ == '__main__':
 
             m_logpref = logit_combine_p_values(c_pref)
             m_logpalt = logit_combine_p_values(c_palt)
-            print(c_palt, c_pref)
             fisherp_ref = stats.combine_pvalues(c_pref)[1]
             fisherp_alt = stats.combine_pvalues(c_palt)[1]
 
@@ -291,7 +290,6 @@ if __name__ == '__main__':
 
     print("Counting FDR")
     table = pd.read_table(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv')
-    print(table, table["logitp_ref"].min())
 
     bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"],
                                                                              alpha=0.05, method='fdr_bh')
