@@ -31,9 +31,9 @@ if __name__ == '__main__':
     for BAD in states:
         precalc_data[BAD] = {}
         filename = parameters_path + 'cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD)
-        precalc_data[BAD]['binom_sum'] = filename + '_binom_sum.precalc.npy'
-        precalc_data[BAD]['noise_sum_ref'] = filename + '_noise_sum_ref.precalc.npy'
-        precalc_data[BAD]['noise_sum_alt'] = filename + '_noise_sum_alt.precalc.npy'
+        precalc_data[BAD]['binom_sum'] = np.load(filename + '_binom_sum.precalc.npy')
+        precalc_data[BAD]['noise_sum_ref'] = np.load(filename + '_noise_sum_ref.precalc.npy')
+        precalc_data[BAD]['noise_sum_alt'] = np.load(filename + '_noise_sum_alt.precalc.npy')
         precalc_data[BAD]['weights'] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
 
     df_with_BAD = pd.read_table(table_BAD)
