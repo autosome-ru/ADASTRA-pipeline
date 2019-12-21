@@ -25,6 +25,7 @@ def count_p(ref_c, alt_c, BADs):
         print(len(BADs))
         idcs = np.where(BADs == BAD)
         print(idcs)
+        print(n, type(n))
         n_BAD = n[idcs]
         ref_c_BAD = ref_c[idcs]
         alt_c_BAD = alt_c[idcs]
