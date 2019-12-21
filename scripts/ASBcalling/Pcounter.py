@@ -7,13 +7,15 @@ from scripts.HELPERS.paths import parameters_path
 from scripts.HELPERS.helpers import states
 
 
-def count_p(x, y, BAD):
+def count_p(ref_c, alt_c, BAD):
     if BAD not in states:
         raise ValueError(BAD)
-    n = x + y
+    n = ref_c + alt_c
     w = precalc_data[BAD]['weights'][n]
-    p_ref = (1 - w) * precalc_data[BAD]['binom_sum'][n, min(x, y)] + w * precalc_data[BAD]['noise_sum_ref'][n, x]
-    p_alt = (1 - w) * precalc_data[BAD]['binom_sum'][n, min(x, y)] + w * precalc_data[BAD]['noise_sum_ref'][n, x]
+    p_ref = (1 - w) * precalc_data[BAD]['binom_sum'][n, min(ref_c, alt_c)] +\
+            w * precalc_data[BAD]['noise_sum_ref'][n, ref_c]
+    p_alt = (1 - w) * precalc_data[BAD]['binom_sum'][n, min(ref_c, alt_c)] +\
+            w * precalc_data[BAD]['noise_sum_ref'][n, ref_c]
     assert 0 <= p_ref <= 1
     assert 0 <= p_alt <= 1
     return p_ref, p_alt
