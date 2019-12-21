@@ -56,7 +56,10 @@ def make_binom_matrix(size_of_counts, nonzero_dict, p, filename):
         noise_sum_alt[n, n - 5:] = 1
     np.save(filename + '_noise_sum_alt.precalc.npy', noise_sum_alt)
 
-    noise_sum_ref = np.flip(noise, axis=1).cumsum(axis=1)
+    flipped_noize = np.zeros((size_of_counts, size_of_counts), dtype=np.float128)
+    for n in range(size_of_counts):
+        flipped_noize[n, :n + 1] = noise[n, n:-1:-1]
+    noise_sum_ref = flipped_noize.cumsum(axis=1)
     for n in range(size_of_counts):
         noise_sum_ref[n, n - 5:] = 1
     np.save(filename + '_noise_sum_ref.precalc.npy', noise_sum_ref)
