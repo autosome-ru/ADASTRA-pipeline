@@ -499,7 +499,7 @@ def plot_histogram(n, counts_matrix, binom_matrix, noise_matrix, weight1, weight
     # plt.plot(list(range(n + 1)), binom_density, c='C2')
 
     plt.title('ref-alt bias for BAD={} n={}'.format(BAD, n))
-    #ax.legend().remove()
+    # ax.legend().remove()
     plt.ylabel('count')
     plt.xlabel('ref_read_counts')
     if save:
@@ -692,8 +692,32 @@ def plot_ratio_hist(counts_matrix, n):
     plt.close(fig)
 
 
+def extrapolate_weights(weights_of_correction, n_max):
+    extrapolated_weights = np.zeros(n_max + 1)
+    n_min = 10
+    last_w = 0
+    ns_to_fix = []
+    for n in range(n_max):
+        if n < n_min:
+            rv = 0
+        elif n in weights_of_correction:
+            rv = weights_of_correction[n]
+        elif n > n_max:
+            rv = last_w
+        else:
+            ns_to_fix.append(n)
+            continue
+        if ns_to_fix:
+            for n_fix in ns_to_fix:
+                extrapolated_weights[n_fix] = 0.5 * (last_w + rv)
+            ns_to_fix = []
+        last_w = rv
+        extrapolated_weights[n] = rv
+    return np.array(extrapolated_weights)
+
+
 if __name__ == '__main__':
-    for BAD in [1, 4/3, 3/2, 2, 5/2, 3, 4, 5, 6]:
+    for BAD in [1, 4 / 3, 3 / 2, 2, 5 / 2, 3, 4, 5, 6]:
         mode = "window_0"
         metric_modes = ['rmsea']
         lowess = 'R'
@@ -712,7 +736,7 @@ if __name__ == '__main__':
 
         # s_ns = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
         # s_ns = range(10, max(stats['cover']) + 1, 15)
-        s_ns = range(10, max(stats['cover']), 1)
+        s_ns = range(10, max(stats['cover']) + 1)
         # s_ns = [10, 11, 12, 13, 14, 15]
 
         sensible_n_array = get_seinsible_n_array(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
@@ -720,16 +744,16 @@ if __name__ == '__main__':
         plot_window_counts = False
 
         calculate_weights = True
-        plot_fit_weights = True
+        plot_fit_weights = False
 
         calculate_betabinom_weights = False
         calculate_betabinom_fit_quality = False
-        calculate_fit_quality = True
-        plot_fit_quality = True
+        calculate_fit_quality = False
+        plot_fit_quality = False
 
-        plot_histograms = True
-        plot_butterfly = True
-        plot_ratio = True
+        plot_histograms = False
+        plot_butterfly = False
+        plot_ratio = False
 
         if plot_window_counts:
             for window_mode in ("up_window", "up_window_n_sq", "up_window_2n", "window_0"):
@@ -760,6 +784,9 @@ if __name__ == '__main__':
 
                 if lowess == 'R':
                     lowess_r_weights, beta_s = make_r_lowess(weights, non_nan_weights_n_array)
+
+                    lowess_r_weights_e = extrapolate_weights(weights, max(stats['cover']))
+                    np.save(os.path.expanduser('~/weights_BAD={:.1f}.npy'.format(BAD)), lowess_r_weights_e)
 
                     if plot_fit_weights:
                         plot_fit(weights, lowess_r_weights)

@@ -93,24 +93,26 @@ def get_noise_density(n, k):
     return max(k - n / 2, 0) / (1 / 2 * (n - 5 - n // 2) * (n // 2 - 4))
 
 
-def make_likelyhood(counts_matrix_row, binom_matrix_row, noise_matrix_row):
+def make_derivative_nonzero(counts_matrix_row, binom_matrix_row, noise_matrix_row):
     def target(alpha):
-        return -1 * sum(binom_matrix_row[k] * (1 - alpha) + noise_matrix_row[k] * alpha
-                for k in counts_matrix_row if counts_matrix_row[k] > 0)
+        return -1 * sum(
+            sum(counts_matrix_row[k] * (
+                    binom_matrix_row[k] * (-1) +
+                    noise_matrix_row[k])
+                / (binom_matrix_row[k] * (1 - alpha) +
+                   noise_matrix_row[k] * alpha)
+                for k in range(len(counts_matrix_row)) if counts_matrix_row[k] > 0))
 
     return target
 
 
 def fit_alpha(noise_matrix_row, binom_matrix_row, counts_matrix_row):
     try:
-        res = optimize.minimize(
-            fun=make_likelyhood(counts_matrix_row, binom_matrix_row, noise_matrix_row),
-            bounds=(0, 0.99),
-            x0=0.2
-        )
-        alpha_coefficient = res.x
-        if not res.success or res.nit == 1:
-            raise ValueError
+        alpha_coefficient = optimize.brenth(
+            f=make_derivative_nonzero(counts_matrix_row, binom_matrix_row, noise_matrix_row),
+            a=0.01, b=0.999)
+        if alpha_coefficient <= 0.001:
+            return 'NaN'
     except ValueError:
         return 'NaN'
     return alpha_coefficient
@@ -145,7 +147,7 @@ def make_r_lowess(weights_dict, n_array, BAD, samples, span):
 
 
 def extrapolate_weights(weights_of_correction, n_max):
-    extrapolated_weights = np.array(n_max + 1)
+    extrapolated_weights = np.zeros(n_max + 1)
     n_min = 10
     last_w = 0
     ns_to_fix = []
@@ -181,7 +183,7 @@ if __name__ == '__main__':
         sensible_n_array = get_sensible_n_array(range(10, max_n + 1), observations)
         weights, binom, noise = fit_weights_for_n_array(sensible_n_array, counts, dict_of_nonzero_N, BAD)
 
-        weights = make_r_lowess(weights, [n for n in sensible_n_array if weights[n] != 'NaN'], BAD, observations, 0.15)
-        weights = extrapolate_weights(weights, max_n)
-        np.save(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD), weights)
+        # weights = make_r_lowess(weights, [n for n in sensible_n_array if weights[n] != 'NaN'], BAD, observations, 0.15)
+        # weights = extrapolate_weights(weights, max_n)
+        # np.save(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD), weights)
 
