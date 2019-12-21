@@ -23,6 +23,7 @@ def count_p(ref_c, alt_c, BADs):
         precalc_data['weights'] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
 
         idcs = np.where(BADs == BAD)
+        print(idcs)
         n_BAD = n[idcs]
         ref_c_BAD = ref_c[idcs]
         alt_c_BAD = alt_c[idcs]
