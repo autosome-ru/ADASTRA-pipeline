@@ -219,9 +219,11 @@ if __name__ == '__main__':
             if fisherp_alt == 0:
                 print("ALT")
                 print(c_pref, c_palt)
+                print(ref_c, alt_c)
             if fisherp_ref == 0:
-                print("ALT")
+                print("REF")
                 print(c_pref, c_palt)
+                print(ref_c, alt_c)
 
             c_m1_ref = [x for x in c_m1 if x > 0]
             if c_m1_ref:
