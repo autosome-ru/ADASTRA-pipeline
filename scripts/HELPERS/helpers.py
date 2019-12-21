@@ -290,7 +290,8 @@ def read_synonims():
 
 
 def encode_GTRD_cell_line_name(x):
-    return x.replace('-', '_').replace('(', '').replace('(', '').replace(' ', '')  # .replace('\'', '_')
+    return x.replace('-', '_').replace('(', '_').replace(')', '_').replace(
+        ' ', '_').replace('\\', '_').replace("'", "_").replace("\"", "_")
 
 
 class CorrelationReader:
