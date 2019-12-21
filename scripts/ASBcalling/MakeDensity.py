@@ -127,7 +127,7 @@ def fit_weights_for_n_array(n_array, counts_matrix, nonzero_dict, BAD):
     #                                         binom_matrix_row=binom_matrix[n, :],
     #                                         noise_matrix_row=noise_matrix[n, :])
     #return weights_of_correction, binom_matrix, noise_matrix
-    return None, None
+    return None, None, None
 
 
 def make_r_lowess(weights_dict, n_array, BAD, samples, span):
