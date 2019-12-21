@@ -215,8 +215,8 @@ if __name__ == '__main__':
             m_logpref = logit_combine_p_values(c_pref)
             m_logpalt = logit_combine_p_values(c_palt)
 
-            fisherp_ref = stats.combine_pvalues(c_pref)
-            fisherp_alt = stats.combine_pvalues(c_palt)
+            fisherp_ref = stats.combine_pvalues(c_pref)[1]
+            fisherp_alt = stats.combine_pvalues(c_palt)[1]
 
             c_m1_ref = [x for x in c_m1 if x > 0]
             if c_m1_ref:
