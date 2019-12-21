@@ -7,16 +7,31 @@ from scripts.HELPERS.paths import parameters_path
 from scripts.HELPERS.helpers import states
 
 
-def count_p(ref_c, alt_c, BAD):
+def count_p(ref_c, alt_c, BADs):
     n = ref_c + alt_c
-    w = precalc_data[BAD]['weights'][n]
+    N = len(ref_c)
+    p_ref = np.zeros(N, dtype=np.float128)
+    p_alt = np.zeros(N, dtype=np.float128)
 
-    p_ref = (1 - w) * precalc_data[BAD]['binom_sum'][n, min(ref_c, alt_c)] +\
-            w * precalc_data[BAD]['noise_sum_ref'][n, ref_c]
-    p_alt = (1 - w) * precalc_data[BAD]['binom_sum'][n, max(ref_c, alt_c)] +\
-            w * precalc_data[BAD]['noise_sum_alt'][n, ref_c]
-    # assert 0 <= p_ref <= 1
-    # assert 0 <= p_alt <= 1
+    for BAD in np.unique(BADs):
+        # loading precalculated density and noise weights
+        precalc_data = {}
+        filename = parameters_path + 'cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD)
+        precalc_data['binom_sum'] = np.load(filename + '_binom_sum.precalc.npy')
+        precalc_data['noise_sum_ref'] = np.load(filename + '_noise_sum_ref.precalc.npy')
+        precalc_data['noise_sum_alt'] = np.load(filename + '_noise_sum_alt.precalc.npy')
+        precalc_data['weights'] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
+
+        idcs = np.where(BADs == BAD)
+        n_BAD = n[idcs]
+        ref_c_BAD = ref_c[idcs]
+        alt_c_BAD = alt_c[idcs]
+        w_BAD = precalc_data['weights'][n_BAD]
+
+        p_ref[idcs] = (1 - w_BAD) * precalc_data['binom_sum'][n_BAD, alt_c_BAD] + \
+                      w_BAD * precalc_data['noise_sum_ref'][n_BAD, ref_c_BAD]
+        p_alt[idcs] = (1 - w_BAD) * precalc_data['binom_sum'][n_BAD, ref_c_BAD] + \
+                      w_BAD * precalc_data['noise_sum_alt'][n_BAD, ref_c_BAD]
     return p_ref, p_alt
 
 
@@ -25,16 +40,6 @@ if __name__ == '__main__':
     table_BAD = full_path + "_table_BADs.txt"
     output = full_path + "_table_p.txt"
     print('Now counting P-value for {}'.format(table_BAD))
-
-    # loading precalculated density and noise weights
-    precalc_data = {}
-    for BAD in states:
-        precalc_data[BAD] = {}
-        filename = parameters_path + 'cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD)
-        precalc_data[BAD]['binom_sum'] = np.load(filename + '_binom_sum.precalc.npy')
-        precalc_data[BAD]['noise_sum_ref'] = np.load(filename + '_noise_sum_ref.precalc.npy')
-        precalc_data[BAD]['noise_sum_alt'] = np.load(filename + '_noise_sum_alt.precalc.npy')
-        precalc_data[BAD]['weights'] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
 
     df_with_BAD = pd.read_table(table_BAD)
     p_ref, p_alt = count_p(df_with_BAD["ref_read_counts"], df_with_BAD["alt_read_counts"],
