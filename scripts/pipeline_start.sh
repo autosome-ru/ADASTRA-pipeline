@@ -17,6 +17,7 @@ if [ "$flag" == --BAD ]; then
 fi
 
 if [ "$flag" == --pvalue ] || [ "$flag" == --BAD ]; then
+  python3 "$ScriptsFolder"ASBcalling/MakeDensity.py
   bash "$ScriptsFolder"PARAMETERS/p_value_count.sh "$njobs"
 fi
 
