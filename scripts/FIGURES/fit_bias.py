@@ -702,8 +702,9 @@ def extrapolate_weights(weights_of_correction, n_max):
             rv = 0
         elif n in weights_of_correction:
             rv = weights_of_correction[n]
-        elif n > n_max:
-            rv = last_w
+        elif n > max(weights_of_correction):
+            extrapolated_weights[n:] = last_w
+            break
         else:
             ns_to_fix.append(n)
             continue
@@ -713,6 +714,9 @@ def extrapolate_weights(weights_of_correction, n_max):
             ns_to_fix = []
         last_w = rv
         extrapolated_weights[n] = rv
+    print(extrapolated_weights)
+    plt.plot(extrapolated_weights)
+    plt.show()
     return np.array(extrapolated_weights)
 
 
@@ -785,7 +789,7 @@ if __name__ == '__main__':
                 if lowess == 'R':
                     lowess_r_weights, beta_s = make_r_lowess(weights, non_nan_weights_n_array)
 
-                    lowess_r_weights_e = extrapolate_weights(weights, max(stats['cover']))
+                    lowess_r_weights_e = extrapolate_weights(lowess_r_weights, max(stats['cover']))
                     np.save(os.path.expanduser('~/weights_BAD={:.1f}.npy'.format(BAD)), lowess_r_weights_e)
 
                     if plot_fit_weights:
