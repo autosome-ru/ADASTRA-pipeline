@@ -714,10 +714,69 @@ def extrapolate_weights(weights_of_correction, n_max):
             ns_to_fix = []
         last_w = rv
         extrapolated_weights[n] = rv
-    print(extrapolated_weights)
-    plt.plot(extrapolated_weights)
-    plt.show()
+    # print(extrapolated_weights)
+    # plt.plot(extrapolated_weights)
+    # plt.show()
     return np.array(extrapolated_weights)
+
+
+def bias_explain_plot(counts_matrix, weights_of_correction):
+    y = []
+    z = []
+    for n in non_nan_weights_n_array:
+        z.append(weights_of_correction[n])
+        y.append(sum(counts_matrix[n, k] * k / n for k in range(n + 1)) / sum(counts_matrix[n, :]))
+    fig, ax = plt.subplots(figsize=(10, 8))
+    plt.scatter(y, z)
+    plt.title('Weight-bias explanation, BAD={}'.format(BAD))
+    plt.grid(True)
+    plt.xlabel('ref/n')
+    plt.ylabel('weight of {} noise'.format(fit_type))
+    plt.savefig(os.path.expanduser('~/plots/{}/BAD{:.1f}/wb_exp_BAD={:.1f}.png'.format(fit_type, BAD, BAD)))
+    plt.close(fig)
+
+
+def p_value_barplot(n_array, counts_matrix, weights_of_correction):
+    parameters_path = os.path.expanduser('~/Documents/ASB/bug_debug/')
+    precalc_data = {}
+    filename = parameters_path + 'cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD)
+    precalc_data['binom_sum'] = np.load(filename + '_binom_sum.precalc.npy')
+    precalc_data['noise_sum_ref'] = np.load(filename + '_noise_sum_ref.precalc.npy')
+    precalc_data['noise_sum_alt'] = np.load(filename + '_noise_sum_alt.precalc.npy')
+    precalc_data['weights'] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
+
+    p_refs = []
+    p_alts = []
+    for n in n_array:
+        ref_p_c = 0
+        alt_p_c = 0
+        w = 0
+        for k in range(5, n - 4):
+            p_ref = (1 - w) * precalc_data['binom_sum'][n, n - k] + \
+                    w * precalc_data['noise_sum_ref'][n, k]
+            p_alt = (1 - w) * precalc_data['binom_sum'][n, k] + \
+                    w * precalc_data['noise_sum_alt'][n, k]
+            if p_ref <= 0.05:
+                ref_p_c += counts_matrix[n, k]
+            if p_alt <= 0.05:
+                alt_p_c += counts_matrix[n, k]
+        p_refs.append(ref_p_c)
+        p_alts.append(alt_p_c)
+
+    t = pd.DataFrame({'n': n_array,
+                      'counts': p_refs,
+                      'type': 'ref'})
+    t = t.append(pd.DataFrame({'n': n_array,
+                               'counts': p_alts,
+                               'type': 'alt'}))
+    print(t)
+
+    fig, ax = plt.subplots(figsize=(20, 8))
+    sns.barplot(data=t, x='n', y='counts', hue='type')
+    plt.title('p_value >= 0.05 (old binomial test) BAD={}.png'.format(BAD))
+    plt.grid(True)
+    plt.savefig(os.path.expanduser('~/barplot_{}.png'.format(BAD)))
+    plt.close(fig)
 
 
 if __name__ == '__main__':
@@ -758,6 +817,9 @@ if __name__ == '__main__':
         plot_histograms = False
         plot_butterfly = False
         plot_ratio = False
+        plot_explain = False
+
+        p_barplot = True
 
         if plot_window_counts:
             for window_mode in ("up_window", "up_window_n_sq", "up_window_2n", "window_0"):
@@ -795,7 +857,14 @@ if __name__ == '__main__':
                     if plot_fit_weights:
                         plot_fit(weights, lowess_r_weights)
 
-                    weights = lowess_r_weights
+                if plot_explain:
+                    bias_explain_plot(counts, weights)
+
+                weights = lowess_r_weights
+
+                if p_barplot:
+                    # list(set(range(10, 30)) & set(non_nan_weights_n_array))
+                    p_value_barplot(list(set(range(10, 150)) & set(non_nan_weights_n_array)), counts, weights)
 
             else:
                 raise ValueError(fit_type)
