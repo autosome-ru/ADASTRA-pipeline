@@ -36,7 +36,7 @@ if alt:
 else:
     alt_str = '_ref'
 
-flag = sys.argv
+flag = sys.argv[2]
 if flag not in flag_d.keys():
     raise ValueError("{} not in valid modes. {} are valid".format(flag, ",".join(flag_d.keys())))
 
