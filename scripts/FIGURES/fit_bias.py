@@ -750,15 +750,16 @@ def p_value_barplot(n_array, counts_matrix, weights_of_correction):
     for n in n_array:
         ref_p_c = 0
         alt_p_c = 0
-        w = 0
+        w = weights_of_correction[n]
+        #w = 0
         for k in range(5, n - 4):
             p_ref = (1 - w) * precalc_data['binom_sum'][n, n - k] + \
                     w * precalc_data['noise_sum_ref'][n, k]
             p_alt = (1 - w) * precalc_data['binom_sum'][n, k] + \
                     w * precalc_data['noise_sum_alt'][n, k]
-            if p_ref <= 0.05:
+            if p_ref <= 0.25:
                 ref_p_c += counts_matrix[n, k]
-            if p_alt <= 0.05:
+            if p_alt <= 0.25:
                 alt_p_c += counts_matrix[n, k]
         p_refs.append(ref_p_c)
         p_alts.append(alt_p_c)
@@ -773,14 +774,14 @@ def p_value_barplot(n_array, counts_matrix, weights_of_correction):
 
     fig, ax = plt.subplots(figsize=(20, 8))
     sns.barplot(data=t, x='n', y='counts', hue='type')
-    plt.title('p_value >= 0.05 (old binomial test) BAD={}.png'.format(BAD))
+    plt.title('p_value <= 0.25 (no lowess) BAD={}.png'.format(BAD))
     plt.grid(True)
-    plt.savefig(os.path.expanduser('~/barplot_{}.png'.format(BAD)))
+    plt.savefig(os.path.expanduser('~/barplot_with_noise_no_lowess_{}.png'.format(BAD)))
     plt.close(fig)
 
 
 if __name__ == '__main__':
-    for BAD in [1, 4 / 3, 3 / 2, 2, 5 / 2, 3, 4, 5, 6]:
+    for BAD in [1, 4/3, 3/2, 2, 5/2, 3, 4, 5, 6]:
         mode = "window_0"
         metric_modes = ['rmsea']
         lowess = 'R'
@@ -860,11 +861,11 @@ if __name__ == '__main__':
                 if plot_explain:
                     bias_explain_plot(counts, weights)
 
-                weights = lowess_r_weights
+                #weights = lowess_r_weights
 
                 if p_barplot:
                     # list(set(range(10, 30)) & set(non_nan_weights_n_array))
-                    p_value_barplot(list(set(range(10, 150)) & set(non_nan_weights_n_array)), counts, weights)
+                    p_value_barplot(list(set(range(10, 61)) & set(non_nan_weights_n_array)), counts, weights)
 
             else:
                 raise ValueError(fit_type)
