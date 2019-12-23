@@ -23,7 +23,7 @@ def filterTable(table, mc_tr=10, totc_tr=10, alt=False):
 
 flag_d = {"totc": "_total_cov", "mc": "_max_cov"}
 mc_list = list(range(20, 61, 5))
-totc_list = list(range(20, 61, 5))
+totc_list = list(range(20, 101, 5))
 columns_list = [str(i) for i in mc_list]
 table = pd.DataFrame(columns=columns_list)
 
@@ -51,4 +51,4 @@ for TotCover in totc_list:
         table.loc[str(TotCover), str(MaxCover)] = FDRs[MaxCover]
 
 with open(outDirectory + "statistics_for_TFs" + alt_str + ".tsv", "w") as w:
-    table.to_csv(w, sep="\t", index=False)
+    table.to_csv(w, sep="\t")
