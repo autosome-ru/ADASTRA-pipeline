@@ -130,11 +130,11 @@ if __name__ == '__main__':
             values = []
             accept = False
             for value in common_snps[key]:
-                if value[0] >= 8:
+                if value[0] >= 10:
                     values.append(value)
-                if value[0] >= 8:
+                if value[0] >= 40:
                     accept = True
-            if accept:
+            if accept or sum(value[0] for value in values) >= 100:
                 filtered_snps[key] = values
 
         counter = 0
