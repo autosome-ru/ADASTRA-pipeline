@@ -129,7 +129,7 @@ if __name__ == '__main__':
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
                         'mean_sBAD',
                         'mean_deltaL_neighborBAD', 'mean_deltaL_BAD1', 'mean_SNP_per_segment', 'n_aggregated',
-                        "ref_weight_min", "ref_weight_max", "ref_weight_mean"
+                        "ref_weight_min", "ref_weight_max", "ref_weight_mean",
                         'refc_maxdepth', 'altc_maxdepth', 'sBAD_maxdepth', 'm1_maxdepth', 'm2_maxdepth',
                         'refc_mostsig', 'altc_mostsig', 'sBAD_mostsig', 'm1_mostsig', 'm2_mostsig',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
