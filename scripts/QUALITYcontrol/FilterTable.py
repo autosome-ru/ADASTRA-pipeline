@@ -22,8 +22,8 @@ def filterTable(table, mc_tr=10, totc_tr=10, alt=False):
 
 
 flag_d = {"totc": "_total_cov", "mc": "_max_cov"}
-mc_list = list(range(35, 46, 1))
-totc_list = list(range(120, 221, 10))
+mc_list = [10, 20]
+totc_list = [10, 20]
 columns_list = [str(i) for i in mc_list]
 table = pd.DataFrame(columns=columns_list)
 
