@@ -8,7 +8,7 @@ outDirectory = "/home/abramov/DATA_FOR_MC_FILTER/"
 
 
 def filterTable(table, noise_tr=0.0, alt=False):
-    table = table[(table["ref_weight_min"] >= noise_tr)]
+    table = table[(table["ref_weight_max"] <= noise_tr)]
     if table.empty:
         return 0
     if alt:
@@ -21,7 +21,7 @@ def filterTable(table, noise_tr=0.0, alt=False):
     return sum(bool_ar)
 
 
-noise_list = [x/20 for x in range(10)]
+noise_list = [x/100 for x in range(40)]
 columns_list = ["{:.3}".format(i) for i in noise_list]
 table = pd.DataFrame(columns=columns_list)
 FDRs = {}
