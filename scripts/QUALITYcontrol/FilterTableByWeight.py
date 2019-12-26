@@ -38,7 +38,7 @@ for filename in os.listdir(inpDirectory):
         except KeyError:
             FDRs[noise] = FDR_n
 for key in FDRs:
-    table["{:.3}".format(key)] = FDRs[key]
+    table.loc["count", "{:.3}".format(key)] = FDRs[key]
 
 with open(outDirectory + "statistics_for_TFs_weight_ref.tsv", "w") as w:
-    table.to_csv(w, sep="\t")
+    table.to_csv(w, sep="\t", index=False)
