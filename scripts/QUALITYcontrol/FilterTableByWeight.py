@@ -21,17 +21,10 @@ def filterTable(table, noise_tr=0.0, alt=False):
     return sum(bool_ar)
 
 
-flag_d = {"totc": "_total_cov", "mc": "_max_cov"}
 noise_list = [x/20 for x in range(10)]
 columns_list = ["{:.3}".format(i) for i in noise_list]
 table = pd.DataFrame(columns=columns_list)
-
-alt = bool(int(sys.argv[1]))
-if alt:
-    alt_str = '_alt'
-else:
-    alt_str = '_ref'
-
+FDRs = {}
 for filename in os.listdir(inpDirectory):
     with open(inpDirectory + filename, "r") as f:
         noCorrTable = pd.read_table(f)
@@ -40,7 +33,12 @@ for filename in os.listdir(inpDirectory):
     print("Find statistics for " + filename)
     for noise in noise_list:
         FDR_n = filterTable(noCorrTable, noise_tr=noise, alt=False)
-        table["{:.3}".format(noise)] = FDR_n
+        try:
+            FDRs[noise] += FDR_n
+        except KeyError:
+            FDRs[noise] = FDR_n
+for key in FDRs:
+    table["{:.3}".format(key)] = FDRs[key]
 
-with open(outDirectory + "statistics_for_TFs_weight" + alt_str + ".tsv", "w") as w:
+with open(outDirectory + "statistics_for_TFs_weight_ref.tsv", "w") as w:
     table.to_csv(w, sep="\t")
