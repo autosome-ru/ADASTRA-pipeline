@@ -780,6 +780,46 @@ def p_value_barplot(n_array, counts_matrix, weights_of_correction):
     plt.close(fig)
 
 
+def p_value_vs_weights(n_array, counts_matrix, noise_matrix, weights_of_correction):
+    parameters_path = os.path.expanduser('~/Documents/ASB/bug_debug/')
+    precalc_data = {}
+    filename = parameters_path + 'cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD)
+    precalc_data['binom_sum'] = np.load(filename + '_binom_sum.precalc.npy')
+    precalc_data['noise_sum_ref'] = np.load(filename + '_noise_sum_ref.precalc.npy')
+    precalc_data['noise_sum_alt'] = np.load(filename + '_noise_sum_alt.precalc.npy')
+    precalc_data['weights'] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
+
+    if not os.path.isdir(os.path.expanduser('~/kde_w/BAD={:.1f}'.format(BAD))):
+        os.mkdir(os.path.expanduser('~/kde_w/BAD={:.1f}'.format(BAD)))
+
+    for n in n_array:
+        w = weights_of_correction[n]
+        log_p = []
+        log_p_ideal = []
+        weights_coefs = []
+        size = []
+        for k in range(5, n - 4):
+            p_ref = (1 - w) * precalc_data['binom_sum'][n, n - k] + \
+                    w * precalc_data['noise_sum_ref'][n, k]
+            p_ref_binom = precalc_data['binom_sum'][n, n - k]
+            log_p.append(-1 * np.log10(p_ref))
+            log_p_ideal.append(-1 * np.log10(p_ref_binom))
+            weights_coefs.append(w * noise_matrix[n, k])
+            # size.append(np.sqrt(counts_matrix[n, k]) + 1)
+        fig, ax = plt.subplots(figsize=(10, 8))
+        print('scatter for n {}'.format(n))
+
+        sns.scatterplot(x=weights_coefs, y=log_p, label='with noise')
+        sns.scatterplot(x=weights_coefs, y=log_p_ideal, label='no noise')
+        plt.title('n={}, BAD={}, noise weight={:.2f}.png'.format(n, BAD, w))
+        plt.xlabel('noise fraction')
+        plt.ylabel('-log10 p_value ref')
+        plt.grid(True)
+        plt.legend()
+        plt.savefig(os.path.expanduser('~/kde_w/BAD={:.1f}/kde_for_n={}_BAD={}.png'.format(BAD, n, BAD)))
+        plt.close(fig)
+
+
 if __name__ == '__main__':
     for BAD in [1, 4/3, 3/2, 2, 5/2, 3, 4, 5, 6]:
         mode = "window_0"
@@ -820,7 +860,8 @@ if __name__ == '__main__':
         plot_ratio = False
         plot_explain = False
 
-        p_barplot = True
+        p_barplot = False
+        kde = True
 
         if plot_window_counts:
             for window_mode in ("up_window", "up_window_n_sq", "up_window_2n", "window_0"):
@@ -861,11 +902,15 @@ if __name__ == '__main__':
                 if plot_explain:
                     bias_explain_plot(counts, weights)
 
-                #weights = lowess_r_weights
+                weights = lowess_r_weights
 
                 if p_barplot:
                     # list(set(range(10, 30)) & set(non_nan_weights_n_array))
                     p_value_barplot(list(set(range(10, 61)) & set(non_nan_weights_n_array)), counts, weights)
+
+                if kde:
+                    p_value_vs_weights(list(set(range(10, 151, 5)) & set(non_nan_weights_n_array)),
+                                       counts, noise_dens, weights)
 
             else:
                 raise ValueError(fit_type)
