@@ -21,7 +21,7 @@ def filterTable(table, noise_tr=0.0, alt=False):
     return sum(bool_ar)
 
 
-noise_list = [x/100 for x in range(40)]
+noise_list = [x/20 for x in range(10)]
 columns_list = ["{:.3}".format(i) for i in noise_list]
 table = pd.DataFrame(columns=columns_list)
 FDRs = {}
