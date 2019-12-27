@@ -8,7 +8,7 @@ outDirectory = "/home/abramov/DATA_FOR_MC_FILTER/"
 
 
 def filterTable(table, noise_tr=0.0, alt=False):
-    table = table[(table["ref_weight_max"] <= noise_tr)]
+    table = table[(table["ref_weight_mean"] <= noise_tr)]
     if table.empty:
         return 0
     if alt:
