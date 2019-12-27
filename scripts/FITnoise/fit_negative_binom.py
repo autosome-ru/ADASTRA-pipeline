@@ -24,12 +24,12 @@ def make_negative_binom_density(r, p, size_of_counts):
 
 
 def make_counts_array_and_nonzero_set(stats_pandas_dataframe):
-    max_cover_in_stats = max(stats_pandas_dataframe['alt_counts'])
+    max_cover_in_stats = max(stats_pandas_dataframe['{}_read_counts'.format(alt)])
     counts_array = np.zeros(max_cover_in_stats + 1, dtype=np.int64)
     nonzero_set = set()
 
     for index, row in stats_pandas_dataframe.iterrows():
-        k, SNP_counts = row['alt_counts'], row['counts']
+        k, SNP_counts = row['{}_read_counts'.format(alt)], row['counts']
         nonzero_set.add(k)
 
         counts_array[k] = SNP_counts
@@ -142,12 +142,13 @@ def extrapolate_weights(weights_of_correction, n_max):
 
 
 if __name__ == '__main__':
+    alt = "ref"
     for BAD in [1]:
 
         # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
-        filename = os.path.expanduser('~/alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
+        filename = os.path.expanduser('~/{}_bias_statistics_BAD={:.1f}.tsv'.format(alt, BAD))
         stats = pd.read_table(filename)
-        stats['alt_counts'] = stats['alt_counts'].astype(int)
+        stats['{}_read_counts'.format(alt)] = stats['{}_read_counts'.format(alt)].astype(int)
         counts, dict_of_nonzero_N = make_counts_array_and_nonzero_set(stats)
         print('made counts')
         number = 40
