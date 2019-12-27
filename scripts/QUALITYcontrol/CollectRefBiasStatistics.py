@@ -90,10 +90,14 @@ def collectCoverStatistics(key_name=None, BAD=None):
         out_t.to_csv(out, sep="\t", index=False)
 
 
-def collectNegativeBinomStatistics(key_name=None, BAD=None):
+def collectNegativeBinomStatistics(key_name=None, BAD=None, alt=True):
     with open(cl_dict_path, "r") as read_file:
         cell_lines_dict = json.loads(read_file.readline())
     out_t = None
+    if alt:
+        alt = "alt"
+    else:
+        alt = "ref"
 
     for key in cell_lines_dict:
         if key_name is not None:
@@ -108,24 +112,24 @@ def collectNegativeBinomStatistics(key_name=None, BAD=None):
             if df.empty:
                 continue
             if BAD is not None:
-                sum_df = df[df['BAD'] == BAD][['alt_read_counts']]  # <------
+                sum_df = df[df['BAD'] == BAD][['{}_read_counts'.format(alt)]]  # <------
             else:
-                sum_df = df[['alt_read_counts']]
+                sum_df = df[['{}_read_counts'.format(alt)]]
 
             if out_t is None:
                 out_t = pd.DataFrame()
-                out_t['alt_counts'] = sum_df['alt_read_counts']
-                out_t = out_t.groupby(['alt_counts']).size().reset_index(name='counts')
+                out_t['{}_counts'.format(alt)] = sum_df['{}_read_counts'.format(alt)]
+                out_t = out_t.groupby(['{}_counts'.format(alt)]).size().reset_index(name='counts')
                 out_t.fillna(0, inplace=True)
             else:
                 tmp_df = pd.DataFrame()
-                tmp_df['alt_counts'] = sum_df['alt_read_counts']
-                tmp_df = tmp_df.groupby(['alt_counts']).size().reset_index(name='counts')
+                tmp_df['{}_counts'.format(alt)] = sum_df['{}_read_counts'.format(alt)]
+                tmp_df = tmp_df.groupby(['{}_counts'.format(alt)]).size().reset_index(name='counts')
                 tmp_df.fillna(0, inplace=True)
-                out_t = out_t.append(tmp_df).groupby(['alt_counts'], as_index=False).sum()
+                out_t = out_t.append(tmp_df).groupby(['{}_counts'.format(alt)], as_index=False).sum()
     if out_t is None:
         return
-    with open(parameters_path + 'alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD), 'w') as out:
+    with open(parameters_path + '{}_bias_statistics_BAD={:.1f}.tsv'.format(alt, BAD), 'w') as out:
         out_t.to_csv(out, sep="\t", index=False)
 
 
@@ -255,4 +259,4 @@ if __name__ == "__main__":
                     'UtE-iPS-6 (induced pluripotent stem cells)', 'UtE-iPS-7 (induced pluripotent stem cells)',
                     'uterus', 'vagina', 'WI-38 (lung fibroblasts)']
     for BAD in [1, 2, 3, 4, 5, 6, 4 / 3, 1.5, 2.5]:
-        collectNegativeBinomStatistics(BAD=BAD)
+        collectNegativeBinomStatistics(BAD=BAD, alt=bool(int(sys.argv[1])))
