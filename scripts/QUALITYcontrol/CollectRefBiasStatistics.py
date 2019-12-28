@@ -133,6 +133,46 @@ def collectNegativeBinomStatistics(key_name=None, BAD=None, alt=True):
         out_t.to_csv(out, sep="\t", index=False)
 
 
+def collectFixedAltStatistics(key_name=None, BAD=None):
+    with open(cl_dict_path, "r") as read_file:
+        cell_lines_dict = json.loads(read_file.readline())
+    out_t = None
+
+    for key in cell_lines_dict:
+        if key_name is not None:
+            if key not in key_name:  # <------
+                continue
+        for align_path in cell_lines_dict[key]:
+            if not os.path.isfile(align_path):
+                continue
+            print(align_path)
+            df = pd.read_table(align_path)
+            if df.empty:
+                continue
+            if BAD is not None:
+                sum_df = df[df['BAD'] == BAD][['ref_read_counts', 'alt_read_counts']]  # <------
+            else:
+                sum_df = df[['ref_read_counts', 'alt_read_counts']]
+
+            if out_t is None:
+                out_t = pd.DataFrame()
+                out_t['fixed_alt'] = sum_df['alt_read_counts']
+                out_t['ref_counts'] = sum_df['ref_read_counts']
+                out_t = out_t.groupby(['fixed_alt', 'ref_counts']).size().reset_index(name='counts')
+                out_t.fillna(0, inplace=True)
+            else:
+                tmp_df = pd.DataFrame()
+                tmp_df['fixed_alt'] = (sum_df['ref_read_counts'] + sum_df['alt_read_counts'])
+                tmp_df['ref_counts'] = sum_df['ref_read_counts']
+                tmp_df = tmp_df.groupby(['fixed_alt', 'ref_counts']).size().reset_index(name='counts')
+                tmp_df.fillna(0, inplace=True)
+                out_t = out_t.append(tmp_df).groupby(['fixed_alt', 'ref_counts'], as_index=False).sum()
+    if out_t is None:
+        return
+    with open(parameters_path + 'fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD), 'w') as out:
+        out_t.to_csv(out, sep="\t", index=False)
+
+
 if __name__ == "__main__":
     embryonic = ['H1_embryonic_stem_cells',
                  'H1_embryonic_stem_cells',
@@ -259,4 +299,4 @@ if __name__ == "__main__":
                     'UtE-iPS-6 (induced pluripotent stem cells)', 'UtE-iPS-7 (induced pluripotent stem cells)',
                     'uterus', 'vagina', 'WI-38 (lung fibroblasts)']
     for BAD in [1, 2, 3, 4, 5, 6, 4 / 3, 1.5, 2.5]:
-        collectNegativeBinomStatistics(BAD=BAD, alt=bool(int(sys.argv[1])))
+        collectFixedAltStatistics(BAD=BAD, alt=bool(int(sys.argv[1])))
