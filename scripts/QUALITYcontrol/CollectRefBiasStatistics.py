@@ -162,7 +162,7 @@ def collectFixedAltStatistics(key_name=None, BAD=None):
                 out_t.fillna(0, inplace=True)
             else:
                 tmp_df = pd.DataFrame()
-                tmp_df['alt_counts'] = (sum_df['ref_read_counts'] + sum_df['alt_read_counts'])
+                tmp_df['alt_counts'] = sum_df['alt_read_counts']
                 tmp_df['ref_counts'] = sum_df['ref_read_counts']
                 tmp_df = tmp_df.groupby(['alt_counts', 'ref_counts']).size().reset_index(name='counts')
                 tmp_df.fillna(0, inplace=True)

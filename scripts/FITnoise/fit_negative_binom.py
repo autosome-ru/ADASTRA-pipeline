@@ -24,12 +24,12 @@ def make_negative_binom_density(r, p, size_of_counts):
 
 
 def make_counts_array_and_nonzero_set(stats_pandas_dataframe):
-    max_cover_in_stats = max(stats_pandas_dataframe['{}_counts'.format(alt)])
+    max_cover_in_stats = max(stats_pandas_dataframe['{}_counts'.format(main_allele)])
     counts_array = np.zeros(max_cover_in_stats + 1, dtype=np.int64)
     nonzero_set = set()
 
     for index, row in stats_pandas_dataframe.iterrows():
-        k, SNP_counts = row['{}_counts'.format(alt)], row['counts']
+        k, SNP_counts = row['{}_counts'.format(main_allele)], row['counts']
         nonzero_set.add(k)
 
         counts_array[k] = SNP_counts
@@ -48,10 +48,12 @@ def plot_histogram(n, counts_array, plot_fit=None, save=True):
         r = plot_fit[0]
         p = plot_fit[1]
         current_density = make_negative_binom_density(r, p, n)
-        label = 'negative binom fit for {}\ntotal observations: {}\nr={:.5f}, p={:.5f}'.format(alt, total_snps, r, p)
-        plt.plot(list(range(n + 1)), current_density)
-        plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
-    plt.show()
+        label = 'negative binom fit for {}\ntotal observations: {}\nr={:.5f}, p={:.5f}'.format(main_allele, total_snps, r, p)
+        #plt.plot(list(range(n + 1)), current_density)
+        #plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
+    plt.title('fixed_alt={} max={}.png'.format(fix_c, n))
+    plt.savefig(os.path.expanduser('~/fixed_alt/alt={}_max={}.png'.format(fix_c, n)))
+    plt.close(fig)
 
 
 def fit_negative_binom(n, counts_array):
@@ -142,21 +144,28 @@ def extrapolate_weights(weights_of_correction, n_max):
 
 
 if __name__ == '__main__':
-    alt = "alt"
-    for BAD in [1]:
+    main_allele = "alt"
+    other_allele = "ref"
+    fix_c_array = [5, 8, 9, 10, 20, 30, 40, 50]
+    for fix_c in fix_c_array:
+        for BAD in [1]:
 
-        # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
-        filename = os.path.expanduser('~/{}_bias_statistics_BAD={:.1f}.tsv'.format(alt, BAD))
-        stats = pd.read_table(filename)
-        stats['{}_counts'.format(alt)] = stats['{}_counts'.format(alt)].astype(int)
-        counts, dict_of_nonzero_N = make_counts_array_and_nonzero_set(stats)
-        print('made counts')
-        number = 40
+            # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
+            filename = os.path.expanduser('~/fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
+            stats = pd.read_table(filename)
+            print(stats)
+            for allele in 'ref', 'alt':
+                stats['{}_counts'.format(allele)] = stats['{}_counts'.format(allele)].astype(int)
+            stats = stats[stats['{}_counts'.format(other_allele)] == fix_c]
+            counts, dict_of_nonzero_N = make_counts_array_and_nonzero_set(stats)
+            print('made counts')
+            number = 40
 
-        calculate_negative_binom = True
-        weights = (0.00001, 0.15)
-        plot_histogram(number, counts, plot_fit=weights)
-        if calculate_negative_binom:
-            weights = fit_negative_binom(counts, number)
-            print(weights)
-            plot_histogram(number, counts, plot_fit=weights.x)
+            calculate_negative_binom = False
+            #weights = (0.00001, 0.15)
+            weights = (0, 0)
+            plot_histogram(number, counts, plot_fit=weights)
+            if calculate_negative_binom:
+                weights = fit_negative_binom(counts, number)
+                print(weights)
+                plot_histogram(number, counts, plot_fit=weights.x)
