@@ -13,18 +13,23 @@ import subprocess
 pd.set_option('display.max_columns', 7)
 
 
-def make_negative_binom_density(r, p, size_of_counts, for_plot=False):
+def make_negative_binom_density(r, p, w, size_of_counts, for_plot=False):
     negative_binom_density_array = np.zeros(size_of_counts + 1, dtype=np.float128)
-    dist = st.nbinom(r, p)
-    f = dist.pmf
-    cdf = dist.cdf
-    negative_binom_norm = cdf(size_of_counts) - cdf(left_most - 1)
-    plot_norm = cdf(size_of_counts) - cdf(4)
+    dist1 = st.nbinom(r, p)
+    f1 = dist1.pmf
+    cdf1 = dist1.cdf
+    dist2 = st.nbinom(r, 1 - p)
+    f2 = dist2.pmf
+    cdf2 = dist2.cdf
+    negative_binom_norm = (cdf1(size_of_counts) - cdf1(left_most - 1)) * w + \
+                          (cdf2(size_of_counts) - cdf1(left_most - 1)) * (1 - w)
+    plot_norm = (cdf1(size_of_counts) - cdf1(4)) * w + \
+                (cdf2(size_of_counts) - cdf1(4)) * (1 - w)
     for k in range(5, size_of_counts + 1):
         if for_plot:
-            negative_binom_density_array[k] = f(k) / plot_norm
+            negative_binom_density_array[k] = (w * f1(k) + (1 - w) * f2(k)) / plot_norm
         else:
-            negative_binom_density_array[k] = f(k) / np.float(negative_binom_norm)
+            negative_binom_density_array[k] = (w * f1(k) + (1 - w) * f2(k)) / negative_binom_norm
     return negative_binom_density_array
 
 
@@ -55,12 +60,13 @@ def plot_histogram(n, counts_array, plot_fit=None, save=True):
     ax.tick_params(axis="x", rotation=90)
     if plot_fit is not None:
         r = plot_fit[0]
-        p = plot_fit[1]
-        current_density = make_negative_binom_density(r, p, n, for_plot=True)
-        label = 'negative binom fit for {}\ntotal observations: {}\nr={:.5f}, p={:.5f}, q={}'.format(
-            main_allele, total_snps, r, p, q)
+        w = plot_fit[1]
+        current_density = make_negative_binom_density(r, get_p(), w, n, for_plot=True)
+        label = 'negative binom fit for {}\ntotal observations: {}\nr={:.2f}, p={:.2f}, q={}, w={:.2f}'.format(
+            main_allele, total_snps, r, get_p(), q, w)
         plt.plot(list(range(n + 1)), current_density)
         plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
+        plt.axvline(x=q, c='black', linestyle='--')
     plt.title('fixed_{}={}, BAD={}'.format(other_allele, fix_c, BAD))
     plt.savefig(os.path.expanduser('~/fixed_alt/BAD={}_{}={}.png'.format(BAD, other_allele, fix_c)))
     plt.close(fig)
@@ -72,9 +78,9 @@ def fit_negative_binom(n, counts_array):
     print("fit started")
     try:
         x = optimize.minimize(fun=make_log_likelihood(n, counts_array),
-                              x0=np.array([(fix_c, get_p())]),
+                              x0=np.array([(fix_c, 0.5)]),
 
-                              bounds=[(0.00001, None), (get_p(), get_p())])
+                              bounds=[(0.00001, None), (0, 1)])
     except ValueError:
         return 'NaN'
     return x
@@ -85,10 +91,10 @@ def make_log_likelihood(n, counts_array):
 
     def target(x):
         r = x[0]
-        p = x[1]
+        w = x[1]
         # print(r, p)
         # print("Counting likelihood")
-        neg_bin_dens = make_negative_binom_density(r, p, len(counts_array))
+        neg_bin_dens = make_negative_binom_density(r, get_p(), w, len(counts_array))
         return -1 * sum(counts_array[k] * np.log(neg_bin_dens[k])
                         for k in range(left_most, n) if counts_array[k] != 0)
 
@@ -162,9 +168,9 @@ if __name__ == '__main__':
     else:
         alleles = ('min', 'max')
         other_allele = "min" if main_allele == "max" else "max"
-    fix_c_array = [5, 10, 15, 20, 30, 40, 50, 80, 100, 150, 200]
+    fix_c_array = [5, 10, 15, 20, 30, 40, 50, 80, 100]
     for fix_c in fix_c_array:
-        for BAD in [1]:
+        for BAD in [4]:
 
             # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
             filename = os.path.expanduser('~/fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
@@ -177,13 +183,13 @@ if __name__ == '__main__':
             number = 40
 
             number = min(len(counts) - 1, 250)
-            cdf = st.nbinom(fix_c, get_p()).cdf
+            cdf = lambda x: 0.5 * (st.nbinom(fix_c, get_p()).cdf(x) + st.nbinom(fix_c, 1 - get_p()).cdf(x))
             q = min(x for x in range(number + 1) if cdf(x) >= 0.001)
             print('q={}'.format(q))
             left_most = max(5, q)
 
             calculate_negative_binom = True
-            weights = (fix_c, get_p())
+            weights = (fix_c, 0.5)
             plot_histogram(number, counts, plot_fit=weights)
             if calculate_negative_binom:
                 weights = fit_negative_binom(number, counts)
