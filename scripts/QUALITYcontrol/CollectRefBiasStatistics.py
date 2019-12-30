@@ -236,6 +236,7 @@ def collectPValueStatistics(key_name=None, BAD=None):
                 sum_df = df[df['BAD'] == BAD][['p_value_ref', 'p_value_alt']]  # <------
             else:
                 sum_df = df[['p_value_ref', 'p_value_alt']]
+            print(sum_df)
 
             if out_t is None:
                 out_t = pd.DataFrame()
