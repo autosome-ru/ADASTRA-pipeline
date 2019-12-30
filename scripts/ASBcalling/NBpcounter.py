@@ -20,7 +20,7 @@ def count_p(ref_c, alt_c, BADs):
         else:
             fixed = min(ref_c[i], alt_c[i])
             main = max(ref_c[i], alt_c[i])
-            cdf = (st.nbinom(fixed, 1 / (BADs[i] + 1))).cdf
+            cdf = (st.nbinom(fixed - 2, 1 / (BADs[i] + 1))).cdf
             pv = (1 - cdf(main)) / (1 - cdf(4))
             if ref_c[i] > alt_c[i]:
                 p_alt[i] = 'NaN'
