@@ -54,14 +54,17 @@ def plot_histogram(n, counts_array, plot_fit=None, save=True):
     ax.xaxis.set_major_formatter(ticker.FixedFormatter(x[::5]))
     ax.tick_params(axis="x", rotation=90)
     if plot_fit is not None:
-        r = plot_fit[0]
-        p = plot_fit[1]
-        current_density = make_negative_binom_density(r, p, n, for_plot=True)
-        label = 'negative binom fit for {}\ntotal observations: {}\nr={:.5f}, p={:.5f}, q={}'.format(
-            main_allele, total_snps, r, p, q)
-        plt.plot(list(range(n + 1)), current_density)
-        plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
+        if not isinstance(plot_fit[0], tuple):
+            plot_fit = (plot_fit, )
+        for r, p in plot_fit:
+            current_density = make_negative_binom_density(r, p, n, for_plot=True)
+            label = 'negative binom fit for {}\ntotal observations: {}\nr={:.5f}, p={:.5f}, q={}'.format(
+                main_allele, total_snps, r, p, q)
+            plt.plot(list(range(n + 1)), current_density, label='r={}'.format(r), alpha=0.75)
+            # plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
+            plt.axvline(x=q, c='black', linestyle='--')
     plt.title('fixed_{}={}, BAD={}'.format(other_allele, fix_c, BAD))
+    plt.legend()
     plt.savefig(os.path.expanduser('~/fixed_alt/BAD={}_{}={}.png'.format(BAD, other_allele, fix_c)))
     plt.close(fig)
 
@@ -162,7 +165,7 @@ if __name__ == '__main__':
     else:
         alleles = ('min', 'max')
         other_allele = "min" if main_allele == "max" else "max"
-    fix_c_array = [5, 10, 15, 20, 30, 40, 50, 80, 100, 150, 200]
+    fix_c_array = [5, 10, 15, 20, 30, 40, 50, 80, 100]
     for fix_c in fix_c_array:
         for BAD in [1]:
 
@@ -176,14 +179,16 @@ if __name__ == '__main__':
             print('made counts')
             number = 40
 
-            number = min(len(counts) - 1, 250)
+            number = min(len(counts) - 1, max(50, fix_c * 1.4))
+            number = int(number)
             cdf = st.nbinom(fix_c, get_p()).cdf
             q = min(x for x in range(number + 1) if cdf(x) >= 0.001)
             print('q={}'.format(q))
             left_most = max(5, q)
 
-            calculate_negative_binom = True
-            weights = (fix_c, get_p())
+            calculate_negative_binom = False
+            weights = [(fix_c + delta, get_p()) for delta in np.array(range(-4, 0))]
+            print(weights)
             plot_histogram(number, counts, plot_fit=weights)
             if calculate_negative_binom:
                 weights = fit_negative_binom(number, counts)
