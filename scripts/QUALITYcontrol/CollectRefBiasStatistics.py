@@ -46,7 +46,7 @@ def collectRefAltStatistics(key_name=None, BAD=None):
                 out_t = out_t.append(tmp_df).groupby('allele_reads', as_index=False).sum()
     if out_t is None:
         return
-    with open(parameters_path + 'bias_statistics_BAD={}.tsv'.format(BAD), 'w') as out:
+    with open(parameters_path + 'bias_statistics_BAD={:.1f}.tsv'.format(BAD), 'w') as out:
         out_t.to_csv(out, sep="\t")
 
 
@@ -258,5 +258,5 @@ def collectPValueStatistics(key_name=None, BAD=None):
 
 
 if __name__ == "__main__":
-    for BAD in [1]:
+    for BAD in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
         collectRefAltStatistics(BAD=BAD)
