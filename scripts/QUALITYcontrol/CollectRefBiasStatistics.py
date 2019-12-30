@@ -236,7 +236,6 @@ def collectPValueStatistics(key_name=None, BAD=None):
                 sum_df = df[df['BAD'] == BAD][['p_value_ref', 'p_value_alt']]  # <------
             else:
                 sum_df = df[['p_value_ref', 'p_value_alt']]
-            print(sum_df)
 
             if out_t is None:
                 out_t = pd.DataFrame()
@@ -251,6 +250,7 @@ def collectPValueStatistics(key_name=None, BAD=None):
                 tmp_df = tmp_df.groupby(['alt_p', 'ref_p']).size().reset_index(name='counts')
                 tmp_df.fillna(1, inplace=True)
                 out_t = out_t.append(tmp_df).groupby(['alt_p', 'ref_p'], as_index=False).sum()
+                print(out_t)
     if out_t is None:
         return
     with open(parameters_path + 'pvalue_bias_statistics_BAD={:.1f}.tsv'.format(BAD), 'w') as out:
