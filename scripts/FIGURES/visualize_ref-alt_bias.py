@@ -1,10 +1,12 @@
 import sys
+import os
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 import seaborn as sns
 
-stats = pd.read_table('bias_statistics.tsv')
+stats = pd.read_table(os.path.expanduser('~/bias_statistics.tsv'))
+print(stats)
 #stats = stats[stats['allele_reads'] <= 1000]
 
 fig, ax = plt.subplots(figsize=(10, 8))

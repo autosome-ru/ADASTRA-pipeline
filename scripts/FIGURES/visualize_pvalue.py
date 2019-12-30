@@ -11,11 +11,13 @@ print(stats)
 fig, ax = plt.subplots(figsize=(10, 8))
 x = np.array(range(1, 18))
 
+palts = stats[stats['alt_p'] != 1.0]
+sns.barplot(x=x, y=[palts[palts['alt_p'] <= 1/10**k]['counts'].sum() for k in x], label='alt', ax=ax, color='C1')
+
 prefs = stats[stats['ref_p'] != 1.0]
 sns.barplot(x=x, y=[prefs[prefs['ref_p'] <= 1/10**k]['counts'].sum() for k in x], label='ref', ax=ax, color='C0')
 
-palts = stats[stats['alt_p'] != 1.0]
-sns.barplot(x=x, y=[palts[palts['alt_p'] <= 1/10**k]['counts'].sum() for k in x], label='alt', ax=ax, color='C1')
+
 
 
 plt.grid(True)
