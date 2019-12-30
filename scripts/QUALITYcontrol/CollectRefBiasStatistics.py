@@ -241,7 +241,7 @@ def collectPValueStatistics(key_name=None, BAD=None):
                 out_t = pd.DataFrame()
                 out_t['alt_p'] = sum_df['p_value_alt']
                 out_t['ref_p'] = sum_df['p_value_ref']
-                out_t = out_t.groupby(['alt_counts', 'ref_counts']).size().reset_index(name='counts')
+                out_t = out_t.groupby(['alt_p', 'ref_p']).size().reset_index(name='counts')
                 out_t.fillna(1, inplace=True)
             else:
                 tmp_df = pd.DataFrame()
