@@ -2,6 +2,7 @@ import sys
 import os.path
 import json
 import pandas as pd
+import numpy as np
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import cl_dict_path, parameters_path
@@ -31,18 +32,26 @@ def collectRefAltStatistics(key_name=None, BAD=None):
 
             if out_t is None:
                 out_t = pd.DataFrame()
-                out_t['ref'] = sum_df['ref_read_counts'].value_counts()
-                out_t['alt'] = sum_df['alt_read_counts'].value_counts()
-                out_t['allele_reads'] = out_t.index
+                s1 = sum_df['ref_read_counts'].value_counts()
+                s2 = sum_df['alt_read_counts'].value_counts()
+                out_t['allele_reads'] = sorted(list(set(s1.index) | set(s2.index)))
+                out_t.index = out_t['allele_reads']
+                out_t['ref'] = s1
+                out_t['alt'] = s2
                 out_t = out_t.reset_index(drop=True)
                 out_t.fillna(0, inplace=True)
+                out_t = out_t.astype(int)
             else:
                 tmp_df = pd.DataFrame()
-                tmp_df['ref'] = sum_df['ref_read_counts'].value_counts()
-                tmp_df['alt'] = sum_df['alt_read_counts'].value_counts()
-                tmp_df['allele_reads'] = tmp_df.index
+                s1 = sum_df['ref_read_counts'].value_counts()
+                s2 = sum_df['alt_read_counts'].value_counts()
+                tmp_df['allele_reads'] = sorted(list(set(s1.index) | set(s2.index)))
+                tmp_df.index = tmp_df['allele_reads']
+                tmp_df['ref'] = s1
+                tmp_df['alt'] = s2
                 tmp_df = tmp_df.reset_index(drop=True)
                 tmp_df.fillna(0, inplace=True)
+                tmp_df = tmp_df.astype(np.int_)
                 out_t = out_t.append(tmp_df).groupby('allele_reads', as_index=False).sum()
     if out_t is None:
         return
