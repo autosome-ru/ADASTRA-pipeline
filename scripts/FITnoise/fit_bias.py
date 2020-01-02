@@ -2,7 +2,7 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, ticker
 from scipy import optimize
 from scipy import stats as st
 from scipy.special import beta, psi, poch, comb
@@ -84,6 +84,26 @@ def make_counts_matrix_and_nonzero_dict(stats_pandas_dataframe):
         n, k, SNP_counts = row['cover'], row['ref_counts'], row['counts']
         if k <= 4 or k >= n - 4:
             continue
+        try:
+            nonzero_dict[n].append(k)
+        except KeyError:
+            nonzero_dict[n] = [k]
+        counts_matrix[n, k] = SNP_counts
+    return counts_matrix, nonzero_dict
+
+
+def make_scaled_count_matrix(stats_pandas_dataframe):
+    scale_df = pd.read_table(os.path.expanduser('~/ref_counts_scaling_BAD={:.1f}.tsv'.format(BAD)))
+    scaling = dict(zip(scale_df['allele_reads'], scale_df['new_allele_reads']))
+    max_cover_in_stats = max(stats['cover'])
+    counts_matrix = np.zeros((max_cover_in_stats + 1, max_cover_in_stats + 1), dtype=np.int64)
+    nonzero_dict = {}
+
+    for index, row in stats_pandas_dataframe.iterrows():
+        n, k, SNP_counts = row['cover'], row['ref_counts'], row['counts']
+        if k <= 4 or k >= n - 4:
+            continue
+        k, n = scaling[k], n - k + scaling[k]
         try:
             nonzero_dict[n].append(k)
         except KeyError:
@@ -512,6 +532,29 @@ def plot_histogram(n, counts_matrix, binom_matrix, noise_matrix, weight1, weight
     plt.close(fig)
 
 
+def plot_raw_histogram(n, counts_matrix, binom_matrix):
+    total_snps = counts_matrix[n, 0:n + 1].sum()
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    x = list(range(n + 1))
+    sns.barplot(x=x,
+                y=counts_matrix[n, 0:n + 1] / total_snps, ax=ax)
+    ax.xaxis.set_major_locator(ticker.FixedLocator(np.arange(0, len(x), 5)))
+    ax.xaxis.set_major_formatter(ticker.FixedFormatter(x[::5]))
+    ax.tick_params(axis="x", rotation=90)
+    plt.axvline(x=n / 2, color='black')
+
+    current_density = binom_matrix[n, : n + 1]
+    label = 'total observations: {}'.format(total_snps)
+    plt.plot(list(range(n + 1)), current_density)
+    plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
+    plt.title('Scaled distribution for BAD={:.1f}'.format(BAD))
+    if not os.path.isdir(os.path.expanduser('~/plots/scaled/BAD{}'.format(BAD))):
+        os.mkdir(os.path.expanduser('~/plots/scaled/BAD{}'.format(BAD)))
+    plt.savefig(os.path.expanduser('~/plots/scaled/BAD{}/scaled_dist_n={}_BAD={:.1f}.png'.format(BAD, n, BAD)))
+    plt.close(fig)
+
+
 def get_betabinom_density(n, s, alpha):
     rv = np.zeros(n + 1, dtype=np.float128)
     p = get_p()
@@ -845,9 +888,15 @@ if __name__ == '__main__':
 
         sensible_n_array = get_seinsible_n_array(s_ns, total_snps_with_cover_n, dict_of_nonzero_N)
 
+        counts_scaled, nonzero_scaled = make_scaled_count_matrix(stats)
+        binom_matrix, noise = make_binom_matrix(counts_scaled.shape[0], nonzero_scaled, get_p())
+        for n in [20, 30, 40, 50, 60, 80, 100]:
+            plot_raw_histogram(n, counts_scaled, binom_matrix)
+
+
         plot_window_counts = False
 
-        calculate_weights = True
+        calculate_weights = False
         plot_fit_weights = False
 
         calculate_betabinom_weights = False

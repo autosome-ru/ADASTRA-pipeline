@@ -46,6 +46,24 @@ def make_counts_array_and_nonzero_set(stats_pandas_dataframe):
     return counts_array, nonzero_set
 
 
+def make_scaled_counts(stats_pandas_dataframe):
+    scale_df = pd.read_table(os.path.expanduser('~/ref_counts_scaling_BAD={:.1f}.tsv'.format(BAD)))
+    scaling = dict(zip(scale_df['allele_reads'], scale_df['new_allele_reads']))
+    max_cover_in_stats = max(stats_pandas_dataframe['{}_counts'.format(main_allele)])
+    counts_array = np.zeros(max_cover_in_stats + 1, dtype=np.int64)
+    nonzero_set = set()
+
+    for index, row in stats_pandas_dataframe.iterrows():
+        k, SNP_counts = row['{}_counts'.format(main_allele)], row['counts']
+        if k <= 4:
+            continue
+        k = scaling[k]
+        nonzero_set.add(k)
+
+        counts_array[k] = SNP_counts
+    return counts_array, nonzero_set
+
+
 def plot_histogram(n, counts_array, plot_fit=None, save=True):
     print('made data for n={}'.format(n))
 
@@ -67,8 +85,8 @@ def plot_histogram(n, counts_array, plot_fit=None, save=True):
         plt.plot(list(range(n + 1)), current_density)
         plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
         plt.axvline(x=q, c='black', linestyle='--')
-    plt.title('fixed_{}={}, BAD={}'.format(other_allele, fix_c, BAD))
-    plt.savefig(os.path.expanduser('~/fixed_alt/BAD={}_{}={}.png'.format(BAD, other_allele, fix_c)))
+    plt.title('scaled ref: fixed_{}={}, BAD={}'.format(other_allele, fix_c, BAD))
+    plt.savefig(os.path.expanduser('~/fixed_alt/scaled_BAD={}_{}={}.png'.format(BAD, other_allele, fix_c)))
     plt.close(fig)
 
 
@@ -170,7 +188,7 @@ if __name__ == '__main__':
         other_allele = "min" if main_allele == "max" else "max"
     fix_c_array = [5, 10, 15, 20, 30, 40, 50, 80, 100]
     for fix_c in fix_c_array:
-        for BAD in [4]:
+        for BAD in [1, 2, 2.5, 4]:
 
             # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
             filename = os.path.expanduser('~/fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
@@ -178,7 +196,8 @@ if __name__ == '__main__':
             for allele in alleles:
                 stats['{}_counts'.format(allele)] = stats['{}_counts'.format(allele)].astype(int)
             stats = stats[stats['{}_counts'.format(other_allele)] == fix_c]
-            counts, dict_of_nonzero_N = make_counts_array_and_nonzero_set(stats)
+            #counts, dict_of_nonzero_N = make_counts_array_and_nonzero_set(stats)
+            counts, dict_of_nonzero_N = make_scaled_counts(stats)
             print('made counts')
             number = 40
 
