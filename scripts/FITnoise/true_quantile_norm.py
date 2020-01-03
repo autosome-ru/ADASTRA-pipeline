@@ -40,6 +40,7 @@ def get_normalized_allele_reads(df):
 if __name__ == '__main__':
     for BAD in [1, 2, 3, 4, 5, 6, 4 / 3, 5 / 2, 3 / 2]:
         stats = pd.read_table(os.path.expanduser('~/bias_statistics_BAD={:.1f}.tsv'.format(BAD)))
-        stats['new_allele_reads'] = np.round(get_normalized_allele_reads(stats)).astype(int)
+        stats['new_allele_reads'] = get_normalized_allele_reads(stats)
+        print(stats)
         stats[['allele_reads', 'new_allele_reads']].to_csv(
             os.path.expanduser('~/ref_counts_scaling_BAD={:.1f}.tsv'.format(BAD)), index=False, sep='\t')

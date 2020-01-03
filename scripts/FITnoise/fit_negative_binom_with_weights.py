@@ -22,9 +22,9 @@ def make_negative_binom_density(r, p, w, size_of_counts, for_plot=False):
     f2 = dist2.pmf
     cdf2 = dist2.cdf
     negative_binom_norm = (cdf1(size_of_counts) - cdf1(left_most - 1)) * w + \
-                          (cdf2(size_of_counts) - cdf1(left_most - 1)) * (1 - w)
+                          (cdf2(size_of_counts) - cdf2(left_most - 1)) * (1 - w)
     plot_norm = (cdf1(size_of_counts) - cdf1(4)) * w + \
-                (cdf2(size_of_counts) - cdf1(4)) * (1 - w)
+                (cdf2(size_of_counts) - cdf2(4)) * (1 - w)
     for k in range(5, size_of_counts + 1):
         if for_plot:
             negative_binom_density_array[k] = (w * f1(k) + (1 - w) * f2(k)) / plot_norm
@@ -57,10 +57,20 @@ def make_scaled_counts(stats_pandas_dataframe):
         k, SNP_counts = row['{}_counts'.format(main_allele)], row['counts']
         if k <= 4:
             continue
-        k = scaling[k]
-        nonzero_set.add(k)
+        k_raw = scaling[k]
+        k_floor = np.floor(k_raw)
+        k_ceil = np.ceil(k_raw)
+        part = k_raw - k_floor
+        floor_counts = np.ceil(SNP_counts * (1 - part))
+        ceil_counts = SNP_counts - floor_counts
+        nonzero_set.add(k_ceil)
+        nonzero_set.add(k_floor)
 
-        counts_array[k] = SNP_counts
+        print(k_raw, k_floor, k_ceil, SNP_counts, floor_counts, ceil_counts, part)
+
+        #counts_array[int(k_floor)] += SNP_counts
+        counts_array[int(k_floor)] += floor_counts
+        counts_array[int(k_ceil)] += ceil_counts
     return counts_array, nonzero_set
 
 
@@ -86,8 +96,9 @@ def plot_histogram(n, counts_array, plot_fit=None, save=True):
         plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
         plt.axvline(x=left_most, c='black', linestyle='--')
         plt.axvline(x=min(right_most, n), c='black', linestyle='--')
-    plt.title('scaled ref: fixed_{}={}, BAD={}'.format(other_allele, fix_c, BAD))
-    plt.savefig(os.path.expanduser('~/fixed_alt/scaled_BAD={}_{}={}.png'.format(BAD, other_allele, fix_c)))
+    plt.title('scaled ref: fixed_{}={}, BAD={:.1f}, 2 params'.format(other_allele, fix_c, BAD))
+    plt.savefig(os.path.expanduser(
+        '~/fixed_alt/scaled_2params_q15-q95_{}_BAD={:.1f}_fixed_{}.png'.format(other_allele, BAD, fix_c)))
     plt.close(fig)
 
 
@@ -187,9 +198,9 @@ if __name__ == '__main__':
     else:
         alleles = ('min', 'max')
         other_allele = "min" if main_allele == "max" else "max"
-    fix_c_array = [5, 10, 15, 20, 30, 40, 50, 80, 100]
+    fix_c_array = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100]
     for fix_c in fix_c_array:
-        for BAD in [1]:
+        for BAD in [1, 4/3, 1.5, 2, 2.5, 3, 4, 5, 6]:
 
             # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
             filename = os.path.expanduser('~/fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
@@ -205,11 +216,11 @@ if __name__ == '__main__':
             number = min(len(counts) - 1, 250)
             cdf = lambda x: 0.5 * (st.nbinom(fix_c, get_p()).cdf(x) + st.nbinom(fix_c, 1 - get_p()).cdf(x))
             q_left = min(x for x in range(number + 1) if cdf(x) >= 0.15)
-            q_right = max(x for x in range(number + 1) if cdf(x) <= 0.85)
+            q_right = max(x for x in range(number + 1) if cdf(x) <= 0.95)
             print('q={} {}'.format(q_left, q_right))
             left_most = max(5, q_left)
-            #right_most = min(q_right, len(counts))
-            right_most = len(counts)
+            right_most = min(q_right, len(counts))
+            #right_most = len(counts)
 
             calculate_negative_binom = True
             # weights = (fix_c, 0.5)
