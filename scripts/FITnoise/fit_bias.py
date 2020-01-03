@@ -108,7 +108,7 @@ def make_scaled_count_matrix(stats_pandas_dataframe):
             nonzero_dict[n].append(k)
         except KeyError:
             nonzero_dict[n] = [k]
-        counts_matrix[n, k] = SNP_counts
+        counts_matrix[n, k] += SNP_counts
     return counts_matrix, nonzero_dict
 
 
