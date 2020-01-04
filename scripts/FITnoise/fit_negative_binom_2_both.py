@@ -185,8 +185,9 @@ def extrapolate_weights(weights_of_correction, n_max):
 
 if __name__ == '__main__':
     fix_c_array = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100]
-    for fix_c in fix_c_array:
-        for BAD in [6]: # [1, 4/3, 1.5, 2, 2.5, 3, 4, 5, 6]:
+    save_array = np.zeros((max(fix_c_array), 2), dtype=np.float_)
+    for BAD in [6]:  # [1, 4/3, 1.5, 2, 2.5, 3, 4, 5, 6]:
+        for fix_c in fix_c_array:
 
             # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
             filename = os.path.expanduser('~/fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
@@ -231,9 +232,11 @@ if __name__ == '__main__':
             # plot_histogram(number, counts, plot_fit=weights)
 
             r = []
-            
 
             if calculate_negative_binom:
                 weights = fit_negative_binom(right_most, counts)
                 print(weights)
+                # write to saver
+                save_array[fix_c, :] = weights.x
                 #plot_histogram(number, counts, plot_fit=weights.x)
+    np.save(filename_for_np_array + "{}".format(BAD), save_array)
