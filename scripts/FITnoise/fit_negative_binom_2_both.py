@@ -39,9 +39,12 @@ def make_scaled_counts(stats_ref, stats_alt):
     stats_frames = {'ref': stats_ref, 'alt': stats_alt}
     nonzero_set = set()
 
-    max_cover_in_stats = max(
-        max(stats_frames[fixed_allele]['{}_counts'.format('ref' if fixed_allele == 'alt' else 'alt')])
-        for fixed_allele in ('ref', 'alt'))
+    try:
+        max_cover_in_stats = max(
+            max(stats_frames[fixed_allele]['{}_counts'.format('ref' if fixed_allele == 'alt' else 'alt')])
+            for fixed_allele in ('ref', 'alt'))
+    except ValueError:
+        return [], set()
     counts_array = np.zeros(max_cover_in_stats + 2, dtype=np.int64)
 
     for fixed_allele in ('ref', 'alt'):
@@ -184,9 +187,10 @@ def extrapolate_weights(weights_of_correction, n_max):
 
 
 if __name__ == '__main__':
-    fix_c_array = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100]
+    #fix_c_array = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100]
+    fix_c_array = list(range(5, 501))
     save_array = np.zeros((max(fix_c_array), 2), dtype=np.float_)
-    for BAD in [6]:  # [1, 4/3, 1.5, 2, 2.5, 3, 4, 5, 6]:
+    for BAD in [1, 2]:
         for fix_c in fix_c_array:
 
             # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
@@ -198,8 +202,10 @@ if __name__ == '__main__':
                 stats_fixed_ref = stats[stats['ref_counts'] == fix_c]
                 stats_fixed_alt = stats[stats['alt_counts'] == fix_c]
             # counts, dict_of_nonzero_N = make_counts_array_and_nonzero_set(stats)
-            counts, dict_of_nonzero_N = make_scaled_counts(stats_fixed_ref, stats_fixed_alt)
+            counts, set_of_nonzero_n = make_scaled_counts(stats_fixed_ref, stats_fixed_alt)
             print('made counts')
+            if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n):
+                continue
             number = 40
 
             number = min(len(counts) - 1, 250)
@@ -235,8 +241,8 @@ if __name__ == '__main__':
 
             if calculate_negative_binom:
                 weights = fit_negative_binom(right_most, counts)
-                print(weights)
+                print(fix_c, weights.success)
                 # write to saver
                 save_array[fix_c, :] = weights.x
                 #plot_histogram(number, counts, plot_fit=weights.x)
-    np.save(filename_for_np_array + "{}".format(BAD), save_array)
+        np.save(os.path.expanduser("~/NB_fit_BAD={:.1f}.npy".format(BAD)), save_array)
