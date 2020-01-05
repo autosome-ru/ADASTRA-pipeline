@@ -63,7 +63,15 @@ if __name__ == '__main__':
             table_name = get_name(table)
             with open(table, 'r') as file:
                 for line in file:
-                    common_snps.append(unpack(line, use_in="Aggregation")[:7])
+                    try:
+                        (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
+                         ploidy, dip_qual, lq, rq, seg_c, sum_cov,
+                         p_ref, p_alt) = unpack(line, use_in="Aggregation")
+                    except ValueError:
+                        continue
+                    if p_ref == '.':
+                        continue
+                    common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c])
 
     print('Writing {}'.format(key_name))
 
