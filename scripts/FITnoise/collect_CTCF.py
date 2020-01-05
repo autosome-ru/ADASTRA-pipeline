@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     with open(tf_dict_path, "r") as read_file:
         tf_dict = json.loads(read_file.readline())
-    tables = tf_dict[key_name]
+    tables = list(map(lambda x: x.replace('table_p', 'table_BADs'), tf_dict[key_name]))
 
     common_snps = []
     for table in tables:

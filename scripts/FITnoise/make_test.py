@@ -6,5 +6,6 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 from scipy import stats as st
 
-filename = os.path.expanduser('~/CTCF_HUMAN_SNP_table.tsv'.format(BAD))
+filename = os.path.expanduser('~/CTCF_HUMAN_SNP_table.tsv')
 stats = pd.read_table(filename)
+print(len(stats[stats['BAD'] != 1].index))
