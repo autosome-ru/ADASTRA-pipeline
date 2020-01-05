@@ -25,6 +25,7 @@ def collectRefAltStatistics(key_name=None, BAD=None):
             df = pd.read_table(align_path)
             if df.empty:
                 continue
+            df = df[df['ID'] != '.']
             if BAD is not None:
                 sum_df = df[df['BAD'] == BAD][['ref_read_counts', 'alt_read_counts']]  # <------
             else:
