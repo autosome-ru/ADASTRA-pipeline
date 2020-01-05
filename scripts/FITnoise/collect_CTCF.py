@@ -77,7 +77,7 @@ if __name__ == '__main__':
                     if ploidy == "0":
                         continue
                     common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c, repeat, ploidy, table_name,
-                                        inv_cl_dict[table.replace('table_p', 'table_BADs')]])
+                                        inv_cl_dict[table.replace('table_BADs', 'table_p')]])
 
     print('Writing {}'.format(key_name))
 
