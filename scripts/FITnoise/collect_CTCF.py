@@ -65,7 +65,7 @@ if __name__ == '__main__':
                 for line in file:
                     if line[0] == "#":
                         continue
-                    chr, pos, ID, ref, alt, ref_c, alt_c, repeat, _, _, _, _, ploidy, = line.strip().split("\t")[:10]
+                    chr, pos, ID, ref, alt, ref_c, alt_c, repeat, _, _, _, _, ploidy, = line.strip().split("\t")[:13]
                     if ploidy == "0":
                         continue
                     common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c, ploidy])
