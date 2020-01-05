@@ -9,8 +9,8 @@ from scripts.HELPERS.helpers import states
 
 
 def count_p(x, y, p):
-    pv_ref = np.array(len(x), dtype=np.float_)
-    pv_alt = np.array(len(x), dtype=np.float_)
+    pv_ref = np.zeros(len(x), dtype=np.float_)
+    pv_alt = np.zeros(len(x), dtype=np.float_)
     for i in range(len(x)):
         p_bin = 1 / (p[i] + 1)
         for alternative in ('alt', 'ref'):
