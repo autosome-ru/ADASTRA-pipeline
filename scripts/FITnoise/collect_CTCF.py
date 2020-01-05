@@ -66,6 +66,8 @@ if __name__ == '__main__':
                     if line[0] == "#":
                         continue
                     chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, = line.strip().split("\t")[:10]
+                    if ploidy == 0:
+                        continue
                     common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c, ploidy])
 
     print('Writing {}'.format(key_name))
