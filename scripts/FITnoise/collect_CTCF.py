@@ -62,6 +62,7 @@ if __name__ == '__main__':
         tf_dict = json.loads(read_file.readline())
     with open(cl_dict_path, "r") as read_file:
         cell_lines_dict = json.loads(read_file.readline())
+        inv_cl_dict = invert(cell_lines_dict)
     tables = list(map(lambda x: x.replace('table_p', 'table_BADs'), tf_dict[key_name]))
 
     common_snps = []
@@ -76,7 +77,7 @@ if __name__ == '__main__':
                     if ploidy == "0":
                         continue
                     common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c, repeat, ploidy, table_name,
-                                        get_another_agr(table)])
+                                        inv_cl_dict[table]])
 
     print('Writing {}'.format(key_name))
 
@@ -88,6 +89,6 @@ if __name__ == '__main__':
         common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[0])
         BADs = set()
         for snp in common_snps:
-            BADs.add(snp[-2])
+            BADs.add(snp[-3])
             out.write(pack(snp))
     print(BADs)
