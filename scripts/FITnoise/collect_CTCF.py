@@ -68,12 +68,12 @@ if __name__ == '__main__':
                     chr, pos, ID, ref, alt, ref_c, alt_c, repeat, _, _, _, _, ploidy, = line.strip().split("\t")[:13]
                     if ploidy == "0":
                         continue
-                    common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c, ploidy])
+                    common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c, repeat, ploidy])
 
     print('Writing {}'.format(key_name))
 
     with open(parameters_path + key_name + '_SNP_table.tsv', 'w') as out:
-        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts', 'BAD']))
+        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts', 'repeat', 'BAD']))
 
         common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[1])
         common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[0])
