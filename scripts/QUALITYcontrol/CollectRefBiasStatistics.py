@@ -242,6 +242,7 @@ def collectPValueStatistics(key_name=None, BAD=None):
             df = pd.read_table(align_path)
             if df.empty:
                 continue
+            df = df[df['ID'] != '.']
             if BAD is not None:
                 sum_df = df[df['BAD'] == BAD][['p_value_ref', 'p_value_alt']]  # <------
             else:
