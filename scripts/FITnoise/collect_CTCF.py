@@ -77,6 +77,8 @@ if __name__ == '__main__':
 
         common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[1])
         common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[0])
+        BADs = set()
         for snp in common_snps:
+            BADs.add(snp[-1])
             out.write(pack(snp))
-
+    print(BADs)
