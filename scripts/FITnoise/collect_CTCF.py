@@ -65,13 +65,13 @@ if __name__ == '__main__':
                 for line in file:
                     if line[0] == "#":
                         continue
-                    chr, pos, ID, ref, alt, ref_c, alt_c = line.strip().split("\t")[:7]
-                    common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c])
+                    chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, = line.strip().split("\t")[:10]
+                    common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c, ploidy])
 
     print('Writing {}'.format(key_name))
 
     with open(parameters_path + key_name + '_SNP_table.tsv', 'w') as out:
-        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts']))
+        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts', 'BAD']))
 
         common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[1])
         common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[0])
