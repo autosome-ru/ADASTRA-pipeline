@@ -42,5 +42,6 @@ if __name__ == '__main__':
         stats = pd.read_table(os.path.expanduser('~/bias_statistics_BAD={:.1f}.tsv'.format(BAD)))
         stats['new_allele_reads'] = get_normalized_allele_reads(stats)
         print(stats)
-        stats[['allele_reads', 'new_allele_reads']].to_csv(
+        stats[['allele_reads', 'new_allele_reads', 'ref', 'alt']].to_csv(
             os.path.expanduser('~/ref_counts_scaling_BAD={:.1f}.tsv'.format(BAD)), index=False, sep='\t')
+        print(stats['ref'] * (stats['new_allele_reads'] - stats['allele_reads']), stats['alt'])
