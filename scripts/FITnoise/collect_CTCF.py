@@ -42,6 +42,7 @@ def get_name(path):  # path format */ALIGNS000000_table_p.txt
     return path.split("/")[-1].split("_")[0]
 
 
+
 def invert(dictionary):
     inverted_dictionary = {}
     for key in dictionary:
@@ -50,11 +51,17 @@ def invert(dictionary):
     return inverted_dictionary
 
 
+def get_another_agr(path):
+    return invert(cell_lines_dict).get(path, "None")
+
+
 if __name__ == '__main__':
-    key_name = "ANDR_HUMAN"
+    key_name = "CTCF_HUMAN"
 
     with open(tf_dict_path, "r") as read_file:
         tf_dict = json.loads(read_file.readline())
+    with open(cl_dict_path, "r") as read_file:
+        cell_lines_dict = json.loads(read_file.readline())
     tables = list(map(lambda x: x.replace('table_p', 'table_BADs'), tf_dict[key_name]))
 
     common_snps = []
@@ -68,13 +75,14 @@ if __name__ == '__main__':
                     chr, pos, ID, ref, alt, ref_c, alt_c, repeat, _, _, _, _, ploidy, = line.strip().split("\t")[:13]
                     if ploidy == "0":
                         continue
-                    common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c, repeat, ploidy, table_name])
+                    common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c, repeat, ploidy, table_name,
+                                        get_another_agr(table)])
 
     print('Writing {}'.format(key_name))
 
     with open(parameters_path + key_name + '_SNP_table.tsv', 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts', 'repeat',
-                        'BAD', 'ALIGN_NAME']))
+                        'BAD', 'ALIGN_NAME', 'Cell_line']))
 
         common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[1])
         common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[0])
