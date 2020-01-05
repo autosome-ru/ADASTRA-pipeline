@@ -1,38 +1,54 @@
 import sys
 import numpy as np
 import pandas as pd
+from scipy.stats import binom_test, binom
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import parameters_path
 from scripts.HELPERS.helpers import states
 
 
-def count_p(ref_c, alt_c, BADs):
-    n = ref_c + alt_c
-    N = len(ref_c)
-    p_ref = np.zeros(N, dtype=np.float128)
-    p_alt = np.zeros(N, dtype=np.float128)
+def count_p(x, y, p):
+    pv_ref = np.zeros(len(x), dtype=np.float_)
+    pv_alt = np.zeros(len(x), dtype=np.float_)
+    for i in range(len(x)):
+        p_bin = 1 / (p[i] + 1)
+        for alternative in ('alt', 'ref'):
+            if alternative == 'ref':
+                pv_ref[i] = (binom_test(x[i], x[i] + y[i], p_bin, 'greater') + binom_test(x[i], x[i] + y[i], 1 - p_bin,
+                                                                                          'greater')) / 2
+            else:
+                pv_alt[i] = (binom_test(x[i], x[i] + y[i], p_bin, 'less') + binom_test(x[i], x[i] + y[i], 1 - p_bin,
+                                                                                       'less')) / 2
+    return pv_ref, pv_alt
 
-    for BAD in np.unique(BADs):
-        # loading precalculated density and noise weights
-        precalc_data = {}
-        filename = parameters_path + 'cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD)
-        precalc_data['binom_sum'] = np.load(filename + '_binom_sum.precalc.npy')
-        precalc_data['noise_sum_ref'] = np.load(filename + '_noise_sum_ref.precalc.npy')
-        precalc_data['noise_sum_alt'] = np.load(filename + '_noise_sum_alt.precalc.npy')
-        precalc_data['weights'] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
 
-        idcs = np.where(BADs == BAD)
-        n_BAD = n[idcs]
-        ref_c_BAD = ref_c[idcs]
-        alt_c_BAD = alt_c[idcs]
-        w_BAD = precalc_data['weights'][n_BAD]
-
-        p_ref[idcs] = (1 - w_BAD) * precalc_data['binom_sum'][n_BAD, alt_c_BAD] + \
-                      w_BAD * precalc_data['noise_sum_ref'][n_BAD, ref_c_BAD]
-        p_alt[idcs] = (1 - w_BAD) * precalc_data['binom_sum'][n_BAD, ref_c_BAD] + \
-                      w_BAD * precalc_data['noise_sum_alt'][n_BAD, ref_c_BAD]
-    return p_ref, p_alt
+# def count_p(ref_c, alt_c, BADs):
+#     n = ref_c + alt_c
+#     N = len(ref_c)
+#     p_ref = np.zeros(N, dtype=np.float128)
+#     p_alt = np.zeros(N, dtype=np.float128)
+#
+#     for BAD in np.unique(BADs):
+#         # loading precalculated density and noise weights
+#         precalc_data = {}
+#         filename = parameters_path + 'cover_bias_statistics_BAD={:.1f}.tsv'.format(BAD)
+#         precalc_data['binom_sum'] = np.load(filename + '_binom_sum.precalc.npy')
+#         precalc_data['noise_sum_ref'] = np.load(filename + '_noise_sum_ref.precalc.npy')
+#         precalc_data['noise_sum_alt'] = np.load(filename + '_noise_sum_alt.precalc.npy')
+#         precalc_data['weights'] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
+#
+#         idcs = np.where(BADs == BAD)
+#         n_BAD = n[idcs]
+#         ref_c_BAD = ref_c[idcs]
+#         alt_c_BAD = alt_c[idcs]
+#         w_BAD = precalc_data['weights'][n_BAD]
+#
+#         p_ref[idcs] = (1 - w_BAD) * precalc_data['binom_sum'][n_BAD, alt_c_BAD] + \
+#                       w_BAD * precalc_data['noise_sum_ref'][n_BAD, ref_c_BAD]
+#         p_alt[idcs] = (1 - w_BAD) * precalc_data['binom_sum'][n_BAD, ref_c_BAD] + \
+#                       w_BAD * precalc_data['noise_sum_alt'][n_BAD, ref_c_BAD]
+#     return p_ref, p_alt
 
 
 if __name__ == '__main__':

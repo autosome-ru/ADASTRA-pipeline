@@ -69,9 +69,6 @@ def get_noise(k, n, weight):
 
 
 if __name__ == '__main__':
-    precalc_weights = {}
-    for BAD in states:
-        precalc_weights[BAD] = np.load(parameters_path + 'weights_BAD={:.1f}.npy'.format(BAD))
 
     what_for = sys.argv[1]  # "TF" or "CL" arguments are expected
     check_if_in_expected_args(what_for)
@@ -129,7 +126,6 @@ if __name__ == '__main__':
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
                         'mean_sBAD',
                         'mean_deltaL_neighborBAD', 'mean_deltaL_BAD1', 'mean_SNP_per_segment', 'n_aggregated',
-                        "ref_weight_min", "ref_weight_max", "ref_weight_mean",
                         'refc_maxdepth', 'altc_maxdepth', 'sBAD_maxdepth', 'm1_maxdepth', 'm2_maxdepth',
                         'refc_mostsig', 'altc_mostsig', 'sBAD_mostsig', 'm1_mostsig', 'm2_mostsig',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
@@ -180,7 +176,6 @@ if __name__ == '__main__':
             c_another_agr = []
             c_ref = []
             c_alt = []
-            c_noise_ref = []
 
             for v in value:
                 cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq, seg_c, sum_cov, p_ref, p_alt, table_name, \
@@ -203,7 +198,6 @@ if __name__ == '__main__':
                 c_pref.append(p_ref)
                 c_palt.append(p_alt)
                 c_cover.append(cov)
-                c_noise_ref.append(get_noise(ref_c, cov, precalc_weights[ploidy][cov]))
 
                 c_ref.append(ref_c)
                 c_alt.append(alt_c)
@@ -226,9 +220,6 @@ if __name__ == '__main__':
             m_q = np.round(np.mean(c_q), 1)
             m_segc = np.round(np.mean(c_segc), 1)
             m_datasets = len(value)
-            min_weight_ref = min(c_noise_ref)
-            max_weight_ref = max(c_noise_ref)
-            mean_weight_ref = np.mean(c_noise_ref)
 
             fisherp_ref = stats.combine_pvalues(c_pref)[1]
             fisherp_alt = stats.combine_pvalues(c_palt)[1]
@@ -293,7 +284,6 @@ if __name__ == '__main__':
             out.write(pack(
                 [chr, pos, ID, ref, alt, repeat, m_total_callers, m_unique_callers,
                  m_ploidy, m_q, m_dipq, m_segc, m_datasets,
-                 min_weight_ref, max_weight_ref, mean_weight_ref,
                  ref_dict['maxdepth'], alt_dict['maxdepth'], p_dict['maxdepth'],
                  m1_dict['maxdepth'], m2_dict['maxdepth'],
                  ref_dict['mostsig'], alt_dict['mostsig'], p_dict['mostsig'],
