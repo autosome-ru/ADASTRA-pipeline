@@ -53,20 +53,24 @@ def make_scaled_counts(stats_ref, stats_alt):
             k, SNP_counts = row['{}_counts'.format(main_allele)], row['counts']
             if k <= 4:
                 continue
-            k_raw = scaling[k]
-            k_floor = np.floor(k_raw)
-            k_ceil = np.ceil(k_raw)
-            part = k_raw - k_floor
-            floor_counts = np.ceil(SNP_counts * (1 - part))
-            ceil_counts = SNP_counts - floor_counts
-            nonzero_set.add(k_ceil)
-            nonzero_set.add(k_floor)
+            if main_allele == 'ref':
+                k_raw = scaling[k]
+                k_floor = np.floor(k_raw)
+                k_ceil = np.ceil(k_raw)
+                part = k_raw - k_floor
+                floor_counts = np.ceil(SNP_counts * (1 - part))
+                ceil_counts = SNP_counts - floor_counts
+                nonzero_set.add(k_ceil)
+                nonzero_set.add(k_floor)
 
-            # print(k_raw, k_floor, k_ceil, SNP_counts, floor_counts, ceil_counts, part)
+                # print(k_raw, k_floor, k_ceil, SNP_counts, floor_counts, ceil_counts, part)
 
-            # counts_array[int(k_floor)] += SNP_counts
-            counts_array[int(k_floor)] += floor_counts
-            counts_array[int(k_ceil)] += ceil_counts
+                # counts_array[int(k_floor)] += SNP_counts
+                counts_array[int(k_floor)] += floor_counts
+                counts_array[int(k_ceil)] += ceil_counts
+            else:
+                nonzero_set.add(k)
+                counts_array[k] += SNP_counts
     return counts_array, nonzero_set
 
 
@@ -190,7 +194,11 @@ if __name__ == '__main__':
     #fix_c_array = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100]
     fix_c_array = list(range(5, 501))
     save_array = np.zeros((max(fix_c_array), 2), dtype=np.float_)
-    for BAD in [1, 2]:
+    for BAD in [1]:
+
+        scale_df = pd.read_table(os.path.expanduser('~/ref_counts_scaling_BAD={:.1f}.tsv'.format(BAD)))
+        scaling = dict(zip(scale_df['allele_reads'], scale_df['new_allele_reads']))
+
         for fix_c in fix_c_array:
 
             # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
@@ -198,9 +206,9 @@ if __name__ == '__main__':
             stats = pd.read_table(filename)
             for allele in ('ref', 'alt'):
                 stats['{}_counts'.format(allele)] = stats['{}_counts'.format(allele)].astype(int)
-            for allele in ('ref', 'alt'):
-                stats_fixed_ref = stats[stats['ref_counts'] == fix_c]
-                stats_fixed_alt = stats[stats['alt_counts'] == fix_c]
+            stats_fixed_ref = stats[stats['ref_counts'].apply(lambda x:
+                                                        int(scaling[x]) == fix_c)]
+            stats_fixed_alt = stats[stats['alt_counts'] == fix_c]
             # counts, dict_of_nonzero_N = make_counts_array_and_nonzero_set(stats)
             counts, set_of_nonzero_n = make_scaled_counts(stats_fixed_ref, stats_fixed_alt)
             print('made counts')
