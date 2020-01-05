@@ -65,7 +65,6 @@ if __name__ == '__main__':
                 for line in file:
                     chr, pos, ID, ref, alt, ref_c, alt_c = line.strip().split("\t")[:7]
                     common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c])
-                    print(common_snps)
 
     print('Writing {}'.format(key_name))
 
