@@ -72,14 +72,15 @@ if __name__ == '__main__':
                     if p_ref == '.':
                         continue
                     common_snps.append([chr, pos, ID, ref, alt, ref_c, alt_c])
+                    print(common_snps)
 
     print('Writing {}'.format(key_name))
 
     with open(parameters_path + key_name + '_SNP_table.tsv', 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_c', 'alt_c']))
 
-        keys = sorted(common_snps, key=lambda chr_pos: chr_pos[1])
-        keys = sorted(keys, key=lambda chr_pos: chr_pos[0])
-        for key in keys:
-            out.write(pack(key))
+        common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[1])
+        common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[0])
+        for snp in common_snps:
+            out.write(pack(snp))
 
