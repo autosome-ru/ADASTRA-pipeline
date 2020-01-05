@@ -11,13 +11,14 @@ from scripts.HELPERS.helpers import states
 def count_p(x, y, p):
     pv_ref = np.array(len(x), dtype=np.float_)
     pv_alt = np.array(len(x), dtype=np.float_)
-    for alternative in ('alt', 'ref'):
-        for i in range(len(x)):
+    for i in range(len(x)):
+        p_bin = 1/(p[i] + 1)
+        for alternative in ('alt', 'ref'):
             if alternative == 'ref':
-                pv_ref[i] = (binom_test(x[i], x[i] + y[i], p, alternative) + binom_test(x[i], x[i] + y[i], 1 - p,
+                pv_ref[i] = (binom_test(x[i], x[i] + y[i], p_bin, alternative) + binom_test(x[i], x[i] + y[i], 1 - p_bin,
                                                                                         alternative)) / 2
             else:
-                pv_alt[i] = (binom_test(x[i], x[i] + y[i], p, alternative) + binom_test(x[i], x[i] + y[i], 1 - p,
+                pv_alt[i] = (binom_test(x[i], x[i] + y[i], p_bin, alternative) + binom_test(x[i], x[i] + y[i], 1 - p_bin,
                                                                                         alternative)) / 2
     return pv_ref, pv_alt
 
