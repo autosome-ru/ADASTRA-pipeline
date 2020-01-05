@@ -12,14 +12,14 @@ def count_p(x, y, p):
     pv_ref = np.array(len(x), dtype=np.float_)
     pv_alt = np.array(len(x), dtype=np.float_)
     for i in range(len(x)):
-        p_bin = 1/(p[i] + 1)
+        p_bin = 1 / (p[i] + 1)
         for alternative in ('alt', 'ref'):
             if alternative == 'ref':
-                pv_ref[i] = (binom_test(x[i], x[i] + y[i], p_bin, alternative) + binom_test(x[i], x[i] + y[i], 1 - p_bin,
-                                                                                        alternative)) / 2
+                pv_ref[i] = (binom_test(x[i], x[i] + y[i], p_bin, 'greater') + binom_test(x[i], x[i] + y[i], 1 - p_bin,
+                                                                                          'greater')) / 2
             else:
-                pv_alt[i] = (binom_test(x[i], x[i] + y[i], p_bin, alternative) + binom_test(x[i], x[i] + y[i], 1 - p_bin,
-                                                                                        alternative)) / 2
+                pv_alt[i] = (binom_test(x[i], x[i] + y[i], p_bin, 'less') + binom_test(x[i], x[i] + y[i], 1 - p_bin,
+                                                                                       'less')) / 2
     return pv_ref, pv_alt
 
 
