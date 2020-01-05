@@ -51,7 +51,7 @@ def invert(dictionary):
 
 
 if __name__ == '__main__':
-    key_name = "CTCF_HUMAN"
+    key_name = "ANDR_HUMAN"
 
     with open(tf_dict_path, "r") as read_file:
         tf_dict = json.loads(read_file.readline())
@@ -80,6 +80,6 @@ if __name__ == '__main__':
         common_snps = sorted(common_snps, key=lambda chr_pos: chr_pos[0])
         BADs = set()
         for snp in common_snps:
-            BADs.add(snp[-1])
+            BADs.add(snp[-2])
             out.write(pack(snp))
     print(BADs)
