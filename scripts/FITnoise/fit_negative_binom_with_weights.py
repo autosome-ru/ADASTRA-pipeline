@@ -179,7 +179,7 @@ def calculate_gof(counts_array, w, r):
 
 
 if __name__ == '__main__':
-    for main_allele in ("alt", "ref"):
+    for main_allele in ("ref", ):
         if main_allele in ('ref', 'alt'):
             alleles = ('ref', 'alt')
             other_allele = "ref" if main_allele == "alt" else "alt"
