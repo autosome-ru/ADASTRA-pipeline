@@ -179,75 +179,75 @@ def calculate_gof(counts_array, w, r):
 
 
 if __name__ == '__main__':
-    main_allele = "alt"
-    if main_allele in ('ref', 'alt'):
-        alleles = ('ref', 'alt')
-        other_allele = "ref" if main_allele == "alt" else "alt"
-    else:
-        alleles = ('min', 'max')
-        other_allele = "min" if main_allele == "max" else "max"
-    fix_c_array = [5, 8, 10, 12, 15, 17, 20, 23, 25, 28, 30]
-    #fix_c_array = list(range(5, 501))
-    save_array = np.zeros((max(fix_c_array) + 1, 2), dtype=np.float_)
+    for main_allele in ("alt", "ref"):
+        if main_allele in ('ref', 'alt'):
+            alleles = ('ref', 'alt')
+            other_allele = "ref" if main_allele == "alt" else "alt"
+        else:
+            alleles = ('min', 'max')
+            other_allele = "min" if main_allele == "max" else "max"
+        fix_c_array = [5, 8, 10, 12, 15, 17, 20, 23, 25, 28, 30]
+        fix_c_array = list(range(5, 501))
+        save_array = np.zeros((max(fix_c_array) + 1, 2), dtype=np.float_)
 
-    for BAD in [1]:
+        for BAD in [1]:
 
-        scale_df = pd.read_table(os.path.expanduser('~/ref_counts_scaling_BAD={:.1f}.tsv'.format(BAD)))
-        scaling = dict(zip(scale_df['allele_reads'], scale_df['new_allele_reads']))
+            scale_df = pd.read_table(os.path.expanduser('~/ref_counts_scaling_BAD={:.1f}.tsv'.format(BAD)))
+            scaling = dict(zip(scale_df['allele_reads'], scale_df['new_allele_reads']))
 
-        for fix_c in fix_c_array:
-            # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
-            filename = os.path.expanduser('~/fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
-            stats = pd.read_table(filename)
-            for allele in alleles:
-                stats['{}_counts'.format(allele)] = stats['{}_counts'.format(allele)].astype(int)
-            if main_allele == 'alt':
-                stats = stats[stats['ref_counts'] == fix_c]
-            else:
-                stats = stats[stats['alt_counts'] == fix_c]
-            # counts, dict_of_nonzero_N = make_counts_array_and_nonzero_set(stats)
-            counts, set_of_nonzero_n = make_scaled_counts(stats)
+            for fix_c in fix_c_array:
+                # filename = os.path.expanduser('~/cover_bias_statistics_norm_diploids.tsv'.format(BAD))
+                filename = os.path.expanduser('~/fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
+                stats = pd.read_table(filename)
+                for allele in alleles:
+                    stats['{}_counts'.format(allele)] = stats['{}_counts'.format(allele)].astype(int)
+                if main_allele == 'alt':
+                    stats = stats[stats['ref_counts'] == fix_c]
+                else:
+                    stats = stats[stats['alt_counts'] == fix_c]
+                # counts, dict_of_nonzero_N = make_counts_array_and_nonzero_set(stats)
+                counts, set_of_nonzero_n = make_scaled_counts(stats)
 
-            if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n):
-                continue
-            print('made counts')
-            print('Fix {}={}'.format(other_allele, fix_c))
-            number = len(counts) - 1
+                if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n):
+                    continue
+                print('made counts')
+                print('Fix {}={}'.format(other_allele, fix_c))
+                number = len(counts) - 1
 
-            #number = min(len(counts) - 1, 250)
+                #number = min(len(counts) - 1, 250)
 
-            if BAD == 6:
-                t_left = 10
-            else:
-                t_left = 15
-            t_right = 100
+                if BAD == 6:
+                    t_left = 10
+                else:
+                    t_left = 15
+                t_right = 100
 
-            total_snps = counts.sum()
-            cdf = counts.cumsum() / total_snps
-            assert cdf[-1] == 1
-            q_left = min(x for x in range(len(counts)) if cdf[x] >= t_left / 100)
-            q_right = max(x for x in range(len(counts)) if cdf[x] <= t_right / 100)
+                total_snps = counts.sum()
+                cdf = counts.cumsum() / total_snps
+                assert cdf[-1] == 1
+                q_left = min(x for x in range(len(counts)) if cdf[x] >= t_left / 100)
+                q_right = max(x for x in range(len(counts)) if cdf[x] <= t_right / 100)
 
-            # print('q={} {}'.format(q_left, q_right))
-            # left_most = max(5, q_left)
-            right_most = len(counts)
+                # print('q={} {}'.format(q_left, q_right))
+                # left_most = max(5, q_left)
+                right_most = len(counts)
 
-            q_right = min(q_right, number)
+                q_right = min(q_right, number)
 
-            calculate_negative_binom = True
-            # weights = (fix_c, 0.5)
-            # plot_histogram(number, counts, plot_fit=weights)
-            if calculate_negative_binom:
-                wg_list = []
-                for q_left in [q_left]:  # range(5, fix_c + 5):
+                calculate_negative_binom = True
+                # weights = (fix_c, 0.5)
+                # plot_histogram(number, counts, plot_fit=weights)
+                if calculate_negative_binom:
+                    wg_list = []
+                    for q_left in range(5, fix_c + 5):
+                        left_most = max(5, q_left)
+                        weights, gof = fit_negative_binom(right_most, counts)
+                        wg_list.append((weights, gof, q_left))
+
+                    weights, gof, q_left = min(wg_list, key=lambda x: x[1])
                     left_most = max(5, q_left)
-                    weights, gof = fit_negative_binom(right_most, counts)
-                    wg_list.append((weights, gof, q_left))
+                    print('q={} {}'.format(q_left, q_right))
+                    plot_histogram(number, counts, plot_fit=weights.x)
+                    save_array[fix_c, :] = weights.x
 
-                weights, gof, q_left = min(wg_list, key=lambda x: x[1])
-                left_most = max(5, q_left)
-                print('q={} {}'.format(q_left, q_right))
-                plot_histogram(number, counts, plot_fit=weights.x)
-                save_array[fix_c, :] = weights.x
-
-        #np.save(os.path.expanduser("~/NB_fit_BAD_{}={:.1f}.npy".format(main_allele, BAD)), save_array)
+            np.save(os.path.expanduser("~/NB_fit_BAD_{}={:.1f}.npy".format(main_allele, BAD)), save_array)
