@@ -14,7 +14,7 @@ for BAD in states:
     ref_df = pd.DataFrame(columns=column_names)
     alt_df = pd.DataFrame(columns=column_names)
     for i in range(len(column_names)):
-        ref_df[column_names[i]] = ref[i]
-        alt_df[column_names[i]] = alt[i]
+        ref_df[column_names[i]] = ref[:, i]
+        alt_df[column_names[i]] = alt[:, i]
     ref_df.to_csv(parameters_path + 'weights/NBweights_ref_BAD={:.1f}.tsv'.format(BAD), sep='\t', index=False)
     alt_df.to_csv(parameters_path + 'weights/NBweights_ref_BAD={:.1f}.tsv'.format(BAD), sep='\t', index=False)
