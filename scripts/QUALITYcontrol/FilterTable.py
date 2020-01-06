@@ -8,7 +8,7 @@ outDirectory = "/home/abramov/DATA_FOR_MC_FILTER/"
 
 
 def filterTable(table, mc_tr=10, totc_tr=10, alt=False):
-    table = table[(table["max_cover"] >= mc_tr) | (table["total_cover"] >= totc_tr)]
+    table = table[(table["max_cover"] >= mc_tr) & (table["total_cover"] >= totc_tr)]
     if table.empty:
         return 0
     if alt:
