@@ -25,6 +25,7 @@ def collectRefAltStatistics(key_name=None, BAD=None):
             df = pd.read_table(align_path)
             if df.empty:
                 continue
+            df = df[df['ID'] != '.']
             if BAD is not None:
                 sum_df = df[df['BAD'] == BAD][['ref_read_counts', 'alt_read_counts']]  # <------
             else:
@@ -158,6 +159,7 @@ def collectFixedAltStatistics(key_name=None, BAD=None):
             df = pd.read_table(align_path)
             if df.empty:
                 continue
+            df = df[df['ID'] != '.']
             if BAD is not None:
                 sum_df = df[df['BAD'] == BAD][['ref_read_counts', 'alt_read_counts']]  # <------
             else:
@@ -198,6 +200,7 @@ def collectFixedMinStatistics(key_name=None, BAD=None):
             df = pd.read_table(align_path)
             if df.empty:
                 continue
+            df = df[df['ID'] != '.']
             if BAD is not None:
                 sum_df = df[df['BAD'] == BAD][['ref_read_counts', 'alt_read_counts']]  # <------
             else:
@@ -241,6 +244,7 @@ def collectPValueStatistics(key_name=None, BAD=None):
             df = pd.read_table(align_path)
             if df.empty:
                 continue
+            df = df[df['ID'] != '.']
             if BAD is not None:
                 sum_df = df[df['BAD'] == BAD][['p_value_ref', 'p_value_alt']]  # <------
             else:
@@ -268,4 +272,4 @@ def collectPValueStatistics(key_name=None, BAD=None):
 
 if __name__ == "__main__":
     for BAD in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
-        collectRefAltStatistics(BAD=BAD)
+        collectFixedAltStatistics(BAD=BAD)
