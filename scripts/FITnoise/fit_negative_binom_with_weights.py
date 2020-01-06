@@ -51,7 +51,6 @@ def make_scaled_counts(stats_pandas_dataframe):
     try:
         max_cover_in_stats = max(stats_pandas_dataframe['{}_counts'.format(main_allele)])
     except ValueError as e:
-        raise e
         return [], set()
     counts_array = np.zeros(max_cover_in_stats + 1, dtype=np.int64)
     nonzero_set = set()
@@ -203,8 +202,8 @@ if __name__ == '__main__':
                 stats['{}_counts'.format(allele)] = stats['{}_counts'.format(allele)].astype(int)
 
             for fix_c in fix_c_array:
-                stats = stats[stats['{}_counts'.format(fixed_allele)] == fix_c]
-                counts, set_of_nonzero_n = make_scaled_counts(stats)
+                stats_filtered = stats[stats['{}_counts'.format(fixed_allele)] == fix_c]
+                counts, set_of_nonzero_n = make_scaled_counts(stats_filtered)
                 print(counts)
                 if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n) - 5:
                     print("I'm out")
