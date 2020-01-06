@@ -176,7 +176,7 @@ def calculate_gof(counts_array, w, r):
     if norm <= 1:
         return None
     else:
-        print(max(stat - df, 0), (df * (norm - 1)))
+        print(max(stat - df, 0), (df * (norm - 1)), norm, df)
         score = np.sqrt(max(stat - df, 0) / (df * (norm - 1)))
 
     return score
