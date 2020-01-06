@@ -204,7 +204,7 @@ if __name__ == '__main__':
             for fix_c in fix_c_array:
                 stats = stats[stats['{}_counts'.format(fixed_allele)] == fix_c]
                 counts, set_of_nonzero_n = make_scaled_counts(stats)
-
+                print(counts)
                 if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n) - 5:
                     print("I'm out")
                     continue
