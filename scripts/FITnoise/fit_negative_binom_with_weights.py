@@ -50,7 +50,8 @@ def make_counts_array_and_nonzero_set(stats_pandas_dataframe):
 def make_scaled_counts(stats_pandas_dataframe):
     try:
         max_cover_in_stats = max(stats_pandas_dataframe['{}_counts'.format(main_allele)])
-    except ValueError:
+    except ValueError as e:
+        raise e
         return [], set()
     counts_array = np.zeros(max_cover_in_stats + 1, dtype=np.int64)
     nonzero_set = set()
