@@ -205,7 +205,7 @@ if __name__ == '__main__':
                 stats = stats[stats['alt_counts'] == fix_c]
                 counts, set_of_nonzero_n = make_scaled_counts(stats)
 
-                if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n) - 5:
+                if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n):
                     continue
                 print('made counts')
                 print('Fix {}={}'.format(other_allele, fix_c))
