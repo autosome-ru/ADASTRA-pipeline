@@ -57,8 +57,8 @@ if __name__ == '__main__':
     weights = {}
     for BAD in states:
         weights[BAD] = dict()
-        weights[BAD]['ref'] = np.load(parameters_path + 'NBweights_ref_BAD={:.1f}'.format(BAD))
-        weights[BAD]['alt'] = np.load(parameters_path + 'NBweights_alt_BAD={:.1f}'.format(BAD))
+        weights[BAD]['ref'] = np.load(parameters_path + 'NBweights_ref_BAD={:.1f}.npy'.format(BAD))
+        weights[BAD]['alt'] = np.load(parameters_path + 'NBweights_alt_BAD={:.1f}.npy'.format(BAD))
 
     df_with_BAD = pd.read_table(table_BAD)
     p_ref, p_alt = count_p(np.array(df_with_BAD["ref_read_counts"], dtype=np.int_),
