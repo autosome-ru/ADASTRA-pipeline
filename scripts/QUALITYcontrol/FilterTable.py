@@ -21,9 +21,22 @@ def filterTable(table, mc_tr=10, totc_tr=10, alt=False):
     return sum(bool_ar)
 
 
+def filterTableNAgg(table, mc_tr=10, n=0, alt=False):
+    table = table[(table["max_cover"] >= mc_tr) | (table["n_aggregated"] >= n)]
+    if table.empty:
+        return 0
+    if alt:
+        bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"], alpha=0.05,
+                                                                         method='fdr_bh')
+    else:
+        bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"], alpha=0.05,
+                                                                         method='fdr_bh')
+
+    return sum(bool_ar)
+
 flag_d = {"totc": "_total_cov", "mc": "_max_cov"}
 mc_list = list(range(10, 61, 10))
-totc_list = list(range(10, 81, 10))
+totc_list = list(range(1, 4))
 columns_list = [str(i) for i in mc_list]
 table = pd.DataFrame(columns=columns_list)
 
@@ -42,7 +55,7 @@ for TotCover in totc_list:
                 continue
         print("Find statistics for " + filename)
         for MaxCover in mc_list:
-            FDR_n = filterTable(noCorrTable, mc_tr=MaxCover, totc_tr=TotCover, alt=alt)
+            FDR_n = filterTableNAgg(noCorrTable, mc_tr=MaxCover, n=TotCover, alt=alt)
             try:
                 FDRs[MaxCover] += FDR_n
             except KeyError:
