@@ -103,7 +103,7 @@ if __name__ == '__main__':
                          p_ref, p_alt) = unpack(line, use_in="Aggregation")
                     except ValueError:
                         continue
-                    if p_ref == '.':
+                    if p_ref == '.' or ID == '.':
                         continue
                     cov = ref_c + alt_c
 
