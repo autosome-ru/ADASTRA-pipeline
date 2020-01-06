@@ -15,6 +15,11 @@ def count_p(ref_c, alt_c, BADs):
 
     for i in range(N):
 
+        if BADs[i] not in [1, 1.5, 2, 3]:  # TODO: DON'T FORGET TO FIX
+            p_ref[i] = '.'
+            p_alt[i] = '.'
+            continue
+
         if ref_c[i] > 500:
             r = ref_c[i]
             w = 0.5
