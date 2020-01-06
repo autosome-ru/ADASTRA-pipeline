@@ -206,6 +206,7 @@ if __name__ == '__main__':
                 counts, set_of_nonzero_n = make_scaled_counts(stats)
 
                 if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n):
+                    print("I'm out")
                     continue
                 print('made counts')
                 print('Fix {}={}'.format(other_allele, fix_c))
