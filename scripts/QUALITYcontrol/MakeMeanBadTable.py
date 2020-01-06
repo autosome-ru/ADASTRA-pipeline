@@ -46,7 +46,7 @@ if __name__ == "__main__":
                 without_SNP = 1
                 cur_SNP_number = 0
             else:
-                with open(ploidy_path + file_name.replace("_ploidy", "")) as f:
+                with open(ploidy_path + "merged_vcfs/" + file_name.replace("_ploidy", "")) as f:
                     df = pd.read_table(f,  index_col=False)
                     cur_SNP_number = len(df.index)
             cur_l = len([x for x in cell_lines_dict[file_name.split("_ploidy")[0]] if os.path.isfile(x)])
