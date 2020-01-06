@@ -10,7 +10,7 @@ print(stats)
 
 fig, ax = plt.subplots(figsize=(10, 8))
 x = np.array(range(1, 18))
-stats = stats[stats['mean_sBAD'] == 1]
+stats = stats[stats['mean_sBAD'] == 2]
 #stats = stats[stats['ID'] == '.']
 palts = stats[stats['logitp_alt'] != 1.0]
 sns.barplot(x=x, y=[len(palts[(1/10**(k+1) < palts['logitp_alt']) & (palts['logitp_alt'] <= 1/10**k)].index)
