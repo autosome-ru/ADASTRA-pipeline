@@ -176,7 +176,6 @@ def calculate_gof(counts_array, w, r):
     if norm <= 1:
         return None
     else:
-        print(max(stat - df, 0), (df * (norm - 1)), norm, df)
         score = np.sqrt(max(stat - df, 0) / (df * (norm - 1)))
 
     return score
@@ -204,9 +203,7 @@ if __name__ == '__main__':
             for fix_c in fix_c_array:
                 stats_filtered = stats[stats['{}_counts'.format(fixed_allele)] == fix_c]
                 counts, set_of_nonzero_n = make_scaled_counts(stats_filtered)
-                print(counts)
                 if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n) - 5:
-                    print("I'm out")
                     continue
                 print('made counts')
                 print('Fix {}={}'.format(fixed_allele, fix_c))
