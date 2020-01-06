@@ -2,10 +2,10 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt, ticker
+#from matplotlib import pyplot as plt, ticker
 from scipy import optimize
 from scipy import stats as st
-import seaborn as sns
+#import seaborn as sns
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import parameters_path
@@ -176,6 +176,7 @@ def calculate_gof(counts_array, w, r):
     if norm <= 1:
         return None
     else:
+        print(max(stat - df, 0), (df * (norm - 1)))
         score = np.sqrt(max(stat - df, 0) / (df * (norm - 1)))
 
     return score
