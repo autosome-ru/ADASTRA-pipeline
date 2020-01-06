@@ -17,7 +17,12 @@ for BAD in states:
     for i in range(len(column_names)):
         ref_df[column_names[i]] = ref[:, i]
         alt_df[column_names[i]] = alt[:, i]
-    ref_df['allele_reads'] = counts_df['ref_counts']
-    alt_df['allele_reads'] = counts_df['alt_counts']
+    ref_counts = []
+    alt_counts = []
+    for fix_c in ref_df.index:
+        ref_counts.append(counts_df[counts_df['ref_counts'] == fix_c]['counts'].sum())
+        alt_counts.append(counts_df[counts_df['alt_counts'] == fix_c]['counts'].sum())
+    ref_df['allele_reads'] = ref_counts
+    alt_df['allele_reads'] = alt_counts
     ref_df.to_csv(parameters_path + 'weights/NBweights_ref_BAD={:.1f}.tsv'.format(BAD), sep='\t')
     alt_df.to_csv(parameters_path + 'weights/NBweights_alt_BAD={:.1f}.tsv'.format(BAD), sep='\t')
