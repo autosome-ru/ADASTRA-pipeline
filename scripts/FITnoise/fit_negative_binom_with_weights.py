@@ -112,9 +112,9 @@ def plot_histogram(n, counts_array, plot_fit=None, save=True):
         plt.text(s=label, x=0.65 * n, y=max(current_density) * 0.6)
         plt.axvline(x=left_most, c='black', linestyle='--')
         plt.axvline(x=min(right_most, n), c='black', linestyle='--')
-    plt.title('scaled ref: fixed_{}={}, BAD={:.1f}, 2 params'.format(other_allele, fix_c, BAD))
+    plt.title('scaled ref: fixed_{}={}, BAD={:.1f}, 2 params'.format(fixed_allele, fix_c, BAD))
     plt.savefig(os.path.expanduser(
-        '~/fixed_alt/abcd/scaled_2params_q15-q95_{}_BAD={:.1f}_fixed_{}.png'.format(other_allele, BAD, fix_c)))
+        '~/fixed_alt/abcd/scaled_2params_q15-q95_{}_BAD={:.1f}_fixed_{}.png'.format(fixed_allele, BAD, fix_c)))
     plt.close(fig)
 
 
@@ -184,7 +184,7 @@ def calculate_gof(counts_array, w, r):
 
 if __name__ == '__main__':
     for main_allele in ("alt", "ref"):
-        other_allele = "ref" if main_allele == "alt" else "alt"
+        fixed_allele = "ref" if main_allele == "alt" else "alt"
         alleles = ('ref', 'alt')
 
         fix_c_array = list(range(5, 501))
@@ -202,20 +202,19 @@ if __name__ == '__main__':
                 stats['{}_counts'.format(allele)] = stats['{}_counts'.format(allele)].astype(int)
 
             for fix_c in fix_c_array:
-                stats = stats[stats['alt_counts'] == fix_c]
+                stats = stats[stats['{}_counts'.format(fixed_allele)] == fix_c]
                 counts, set_of_nonzero_n = make_scaled_counts(stats)
 
-                if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n):
+                if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n) - 5:
                     print("I'm out")
                     continue
                 print('made counts')
-                print('Fix {}={}'.format(other_allele, fix_c))
+                print('Fix {}={}'.format(fixed_allele, fix_c))
                 number = len(counts) - 1
 
                 left_most = 5
                 q_left = 5
                 right_most = len(counts) - 1
-
 
                 calculate_negative_binom = True
                 # weights = (fix_c, 0.5)
@@ -227,4 +226,4 @@ if __name__ == '__main__':
                     save_array[fix_c, 2] = weights.success
                     save_array[fix_c, 3] = gof
 
-            np.save(os.path.expanduser(parameters_path + 'NBweights_{}_BAD={:.1f}'.format(other_allele, BAD)), save_array)
+            np.save(os.path.expanduser(parameters_path + 'NBweights_{}_BAD={:.1f}'.format(fixed_allele, BAD)), save_array)
