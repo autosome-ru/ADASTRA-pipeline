@@ -8,7 +8,7 @@ from scripts.HELPERS.paths import parameters_path, ploidy_path, ploidy_dict_path
 from scripts.HELPERS.helpers import pack
 
 out_path = parameters_path + "cell_lines_BADs.tsv"
-actual_ploidy_path = ploidy_path + "CAIC/"
+actual_ploidy_path = ploidy_path
 
 
 def write_BAD(out_buffer, pd_df, max_n, total_n, datasets_n, SNP_n, n_without_SNP, IDs):
@@ -33,7 +33,7 @@ if __name__ == "__main__":
                         "number of datasets", "number of SNPs", "number of datasets without SNPs", "geo_encode ID"]))
         sum_table = None
         previous_name = None
-        for file_name in sorted(os.listdir(actual_ploidy_path)):
+        for file_name in sorted(os.listdir(actual_ploidy_path + "CAIC/")):
             without_SNP = 0
             split_name = file_name.split("!")
             cell_line_name = split_name[0]
@@ -42,7 +42,7 @@ if __name__ == "__main__":
                 geo_encode_id = "None"
             else:
                 geo_encode_id = geo_encode_id.replace("_ploidy.tsv", "")
-            if os.stat(ploidy_path + file_name.replace("_ploidy", "")).st_size == 0:
+            if os.stat(ploidy_path + "merged_vcfs/" + file_name.replace("_ploidy", "")).st_size == 0:
                 without_SNP = 1
                 cur_SNP_number = 0
             else:
@@ -52,7 +52,7 @@ if __name__ == "__main__":
             cur_l = len([x for x in cell_lines_dict[file_name.split("_ploidy")[0]] if os.path.isfile(x)])
             if without_SNP:
                 without_SNP = cur_l
-            with open(actual_ploidy_path + file_name) as file:
+            with open(actual_ploidy_path + "CAIC/" + file_name) as file:
                 table = pd.read_table(file)
             cur_bp_len = (table["end"] - table["start"]).sum()
             if table.empty:
