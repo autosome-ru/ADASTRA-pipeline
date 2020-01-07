@@ -19,7 +19,7 @@ df = df1 + df2
 df = df.astype(int)
 sns.heatmap(df, annot=True, fmt='d')
 
-plt.ylabel('Total cover tr')
+plt.ylabel('N datasets')
 plt.xlabel('Max cover tr')
 
 plt.grid(True)
