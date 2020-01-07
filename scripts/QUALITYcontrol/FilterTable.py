@@ -3,7 +3,7 @@ import sys
 import os
 import statsmodels.stats.multitest
 
-inpDirectory = "/home/abramov/DATA/TF_P-values/"
+inpDirectory = "/home/abramov/RESULTS/release-070120/TF_P-values/"
 outDirectory = "/home/abramov/DATA_FOR_MC_FILTER/"
 
 
@@ -26,17 +26,17 @@ def filterTableNAgg(table, mc_tr=10, n=0, alt=False):
     if table.empty:
         return 0
     if alt:
-        bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"], alpha=0.05,
+        bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"], alpha=0.001,
                                                                          method='fdr_bh')
     else:
-        bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"], alpha=0.05,
+        bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"], alpha=0.001,
                                                                          method='fdr_bh')
 
     return sum(bool_ar)
 
 flag_d = {"totc": "_total_cov", "mc": "_max_cov"}
 mc_list = list(range(10, 61, 10))
-totc_list = list(range(1, 4))
+totc_list = list(range(1, 3))
 columns_list = [str(i) for i in mc_list]
 table = pd.DataFrame(columns=columns_list)
 
