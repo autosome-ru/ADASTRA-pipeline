@@ -121,10 +121,11 @@ if __name__ == '__main__':
 
             max_idx = min(i for i in range(5, coefs_array.shape[0]) if coefs_array[i, 3] > 0.1)
 
-            reg = LinearRegression(fit_intercept=False).fit(X=np.array(range(5, max_idx)).reshape(-1, 1),
+            reg = LinearRegression().fit(X=np.array(range(5, max_idx)).reshape(-1, 1),
                                                             y=coefs_array[5: max_idx, 0],
                                                             sample_weight=1 / coefs_array[5: max_idx, 3])
             k = reg.coef_[0]
+            b = reg.intercept_
             print(k, max_idx)
 
             r_array = [0] * 5 + [k * x for x in fix_c_array]
@@ -153,7 +154,7 @@ if __name__ == '__main__':
                 if calculate_negative_binom:
                     weights, gof = fit_negative_binom(right_most, counts)
                     # plot_histogram(number, counts, plot_fit=weights.x)
-                    save_array[fix_c, 4] = k * fix_c
+                    save_array[fix_c, 4] = k * fix_c + b
                     save_array[fix_c, 5] = weights.x
                     save_array[fix_c, 6] = weights.success
                     save_array[fix_c, 7] = gof
