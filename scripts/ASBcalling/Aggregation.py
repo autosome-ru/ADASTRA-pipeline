@@ -304,7 +304,6 @@ if __name__ == '__main__':
                                     1 - cdf_ref(4))
                     m_dict[method] = -1 * np.math.log(ref_c / E_ref)
                 elif ref_c < alt_c:
-                    print(alt_c, ref_c, ploidy, w['ref'][ploidy][ref_c], r['ref'][ploidy][ref_c])
                     r_alt = r['ref'][ploidy][ref_c]
                     w_alt = w['ref'][ploidy][ref_c]
                     cdf1_alt = stats.nbinom(r_alt, p).cdf
@@ -317,6 +316,7 @@ if __name__ == '__main__':
                     E_alt = (r_alt * (ploidy * w_alt + (1 - w_alt) / ploidy) - sum(
                         i * pmf_alt(i) for i in range(5))) / (
                                     1 - cdf_alt(4))
+                    print(r_alt, E_alt, alt_c, ref_c)
                     m_dict[method] = -1 * np.math.log(alt_c / E_alt)
                 else:
                     m_dict[method] = 'NaN'
