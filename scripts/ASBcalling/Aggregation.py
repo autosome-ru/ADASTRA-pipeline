@@ -272,7 +272,7 @@ if __name__ == '__main__':
                     m_dict[method] = -1 * np.math.log(ref_c / (r['alt'][ploidy][alt_c] * (ploidy * w['alt'][ploidy][alt_c]
                                                                                   + (1 - w['alt'][ploidy][alt_c]) / ploidy)))
                 elif ref_c < alt_c:
-                    print(alt_c, ploidy * w['ref'][ploidy][ref_c] + (1 - w['ref'][ploidy][ref_c]) / ploidy)
+                    print(alt_c, ploidy, w['ref'][ploidy][ref_c], r['ref'][ploidy][ref_c])
                     m_dict[method] = -1 * np.math.log(alt_c / (r['ref'][ploidy][ref_c] * (ploidy * w['ref'][ploidy][ref_c]
                                                                                   + (1 - w['ref'][ploidy][ref_c]) / ploidy)))
                 else:
