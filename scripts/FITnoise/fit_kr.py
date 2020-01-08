@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
             max_idx = min(i for i in range(5, coefs_array.shape[0]) if coefs_array[i, 3] > 0.1)
 
-            reg = LinearRegression(fit_intercept=False).fit(X=np.array(range(5, max_idx)), y=coefs_array, sample_weight=1 / coefs_array[5: max_idx, 3])
+            reg = LinearRegression(fit_intercept=False).fit(X=np.array(range(5, max_idx)).reshape(-1, 1), y=coefs_array, sample_weight=1 / coefs_array[5: max_idx, 3])
             k = reg.coef_[0]
             print(k, max_idx)
 
