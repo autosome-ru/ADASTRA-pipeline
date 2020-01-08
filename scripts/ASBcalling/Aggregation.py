@@ -45,6 +45,20 @@ def get_name(path):  # path format */ALIGNS000000_table_p.txt
     return path.split("/")[-1].split("_")[0]
 
 
+def read_weights():
+    r = {}
+    w = {}
+    for fixed_allele in ('ref', 'alt'):
+        r[fixed_allele] = {}
+        w[fixed_allele] = {}
+        for BAD in states:
+            precalc_params_path = parameters_path + 'NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD)
+            coefs_array = np.load(precalc_params_path)
+            r[fixed_allele][BAD] = coefs_array[:, 0]
+            w[fixed_allele][BAD] = coefs_array[:, 1]
+    return r, w
+
+
 def invert(dictionary):
     inverted_dictionary = {}
     for key in dictionary:
@@ -126,11 +140,10 @@ if __name__ == '__main__':
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
                         'mean_BAD',
                         'mean_deltaL_neighborBAD', 'mean_deltaL_BAD1', 'mean_SNP_per_segment', 'n_aggregated',
-                        'refc_maxdepth', 'altc_maxdepth', 'BAD_maxdepth', 'm1_maxdepth', 'm2_maxdepth',
-                        'refc_mostsig', 'altc_mostsig', 'BAD_mostsig', 'm1_mostsig', 'm2_mostsig',
+                        'refc_maxdepth', 'altc_maxdepth', 'BAD_maxdepth', 'm_maxdepth',
+                        'refc_mostsig', 'altc_mostsig', 'BAD_mostsig', 'm_mostsig',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
-                        'm1_mean_ref', 'm1_mean_alt',
-                        'm2_mean_ref', 'm2_mean_alt',
+                        'm_mean_ref', 'm_mean_alt',
                         'logitp_ref', 'logitp_alt',
                         'fisherp_ref', 'fisherp_alt']))
 
@@ -151,6 +164,7 @@ if __name__ == '__main__':
 
         if len(filtered_snps) == 0:
             sys.exit(0)
+        r, w = read_weights()
         origin_of_snp_dict = OrderedDict()
         keys = list(filtered_snps.keys())
         keys = sorted(keys, key=lambda chr_pos: chr_pos[1])
@@ -170,8 +184,8 @@ if __name__ == '__main__':
             c_pref = []
             c_palt = []
             c_cover = []
-            c_m1 = []
-            c_m2 = []
+            c_m_ref = []
+            c_m_alt = []
             c_table_names = []
             c_another_agr = []
             c_ref = []
@@ -207,8 +221,10 @@ if __name__ == '__main__':
                 p = 1 / (ploidy + 1)
 
                 if x <= p or x >= 1 - p:
-                    c_m1.append(-1 * np.math.log(min(x, 1 - x) / p, 2) * np.sign(ref_c - alt_c))
-                    c_m2.append(np.math.log(max(x, 1 - x) / (1 - p), 2) * np.sign(ref_c - alt_c))
+                    c_m_ref.append(-1 * np.math.log(ref_c / (r['alt'][ploidy][alt_c] * (ploidy * w['alt'][ploidy][alt_c]
+                                                                                + (1 - w['alt'][ploidy][alt_c]) / ploidy))))
+                    c_m_alt.append(-1 * np.math.log(alt_c / (r['ref'][ploidy][ref_c] * (ploidy * w['ref'][ploidy][ref_c]
+                                                                                + (1 - w['ref'][ploidy][ref_c]) / ploidy))))
 
             min_cover = min(c_cover)
             max_cover = max(c_cover)
@@ -226,32 +242,10 @@ if __name__ == '__main__':
             m_logpref = logit_combine_p_values(c_pref)
             m_logpalt = logit_combine_p_values(c_palt)
 
-            c_m1_ref = [x for x in c_m1 if x > 0]
-            if c_m1_ref:
-                m1_ref = np.round(np.mean(c_m1_ref), 3)
-            else:
-                m1_ref = 0
+            m_ref = np.round(np.mean(c_m_ref), 3)
+            m_alt = np.round(np.mean(c_m_alt), 3)
 
-            c_m1_alt = [x for x in c_m1 if x < 0]
-            if c_m1_alt:
-                m1_alt = np.round(np.mean(c_m1_alt), 3)
-            else:
-                m1_alt = 0
-
-            c_m2_ref = [x for x in c_m2 if x > 0]
-            if c_m2_ref:
-                m2_ref = np.round(np.mean(c_m2_ref), 3)
-            else:
-                m2_ref = 0
-
-            c_m2_alt = [x for x in c_m2 if x < 0]
-            if c_m2_alt:
-                m2_alt = np.round(np.mean(c_m2_alt), 3)
-            else:
-                m2_alt = 0
-
-            m1_dict = dict()
-            m2_dict = dict()
+            m_dict = dict()
             p_dict = dict()
             ref_dict = dict()
             alt_dict = dict()
@@ -266,30 +260,26 @@ if __name__ == '__main__':
                     ref_dict[method] = 'NaN'
                     alt_dict[method] = 'NaN'
                     p_dict[method] = 'NaN'
-                    m1_dict[method] = 'NaN'
-                    m2_dict[method] = 'NaN'
+                    m_dict[method] = 'NaN'
                     continue
                 ref_dict[method] = str(c_ref[i_most])
                 alt_dict[method] = str(c_alt[i_most])
                 p_dict[method] = c_ploidy[i_most]
                 x = c_ref[i_most] / (c_ref[i_most] + c_alt[i_most])
                 p = 1 / (c_ploidy[i_most] + 1)
-                if x <= p or x >= 1 - p:
-                    m1_dict[method] = -1 * np.math.log(min(x, 1 - x) / p, 2) * np.sign(c_ref[i_most] - c_alt[i_most])
-                    m2_dict[method] = np.math.log(max(x, 1 - x) / (1 - p), 2) * np.sign(c_ref[i_most] - c_alt[i_most])
-                else:
-                    m1_dict[method] = 0
-                    m2_dict[method] = 0
-
+                if ref_c > alt_c:
+                    m_dict[method] = -1 * np.math.log(ref_c / (r['alt'][ploidy][alt_c] * (ploidy * w['alt'][ploidy][alt_c]
+                                                                                  + (1 - w['alt'][ploidy][alt_c]) / ploidy)))
+                elif ref_c < alt_c:
+                    m_dict[method] = -1 * np.math.log(alt_c / (r['ref'][ploidy][ref_c] * (ploidy * w['ref'][ploidy][ref_c]
+                                                                                  + (1 - w['ref'][ploidy][ref_c]) / ploidy)))
             out.write(pack(
                 [chr, pos, ID, ref, alt, repeat, m_total_callers, m_unique_callers,
                  m_ploidy, m_q, m_dipq, m_segc, m_datasets,
-                 ref_dict['maxdepth'], alt_dict['maxdepth'], p_dict['maxdepth'],
-                 m1_dict['maxdepth'], m2_dict['maxdepth'],
-                 ref_dict['mostsig'], alt_dict['mostsig'], p_dict['mostsig'],
-                 m1_dict['mostsig'], m2_dict['mostsig'],
+                 ref_dict['maxdepth'], alt_dict['maxdepth'], p_dict['maxdepth'], m_dict['maxdepth'],
+                 ref_dict['mostsig'], alt_dict['mostsig'], p_dict['mostsig'], m_dict['mostsig'],
                  min_cover, max_cover, med_cover, total_cover,
-                 m1_ref, abs(m1_alt), m2_ref, abs(m2_alt),
+                 m_ref, m_alt,
                  m_logpref, m_logpalt,
                  fisherp_ref, fisherp_alt]))
             origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': c_table_names,
