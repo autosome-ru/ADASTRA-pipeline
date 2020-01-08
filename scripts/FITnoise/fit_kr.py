@@ -115,9 +115,9 @@ if __name__ == '__main__':
             precalc_params_path = parameters_path + 'NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD)
             coefs_array = np.load(precalc_params_path)
 
-            print(coefs_array.size(axis=0))
+            print(coefs_array.shape[0])
 
-            max_idx = min(i for i in range(5, coefs_array.size(axis=0)) if coefs_array[i, 3] > 0.1)
+            max_idx = min(i for i in range(5, coefs_array.shape[0]) if coefs_array[i, 3] > 0.1)
 
             reg = LinearRegression(fit_intercept=False).fit(X=np.array(range(5, max_idx)), y=coefs_array, sample_weight=1 / coefs_array[5: max_idx, 3])
             k = reg.coef_[0]
