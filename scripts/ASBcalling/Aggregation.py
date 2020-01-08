@@ -220,8 +220,12 @@ if __name__ == '__main__':
 
                 p = 1 / (ploidy + 1)
 
-                r_ref = r['alt'][ploidy][alt_c]
-                w_ref = w['alt'][ploidy][alt_c]
+                if alt_c > 500:
+                    r_ref = alt_c
+                    w_ref = 0.5
+                else:
+                    r_ref = r['alt'][ploidy][alt_c]
+                    w_ref = w['alt'][ploidy][alt_c]
                 cdf1_ref = stats.nbinom(r_ref, p).cdf
                 cdf2_ref = stats.nbinom(r_ref, 1 - p).cdf
                 cdf_ref = lambda x: w_ref * cdf1_ref(x) + (1 - w_ref) * cdf2_ref(x)
@@ -231,9 +235,12 @@ if __name__ == '__main__':
 
                 E_ref = (r_ref * (ploidy * w_ref + (1 - w_ref) / ploidy) - sum(i * pmf_ref(i) for i in range(5))) / (
                         1 - cdf_ref(4))
-
-                r_alt = r['ref'][ploidy][ref_c]
-                w_alt = w['ref'][ploidy][ref_c]
+                if ref_c > 500:
+                    r_alt = ref_c
+                    w_alt = 0.5
+                else:
+                    r_alt = r['ref'][ploidy][ref_c]
+                    w_alt = w['ref'][ploidy][ref_c]
                 cdf1_alt = stats.nbinom(r_alt, p).cdf
                 cdf2_alt = stats.nbinom(r_alt, 1 - p).cdf
                 cdf_alt = lambda x: w_alt * cdf1_alt(x) + (1 - w_alt) * cdf2_alt(x)
@@ -290,8 +297,12 @@ if __name__ == '__main__':
                 p = 1 / (c_ploidy[i_most] + 1)
 
                 if ref_c > alt_c:
-                    r_ref = r['alt'][c_ploidy[i_most]][c_alt[i_most]]
-                    w_ref = w['alt'][c_ploidy[i_most]][c_alt[i_most]]
+                    if alt_c > 500:
+                        r_ref = alt_c
+                        w_ref = 0.5
+                    else:
+                        r_ref = r['alt'][c_ploidy[i_most]][c_alt[i_most]]
+                        w_ref = w['alt'][c_ploidy[i_most]][c_alt[i_most]]
                     cdf1_ref = stats.nbinom(r_ref, p).cdf
                     cdf2_ref = stats.nbinom(r_ref, 1 - p).cdf
                     cdf_ref = lambda x: w_ref * cdf1_ref(x) + (1 - w_ref) * cdf2_ref(x)
@@ -304,8 +315,13 @@ if __name__ == '__main__':
                                     1 - cdf_ref(4))
                     m_dict[method] = -1 * np.math.log(ref_c / E_ref)
                 elif ref_c < alt_c:
-                    r_alt = r['ref'][c_ploidy[i_most]][c_ref[i_most]]
-                    w_alt = w['ref'][c_ploidy[i_most]][c_ref[i_most]]
+                    if ref_c > 500:
+                        r_alt = ref_c
+                        w_alt = 0.5
+                    else:
+                        r_alt = r['ref'][c_ploidy[i_most]][c_ref[i_most]]
+                        w_alt = w['ref'][c_ploidy[i_most]][c_ref[i_most]]
+
                     cdf1_alt = stats.nbinom(r_alt, p).cdf
                     cdf2_alt = stats.nbinom(r_alt, 1 - p).cdf
                     cdf_alt = lambda x: w_alt * cdf1_alt(x) + (1 - w_alt) * cdf2_alt(x)
