@@ -286,12 +286,12 @@ if __name__ == '__main__':
                 ref_dict[method] = str(c_ref[i_most])
                 alt_dict[method] = str(c_alt[i_most])
                 p_dict[method] = c_ploidy[i_most]
-                x = c_ref[i_most] / (c_ref[i_most] + c_alt[i_most])
+                #x = c_ref[i_most] / (c_ref[i_most] + c_alt[i_most])
                 p = 1 / (c_ploidy[i_most] + 1)
 
                 if ref_c > alt_c:
-                    r_ref = r['alt'][ploidy][alt_c]
-                    w_ref = w['alt'][ploidy][alt_c]
+                    r_ref = r['alt'][c_ploidy[i_most]][c_alt[i_most]]
+                    w_ref = w['alt'][c_ploidy[i_most]][c_alt[i_most]]
                     cdf1_ref = stats.nbinom(r_ref, p).cdf
                     cdf2_ref = stats.nbinom(r_ref, 1 - p).cdf
                     cdf_ref = lambda x: w_ref * cdf1_ref(x) + (1 - w_ref) * cdf2_ref(x)
@@ -299,13 +299,13 @@ if __name__ == '__main__':
                     pmf2_ref = stats.nbinom(r_ref, 1 - p).pmf
                     pmf_ref = lambda x: w_ref * pmf1_ref(x) + (1 - w_ref) * pmf2_ref(x)
 
-                    E_ref = (r_ref * (ploidy * w_ref + (1 - w_ref) / ploidy) - sum(
+                    E_ref = (r_ref * (c_ploidy[i_most] * w_ref + (1 - w_ref) / c_ploidy[i_most]) - sum(
                         i * pmf_ref(i) for i in range(5))) / (
                                     1 - cdf_ref(4))
                     m_dict[method] = -1 * np.math.log(ref_c / E_ref)
                 elif ref_c < alt_c:
-                    r_alt = r['ref'][ploidy][ref_c]
-                    w_alt = w['ref'][ploidy][ref_c]
+                    r_alt = r['ref'][c_ploidy[i_most]][c_ref[i_most]]
+                    w_alt = w['ref'][c_ploidy[i_most]][c_ref[i_most]]
                     cdf1_alt = stats.nbinom(r_alt, p).cdf
                     cdf2_alt = stats.nbinom(r_alt, 1 - p).cdf
                     cdf_alt = lambda x: w_alt * cdf1_alt(x) + (1 - w_alt) * cdf2_alt(x)
@@ -313,7 +313,7 @@ if __name__ == '__main__':
                     pmf2_alt = stats.nbinom(r_alt, 1 - p).pmf
                     pmf_alt = lambda x: w_alt * pmf1_alt(x) + (1 - w_alt) * pmf2_alt(x)
 
-                    E_alt = (r_alt * (ploidy * w_alt + (1 - w_alt) / ploidy) - sum(
+                    E_alt = (r_alt * (1 / c_ploidy[i_most] * w_alt + (1 - w_alt) * c_ploidy[i_most]) - sum(
                         i * pmf_alt(i) for i in range(5))) / (
                                     1 - cdf_alt(4))
                     print(r_alt, E_alt, alt_c, ref_c)
