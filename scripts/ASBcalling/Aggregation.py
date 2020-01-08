@@ -332,7 +332,6 @@ if __name__ == '__main__':
                     E_alt = (r_alt * (1 / c_ploidy[i_most] * w_alt + (1 - w_alt) * c_ploidy[i_most]) - sum(
                         i * pmf_alt(i) for i in range(5))) / (
                                     1 - cdf_alt(4))
-                    print(r_alt, E_alt, alt_c, ref_c)
                     m_dict[method] = -1 * np.math.log(alt_c / E_alt)
                 else:
                     m_dict[method] = 'NaN'
