@@ -273,6 +273,8 @@ if __name__ == '__main__':
                 elif ref_c < alt_c:
                     m_dict[method] = -1 * np.math.log(alt_c / (r['ref'][ploidy][ref_c] * (ploidy * w['ref'][ploidy][ref_c]
                                                                                   + (1 - w['ref'][ploidy][ref_c]) / ploidy)))
+                else:
+                    m_dict[method] = 'NaN'
             out.write(pack(
                 [chr, pos, ID, ref, alt, repeat, m_total_callers, m_unique_callers,
                  m_ploidy, m_q, m_dipq, m_segc, m_datasets,
