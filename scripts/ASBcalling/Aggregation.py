@@ -124,10 +124,10 @@ if __name__ == '__main__':
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
-                        'mean_sBAD',
+                        'mean_BAD',
                         'mean_deltaL_neighborBAD', 'mean_deltaL_BAD1', 'mean_SNP_per_segment', 'n_aggregated',
-                        'refc_maxdepth', 'altc_maxdepth', 'sBAD_maxdepth', 'm1_maxdepth', 'm2_maxdepth',
-                        'refc_mostsig', 'altc_mostsig', 'sBAD_mostsig', 'm1_mostsig', 'm2_mostsig',
+                        'refc_maxdepth', 'altc_maxdepth', 'BAD_maxdepth', 'm1_maxdepth', 'm2_maxdepth',
+                        'refc_mostsig', 'altc_mostsig', 'BAD_mostsig', 'm1_mostsig', 'm2_mostsig',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
                         'm1_mean_ref', 'm1_mean_alt',
                         'm2_mean_ref', 'm2_mean_alt',
