@@ -109,11 +109,13 @@ if __name__ == '__main__':
         alleles = ('ref', 'alt')
 
         fix_c_array = list(range(5, 501))
-        save_array = np.zeros((max(fix_c_array) + 1, 4), dtype=np.float_)
 
         for BAD in states:
             precalc_params_path = parameters_path + 'NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD)
             coefs_array = np.load(precalc_params_path)
+
+            save_array = np.zeros((max(fix_c_array) + 1, 8), dtype=np.float_)
+            save_array[:, :4] = coefs_array
 
             print(coefs_array.shape[0])
 
@@ -151,9 +153,10 @@ if __name__ == '__main__':
                 if calculate_negative_binom:
                     weights, gof = fit_negative_binom(right_most, counts)
                     # plot_histogram(number, counts, plot_fit=weights.x)
-                    save_array[fix_c, :2] = weights.x
-                    save_array[fix_c, 2] = weights.success
-                    save_array[fix_c, 3] = gof
+                    save_array[fix_c, 4] = k * fix_c
+                    save_array[fix_c, 5] = weights.x
+                    save_array[fix_c, 6] = weights.success
+                    save_array[fix_c, 7] = gof
 
             np.save(os.path.expanduser(parameters_path + 'NBweights_step2_{}_BAD={:.1f}.npy'.format(
                 fixed_allele, BAD)), save_array)

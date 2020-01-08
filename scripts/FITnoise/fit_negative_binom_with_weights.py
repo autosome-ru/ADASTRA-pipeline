@@ -187,9 +187,10 @@ if __name__ == '__main__':
         alleles = ('ref', 'alt')
 
         fix_c_array = list(range(5, 501))
-        save_array = np.zeros((max(fix_c_array) + 1, 4), dtype=np.float_)
 
         for BAD in states:
+
+            save_array = np.zeros((max(fix_c_array) + 1, 4), dtype=np.float_)
 
             #scale_df = pd.read_table(os.path.expanduser('~/ref_counts_scaling_BAD={:.1f}.tsv'.format(BAD)))
             #scaling = dict(zip(scale_df['allele_reads'], scale_df['new_allele_reads']))
