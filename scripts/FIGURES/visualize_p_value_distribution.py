@@ -30,8 +30,8 @@ if __name__ == '__main__':
         #                for i in range(len(x) - 1)], label='ref', ax=ax, color='C0', alpha=0.5)
 
         sns.barplot(x=x[:-1],
-                    y=[prefs[(x[i] <= prefs['ref_p']) & (prefs['ref_p'] < x[i + 1])]['counts'].sum() +
-                       palts[(x[i] <= palts['alt_p']) & (palts['alt_p'] < x[i + 1])]['counts'].sum()
+                    y=[prefs[(x[i] <= prefs['ref_p']) & (prefs['ref_p'] <= x[i + 1])]['counts'].sum() +
+                       palts[(x[i] <= palts['alt_p']) & (palts['alt_p'] <= x[i + 1])]['counts'].sum()
                        for i in range(len(x) - 1)], label='sum', ax=ax, color='grey')
 
 
