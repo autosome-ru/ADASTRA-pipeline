@@ -7,7 +7,7 @@ from scripts.HELPERS.paths import parameters_path
 from scripts.HELPERS.helpers import states
 
 
-column_names = ['r', 'w', 'status', 'gof']
+column_names = ['r', 'w', 'status', 'gof', 'r_new', 'w_new', 'status_new', 'gof_new']
 for BAD in states:
     ref = np.load(parameters_path + 'NBweights_ref_BAD={:.1f}.npy'.format(BAD))
     alt = np.load(parameters_path + 'NBweights_alt_BAD={:.1f}.npy'.format(BAD))
