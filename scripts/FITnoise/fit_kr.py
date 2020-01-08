@@ -138,7 +138,7 @@ if __name__ == '__main__':
                 if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n) - 5:
                     continue
                 print('made counts')
-                print('Fix {}={}'.format(fixed_allele, fix_c))
+                print('Fix {}={}, k={}, max={}'.format(fixed_allele, fix_c, k, max_idx))
                 number = len(counts) - 1
 
                 left_most = 5
