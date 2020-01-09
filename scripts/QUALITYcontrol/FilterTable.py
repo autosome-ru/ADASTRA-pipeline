@@ -32,7 +32,7 @@ def filterTableNAgg(table, mc_tr=10, n=0, alt=False):
         bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"], alpha=0.01,
                                                                          method='fdr_bh')
 
-    return sum(bool_ar)
+    return sum(bool_ar), len(table.index)
 
 flag_d = {"totc": "_total_cov", "mc": "_max_cov"}
 mc_list = list(range(10, 61, 10))
@@ -48,6 +48,7 @@ else:
 
 for TotCover in totc_list:
     FDRs = {}
+    total_snps_dict = {}
     for filename in os.listdir(inpDirectory):
         with open(inpDirectory + filename, "r") as f:
             noCorrTable = pd.read_table(f)
@@ -55,13 +56,17 @@ for TotCover in totc_list:
                 continue
         print("Find statistics for " + filename)
         for MaxCover in mc_list:
-            FDR_n = filterTableNAgg(noCorrTable, mc_tr=MaxCover, n=TotCover, alt=alt)
+            FDR_n, total_snps = filterTableNAgg(noCorrTable, mc_tr=MaxCover, n=TotCover, alt=alt)
             try:
                 FDRs[MaxCover] += FDR_n
             except KeyError:
                 FDRs[MaxCover] = FDR_n
+            try:
+                total_snps_dict[MaxCover] += total_snps
+            except KeyError:
+                total_snps_dict[MaxCover] = total_snps
     for MaxCover in mc_list:
-        table.loc[str(TotCover), str(MaxCover)] = FDRs[MaxCover]
+        table.loc[str(TotCover), str(MaxCover)] = str(FDRs[MaxCover]) + ',' + str(total_snps_dict[MaxCover])
 
 with open(outDirectory + "statistics_for_TFs" + alt_str + ".tsv", "w") as w:
     table.to_csv(w, sep="\t")
