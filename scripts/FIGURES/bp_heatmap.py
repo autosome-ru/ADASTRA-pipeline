@@ -10,7 +10,7 @@ sns.set_context({"figure.figsize": (10, 8)})
 df1 = pd.read_table(os.path.expanduser('~/statistics_for_TFs_{}.tsv'.format('ref')))
 df1.index = df1.iloc[:, 0]
 df1 = df1.drop(df1.columns[0], 1)
-idx = 1
+idx = 0
 
 for column in df1.columns:
     print(df1[column])
