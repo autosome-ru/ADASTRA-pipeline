@@ -39,8 +39,8 @@ def CollectPValue(mode='by'):
             out_t = out_t.groupby(['alt_p', 'ref_p']).size().reset_index(name='counts')
         else:
             tmp_df = pd.DataFrame()
-            tmp_df['alt_p'] = sum_df['p_value_alt']
-            tmp_df['ref_p'] = sum_df['p_value_ref']
+            tmp_df['alt_p'] = sum_df[altname]
+            tmp_df['ref_p'] = sum_df[refname]
             tmp_df.fillna(1, inplace=True)
             tmp_df = tmp_df.groupby(['alt_p', 'ref_p']).size().reset_index(name='counts')
             out_t = out_t.append(tmp_df).groupby(['alt_p', 'ref_p'], as_index=False).sum()
@@ -66,5 +66,5 @@ def CollectRS():
 
 if __name__ == '__main__':
     agr_dir = os.path.expanduser('~/DATA/Processed/TF_P-values/')
-    CollectRS()
+    # CollectRS()
     CollectPValue()
