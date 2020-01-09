@@ -17,6 +17,8 @@ if __name__ == '__main__':
     if agr:
         stats = pd.read_table(os.path.expanduser('~/fdr_pvalue_bias_statistics_{}.tsv'.format(mode)))
 
+        print(stats)
+
         fig, ax = plt.subplots(figsize=(10, 8))
 
         x = np.linspace(0, 1, 50)
