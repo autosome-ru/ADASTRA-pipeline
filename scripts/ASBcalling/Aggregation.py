@@ -140,10 +140,10 @@ if __name__ == '__main__':
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
                         'mean_BAD',
                         'mean_deltaL_neighborBAD', 'mean_deltaL_BAD1', 'mean_SNP_per_segment', 'n_aggregated',
-                        'refc_maxdepth', 'altc_maxdepth', 'BAD_maxdepth', 'm_maxdepth',
-                        'refc_mostsig', 'altc_mostsig', 'BAD_mostsig', 'm_mostsig',
+                        # 'refc_maxdepth', 'altc_maxdepth', 'BAD_maxdepth', 'm_maxdepth',
+                        # 'refc_mostsig', 'altc_mostsig', 'BAD_mostsig', 'm_mostsig',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
-                        'm_mean_ref', 'm_mean_alt',
+                        # 'm_mean_ref', 'm_mean_alt',
                         'logitp_ref', 'logitp_alt',
                         'fisherp_ref', 'fisherp_alt']))
 
@@ -184,8 +184,8 @@ if __name__ == '__main__':
             c_pref = []
             c_palt = []
             c_cover = []
-            c_m_ref = []
-            c_m_alt = []
+            # c_m_ref = []
+            # c_m_alt = []
             c_table_names = []
             c_another_agr = []
             c_ref = []
@@ -216,43 +216,43 @@ if __name__ == '__main__':
                 c_ref.append(ref_c)
                 c_alt.append(alt_c)
 
-                x = ref_c / (ref_c + alt_c)
+                # x = ref_c / (ref_c + alt_c)
+                #
+                # p = 1 / (ploidy + 1)
 
-                p = 1 / (ploidy + 1)
-
-                if alt_c > 500:
-                    r_ref = alt_c
-                    w_ref = 0.5
-                else:
-                    r_ref = r['alt'][ploidy][alt_c]
-                    w_ref = w['alt'][ploidy][alt_c]
-                cdf1_ref = stats.nbinom(r_ref, p).cdf
-                cdf2_ref = stats.nbinom(r_ref, 1 - p).cdf
-                cdf_ref = lambda x: w_ref * cdf1_ref(x) + (1 - w_ref) * cdf2_ref(x)
-                pmf1_ref = stats.nbinom(r_ref, p).pmf
-                pmf2_ref = stats.nbinom(r_ref, 1 - p).pmf
-                pmf_ref = lambda x: w_ref * pmf1_ref(x) + (1 - w_ref) * pmf2_ref(x)
-
-                E_ref = (r_ref * (ploidy * w_ref + (1 - w_ref) / ploidy) - sum(i * pmf_ref(i) for i in range(5))) / (
-                        1 - cdf_ref(4))
-                if ref_c > 500:
-                    r_alt = ref_c
-                    w_alt = 0.5
-                else:
-                    r_alt = r['ref'][ploidy][ref_c]
-                    w_alt = w['ref'][ploidy][ref_c]
-                cdf1_alt = stats.nbinom(r_alt, p).cdf
-                cdf2_alt = stats.nbinom(r_alt, 1 - p).cdf
-                cdf_alt = lambda x: w_alt * cdf1_alt(x) + (1 - w_alt) * cdf2_alt(x)
-                pmf1_alt = stats.nbinom(r_alt, p).pmf
-                pmf2_alt = stats.nbinom(r_alt, 1 - p).pmf
-                pmf_alt = lambda x: w_alt * pmf1_alt(x) + (1 - w_alt) * pmf2_alt(x)
-
-                E_alt = (r_alt * (ploidy * w_alt + (1 - w_alt) / ploidy) - sum(i * pmf_alt(i) for i in range(5))) / (
-                            1 - cdf_alt(4))
-
-                c_m_ref.append(-1 * np.math.log(ref_c / E_ref))
-                c_m_alt.append(-1 * np.math.log(alt_c / E_alt))
+                # if alt_c > 500:
+                #     r_ref = alt_c
+                #     w_ref = 0.5
+                # else:
+                #     r_ref = r['alt'][ploidy][alt_c]
+                #     w_ref = w['alt'][ploidy][alt_c]
+                # cdf1_ref = stats.nbinom(r_ref, p).cdf
+                # cdf2_ref = stats.nbinom(r_ref, 1 - p).cdf
+                # cdf_ref = lambda x: w_ref * cdf1_ref(x) + (1 - w_ref) * cdf2_ref(x)
+                # pmf1_ref = stats.nbinom(r_ref, p).pmf
+                # pmf2_ref = stats.nbinom(r_ref, 1 - p).pmf
+                # pmf_ref = lambda x: w_ref * pmf1_ref(x) + (1 - w_ref) * pmf2_ref(x)
+                #
+                # E_ref = (r_ref * (ploidy * w_ref + (1 - w_ref) / ploidy) - sum(i * pmf_ref(i) for i in range(5))) / (
+                #         1 - cdf_ref(4))
+                # if ref_c > 500:
+                #     r_alt = ref_c
+                #     w_alt = 0.5
+                # else:
+                #     r_alt = r['ref'][ploidy][ref_c]
+                #     w_alt = w['ref'][ploidy][ref_c]
+                # cdf1_alt = stats.nbinom(r_alt, p).cdf
+                # cdf2_alt = stats.nbinom(r_alt, 1 - p).cdf
+                # cdf_alt = lambda x: w_alt * cdf1_alt(x) + (1 - w_alt) * cdf2_alt(x)
+                # pmf1_alt = stats.nbinom(r_alt, p).pmf
+                # pmf2_alt = stats.nbinom(r_alt, 1 - p).pmf
+                # pmf_alt = lambda x: w_alt * pmf1_alt(x) + (1 - w_alt) * pmf2_alt(x)
+                #
+                # E_alt = (r_alt * (ploidy * w_alt + (1 - w_alt) / ploidy) - sum(i * pmf_alt(i) for i in range(5))) / (
+                #             1 - cdf_alt(4))
+                #
+                # c_m_ref.append(-1 * np.math.log(ref_c / E_ref))
+                # c_m_alt.append(-1 * np.math.log(alt_c / E_alt))
 
             min_cover = min(c_cover)
             max_cover = max(c_cover)
@@ -270,78 +270,78 @@ if __name__ == '__main__':
             m_logpref = logit_combine_p_values(c_pref)
             m_logpalt = logit_combine_p_values(c_palt)
 
-            m_ref = np.round(np.mean(c_m_ref), 3)
-            m_alt = np.round(np.mean(c_m_alt), 3)
+            # m_ref = np.round(np.mean(c_m_ref), 3)
+            # m_alt = np.round(np.mean(c_m_alt), 3)
 
-            m_dict = dict()
-            p_dict = dict()
-            ref_dict = dict()
-            alt_dict = dict()
+            # m_dict = dict()
+            # p_dict = dict()
+            # ref_dict = dict()
+            # alt_dict = dict()
 
-            for method, sort_key in (('maxdepth', lambda j: -1 * c_cover[j]),
-                                     ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
-                try:
-                    i_most = min([i for i in range(len(c_cover))
-                                  if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_logpalt - m_logpref)],
-                                 key=sort_key)
-                except ValueError:
-                    ref_dict[method] = 'NaN'
-                    alt_dict[method] = 'NaN'
-                    p_dict[method] = 'NaN'
-                    m_dict[method] = 'NaN'
-                    continue
-                ref_dict[method] = str(c_ref[i_most])
-                alt_dict[method] = str(c_alt[i_most])
-                p_dict[method] = c_ploidy[i_most]
-                #x = c_ref[i_most] / (c_ref[i_most] + c_alt[i_most])
-                p = 1 / (c_ploidy[i_most] + 1)
-
-                if c_ref[i_most] > c_alt[i_most]:
-                    if c_alt[i_most] > 500:
-                        r_ref = c_alt[i_most]
-                        w_ref = 0.5
-                    else:
-                        r_ref = r['alt'][c_ploidy[i_most]][c_alt[i_most]]
-                        w_ref = w['alt'][c_ploidy[i_most]][c_alt[i_most]]
-                    cdf1_ref = stats.nbinom(r_ref, p).cdf
-                    cdf2_ref = stats.nbinom(r_ref, 1 - p).cdf
-                    cdf_ref = lambda x: w_ref * cdf1_ref(x) + (1 - w_ref) * cdf2_ref(x)
-                    pmf1_ref = stats.nbinom(r_ref, p).pmf
-                    pmf2_ref = stats.nbinom(r_ref, 1 - p).pmf
-                    pmf_ref = lambda x: w_ref * pmf1_ref(x) + (1 - w_ref) * pmf2_ref(x)
-
-                    E_ref = (r_ref * (c_ploidy[i_most] * w_ref + (1 - w_ref) / c_ploidy[i_most]) - sum(
-                        i * pmf_ref(i) for i in range(5))) / (
-                                    1 - cdf_ref(4))
-                    m_dict[method] = -1 * np.math.log(ref_c / E_ref)
-                elif c_ref[i_most] < c_alt[i_most]:
-                    if c_ref[i_most] > 500:
-                        r_alt = c_ref[i_most]
-                        w_alt = 0.5
-                    else:
-                        r_alt = r['ref'][c_ploidy[i_most]][c_ref[i_most]]
-                        w_alt = w['ref'][c_ploidy[i_most]][c_ref[i_most]]
-
-                    cdf1_alt = stats.nbinom(r_alt, p).cdf
-                    cdf2_alt = stats.nbinom(r_alt, 1 - p).cdf
-                    cdf_alt = lambda x: w_alt * cdf1_alt(x) + (1 - w_alt) * cdf2_alt(x)
-                    pmf1_alt = stats.nbinom(r_alt, p).pmf
-                    pmf2_alt = stats.nbinom(r_alt, 1 - p).pmf
-                    pmf_alt = lambda x: w_alt * pmf1_alt(x) + (1 - w_alt) * pmf2_alt(x)
-
-                    E_alt = (r_alt * (1 / c_ploidy[i_most] * w_alt + (1 - w_alt) * c_ploidy[i_most]) - sum(
-                        i * pmf_alt(i) for i in range(5))) / (
-                                    1 - cdf_alt(4))
-                    m_dict[method] = -1 * np.math.log(alt_c / E_alt)
-                else:
-                    m_dict[method] = 'NaN'
+            # for method, sort_key in (('maxdepth', lambda j: -1 * c_cover[j]),
+            #                          ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
+            #     try:
+            #         i_most = min([i for i in range(len(c_cover))
+            #                       if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_logpalt - m_logpref)],
+            #                      key=sort_key)
+            #     except ValueError:
+            #         ref_dict[method] = 'NaN'
+            #         alt_dict[method] = 'NaN'
+            #         p_dict[method] = 'NaN'
+            #         m_dict[method] = 'NaN'
+            #         continue
+            #     ref_dict[method] = str(c_ref[i_most])
+            #     alt_dict[method] = str(c_alt[i_most])
+            #     p_dict[method] = c_ploidy[i_most]
+            #     #x = c_ref[i_most] / (c_ref[i_most] + c_alt[i_most])
+            #     p = 1 / (c_ploidy[i_most] + 1)
+            #
+            #     if c_ref[i_most] > c_alt[i_most]:
+            #         if c_alt[i_most] > 500:
+            #             r_ref = c_alt[i_most]
+            #             w_ref = 0.5
+            #         else:
+            #             r_ref = r['alt'][c_ploidy[i_most]][c_alt[i_most]]
+            #             w_ref = w['alt'][c_ploidy[i_most]][c_alt[i_most]]
+            #         cdf1_ref = stats.nbinom(r_ref, p).cdf
+            #         cdf2_ref = stats.nbinom(r_ref, 1 - p).cdf
+            #         cdf_ref = lambda x: w_ref * cdf1_ref(x) + (1 - w_ref) * cdf2_ref(x)
+            #         pmf1_ref = stats.nbinom(r_ref, p).pmf
+            #         pmf2_ref = stats.nbinom(r_ref, 1 - p).pmf
+            #         pmf_ref = lambda x: w_ref * pmf1_ref(x) + (1 - w_ref) * pmf2_ref(x)
+            #
+            #         E_ref = (r_ref * (c_ploidy[i_most] * w_ref + (1 - w_ref) / c_ploidy[i_most]) - sum(
+            #             i * pmf_ref(i) for i in range(5))) / (
+            #                         1 - cdf_ref(4))
+            #         m_dict[method] = -1 * np.math.log(ref_c / E_ref)
+            #     elif c_ref[i_most] < c_alt[i_most]:
+            #         if c_ref[i_most] > 500:
+            #             r_alt = c_ref[i_most]
+            #             w_alt = 0.5
+            #         else:
+            #             r_alt = r['ref'][c_ploidy[i_most]][c_ref[i_most]]
+            #             w_alt = w['ref'][c_ploidy[i_most]][c_ref[i_most]]
+            #
+            #         cdf1_alt = stats.nbinom(r_alt, p).cdf
+            #         cdf2_alt = stats.nbinom(r_alt, 1 - p).cdf
+            #         cdf_alt = lambda x: w_alt * cdf1_alt(x) + (1 - w_alt) * cdf2_alt(x)
+            #         pmf1_alt = stats.nbinom(r_alt, p).pmf
+            #         pmf2_alt = stats.nbinom(r_alt, 1 - p).pmf
+            #         pmf_alt = lambda x: w_alt * pmf1_alt(x) + (1 - w_alt) * pmf2_alt(x)
+            #
+            #         E_alt = (r_alt * (1 / c_ploidy[i_most] * w_alt + (1 - w_alt) * c_ploidy[i_most]) - sum(
+            #             i * pmf_alt(i) for i in range(5))) / (
+            #                         1 - cdf_alt(4))
+            #         m_dict[method] = -1 * np.math.log(alt_c / E_alt)
+            #     else:
+            #         m_dict[method] = 'NaN'
             out.write(pack(
                 [chr, pos, ID, ref, alt, repeat, m_total_callers, m_unique_callers,
                  m_ploidy, m_q, m_dipq, m_segc, m_datasets,
-                 ref_dict['maxdepth'], alt_dict['maxdepth'], p_dict['maxdepth'], m_dict['maxdepth'],
-                 ref_dict['mostsig'], alt_dict['mostsig'], p_dict['mostsig'], m_dict['mostsig'],
+                 # ref_dict['maxdepth'], alt_dict['maxdepth'], p_dict['maxdepth'], m_dict['maxdepth'],
+                 # ref_dict['mostsig'], alt_dict['mostsig'], p_dict['mostsig'], m_dict['mostsig'],
                  min_cover, max_cover, med_cover, total_cover,
-                 m_ref, m_alt,
+                 # m_ref, m_alt,
                  m_logpref, m_logpalt,
                  fisherp_ref, fisherp_alt]))
             origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': c_table_names,
