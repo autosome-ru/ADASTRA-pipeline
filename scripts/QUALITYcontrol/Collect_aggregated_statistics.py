@@ -9,7 +9,7 @@ from scripts.HELPERS.paths import parameters_path
 from scripts.HELPERS.helpers import states
 
 
-def CollectPValue(BAD, mode='by'):
+def CollectPValue(mode='by'):
     if mode == 'by':
         refname = 'fdrp_by_ref'
         altname = 'fdrp_by_alt'
@@ -29,10 +29,7 @@ def CollectPValue(BAD, mode='by'):
         if df.empty:
             continue
         df = df[df['ID'] != '.']
-        if BAD is not None:
-            sum_df = df[df['BAD'] == BAD][[refname, altname]]  # <------
-        else:
-            sum_df = df[[refname, altname]]
+        sum_df = df[[refname, altname]]
 
         if out_t is None:
             out_t = pd.DataFrame()
@@ -50,7 +47,7 @@ def CollectPValue(BAD, mode='by'):
             print(out_t)
     if out_t is None:
         return
-    with open(parameters_path + 'fdr_pvalue_bias_statistics_{}_BAD={:.1f}.tsv'.format(mode, BAD), 'w') as out:
+    with open(parameters_path + 'fdr_pvalue_bias_statistics_{}.tsv'.format(mode), 'w') as out:
         out_t.to_csv(out, sep="\t", index=False)
 
 
@@ -70,5 +67,4 @@ def CollectRS():
 if __name__ == '__main__':
     agr_dir = os.path.expanduser('~/DATA/Processed/TF_P-values/')
     CollectRS()
-    for BAD in states:
-        CollectPValue(BAD)
+    CollectPValue()
