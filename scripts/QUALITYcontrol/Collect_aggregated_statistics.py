@@ -23,8 +23,8 @@ def CollectPValue(BAD, mode='by'):
         raise ValueError(mode)
 
     out_t = None
-    for file_name in os.listdir(os.path.expanduser('~/DATA/TF_P-values/')):
-        df = pd.read_table('~/DATA/TF_P-values/' + file_name)
+    for file_name in os.listdir(agr_dir):
+        df = pd.read_table(agr_dir + file_name)
         if df.empty:
             continue
         df = df[df['ID'] != '.']
@@ -55,8 +55,8 @@ def CollectPValue(BAD, mode='by'):
 
 def CollectRS():
     out_set = set()
-    for file_name in os.listdir(os.path.expanduser('~/DATA/TF_P-values/')):
-        df = pd.read_table('~/DATA/TF_P-values/' + file_name)
+    for file_name in os.listdir(agr_dir):
+        df = pd.read_table(agr_dir + file_name)
         if df.empty:
             continue
         df = df[df['ID'] != '.']
@@ -65,6 +65,7 @@ def CollectRS():
 
 
 if __name__ == '__main__':
+    agr_dir = os.path.expanduser('~/DATA/Processed/TF_P-values/')
     CollectRS()
     for BAD in states:
         CollectPValue(BAD)
