@@ -27,10 +27,10 @@ def filterTableNAgg(table, mc_tr=10, n=0, alt=False):
         return 0
     if alt:
         bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"], alpha=0.01,
-                                                                         method='fdr_bh')
+                                                                         method='fdr_by')
     else:
         bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"], alpha=0.01,
-                                                                         method='fdr_bh')
+                                                                         method='fdr_by')
 
     return sum(bool_ar), len(table.index)
 
