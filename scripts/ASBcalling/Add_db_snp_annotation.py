@@ -17,7 +17,11 @@ if __name__ == '__main__':
     with gzip.open('/home/abramov/REFERENCE/00-common_all.vcf.gz', 'rt') as rf, \
             open(parameters_path + 'rs_info.tsv', 'w') as out:
         out.write(pack(['ID'] + list_of_tags))
+        counter = 0
         for line in rf:
+            if counter % 20000 == 0:
+                print(counter)
+            counter += 1
             if line[0] == '#':
                 continue
             line = line.strip('\n').split('\t')
