@@ -26,11 +26,11 @@ def filterTableNAgg(table, mc_tr=10, n=0, alt=False):
     if table.empty:
         return 0
     if alt:
-        bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"], alpha=0.05,
-                                                                         method='fdr_bh')
+        bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"], alpha=0.01,
+                                                                         method='fdr_by')
     else:
-        bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"], alpha=0.05,
-                                                                         method='fdr_bh')
+        bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"], alpha=0.01,
+                                                                         method='fdr_by')
 
     return sum(bool_ar)
 
