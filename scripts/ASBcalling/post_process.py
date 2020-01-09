@@ -38,7 +38,7 @@ if sum(mc_filter_array) != 0:
 else:
     p_val_ref = []
     p_val_alt = []
-table = table.drop(['fdrp_ref', 'fdrp_alt', 'fdrp_ref_fisher', 'fdrp_alt_fisher'])
+table = table.drop(['fdrp_ref', 'fdrp_alt', 'fdrp_ref_fisher', 'fdrp_alt_fisher'], axis=1)
 fdr_by_ref = np.array(['NaN'] * len(table.index))
 fdr_by_ref[mc_filter_array] = p_val_ref
 table["fdrp_by_ref"] = fdr_by_ref
