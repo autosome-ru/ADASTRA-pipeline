@@ -24,7 +24,7 @@ def filterTable(table, mc_tr=10, totc_tr=10, alt=False):
 def filterTableNAgg(table, mc_tr=10, n=0, alt=False):
     table = table[(table["max_cover"] >= mc_tr) & (table["n_aggregated"] >= n)]
     if table.empty:
-        return 0
+        return 0, 0
     if alt:
         bool_ar, p_val, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"], alpha=0.01,
                                                                          method='fdr_by')
