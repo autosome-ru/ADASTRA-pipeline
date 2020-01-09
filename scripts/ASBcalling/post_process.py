@@ -29,12 +29,16 @@ table[['refc_maxdepth', 'altc_maxdepth',
                                                  'refc_mostsig', 'altc_mostsig',
                                                 'BAD_mostsig', 'm_mostsig',
                                                  'm_mean_ref', 'm_mean_alt']]
-bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"],
+mc_filter_array = table['max_cover'] >= 30
+bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_ref"],
                                                                          alpha=0.05, method='fdr_by')
-bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"],
+bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_alt"],
                                                                          alpha=0.05, method='fdr_by')
-table["fdrp_by_ref"] = pd.Series(p_val_ref)
-table["fdrp_by_alt"] = pd.Series(p_val_alt)
+table["fdrp_by_ref"] = 'NaN'
+table["fdrp_by_alt"] = 'NaN'
+
+table["fdrp_by_ref"][mc_filter_array] = pd.Series(p_val_ref)
+table["fdrp_by_alt"][mc_filter_array] = pd.Series(p_val_alt)
 
 
 with open(results_path + 'ProcessedNew/' + what_for + "_P-values/" + key_name + '_common_table.tsv', "w") as w:
