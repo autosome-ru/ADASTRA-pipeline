@@ -11,7 +11,7 @@ from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection
 
 if __name__ == '__main__':
     with open(parameters_path + 'RS_list.tsv') as f:
-        rs_array = json.loads(f.readline())
+        rs_array = set(json.loads(f.readline()))
     list_of_tags = ['NSF', 'NSM', 'NSN', 'REF', 'SYN', 'U3', 'U5', 'ASS', 'DSS', 'INT', 'R3', 'R5']
     header = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO']
     with gzip.open('/home/abramov/REFERENCE/00-common_all.vcf.gz', 'rt') as rf, \
