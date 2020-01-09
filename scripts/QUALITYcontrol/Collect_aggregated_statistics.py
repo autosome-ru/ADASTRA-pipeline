@@ -63,7 +63,8 @@ def CollectRS():
             continue
         df = df[df['ID'] != '.']
         out_set |= set(df['ID'])
-    json.dump(list(out_set), parameters_path + 'RS_list.tsv')
+    with open(parameters_path + 'RS_list.tsv', 'w') as fd:
+        json.dump(list(out_set), fd)
 
 
 if __name__ == '__main__':
