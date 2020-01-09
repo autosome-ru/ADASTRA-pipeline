@@ -24,6 +24,7 @@ def CollectPValue(BAD, mode='by'):
 
     out_t = None
     for file_name in os.listdir(agr_dir):
+        print(file_name)
         df = pd.read_table(agr_dir + file_name)
         if df.empty:
             continue
@@ -56,6 +57,7 @@ def CollectPValue(BAD, mode='by'):
 def CollectRS():
     out_set = set()
     for file_name in os.listdir(agr_dir):
+        print(file_name)
         df = pd.read_table(agr_dir + file_name)
         if df.empty:
             continue
