@@ -14,7 +14,7 @@ from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_exp
 what_for = sys.argv[1]  # "TF" or "CL" arguments are expected
 check_if_in_expected_args(what_for)
 key_name = sys.argv[2]
-print("Counting FDR")
+print("Counting FDR for {} {}".format(what_for, key_name))
 table = pd.read_table(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv')
 if table.empty:
     sys.exit(0)
