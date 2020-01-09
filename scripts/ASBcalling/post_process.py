@@ -27,5 +27,5 @@ table["fdrp_by_ref"] = pd.Series(p_val_ref)
 table["fdrp_by_alt"] = pd.Series(p_val_alt)
 
 
-with open(results_path + what_for + "_P-values/Processed/" + key_name + '_common_table.tsv', "w") as w:
+with open(results_path + 'Processed/' + what_for + "_P-values/" + key_name + '_common_table.tsv', "w") as w:
     table.to_csv(w, sep="\t", index=False)
