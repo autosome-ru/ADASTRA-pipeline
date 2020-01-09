@@ -30,10 +30,14 @@ table[['refc_maxdepth', 'altc_maxdepth',
                                                 'BAD_mostsig', 'm_mostsig',
                                                  'm_mean_ref', 'm_mean_alt']]
 mc_filter_array = np.array(table['max_cover'] >= 30)
-bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_ref"],
-                                                                         alpha=0.05, method='fdr_by')
-bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_alt"],
-                                                                         alpha=0.05, method='fdr_by')
+if sum(mc_filter_array) != 0:
+    bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_ref"],
+                                                                             alpha=0.05, method='fdr_by')
+    bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_alt"],
+                                                                             alpha=0.05, method='fdr_by')
+else:
+    p_val_ref = []
+    p_val_alt = []
 fdr_by_ref = np.array(['NaN'] * len(table.index))
 fdr_by_ref[mc_filter_array] = p_val_ref
 table["fdrp_by_ref"] = fdr_by_ref
