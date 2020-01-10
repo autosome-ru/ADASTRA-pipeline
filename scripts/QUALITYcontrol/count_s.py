@@ -14,7 +14,7 @@ for filename in os.listdir(inpDirectory):
         if noCorrTable.empty:
             continue
     print("Find statistics for " + filename)
-    counter_005 += len(noCorrTable[(noCorrTable['fdrp_by_ref'] <= 0.05) | (noCorrTable['fdrp_by_alt'] <= 0.05)].index)
-    counter_001 += len(noCorrTable[(noCorrTable['fdrp_by_ref'] <= 0.01) | (noCorrTable['fdrp_by_alt'] <= 0.01)].index)
+    counter_005 += len(noCorrTable[(noCorrTable['fdrp_by_ref'] <= 0.05)].index) + len(noCorrTable[noCorrTable['fdrp_by_alt'] <= 0.05].index)
+    counter_001 += len(noCorrTable[(noCorrTable['fdrp_by_ref'] <= 0.01)].index) + len(noCorrTable[noCorrTable['fdrp_by_alt'] <= 0.01].index)
 print(counter_005, counter_001)
 
