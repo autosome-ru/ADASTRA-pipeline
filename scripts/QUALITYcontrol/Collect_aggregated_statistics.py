@@ -147,4 +147,4 @@ if __name__ == '__main__':
     # CollectRS()
     # CollectPValue()
     # CollectMaxCover()
-    CollectEffectSize()
+    CollectEffectSize('mostsig')
