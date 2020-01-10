@@ -325,24 +325,31 @@ if __name__ == '__main__':
     if table.empty:
         sys.exit(0)
 
-    bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"],
-                                                                             alpha=0.05, method='fdr_bh')
-    bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"],
-                                                                             alpha=0.05, method='fdr_bh')
-    table["fdrp_ref"] = pd.Series(p_val_ref)
-    table["fdrp_alt"] = pd.Series(p_val_alt)
+    mc_filter_array = np.array(table['max_cover'] >= 30)
+    if sum(mc_filter_array) != 0:
+        bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_ref"],
+                                                                                 alpha=0.05, method='fdr_by')
+        bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_alt"],
+                                                                                 alpha=0.05, method='fdr_by')
+    else:
+        p_val_ref = []
+        p_val_alt = []
+        bool_ar_ref = []
+        bool_ar_alt = []
 
-    bool_ar_ref_fisher, p_val_ref_fisher, _, _ = statsmodels.stats.multitest.multipletests(table["fisherp_ref"],
-                                                                                           alpha=0.05, method='fdr_bh')
-    bool_ar_alt_fisher, p_val_alt_fisher, _, _ = statsmodels.stats.multitest.multipletests(table["fisherp_alt"],
-                                                                                           alpha=0.05, method='fdr_bh')
-    table["fdrp_ref_fisher"] = pd.Series(p_val_ref_fisher)
-    table["fdrp_alt_fisher"] = pd.Series(p_val_alt_fisher)
+    fdr_by_ref = np.array(['NaN'] * len(table.index), dtype=np.float128)
+    fdr_by_ref[mc_filter_array] = p_val_ref
+    table["fdrp_by_ref"] = fdr_by_ref
+
+    fdr_by_alt = np.array(['NaN'] * len(table.index), dtype=np.float128)
+    fdr_by_alt[mc_filter_array] = p_val_alt
+    table["fdrp_by_alt"] = fdr_by_alt
 
     with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', "w") as w:
         table.to_csv(w, sep="\t", index=False)
 
-    bool_ar = bool_ar_ref + bool_ar_alt
+    bool_ar = np.array([False] * len(table.index), dtype=np.bool)
+    bool_ar[mc_filter_array] = bool_ar_alt + bool_ar_ref
 
     annotate_snp_with_tables(origin_of_snp_dict, p_val_ref, p_val_alt, bool_ar)
 
