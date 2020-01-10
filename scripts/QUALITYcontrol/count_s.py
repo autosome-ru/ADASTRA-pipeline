@@ -3,7 +3,7 @@ import sys
 import os
 import statsmodels.stats.multitest
 
-inpDirectory = "/home/abramov/DATA/ProcessedNew/TF_P-values/"
+inpDirectory = "/home/abramov/RESULTS/release100120_Dipper/TF_P-values/"
 outDirectory = "/home/abramov/DATA_FOR_MC_FILTER/"
 
 counter_001 = 0

@@ -14,9 +14,9 @@ if __name__ == '__main__':
     stats = pd.read_table(os.path.expanduser('~/fdr_mc_bias_statistics.tsv'))
 
     print(stats)
-
+    stats = stats[stats['max_cover'] < 500]
     fig, ax = plt.subplots(figsize=(10, 8))
-    stats['max_cover'] = stats['max_cover'].apply(lambda x: np.math.log10(x))
+    stats['counts'] = stats['counts'].apply(lambda x: np.math.log10(x))
     sns.scatterplot(x=stats['max_cover'], y=stats['counts'])
     #
     # x = np.linspace(0, 1, 50)
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     plt.grid(True)
     #plt.legend()
     plt.title('mc distribution agregated mode')
-    plt.xlabel('log10(mc)')
-    plt.ylabel('snp count')
+    plt.xlabel('mc')
+    plt.ylabel('log10(snp count)')
 
     plt.savefig(os.path.expanduser('~/fixed_alt/mc_dist.png'))
