@@ -8,13 +8,21 @@ outDirectory = "/home/abramov/DATA_FOR_MC_FILTER/"
 
 counter_001 = 0
 counter_005 = 0
+datasets_counter = 0
+datasets_counter_fdr = 0
 for filename in os.listdir(inpDirectory):
     with open(inpDirectory + filename, "r") as f:
         noCorrTable = pd.read_table(f)
         if noCorrTable.empty:
             continue
+    datasets_counter += 1
     print("Find statistics for " + filename)
-    counter_005 += len(noCorrTable[(noCorrTable['fdrp_by_ref'] <= 0.05)].index) + len(noCorrTable[noCorrTable['fdrp_by_alt'] <= 0.05].index)
-    counter_001 += len(noCorrTable[(noCorrTable['fdrp_by_ref'] <= 0.01)].index) + len(noCorrTable[noCorrTable['fdrp_by_alt'] <= 0.01].index)
-print(counter_005, counter_001)
+
+    cur_counter_005 = len(noCorrTable[(noCorrTable['fdrp_by_ref'] <= 0.05)].index) + len(noCorrTable[noCorrTable['fdrp_by_alt'] <= 0.05].index)
+    cur_counter_001 = len(noCorrTable[(noCorrTable['fdrp_by_ref'] <= 0.01)].index) + len(noCorrTable[noCorrTable['fdrp_by_alt'] <= 0.01].index)
+    counter_001 += cur_counter_001
+    counter_005 += cur_counter_005
+    if cur_counter_005 > 0:
+        datasets_counter_fdr += 1
+print(counter_005, counter_001, datasets_counter, datasets_counter_fdr)
 
