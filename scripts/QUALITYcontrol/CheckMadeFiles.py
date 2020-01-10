@@ -86,7 +86,7 @@ ploidy_vcfs_counter = 0
 ploidy_counter = 0
 counted_control_vcfs = set()
 for ploidy in cell_lines:
-    ploidy_file = create_ploidy_path_function(ploidy)
+    ploidy_file = create_ploidy_path_function(ploidy, model='CAIC')
     if os.path.isfile(ploidy_file):
         ploidy_counter += 1
         for vcf_file in cell_lines[ploidy]:
