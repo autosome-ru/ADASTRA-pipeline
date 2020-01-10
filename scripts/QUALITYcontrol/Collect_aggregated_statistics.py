@@ -143,7 +143,7 @@ def CollectEffectSize(mode='maxdepth'):
 
 
 if __name__ == '__main__':
-    agr_dir = os.path.expanduser('~/DATA/ProcessedNew/TF_P-values/')
+    agr_dir = os.path.expanduser('~/RESULTS/release-100120_Dipper/TF_P-values/')
     # CollectRS()
     # CollectPValue()
     # CollectMaxCover()
