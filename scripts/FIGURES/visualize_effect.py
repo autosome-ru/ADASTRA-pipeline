@@ -19,6 +19,8 @@ if __name__ == '__main__':
     #stats1 = stats1[stats1['metric'] != 0]
     #stats2 = stats2[stats2['metric'] != 0]
 
+    stats1['metric'] = -1 * stats1['metric']
+    stats2['metric'] = -1 * stats2['metric']
 
     stats1['dens'] = stats1['counts']/stats1['counts'].sum()
     stats2['dens'] = stats2['counts'] / stats2['counts'].sum()
