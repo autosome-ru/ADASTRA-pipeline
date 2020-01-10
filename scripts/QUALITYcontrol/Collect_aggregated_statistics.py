@@ -72,19 +72,19 @@ def CollectMaxCover():
         if df.empty:
             continue
         df = df[df['ID'] != '.']
-        sum_df = df[['maxcover']]
+        sum_df = df[['max_cover']]
 
         if out_t is None:
             out_t = pd.DataFrame()
-            out_t['maxcover'] = sum_df['maxcover']
+            out_t['max_cover'] = sum_df['max_cover']
             out_t.fillna(1, inplace=True)
-            out_t = out_t.groupby(['maxcover']).size().reset_index(name='counts')
+            out_t = out_t.groupby(['max_cover']).size().reset_index(name='counts')
         else:
             tmp_df = pd.DataFrame()
-            tmp_df['maxcover'] = sum_df['maxcover']
+            tmp_df['max_cover'] = sum_df['max_cover']
             tmp_df.fillna(1, inplace=True)
-            tmp_df = tmp_df.groupby(['maxcover']).size().reset_index(name='counts')
-            out_t = out_t.append(tmp_df).groupby(['maxcover'], as_index=False).sum()
+            tmp_df = tmp_df.groupby(['max_cover']).size().reset_index(name='counts')
+            out_t = out_t.append(tmp_df).groupby(['max_cover'], as_index=False).sum()
             print(out_t)
     if out_t is None:
         return
