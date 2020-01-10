@@ -93,8 +93,58 @@ def CollectMaxCover():
         out_t.to_csv(out, sep="\t", index=False)
 
 
+def CollectEffectSize(mode='maxdepth'):
+    out_t1 = None
+    out_t2 = None
+    for file_name in os.listdir(agr_dir):
+        print(file_name)
+        df = pd.read_table(agr_dir + file_name)
+        if df.empty:
+            continue
+        df = df[df['ID'] != '.']
+        df1 = df[(df['fdrp_by_ref'] <= 0.05) | (df['fdrp_by_alt'] <= 0.05)]
+        df2 = df[(df['fdrp_by_ref'] > 0.05) & (df['fdrp_by_alt'] > 0.05)]
+        sum_df1 = df1[['m_' + mode]]
+        sum_df2 = df2[['m_' + mode]]
+
+        if out_t1 is None:
+            out_t1 = pd.DataFrame()
+            out_t1['metric'] = sum_df1['m_' + mode]
+            out_t1.fillna(0, inplace=True)
+            out_t1 = out_t1.groupby(['metric']).size().reset_index(name='counts')
+        else:
+            tmp_df = pd.DataFrame()
+            tmp_df['metric'] = sum_df1['m_' + mode]
+            tmp_df.fillna(0, inplace=True)
+            tmp_df = tmp_df.groupby(['metricr']).size().reset_index(name='counts')
+            out_t1 = out_t1.append(tmp_df).groupby(['metric'], as_index=False).sum()
+            print(out_t1)
+
+        if out_t2 is None:
+            out_t2 = pd.DataFrame()
+            out_t2['metric'] = sum_df2['m_' + mode]
+            out_t2.fillna(0, inplace=True)
+            out_t2 = out_t2.groupby(['metric']).size().reset_index(name='counts')
+        else:
+            tmp_df = pd.DataFrame()
+            tmp_df['metric'] = sum_df2['m_' + mode]
+            tmp_df.fillna(0, inplace=True)
+            tmp_df = tmp_df.groupby(['metricr']).size().reset_index(name='counts')
+            out_t2 = out_t2.append(tmp_df).groupby(['metric'], as_index=False).sum()
+            print(out_t2)
+
+    if out_t1 is None or out_t2 is None:
+        return
+    with open(parameters_path + 'fdr_effect_size_le_005.tsv', 'w') as out:
+        out_t1.to_csv(out, sep="\t", index=False)
+
+    with open(parameters_path + 'fdr_effect_size_gr_005.tsv', 'w') as out:
+        out_t2.to_csv(out, sep="\t", index=False)
+
+
 if __name__ == '__main__':
     agr_dir = os.path.expanduser('~/DATA/ProcessedNew/TF_P-values/')
     # CollectRS()
     # CollectPValue()
-    CollectMaxCover()
+    # CollectMaxCover()
+    CollectEffectSize()

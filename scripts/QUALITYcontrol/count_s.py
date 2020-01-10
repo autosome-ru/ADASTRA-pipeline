@@ -24,5 +24,10 @@ for filename in os.listdir(inpDirectory):
     counter_005 += cur_counter_005
     if cur_counter_005 > 0:
         datasets_counter_fdr += 1
-print(counter_005, counter_001, datasets_counter, datasets_counter_fdr)
+
+
+print('0.05 FDR BY snp: {}\n'
+      '0.01 FDR BY snp: {}\n'
+      'datasets: {}\n'
+      'datasets with asb snps: {}\n'.format(counter_005, counter_001, datasets_counter, datasets_counter_fdr))
 
