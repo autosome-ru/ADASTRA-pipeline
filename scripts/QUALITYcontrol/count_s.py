@@ -14,6 +14,7 @@ all_snps_counter = 0
 for filename in os.listdir(inpDirectory):
     with open(inpDirectory + filename, "r") as f:
         noCorrTable = pd.read_table(f)
+        noCorrTable = noCorrTable[noCorrTable['max_cover'] >= 30]
         if noCorrTable.empty:
             continue
     datasets_counter += 1
