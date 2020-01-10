@@ -134,11 +134,11 @@ def CollectEffectSize(mode='maxdepth'):
             print(out_t2)
 
     if out_t1 is None or out_t2 is None:
-        return
-    with open(parameters_path + 'fdr_effect_size_le_005.tsv', 'w') as out:
+        raise
+    with open(parameters_path + 'fdr_effect_size_le_005_{}.tsv'.format(mode), 'w') as out:
         out_t1.to_csv(out, sep="\t", index=False)
 
-    with open(parameters_path + 'fdr_effect_size_gr_005.tsv', 'w') as out:
+    with open(parameters_path + 'fdr_effect_size_gr_005_{}.tsv'.format(mode), 'w') as out:
         out_t2.to_csv(out, sep="\t", index=False)
 
 
