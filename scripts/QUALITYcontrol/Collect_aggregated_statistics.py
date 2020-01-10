@@ -116,7 +116,7 @@ def CollectEffectSize(mode='maxdepth'):
             tmp_df = pd.DataFrame()
             tmp_df['metric'] = sum_df1['m_' + mode]
             tmp_df.fillna(0, inplace=True)
-            tmp_df = tmp_df.groupby(['metricr']).size().reset_index(name='counts')
+            tmp_df = tmp_df.groupby(['metric']).size().reset_index(name='counts')
             out_t1 = out_t1.append(tmp_df).groupby(['metric'], as_index=False).sum()
             print(out_t1)
 
@@ -129,7 +129,7 @@ def CollectEffectSize(mode='maxdepth'):
             tmp_df = pd.DataFrame()
             tmp_df['metric'] = sum_df2['m_' + mode]
             tmp_df.fillna(0, inplace=True)
-            tmp_df = tmp_df.groupby(['metricr']).size().reset_index(name='counts')
+            tmp_df = tmp_df.groupby(['metric']).size().reset_index(name='counts')
             out_t2 = out_t2.append(tmp_df).groupby(['metric'], as_index=False).sum()
             print(out_t2)
 
