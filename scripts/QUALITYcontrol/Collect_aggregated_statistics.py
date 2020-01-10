@@ -72,6 +72,7 @@ def CollectMaxCover():
         if df.empty:
             continue
         df = df[df['ID'] != '.']
+        df = df[(df['fdrp_by_ref'] <= 0.05) | (df['fdrp_by_alt'] <= 0.05)]
         sum_df = df[['max_cover']]
 
         if out_t is None:
