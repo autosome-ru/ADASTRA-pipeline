@@ -64,7 +64,36 @@ def CollectRS():
         json.dump(list(out_set), fd)
 
 
+def CollectMaxCover():
+    out_t = None
+    for file_name in os.listdir(agr_dir):
+        print(file_name)
+        df = pd.read_table(agr_dir + file_name)
+        if df.empty:
+            continue
+        df = df[df['ID'] != '.']
+        sum_df = df[['maxcover']]
+
+        if out_t is None:
+            out_t = pd.DataFrame()
+            out_t['maxcover'] = sum_df['maxcover']
+            out_t.fillna(1, inplace=True)
+            out_t = out_t.groupby(['maxcover']).size().reset_index(name='counts')
+        else:
+            tmp_df = pd.DataFrame()
+            tmp_df['maxcover'] = sum_df['maxcover']
+            tmp_df.fillna(1, inplace=True)
+            tmp_df = tmp_df.groupby(['maxcover']).size().reset_index(name='counts')
+            out_t = out_t.append(tmp_df).groupby(['maxcover'], as_index=False).sum()
+            print(out_t)
+    if out_t is None:
+        return
+    with open(parameters_path + 'fdr_mc_bias_statistics.tsv', 'w') as out:
+        out_t.to_csv(out, sep="\t", index=False)
+
+
 if __name__ == '__main__':
-    agr_dir = os.path.expanduser('~/DATA/Processed/TF_P-values/')
+    agr_dir = os.path.expanduser('~/DATA/ProcessedNew/TF_P-values/')
     # CollectRS()
-    CollectPValue()
+    # CollectPValue()
+    CollectMaxCover()
