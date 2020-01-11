@@ -93,7 +93,7 @@ def CollectMaxCover():
         out_t.to_csv(out, sep="\t", index=False)
 
 
-def CollectEffectSize(mode='maxdepth'):
+def CollectEffectSize(mode='mostsig', allele='ref'):
     out_t1 = None
     out_t2 = None
     for file_name in os.listdir(agr_dir):
@@ -102,19 +102,19 @@ def CollectEffectSize(mode='maxdepth'):
         if df.empty:
             continue
         df = df[df['ID'] != '.']
-        df1 = df[(df['fdrp_by_ref'] <= 0.05) | (df['fdrp_by_alt'] <= 0.05)]
-        df2 = df[(df['fdrp_by_ref'] > 0.05) & (df['fdrp_by_alt'] > 0.05)]
-        sum_df1 = df1[['m_' + mode]]
-        sum_df2 = df2[['m_' + mode]]
+        df1 = df[(df['fdrp_by_{}'.format(allele)] <= 0.05)]
+        df2 = df[(df['fdrp_by_{}'.format(allele)] > 0.05)]
+        sum_df1 = df1[['m_' + mode + '_' + allele]]
+        sum_df2 = df2[['m_' + mode + '_' + allele]]
 
         if out_t1 is None:
             out_t1 = pd.DataFrame()
-            out_t1['metric'] = sum_df1['m_' + mode]
+            out_t1['metric'] = sum_df1['m_' + mode + '_' + allele]
             out_t1.fillna(0, inplace=True)
             out_t1 = out_t1.groupby(['metric']).size().reset_index(name='counts')
         else:
             tmp_df = pd.DataFrame()
-            tmp_df['metric'] = sum_df1['m_' + mode]
+            tmp_df['metric'] = sum_df1['m_' + mode + '_' + allele]
             tmp_df.fillna(0, inplace=True)
             tmp_df = tmp_df.groupby(['metric']).size().reset_index(name='counts')
             out_t1 = out_t1.append(tmp_df).groupby(['metric'], as_index=False).sum()
@@ -122,12 +122,12 @@ def CollectEffectSize(mode='maxdepth'):
 
         if out_t2 is None:
             out_t2 = pd.DataFrame()
-            out_t2['metric'] = sum_df2['m_' + mode]
+            out_t2['metric'] = sum_df2['m_' + mode + '_' + allele]
             out_t2.fillna(0, inplace=True)
             out_t2 = out_t2.groupby(['metric']).size().reset_index(name='counts')
         else:
             tmp_df = pd.DataFrame()
-            tmp_df['metric'] = sum_df2['m_' + mode]
+            tmp_df['metric'] = sum_df2['m_' + mode + '_' + allele]
             tmp_df.fillna(0, inplace=True)
             tmp_df = tmp_df.groupby(['metric']).size().reset_index(name='counts')
             out_t2 = out_t2.append(tmp_df).groupby(['metric'], as_index=False).sum()
@@ -135,16 +135,17 @@ def CollectEffectSize(mode='maxdepth'):
 
     if out_t1 is None or out_t2 is None:
         raise
-    with open(parameters_path + 'fdr_effect_size_le_005_{}.tsv'.format(mode), 'w') as out:
+    with open(parameters_path + 'fdr_effect_size_le_005_{}_{}.tsv'.format(mode, allele), 'w') as out:
         out_t1.to_csv(out, sep="\t", index=False)
 
-    with open(parameters_path + 'fdr_effect_size_gr_005_{}.tsv'.format(mode), 'w') as out:
+    with open(parameters_path + 'fdr_effect_size_gr_005_{}_{}.tsv'.format(mode, allele), 'w') as out:
         out_t2.to_csv(out, sep="\t", index=False)
 
 
 if __name__ == '__main__':
-    agr_dir = os.path.expanduser('~/RESULTS/release-100120_Dipper/TF_P-values/')
+    agr_dir = os.path.expanduser('~/DATA/TF_P-values/')  # FIXME! FIX. ME!
     # CollectRS()
     # CollectPValue()
     # CollectMaxCover()
-    CollectEffectSize('mostsig')
+    for allele in ('ref', 'alt'):
+        CollectEffectSize(allele=allele)
