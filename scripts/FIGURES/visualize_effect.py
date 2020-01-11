@@ -11,21 +11,23 @@ from scripts.HELPERS.helpers import states
 
 if __name__ == '__main__':
 
-    mode = 'maxdepth'
+    mode = 'mostsig'
+    allele = 'alt'
 
-    stats1 = pd.read_table(os.path.expanduser('~/fdr_effect_size_gr_005_{}.tsv'.format(mode)))
-    stats2 = pd.read_table(os.path.expanduser('~/fdr_effect_size_le_005_{}.tsv'.format(mode)))
+    stats1 = pd.read_table(os.path.expanduser('~/fdr_effect_size_gr_005_{}_{}.tsv'.format(mode, allele)))
+    stats2 = pd.read_table(os.path.expanduser('~/fdr_effect_size_le_005_{}_{}.tsv'.format(mode, allele)))
 
-    #stats1 = stats1[stats1['metric'] != 0]
-    #stats2 = stats2[stats2['metric'] != 0]
+    stats1 = stats1[stats1['metric'] != 0]
+    stats2 = stats2[stats2['metric'] != 0]
 
-    stats1['metric'] = -1 * stats1['metric']
-    stats2['metric'] = -1 * stats2['metric']
+    stats1['metric'] = stats1['metric']
+    stats2['metric'] = stats2['metric']
+    print(stats2[stats2['metric'] == 0])
 
     stats1['dens'] = stats1['counts']/stats1['counts'].sum()
     stats2['dens'] = stats2['counts'] / stats2['counts'].sum()
 
-    print(stats1)
+    #print(stats1)
     #stats = stats1[stats1['metric'] < 500]
     fig, ax = plt.subplots(figsize=(10, 8))
     #stats1['counts'] = stats1['counts'].apply(lambda x: np.math.log10(x))
@@ -53,7 +55,7 @@ if __name__ == '__main__':
 
     plt.grid(True)
     plt.legend()
-    plt.title('{} effect size dist'.format(mode))
+    plt.title('{} effect size dist for {}'.format(mode, allele))
     plt.xlabel('effect size')
     plt.ylabel('snp count density')
-    plt.savefig(os.path.expanduser('~/fixed_alt/effect_dist_{}.png'.format(mode)))
+    plt.savefig(os.path.expanduser('~/fixed_alt/{}_effect_dist_{}.png'.format(allele, mode)))

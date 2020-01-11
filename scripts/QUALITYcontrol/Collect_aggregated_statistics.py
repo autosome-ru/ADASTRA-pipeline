@@ -148,4 +148,4 @@ if __name__ == '__main__':
     # CollectPValue()
     # CollectMaxCover()
     for allele in ('ref', 'alt'):
-        CollectEffectSize(allele=allele)
+        CollectEffectSize(mode='mean', allele=allele)
