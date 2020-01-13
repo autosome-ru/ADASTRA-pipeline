@@ -6,7 +6,7 @@ import time
 from abc import ABC, abstractmethod
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_path, parameters_path
+from scripts.HELPERS.paths_for_components import parameters_path, ploidy_path
 from scripts.HELPERS.helpers import unpack, ChromPos, pack
 
 

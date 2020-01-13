@@ -4,7 +4,7 @@ from scipy.stats import kendalltau
 
 sys.path.insert(1, '/home/abramov/ASB-Project')
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos
-from scripts.HELPERS.paths import parameters_path, correlation_path, heatmap_data_path
+from scripts.HELPERS.paths_for_components import parameters_path, correlation_path, heatmap_data_path
 
 CGH_path = parameters_path + 'CHIP_hg38.sorted.bed'
 cosmic_path = parameters_path + 'COSMIC_copy_number.sorted.tsv'

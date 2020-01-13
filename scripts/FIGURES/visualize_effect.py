@@ -6,13 +6,13 @@ from matplotlib import pyplot as plt, ticker
 import seaborn as sns
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path
+from scripts.HELPERS.paths_for_components import parameters_path
 from scripts.HELPERS.helpers import states
 
 if __name__ == '__main__':
 
-    mode = 'mostsig'
-    allele = 'alt'
+    mode = 'mean'
+    allele = 'ref'
 
     stats1 = pd.read_table(os.path.expanduser('~/fdr_effect_size_gr_005_{}_{}.tsv'.format(mode, allele)))
     stats2 = pd.read_table(os.path.expanduser('~/fdr_effect_size_le_005_{}_{}.tsv'.format(mode, allele)))

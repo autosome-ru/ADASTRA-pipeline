@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import cl_dict_path, parameters_path
+from scripts.HELPERS.paths_for_components import parameters_path, cl_dict_path
 
 
 def collectRefAltStatistics(key_name=None, BAD=None):

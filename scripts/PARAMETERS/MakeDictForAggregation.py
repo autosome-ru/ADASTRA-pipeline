@@ -2,7 +2,8 @@ import json
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path, GTRD_slice_path, create_path_from_GTRD_function
+from scripts.HELPERS.paths import create_path_from_GTRD_function
+from scripts.HELPERS.paths_for_components import parameters_path, GTRD_slice_path
 from scripts.HELPERS.helpers import check_if_in_expected_args, encode_GTRD_cell_line_name
 
 

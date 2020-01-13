@@ -3,7 +3,8 @@ import sys
 
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_dict_path, create_ploidy_path_function
+from scripts.HELPERS.paths import create_ploidy_path_function
+from scripts.HELPERS.paths_for_components import ploidy_dict_path
 from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection
 
 

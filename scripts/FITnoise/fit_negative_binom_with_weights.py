@@ -8,7 +8,7 @@ from scipy import stats as st
 #import seaborn as sns
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path
+from scripts.HELPERS.paths_for_components import parameters_path
 from scripts.HELPERS.helpers import states
 
 pd.set_option('display.max_columns', 7)

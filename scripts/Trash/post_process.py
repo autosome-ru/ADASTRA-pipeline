@@ -8,7 +8,7 @@ import statsmodels.stats.multitest
 import pandas as pd
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import results_path, cl_dict_path, tf_dict_path, parameters_path
+from scripts.HELPERS.paths_for_components import parameters_path, results_path, tf_dict_path, cl_dict_path
 from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, expected_args, states
 
 what_for = sys.argv[1]  # "TF" or "CL" arguments are expected

@@ -7,7 +7,7 @@ from scipy import stats as st
 from sklearn.linear_model import LinearRegression
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path
+from scripts.HELPERS.paths_for_components import parameters_path
 from scripts.HELPERS.helpers import states
 
 pd.set_option('display.max_columns', 7)

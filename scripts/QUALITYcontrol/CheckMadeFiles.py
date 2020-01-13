@@ -3,8 +3,9 @@ import json
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_dict_path, create_path_from_GTRD_function, results_path, \
-    GTRD_slice_path, create_ploidy_path_function, make_black_list, cl_dict_path, tf_dict_path
+from scripts.HELPERS.paths import create_path_from_GTRD_function, create_ploidy_path_function, make_black_list
+from scripts.HELPERS.paths_for_components import results_path, ploidy_dict_path, GTRD_slice_path, tf_dict_path, \
+    cl_dict_path
 
 
 def create_path_for_agr_name(string, agr_name):
@@ -57,8 +58,7 @@ for line in master_list:
                     SNP_counter += 1
                 if local_counter != 0:
                     try:
-                        el = dict_SNP_TF_statistics[line[1]]
-                        dict_SNP_TF_statistics[line[1]] = el + local_counter
+                        dict_SNP_TF_statistics[line[1]] += local_counter
                     except KeyError:
                         dict_SNP_TF_statistics[line[1]] = local_counter
 

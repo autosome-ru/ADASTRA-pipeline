@@ -3,7 +3,7 @@ import os.path
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parallel_parameters_path, ploidy_dict_path
+from scripts.HELPERS.paths_for_components import parallel_parameters_path, ploidy_dict_path
 
 out_path = parallel_parameters_path + 'PvC_parameters.cfg'
 

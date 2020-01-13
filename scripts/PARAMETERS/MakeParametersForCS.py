@@ -2,7 +2,7 @@ import os
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parallel_parameters_path, correlation_path
+from scripts.HELPERS.paths_for_components import parallel_parameters_path, correlation_path
 
 if __name__ == "__main__":
     with open(parallel_parameters_path + 'CS_parameters.cfg', 'w') as file:

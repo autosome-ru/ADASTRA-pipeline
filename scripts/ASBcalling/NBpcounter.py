@@ -4,7 +4,7 @@ import pandas as pd
 from scipy import stats as st
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path
+from scripts.HELPERS.paths_for_components import parameters_path
 from scripts.HELPERS.helpers import states
 
 
@@ -14,11 +14,6 @@ def count_p(ref_c, alt_c, BADs):
     p_alt = np.zeros(N, dtype=np.float128)
 
     for i in range(N):
-
-        # if BADs[i] not in [1, 1.5, 2, 3]:  # TODO: DON'T FORGET TO FIX
-        #     p_ref[i] = '.'
-        #     p_alt[i] = '.'
-        #     continue
 
         if ref_c[i] > 500:
             r = ref_c[i]

@@ -4,7 +4,7 @@ import sys
 import json
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_path, ploidy_dict_path
+from scripts.HELPERS.paths_for_components import ploidy_path, ploidy_dict_path
 from scripts.HELPERS.helpers import make_dict_from_vcf, make_list_from_vcf
 
 

@@ -3,14 +3,14 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path
+from scripts.HELPERS.paths_for_components import parameters_path
 from scripts.HELPERS.helpers import states
 
 
-column_names = ['r', 'w', 'status', 'gof', 'r_new', 'w_new', 'status_new', 'gof_new']
+column_names = ['r', 'w', 'status', 'gof']
 for BAD in states:
-    ref = np.load(parameters_path + 'NBweights_step2_ref_BAD={:.1f}.npy'.format(BAD))
-    alt = np.load(parameters_path + 'NBweights_step2_alt_BAD={:.1f}.npy'.format(BAD))
+    ref = np.load(parameters_path + 'NBweights_ref_BAD={:.1f}.npy'.format(BAD))
+    alt = np.load(parameters_path + 'NBweights_alt_BAD={:.1f}.npy'.format(BAD))
     counts_df = pd.read_table(parameters_path + 'fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
     ref_df = pd.DataFrame(columns=column_names)
     alt_df = pd.DataFrame(columns=column_names)

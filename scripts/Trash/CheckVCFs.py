@@ -3,7 +3,7 @@ import os.path
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parameters_path
+from scripts.HELPERS.paths_for_components import parameters_path
 from scripts.HELPERS.helpers import ChromPos, make_list_for_VCFs
 
 out_path = parameters_path + "BadVCFs.tsv"

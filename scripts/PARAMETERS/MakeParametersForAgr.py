@@ -3,7 +3,8 @@ import json
 import os.path
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import parallel_parameters_path, open_aggregation_dict
+from scripts.HELPERS.paths import open_aggregation_dict
+from scripts.HELPERS.paths_for_components import parallel_parameters_path
 from scripts.HELPERS.helpers import check_if_in_expected_args
 
 out_path = parallel_parameters_path + 'Agr_parameters.cfg'
