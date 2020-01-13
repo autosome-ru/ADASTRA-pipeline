@@ -37,14 +37,14 @@ def remove_punctuation(x):
     return x.translate(table)
 
 
-what_for = 'TF'
+what_for = 'CL'
 convert_cl = makedict()
 for file in os.listdir(results_path + what_for + '_P-values/'):
     table_path = results_path + what_for + '_P-values/{}'.format(file)
     table = pd.read_table(table_path)
     if table.empty:
         os.remove(table_path)
-        sys.exit(0)
+        continue
 
     table.rename({'m_mean_ref': 'es_mean_ref',
                   'm_mean_alt': 'es_mean_alt',
