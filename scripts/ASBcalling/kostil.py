@@ -9,9 +9,9 @@ import pandas as pd
 import string
 from shutil import copyfile
 
-from scripts.HELPERS.paths import create_path_from_GTRD_function
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
+
 from scripts.HELPERS.paths_for_components import parameters_path, results_path,\
     GTRD_slice_path
 from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, expected_args, states, \
