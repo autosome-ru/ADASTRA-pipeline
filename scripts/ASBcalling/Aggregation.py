@@ -139,10 +139,10 @@ if __name__ == '__main__':
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
                         'mean_BAD',
                         'mean_deltaL_neighborBAD', 'mean_deltaL_BAD1', 'mean_SNP_per_segment', 'n_aggregated',
-                        'refc_mostsig_ref', 'altc_mostsig_ref', 'BAD_mostsig_ref', 'm_mostsig_ref',
-                        'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'm_mostsig_alt',
+                        'refc_mostsig_ref', 'altc_mostsig_ref', 'BAD_mostsig_ref', 'es_mostsig_ref',
+                        'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'es_mostsig_alt',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
-                        'm_mean_ref', 'm_mean_alt',
+                        'es_mean_ref', 'es_mean_alt',
                         'logitp_ref', 'logitp_alt',
                         'fisherp_ref', 'fisherp_alt']))
 
