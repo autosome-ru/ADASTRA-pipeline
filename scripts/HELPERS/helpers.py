@@ -1,4 +1,5 @@
 import sys
+import string
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function
@@ -289,9 +290,9 @@ def read_synonims():
     return cosmic_names, cgh_names
 
 
-def encode_GTRD_cell_line_name(x):
-    return x.replace('-', '_').replace('(', '_').replace(')', '_').replace(
-        ' ', '_').replace('\\', '_').replace("'", "_").replace("\"", "_").replace("/", "_")
+def remove_punctuation(x):
+    table = str.maketrans({key: "_" for key in string.punctuation})
+    return x.translate(table).replace(" ", "_")
 
 
 class CorrelationReader:

@@ -4,7 +4,7 @@ import sys
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import create_path_from_GTRD_function
 from scripts.HELPERS.paths_for_components import parameters_path, GTRD_slice_path
-from scripts.HELPERS.helpers import check_if_in_expected_args, encode_GTRD_cell_line_name
+from scripts.HELPERS.helpers import check_if_in_expected_args, remove_punctuation
 
 
 def makedict(what_for):
@@ -23,7 +23,7 @@ def makedict(what_for):
             except KeyError:
                 d[ln[1]] = [path]
         if what_for == "CL":
-            cell_line = encode_GTRD_cell_line_name(ln[4])
+            cell_line = remove_punctuation(ln[4])
             try:
                 d[cell_line].append(path)
             except KeyError:

@@ -5,7 +5,8 @@ import sys
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import create_path_from_GTRD_function
 from scripts.HELPERS.paths_for_components import ploidy_dict_path, GTRD_slice_path
-from scripts.HELPERS.helpers import encode_GTRD_cell_line_name
+from scripts.HELPERS.helpers import remove_punctuation
+
 
 
 def findLAB(enc):
@@ -38,7 +39,7 @@ def add_record(d, line, ctrl=False):
     path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=ctrl)
     if line[idcs[0]] == "LoVo (colorectal adenocarcinoma)":
         is_lovo = True
-    line[idcs[0]] = encode_GTRD_cell_line_name(line[idcs[0]])
+    line[idcs[0]] = remove_punctuation(line[idcs[0]])
     if is_lovo:
         add_to_dict(d, line[idcs[0]] + '!None', path)
         return
