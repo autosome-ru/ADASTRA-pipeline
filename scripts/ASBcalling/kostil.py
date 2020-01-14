@@ -38,5 +38,5 @@ def remove_punctuation(x):
 
 what_for = 'CL'
 convert_cl = makedict()
-with open(parameters_path + 'CONVERT_CL_NAMES.json') as out:
+with open(parameters_path + 'CONVERT_CL_NAMES.json', 'w') as out:
     json.dump(convert_cl, out)
