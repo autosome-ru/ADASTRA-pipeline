@@ -9,7 +9,7 @@ GETNAME(){
 	[ "$varpath" != "$var" ] && local vartmp="${var:${#varpath}}"
 		echo "${vartmp%_*_*}"
 }
-
+echo ${results_path}
 for file in "${results_path}TF_P-values"*
 do
 	ExpFile=$( GETNAME "$file" )
