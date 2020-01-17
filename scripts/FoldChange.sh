@@ -26,14 +26,12 @@ do
     			continue
 		fi
 
-	  
-
 		if [ -s "${perfectos_path}${ExpName}_ape_data.txt" ]; then
 			echo "Make perfectos"
 			# shellcheck disable=SC2154
 
 			if ! $Java -cp ${parameters_path}ape.jar ru.autosome.perfectosape.SNPScan $PWMs_path/"$ExpName/" \
-			                        "${perfectos_path}${ExpName}_ape_data.txt" \
+			                        "${perfectos_path}${ExpName}_ape_data.txt" --precalc "$threshold_path" \
 			                        -P 1 -F 1 > "${perfectos_path}${ExpName}_ape.txt"
 			then
     				echo "Failed perfectos-ape"
