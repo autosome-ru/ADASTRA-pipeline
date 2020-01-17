@@ -37,8 +37,8 @@ if [ -d "${PWMs_path}/$ExpName"/ ]; then
                             "${PWMs_path}/$ExpName/"* \
                             -10000000 \
                             --pvalues-file "${threshold_path}${ExpName}"* \
-                            --threshold-mode score \
-                            --output-scoring-mode logpvalue \
+                            --threshold-mode logpvalue \
+                            --output-scoring-mode score \
                             > "${sarus_path}${ExpName}_ape.txt"
     then
           echo "Failed sarus"
