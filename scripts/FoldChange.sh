@@ -26,6 +26,8 @@ do
     			continue
 		fi
 
+		continue
+
 		if [ -s "${perfectos_path}${ExpName}_ape_data.txt" ]; then
 			echo "Make perfectos"
 			# shellcheck disable=SC2154
