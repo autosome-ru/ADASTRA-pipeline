@@ -16,3 +16,5 @@ heatmap_data_path='/home/abramov/HeatmapData/'
 reference_path="/home/abramov/REFERENCE/"
 perfectos_path="/home/abramov/PERFECTOS/"
 PWMs_path="/home/abramov/pwms/"
+threshold_path="/home/abramov/threshold_path"
+FA=reference_path + "genome-norm.fasta"

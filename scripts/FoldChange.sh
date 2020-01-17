@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source ../HELPERS/Config.cfg
-source ../HELPERS/paths_for_components.py
+source /HELPERS/Config.cfg
+source /HELPERS/paths_for_components.py
 
 GETNAME(){
 	local var=$1
@@ -9,10 +9,6 @@ GETNAME(){
 	[ "$varpath" != "$var" ] && local vartmp="${var:${#varpath}}"
 		echo "${vartmp%_*_*}"
 }
-
-ThresholdsPath="/home/abramov/ThresholdsPath"      
-FA=${reference_path}/"genome-norm.fasta"
-
 
 for file in "${results_path}TF_P-values"*
 do
@@ -23,7 +19,7 @@ do
 	if [ -d $PWMs_path/"$ExpName"/ ]; then
 		# shellcheck disable=SC2154
 
-		if ! $python3 extract_ape_data.py "$file" $FA "${perfectos_path}${ExpName}_ape_data.txt"
+		if ! $python3 "${scripts_path}PERFECTOScalling/"extract_ape_data.py "$file" $FA "${perfectos_path}${ExpName}_ape_data.txt"
 		then
     			echo "Failed to extract adjacent nucleotides"
     			continue
@@ -34,7 +30,7 @@ do
 			# shellcheck disable=SC2154
 
 			if ! $Java -cp ape.jar ru.autosome.perfectosape.SNPScan $PWMs_path/"$ExpName/" \
-			                        "${perfectos_path}${ExpName}_ape_data.txt" --precalc "$ThresholdsPath" \
+			                        "${perfectos_path}${ExpName}_ape_data.txt" --precalc "$threshold_path" \
 			                        -P 1 -F 1 > ${perfectos_path}
 			then
     				echo "Failed perfectos-ape"
@@ -43,7 +39,7 @@ do
 
 
 
-			if ! $python3 adjust_table.py $file "${perfectos_path}${ExpName}_ape.txt" "${perfectos_path}${ExpName}_fc.txt";
+			if ! $python3 "${scripts_path}PERFECTOScalling/"adjust_table.py $file "${perfectos_path}${ExpName}_ape.txt" "${perfectos_path}${ExpName}_fc.txt";
 			then
 				echo "Failed to add fc to the table"
 				continue
