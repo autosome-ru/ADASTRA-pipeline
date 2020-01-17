@@ -37,7 +37,7 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
         ref_best = max(enumerate(dict_of_snps[ID]['ref']), key=lambda x: x[1]['p'])
         alt_best = max(enumerate(dict_of_snps[ID]['alt']), key=lambda x: x[1]['p'])
 
-        best_idx, _ = max((ref_best, alt_best), key=lambda x: x[1])
+        best_idx, _ = max((ref_best, alt_best), key=lambda x: x[1]['p'])
 
         assert dict_of_snps[ID]['ref'][best_idx]['pos'] == dict_of_snps[ID]['alt'][best_idx]['pos']
 
