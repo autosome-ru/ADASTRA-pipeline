@@ -46,7 +46,7 @@ if [ -d "${PWMs_path}/$ExpName"/ ]; then
     fi
 
     if ! $python3 "${scripts_path}SARUSannotation/"adjust_table_with_sarus.py "${file}" \
-      "${sarus_path}${ExpName}_ape.txt" "${sarus_path}${ExpName}_fc.txt" "${motive_len}";
+      "${sarus_path}${ExpName}_ape.txt" "${sarus_path}${ExpName}_fc.tsv" "${motive_len}";
     then
       echo "Failed to add fc to the table"
       exit 0
