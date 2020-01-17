@@ -21,7 +21,7 @@ do
 		# shellcheck disable=SC2154
 
 		motive_len=$(wc -l "${PWMs_path}/$ExpName/"*)
-		motive_len=${motive_len%" "*}
+		motive_len=$((${motive_len%" "*} - 1))
 
 		if ! $python3 "${scripts_path}SARUSannotation/"extract_sarus_data.py "$file" "$FA" \
 		  "${sarus_path}${ExpName}_ape_data.txt" "${motive_len}"
