@@ -137,7 +137,7 @@ for line in table:
     if gen[chr][p] == 0:
         continue
     # print(chr, p, gen[chr][p])
-    assert R.lower() != nuc[gen[chr][p]]
+    assert R.lower() == nuc[gen[chr][p]]
 
     left_tail = ''.join([nuc[gen[chr][p - (motive_length - 1) + i]] for i in range((motive_length - 1))])
     right_tail = ''.join([nuc[gen[chr][p + 1 + i]] for i in range((motive_length - 1))])
