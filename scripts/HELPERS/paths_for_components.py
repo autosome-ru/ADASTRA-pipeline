@@ -13,5 +13,6 @@ cl_dict_path=parameters_path + "CL_DICT.json"
 correlation_path='/home/abramov/Correlation/'
 synonims_path=parameters_path + 'synonims.tsv'
 heatmap_data_path='/home/abramov/HeatmapData/'
-reference_path="/home/abramov/REFERENCE"
+reference_path="/home/abramov/REFERENCE/"
 perfectos_path="/home/abramov/PERFECTOS/"
+PWMs_path="/home/abramov/pwms/"

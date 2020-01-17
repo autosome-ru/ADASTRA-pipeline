@@ -10,7 +10,6 @@ GETNAME(){
 		echo "${vartmp%_*_*}"
 }
 
-PWMs_path="/home/abramov/PERFECTOScalling/pwms"
 ThresholdsPath="/home/abramov/ThresholdsPath"      
 FA=${reference_path}/"genome-norm.fasta"
 
