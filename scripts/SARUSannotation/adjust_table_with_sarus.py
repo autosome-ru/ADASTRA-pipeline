@@ -34,11 +34,19 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
             out.write(pack(line + ['motif_log_pref', 'motif_log_palt', 'fold_change', 'motif_pos', 'orientation']))
             continue
         ID = line[2]
+
+        dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['pos'])
+        dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['orientation'])
+
+        dict_of_snps[ID]['alt'] = sorted(dict_of_snps[ID]['alt'], key=lambda x: x['pos'])
+        dict_of_snps[ID]['alt'] = sorted(dict_of_snps[ID]['alt'], key=lambda x: x['orientation'])
+
         ref_best = max(enumerate(dict_of_snps[ID]['ref']), key=lambda x: x[1]['p'])
         alt_best = max(enumerate(dict_of_snps[ID]['alt']), key=lambda x: x[1]['p'])
 
         best_idx, _ = max((ref_best, alt_best), key=lambda x: x[1]['p'])
 
+        assert len(dict_of_snps[ID]['ref']) == len(dict_of_snps[ID]['alt'])
         assert dict_of_snps[ID]['ref'][best_idx]['pos'] == dict_of_snps[ID]['alt'][best_idx]['pos']
 
         out.write(pack(line + [dict_of_snps[ID]['ref'][best_idx]['p'],
