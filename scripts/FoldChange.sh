@@ -31,7 +31,7 @@ do
 			# shellcheck disable=SC2154
 
 			if ! $Java -cp ape.jar ru.autosome.perfectosape.SNPScan $PWMs_path/"$ExpName/" \
-			                        "${perfectos_path}${ExpName}_ape_data.txt" --precalc "$threshold_path" \
+			                        "${perfectos_path}${ExpName}_ape_data.txt" \
 			                        -P 1 -F 1 > "${perfectos_path}${ExpName}_ape.txt"
 			then
     				echo "Failed perfectos-ape"
