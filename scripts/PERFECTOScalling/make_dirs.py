@@ -8,6 +8,7 @@ processed_tfs = dict()
 
 for filename in os.listdir(PWMs_path):
     split_filename = filename.split(".")
+    print(split_filename)
     tf_name = split_filename[0]
     rank = int(split_filename[2])
     quality = split_filename[3]
