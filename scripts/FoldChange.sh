@@ -32,7 +32,7 @@ do
 			echo "Make perfectos"
 			# shellcheck disable=SC2154
 
-			if ! $Java -cp ape.jar ru.autosome.perfectosape.SNPScan $PWMs_path/"$ExpName/" \
+			if ! $Java -cp ${parameters_path}ape.jar ru.autosome.perfectosape.SNPScan $PWMs_path/"$ExpName/" \
 			                        "${perfectos_path}${ExpName}_ape_data.txt" \
 			                        -P 1 -F 1 > "${perfectos_path}${ExpName}_ape.txt"
 			then
