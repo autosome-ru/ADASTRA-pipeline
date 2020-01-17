@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source ../HELPERS/Config.cfg
+source ../HELPERS/paths_for_components.py
 
 GETNAME(){
 	local var=$1
@@ -9,13 +10,12 @@ GETNAME(){
 		echo "${vartmp%_*_*}"
 }
 
-ReferencePath="/home/abramov/ReferencePath/"
 PWMs_path="/home/abramov/PERFECTOScalling/pwms"
-FA=$ReferencePath/"genome-norm.fasta"
-OutPath="/home/abramov/RESULTS/TF_FC/FilteredMaxCover/"
-ThresholdsPath="/home/abramov/ThresholdsPath"
-ResultsPath="/home/abramov/RESULTS/"
-for file in "${ResultsPath}TFs_for_PERFECTOS/"*
+ThresholdsPath="/home/abramov/ThresholdsPath"      
+FA=${reference_path}/"genome-norm.fasta"
+
+
+for file in "${results_path}TF_P-values"*
 do
 	ExpFile=$( GETNAME "$file" )
 	ExpName=${ExpFile%.*}
@@ -24,20 +24,19 @@ do
 	if [ -d $PWMs_path/"$ExpName"/ ]; then
 		# shellcheck disable=SC2154
 
-
-		if ! $python3 extract_ape_data.py "$file" $FA "${OutPath}${ExpName}_ape_data.txt"
+		if ! $python3 extract_ape_data.py "$file" $FA "${perfectos_path}${ExpName}_ape_data.txt"
 		then
     			echo "Failed to extract adjacent nucleotides"
     			continue
 		fi
 
-		if [ -f "${OutPath}${ExpName}_ape_data.txt" ]; then
+		if [ -f "${perfectos_path}${ExpName}_ape_data.txt" ]; then
 			echo "Make perfectos"
 			# shellcheck disable=SC2154
 
 			if ! $Java -cp ape.jar ru.autosome.perfectosape.SNPScan $PWMs_path/"$ExpName/" \
-			                        "${OutPath}${ExpName}_ape_data.txt" --precalc "$ThresholdsPath" \
-			                        -P 1 -F 1 > ${OutPath}
+			                        "${perfectos_path}${ExpName}_ape_data.txt" --precalc "$ThresholdsPath" \
+			                        -P 1 -F 1 > ${perfectos_path}
 			then
     				echo "Failed perfectos-ape"
     				continue
@@ -45,14 +44,14 @@ do
 
 
 
-			if ! $python3 adjust_table.py $file "${OutPath}${ExpName}_ape.txt" "${OutPath}${ExpName}_fc.txt";
+			if ! $python3 adjust_table.py $file "${perfectos_path}${ExpName}_ape.txt" "${perfectos_path}${ExpName}_fc.txt";
 			then
 				echo "Failed to add fc to the table"
 				continue
 			fi
 
-			rm "${OutPath}${ExpName}_ape_data.txt"
-			rm "${OutPath}${ExpName}_ape.txt"
+			rm "${perfectos_path}${ExpName}_ape_data.txt"
+			rm "${perfectos_path}${ExpName}_ape.txt"
 		else
 			echo "NO ASB found for ${ExpName}"
 		fi
