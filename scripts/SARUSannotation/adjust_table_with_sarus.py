@@ -46,6 +46,9 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
 
         best_idx, _ = max((ref_best, alt_best), key=lambda x: x[1]['p'])
 
+        if len(dict_of_snps[ID]['ref']) != len(dict_of_snps[ID]['alt']):
+            print(dict_of_snps[ID]['ref'], dict_of_snps[ID]['alt'])
+
         assert len(dict_of_snps[ID]['ref']) == len(dict_of_snps[ID]['alt'])
         assert dict_of_snps[ID]['ref'][best_idx]['pos'] == dict_of_snps[ID]['alt'][best_idx]['pos']
 
