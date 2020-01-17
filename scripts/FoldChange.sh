@@ -20,7 +20,7 @@ do
 	if [ -d $PWMs_path/"$ExpName"/ ]; then
 		# shellcheck disable=SC2154
 
-		if ! $python3 "${scripts_path}PERFECTOScalling/"extract_ape_data.py "$file" $FA "${perfectos_path}${ExpName}_ape_data.txt"
+		if ! $python3 "${scripts_path}PERFECTOScalling/"extract_ape_data.py "$file" $FA "${perfectos_path}${ExpName}_ape_data.txt" 26
 		then
     			echo "Failed to extract adjacent nucleotides"
     			continue
