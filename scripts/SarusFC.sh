@@ -34,6 +34,8 @@ do
 			echo "Make sarus"
 			# shellcheck disable=SC2154
 
+			echo "$Java ${parameters_path}sarus-latest.jar"
+
 			if ! $Java -cp "${parameters_path}sarus-latest.jar" ru.autosome.SARUS "${sarus_path}${ExpName}_ape_data.txt" \
 			                        "${PWMs_path}/$ExpName/"* \
 			                        1 \
