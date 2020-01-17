@@ -20,7 +20,7 @@ with open(sys.argv[2], 'r') as sarus:
                 dict_of_snps[current_snp_id] = {"ref": [], "alt": []}
         else:
             assert allele in ("ref", "alt")
-            line = line.split("\t")
+            line = line.strip().split("\t")
             dict_of_snps[current_snp_id][allele].append({
                 "p": float(line[0]),
                 "orientation": line[2],
