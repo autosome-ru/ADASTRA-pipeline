@@ -29,6 +29,8 @@ if [ -d "${PWMs_path}/$ExpName"/ ]; then
         exit 0
   fi
 
+  exit 0
+
   if [ -s "${sarus_path}${ExpName}_ape_data.txt" ]; then
     echo "Make sarus"
     # shellcheck disable=SC2154
