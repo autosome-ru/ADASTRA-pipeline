@@ -132,12 +132,18 @@ for line in table:
         continue
     R = line[3]
     A = line[4]
+    ID = line[2]
     # print(chr, p, gen[chr][p])
     if gen[chr][p] == 0:
         continue
     # print(chr, p, gen[chr][p])
-    if R.lower() != nuc[gen[chr][p]]:
-        print('Vse ploho', chr, line[1])
-    out.write(chr + '_' + line[1] + ' ' + ''.join(
-        [nuc[gen[chr][p - (motive_length - 1) + i]] for i in range((motive_length - 1))]) +
-              '[' + R + '/' + A + ']' + ''.join([nuc[gen[chr][p + 1 + i]] for i in range((motive_length - 1))]) + '\n')
+    assert R.lower() != nuc[gen[chr][p]]
+
+    left_tail = ''.join([nuc[gen[chr][p - (motive_length - 1) + i]] for i in range((motive_length - 1))])
+    right_tail = ''.join([nuc[gen[chr][p + 1 + i]] for i in range((motive_length - 1))])
+
+    out.write('>' + ID + '_ref' + '\n')
+    out.write(left_tail + R + right_tail + '\n')
+
+    out.write('>' + ID + '_alt' + '\n')
+    out.write(left_tail + A + right_tail + '\n')
