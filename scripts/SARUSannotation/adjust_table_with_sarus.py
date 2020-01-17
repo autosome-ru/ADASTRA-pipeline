@@ -35,9 +35,6 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
             continue
         ID = line[2]
 
-        if ID == 'rs6998145':
-            print(ID, dict_of_snps[ID]['ref'], dict_of_snps[ID]['alt'])
-
         dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['pos'])
         dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['orientation'])
 
