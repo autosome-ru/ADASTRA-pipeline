@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source /HELPERS/Config.cfg
-source /HELPERS/paths_for_components.py
+source HELPERS/Config.cfg
+source HELPERS/paths_for_components.py
 
 GETNAME(){
 	local var=$1
