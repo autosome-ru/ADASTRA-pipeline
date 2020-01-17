@@ -37,7 +37,7 @@ if [ -d "${PWMs_path}/$ExpName"/ ]; then
                             "${PWMs_path}/$ExpName/"* \
                             -10000000 \
                             --pvalues-file "${threshold_path}${ExpName}"* \
-                            --threshold-mode logpvalue \
+                            --threshold-mode score \
                             --output-scoring-mode score \
                             > "${sarus_path}${ExpName}_ape.txt"
     then
