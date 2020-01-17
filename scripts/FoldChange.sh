@@ -46,11 +46,11 @@ do
 				continue
 			fi
 
-			rm "${perfectos_path}${ExpName}_ape_data.txt"
 			rm "${perfectos_path}${ExpName}_ape.txt"
 		else
 			echo "NO ASB found for ${ExpName}"
 		fi
+		rm "${perfectos_path}${ExpName}_ape_data.txt"
 	else
 		echo "No PWMs_path found for $ExpName"
 	fi
