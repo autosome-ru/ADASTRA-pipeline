@@ -42,7 +42,7 @@ while ape_line and table_line:
 
     p2 = round(float(ape_line[-2]), 50)
     p1 = round(float(ape_line[-3]), 50)
-    out.write('\t'.join(['\t'.join(table_line), '\t'.join(map(str, [p1, p2, fc])), str(mpos), orientation]) + '\n')
+    out.write(pack(['\t'.join(table_line), '\t'.join(map(str, [p1, p2, fc])), str(mpos), orientation]))
 
     ape_line = ape.readline()
     table_line = table.readline()
