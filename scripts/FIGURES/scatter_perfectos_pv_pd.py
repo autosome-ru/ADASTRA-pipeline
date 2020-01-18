@@ -43,14 +43,16 @@ if __name__ == '__main__':
         blue_ct = []
         red_ct = []
 
-        x = np.linspace(0.001, 0.1, 100)
+        #x = np.linspace(0.001, 0.1, 100)
+        x = np.linspace(30, 1500, 250)
 
-        for fdr_tr in x:
-            print(fdr_tr)
-
+        #for fdr_tr in x:
+        for maxcov in x:
             # pt['log_pv'] = (- np.log10(pt['fdrp_by_alt']))
 
-            pt2 = pt[(pt['fdrp_by_alt'] <= fdr_tr) | (pt['fdrp_by_ref'] <= fdr_tr)]
+            pt = pt[(pt['fdrp_by_alt'] <= fdr_tr) | (pt['fdrp_by_ref'] <= fdr_tr)]
+            #pt2 = pt[(pt['altc_mostsig_alt'] <= maxcov) | (pt['refc_mostsig_ref'] <= maxcov)]
+            pt2 = pt[(pt['max_cover'] <= maxcov)]
 
             blue = len(pt2[(pt2['col'] == "blue")].index)
             red = len(pt2[pt2['col'] == "red"].index)
@@ -63,7 +65,8 @@ if __name__ == '__main__':
         fig, ax = plt.subplots(figsize=(10, 8))
         plt.scatter(x, blue_fr, color='black')
         plt.grid(True)
-        plt.xlabel('fdr_tr')
+        # plt.xlabel('fdr_tr')
+        plt.xlabel('max cov tr')
         plt.ylabel('blue / (blue + red)')
         plt.title('CTCF blue fraction')
         plt.savefig(os.path.expanduser("~/TF_FC/{}blue_frac_p_tr={:.2f}_fc_tr={:.2f}.png".format(
@@ -73,7 +76,8 @@ if __name__ == '__main__':
         plt.scatter(x, blue_ct, color='blue')
         plt.scatter(x, red_ct, color='red')
         plt.grid(True)
-        plt.xlabel('fdr_tr')
+        # plt.xlabel('fdr_tr')
+        plt.xlabel('max cov tr')
         plt.ylabel('count')
         plt.title('CTCF blue red counts')
         plt.savefig(os.path.expanduser("~/TF_FC/{}blue_red_counts_refalt_p_tr={:.2f}_fc_tr={:.2f}.png".format(
