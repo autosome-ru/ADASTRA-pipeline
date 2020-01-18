@@ -239,12 +239,10 @@ if __name__ == '__main__':
                     if E_ref < 0:
                         print("<")
                         print(r_ref, w_ref, E_ref, BAD, sum(i * pmf_ref(i) for i in range(5)))
-                        sys.exit(1)
                     if E_ref == 0:
                         print("==")
                         print(r_ref, w_ref, E_ref, BAD, sum(i * pmf_ref(i) for i in range(5)))
-                        sys.exit(1)
-                    #   assert E_ref >= 0
+                    assert E_ref >= 0, "E_ref = {}".format(E_ref)
                     ref_effect_size_array.append(np.log(ref_c / E_ref))
 
                 if p_alt != 1:
