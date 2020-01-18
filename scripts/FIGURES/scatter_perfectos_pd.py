@@ -7,9 +7,7 @@ import seaborn as sns
 
 
 def get_color(row):
-    if abs(row['log_fc']) < np.log10(fc_tr) or \
-            (abs(row['fdrp_by_ref']) > fdr_tr and abs(row['fdrp_by_alt']) > fdr_tr)\
-            or (row['motif_log_pref'] < -np.log10(perf_tr)) or (row['motif_log_palt'] < -np.log10(perf_tr)):
+    if abs(row['log_fc']) < np.log10(fc_tr): # or abs(row['log_pv']) < np.log10(fdr_tr):
         return 'grey'
     if row['log_fc'] * row['log_pv'] > 0:
         return 'blue'
@@ -26,8 +24,9 @@ if __name__ == '__main__':
     fdr_tr = 0.05
     fix = ''
 
+    pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
     pt = pt[~(pt['fdrp_by_alt'].isnull() | pt['fdrp_by_ref'].isnull())]
-    # pt = pt[(pt['fdrp_by_alt'] <= fdr_tr) | (pt['fdrp_by_ref'] <= fdr_tr)]
+    pt = pt[(pt['fdrp_by_alt'] <= fdr_tr) | (pt['fdrp_by_ref'] <= fdr_tr)]
     print(pt)
     pt['log_pv'] = (np.log10(
         pt['fdrp_by_ref']) - np.log10(pt['fdrp_by_alt']))
@@ -36,9 +35,9 @@ if __name__ == '__main__':
 
     print(pt.info())
 
-    blue = len(pt[pt.col == 'blue'].index)
-    red = len(pt[pt.col == 'red'].index)
-    grey = len(pt[pt.col == 'grey'].index)
+    blue = len(pt[pt.col == "blue"].index)
+    red = len(pt[pt.col == "red"].index)
+    grey = len(pt[pt.col == "grey"].index)
 
     print(pt['log_pv'])
 
