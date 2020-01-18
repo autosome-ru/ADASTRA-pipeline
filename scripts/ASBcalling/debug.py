@@ -165,11 +165,12 @@ if __name__ == '__main__':
         SNP_counter += 1
         if SNP_counter % 10000 == 0:
             print('done {}'.format(SNP_counter))
-        pref_array = []
-        palt_array = []
+
         cover_array = []
 
         for tr in range(50, 1401, 50):
+            pref_array = []
+            palt_array = []
             for v in value:
                 cov, ref_c, alt_c, in_callers, BAD, dip_qual, lq, rq, seg_c, sum_cov, p_ref, p_alt = v
 
