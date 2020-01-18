@@ -186,9 +186,11 @@ if __name__ == '__main__':
         strange_list_len = len(strange_list)
         for strange_tr in strange_list:
             final_dict[tr][strange_tr] = [len([x for x in debug_dict[tr]
-                                               if (x['col'] == 'blue' and x['p'] <= strange_tr)]),
+                                               if (debug_dict[tr][x]['col'] == 'blue' and
+                                                   debug_dict[tr][x]['p'] <= strange_tr)]),
                                           len([x for x in debug_dict[tr] if
-                                               (x['col'] == 'red' and x['p'] <= strange_tr)])]
+                                               (debug_dict[tr][x]['col'] == 'red' and
+                                                debug_dict[tr][x]['p'] <= strange_tr)])]
         x = list(strange_list)
         y1, y2 = zip([final_dict[tr][x_] for x_ in x])
         final_dict[tr] = {}
