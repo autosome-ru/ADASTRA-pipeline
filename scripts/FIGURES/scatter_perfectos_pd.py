@@ -17,17 +17,17 @@ def get_color(pv, fc):
 if __name__ == '__main__':
     pt = pd.read_table(sys.argv[1])
 
-    perf_tr = 0.05
+    perf_tr = 1.3
     fc_tr = np.log10(2)
     fdr_tr = -np.log10(0.05)
     fix = ''
 
-    pt = pt[(pt.perfectos_p1 <= perf_tr) & (pt.perfectos_p2 <= perf_tr)]
-    pt = pt[(0 < pt['fdrp_ref' + fix]) & (0 < pt['fdrp_alt' + fix])]
+    pt = pt[(pt['motif_log_pref'] >= perf_tr) & (pt['motif_log_palt'] >= perf_tr)]
+    pt = pt[(0 < pt['fdrp_by_ref' + fix]) & (0 < pt['fdrp_by_alt' + fix])]
 
-    pt['log_fc'] = np.log10(pt.perfectos_fc)
-    pt['log_pv'] = np.sign(pt['fdrp_alt' + fix] - pt['fdrp_ref' + fix]) * np.log10(
-        pt[['fdrp_alt' + fix, 'fdrp_ref' + fix]].min(axis=1))
+    pt['log_fc'] = pt['fold_change']
+    pt['log_pv'] = np.sign(pt['fdrp_by_alt' + fix] - pt['fdrp_by_ref' + fix]) * (np.log10(
+        pt['fdrp_by_alt']) - np.log10(pt['fdrp_by_ref']))
     pt['col'] = pt.apply(lambda x: get_color(x['log_pv'],
                                              x['log_fc']), axis=1)
 
