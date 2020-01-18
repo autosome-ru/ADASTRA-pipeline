@@ -245,6 +245,9 @@ def collectPValueStatistics(key_name=None, BAD=None):
             if df.empty:
                 continue
             df = df[df['ID'] != '.']
+
+            assert len(df[(df['p_value_ref'] == 0) | (df['p_value_alt'] == 0)].index) == 0
+
             if BAD is not None:
                 sum_df = df[df['BAD'] == BAD][['p_value_ref', 'p_value_alt']]  # <------
             else:
