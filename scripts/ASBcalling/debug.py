@@ -157,18 +157,18 @@ if __name__ == '__main__':
         sys.exit(0)
     keys = list(filtered_snps.keys())
     debug_dict = {}
-    for key in keys:
-        chr, pos, ID, ref, alt, repeat = key
+    final_dict = {}
+    for tr in range(50, 1401, 50):
+        debug_dict[tr] = {}
+        final_dict[tr] = {}
+        for key in keys:
+            chr, pos, ID, ref, alt, repeat = key
+            debug_dict[tr][ID] = {"col": interesting_dict[ID]}
 
-        debug_dict[ID] = {"ref": {}, "alt": {}, "col": interesting_dict[ID]}
-        value = filtered_snps[key]
-        SNP_counter += 1
-        if SNP_counter % 10000 == 0:
-            print('done {}'.format(SNP_counter))
-
-        cover_array = []
-
-        for tr in range(50, 1401, 50):
+            value = filtered_snps[key]
+            SNP_counter += 1
+            if SNP_counter % 10000 == 0:
+                print('done {}'.format(SNP_counter))
             pref_array = []
             palt_array = []
             for v in value:
@@ -181,8 +181,20 @@ if __name__ == '__main__':
 
             logitp_ref = logit_combine_p_values(pref_array)
             logitp_alt = logit_combine_p_values(palt_array)
-            debug_dict[ID]["ref"][tr] = logitp_ref
-            debug_dict[ID]["alt"][tr] = logitp_alt
+            debug_dict[tr][ID]["p"] = min(logitp_ref, logitp_alt)
+        strange_list = set(debug_dict[tr][x]["p"] for x in debug_dict[tr])
+        strange_list_len = len(strange_list)
+        for strange_tr in strange_list:
+            final_dict[tr][strange_tr] = [len([x for x in debug_dict[tr]
+                                               if (x['col'] == 'blue' and x['p'] <= strange_list)]),
+                                          len([x for x in debug_dict[tr] if
+                                               (x['col'] == 'red' and x['p'] <= strange_list)])]
+        x = list(strange_list)
+        y1, y2 = zip([final_dict[tr][x_] for x_ in x])
+        final_dict[tr] = {}
+        final_dict[tr]['x'] = x
+        final_dict[tr]['y1'] = y1
+        final_dict[tr]['y2'] = y2
 
     with open(parameters_path + "debug_dict.json", "w") as out:
-        json.dump(debug_dict, out)
+        json.dump(final_dict, out)
