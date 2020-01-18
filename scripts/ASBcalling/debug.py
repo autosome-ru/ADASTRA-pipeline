@@ -192,6 +192,7 @@ if __name__ == '__main__':
                                                (debug_dict[tr][x]['col'] == 'red' and
                                                 debug_dict[tr][x]['p'] <= strange_tr)])]
         x = list(strange_list)
+        print([final_dict[tr][x_] for x_ in x])
         y1, y2 = zip([final_dict[tr][x_] for x_ in x])
         final_dict[tr] = {}
         final_dict[tr]['x'] = x
