@@ -183,5 +183,5 @@ if __name__ == '__main__':
             debug_dict[ID]["ref"][tr] = logitp_ref
             debug_dict[ID]["alt"][tr] = logitp_alt
 
-    with open(parameters_path + "debug_dict.json") as out:
+    with open(parameters_path + "debug_dict.json", "w") as out:
         json.dump(debug_dict, out)
