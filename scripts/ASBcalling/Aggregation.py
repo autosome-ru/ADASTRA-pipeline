@@ -237,7 +237,7 @@ if __name__ == '__main__':
                     E_ref = (r_ref * (BAD * w_ref + (1 - w_ref) / BAD) - sum(i * pmf_ref(i) for i in range(5))) / (
                             1 - cdf_ref(4))
 
-                    ref_effect_size_array.append(np.math.log(ref_c / E_ref))
+                    ref_effect_size_array.append(np.log(ref_c / E_ref))
 
                 if p_alt != 1:
                     if ref_c > 500:
@@ -317,8 +317,14 @@ if __name__ == '__main__':
                  fisherp_ref, fisherp_alt]))
             origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': table_names_array,
                                                             expected_args[what_for]: another_agr_name,
-                                                            'ref_counts': ref_counts_array, 'alt_counts': alt_counts_array,
-                                                            'ref_pvalues': pref_array, 'alt_pvalues': palt_array}
+                                                            'ref_counts': ref_counts_array,
+                                                            'alt_counts': alt_counts_array,
+                                                            'ref_ef': ref_effect_size_array,
+                                                            'alt_ef': alt_effect_size_array,
+                                                            'BAD': BAD_array,
+                                                            'ref_pvalues': pref_array,
+                                                            'alt_pvalues': palt_array,
+                                                            }
 
     print("Counting FDR")
 
