@@ -242,7 +242,8 @@ if __name__ == '__main__':
                     if E_ref == 0:
                         print("==")
                         print(r_ref, w_ref, E_ref, BAD, sum(i * pmf_ref(i) for i in range(5)))
-                    assert E_ref >= 0, "E_ref = {}".format(E_ref)
+                    assert E_ref >= 0, ("ref_r={}, w_ref = {}, alt_c = {}, E_ref = {}, BAD={}, deltaM = {}".format(
+                        r_ref, w_ref, alt_c, E_ref, BAD, sum(i * pmf_ref(i) for i in range(5))))
                     ref_effect_size_array.append(np.log(ref_c / E_ref))
 
                 if p_alt != 1:
