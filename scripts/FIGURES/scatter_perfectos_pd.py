@@ -23,7 +23,6 @@ if __name__ == '__main__':
     fix = ''
 
     pt = pt[(pt['motif_log_pref'] >= perf_tr) & (pt['motif_log_palt'] >= perf_tr)]
-    pt = pt[(0 < pt['fdrp_by_ref' + fix]) & (0 < pt['fdrp_by_alt' + fix])]
 
     pt['log_fc'] = pt['fold_change']
     pt['log_pv'] = np.sign(pt['fdrp_by_alt' + fix] - pt['fdrp_by_ref' + fix]) * (np.log10(
