@@ -225,6 +225,9 @@ if __name__ == '__main__':
                     else:
                         r_ref = r['alt'][BAD][alt_c]
                         w_ref = w['alt'][BAD][alt_c]
+                        if r_ref == 0:
+                            r_ref = alt_c
+                            w_ref = 0.5
                     dist1 = stats.nbinom(r_ref, p)
                     dist2 = stats.nbinom(r_ref, 1 - p)
                     cdf1_ref = dist1.cdf
@@ -236,8 +239,7 @@ if __name__ == '__main__':
 
                     E_ref = (r_ref * (BAD * w_ref + (1 - w_ref) / BAD) - sum(i * pmf_ref(i) for i in range(5))) / (
                             1 - cdf_ref(4))
-
-                    ref_effect_size_array.append(np.math.log(ref_c / E_ref))
+                    ref_effect_size_array.append(np.log(ref_c / E_ref))
 
                 if p_alt != 1:
                     if ref_c > 500:
@@ -246,6 +248,9 @@ if __name__ == '__main__':
                     else:
                         r_alt = r['ref'][BAD][ref_c]
                         w_alt = w['ref'][BAD][ref_c]
+                        if r_alt == 0:
+                            r_alt = ref_c
+                            w_alt = 0.5
                     dist1 = stats.nbinom(r_alt, p)
                     dist2 = stats.nbinom(r_alt, 1 - p)
                     cdf1_alt = dist1.cdf
@@ -258,7 +263,7 @@ if __name__ == '__main__':
                     E_alt = (r_alt * (BAD * w_alt + (1 - w_alt) / BAD) - sum(i * pmf_alt(i) for i in range(5))) / (
                                 1 - cdf_alt(4))
 
-                    alt_effect_size_array.append(np.math.log(alt_c / E_alt))
+                    alt_effect_size_array.append(np.log(alt_c / E_alt))
 
             min_cover = min(cover_array)
             max_cover = max(cover_array)
@@ -317,8 +322,14 @@ if __name__ == '__main__':
                  fisherp_ref, fisherp_alt]))
             origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': table_names_array,
                                                             expected_args[what_for]: another_agr_name,
-                                                            'ref_counts': ref_counts_array, 'alt_counts': alt_counts_array,
-                                                            'ref_pvalues': pref_array, 'alt_pvalues': palt_array}
+                                                            'ref_counts': ref_counts_array,
+                                                            'alt_counts': alt_counts_array,
+                                                            'ref_ef': ref_effect_size_array,
+                                                            'alt_ef': alt_effect_size_array,
+                                                            'BAD': BAD_array,
+                                                            'ref_pvalues': pref_array,
+                                                            'alt_pvalues': palt_array,
+                                                            }
 
     print("Counting FDR")
 
