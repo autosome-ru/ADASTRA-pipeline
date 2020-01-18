@@ -236,7 +236,7 @@ if __name__ == '__main__':
 
                     E_ref = (r_ref * (BAD * w_ref + (1 - w_ref) / BAD) - sum(i * pmf_ref(i) for i in range(5))) / (
                             1 - cdf_ref(4))
-
+                    assert E_ref > 0
                     ref_effect_size_array.append(np.log(ref_c / E_ref))
 
                 if p_alt != 1:
