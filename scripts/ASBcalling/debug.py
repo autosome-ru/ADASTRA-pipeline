@@ -169,7 +169,7 @@ if __name__ == '__main__':
         palt_array = []
         cover_array = []
 
-        for tr in []:
+        for tr in range(50, 1401, 50):
             for v in value:
                 cov, ref_c, alt_c, in_callers, BAD, dip_qual, lq, rq, seg_c, sum_cov, p_ref, p_alt = v
 
