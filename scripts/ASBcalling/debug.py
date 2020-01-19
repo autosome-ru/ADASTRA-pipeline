@@ -175,7 +175,7 @@ if __name__ == '__main__':
             for v in value:
                 cov, ref_c, alt_c, in_callers, BAD, dip_qual, lq, rq, seg_c, sum_cov, p_ref, p_alt = v
 
-                if min(ref_c, alt_c) >= tr or BAD == 4/3:
+                if min(ref_c, alt_c) >= tr or ref_c < alt_c:
                     continue
                 pref_array.append(p_ref)
                 palt_array.append(p_alt)
