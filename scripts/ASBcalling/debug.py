@@ -155,6 +155,7 @@ if __name__ == '__main__':
     print('{} snps'.format(len(filtered_snps)))
     if len(filtered_snps) == 0:
         sys.exit(0)
+    r, w = read_weights()
     keys = list(filtered_snps.keys())
     debug_dict = {}
     final_dict = {}
@@ -174,8 +175,9 @@ if __name__ == '__main__':
             palt_array = []
             for v in value:
                 cov, ref_c, alt_c, in_callers, BAD, dip_qual, lq, rq, seg_c, sum_cov, p_ref, p_alt = v
-
-                if min(p_ref, p_alt) < 1/10**6 or min(ref_c, alt_c) > tr:
+                if ref_c > 500 or alt_c > 500:
+                    continue
+                elif r['alt'][BAD][alt_c] == 0 or r['ref'][BAD][ref_c] == 0:
                     continue
                 pref_array.append(p_ref)
                 palt_array.append(p_alt)
