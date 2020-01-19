@@ -175,7 +175,7 @@ if __name__ == '__main__':
             for v in value:
                 cov, ref_c, alt_c, in_callers, BAD, dip_qual, lq, rq, seg_c, sum_cov, p_ref, p_alt = v
 
-                if min(p_ref, p_alt) < 1/10**20:
+                if min(p_ref, p_alt) < 1/10**20 or min(ref_c, alt_c) > tr:
                     continue
                 pref_array.append(p_ref)
                 palt_array.append(p_alt)
