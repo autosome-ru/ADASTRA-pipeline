@@ -158,7 +158,8 @@ if __name__ == '__main__':
     keys = list(filtered_snps.keys())
     debug_dict = {}
     final_dict = {}
-    for tr in range(50, 1401, 50):
+    tr_list = [range(50, 151, 10)] + [range(150, 1401, 50)]
+    for tr in tr_list:
         debug_dict[tr] = {}
         final_dict[tr] = {}
         for key in keys:
