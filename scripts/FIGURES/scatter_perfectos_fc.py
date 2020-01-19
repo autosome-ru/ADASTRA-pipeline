@@ -8,9 +8,9 @@ import seaborn as sns
 
 
 def get_color(row):
-    if abs(row['log_fc']) < np.log10(fc_tr): # or abs(row['log_pv']) < np.log10(2):
+    if abs(row['log_fc']) < np.log10(fc_tr): # or abs(row['es']) < np.log10(2):
         return 'grey'
-    if row['log_fc'] * row['log_pv'] > 0:
+    if row['log_fc'] * row['es'] > 0:
         return 'blue'
     else:
         return 'red'
@@ -25,36 +25,44 @@ if __name__ == '__main__':
 
         perf_tr = 0.0005
         fc_tr = 4
-        pvalue_tr = 1.3
         fdr_tr = 0.05
         maxcov_tr = 500000
         fix = ''
 
-        ##
-        # pt = pt[pt['BAD'] != 4/3]
-
-
         pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
-        # pt = pt[~(pt['fdrp_by_alt'].isnull() | pt['fdrp_by_ref'].isnull())]
+        pt = pt[~(pt['fdrp_by_alt'].isnull() | pt['fdrp_by_ref'].isnull())]
         pt = pt[(pt['fdrp_by_alt'] <= fdr_tr) | (pt['fdrp_by_ref'] <= fdr_tr)]
+        pt = pt[pt['max_cover'] <= maxcov_tr]
 
 
-        # pt['log_pv'] = (np.log10(
+        # pt['es'] = (np.log10(
         #     pt['fdrp_by_ref']) - np.log10(pt['fdrp_by_alt']))
 
-        # pt['log_pv'] = (- np.log10(pt['fdrp_by_alt']))
+        # pt['es'] = (- np.log10(pt['fdrp_by_alt']))
 
-        # pt['log_pv'] = (np.log10(
+        # pt['es'] = (np.log10(
         #     pt[['fdrp_by_ref', 'fdrp_by_alt']]).min(axis=1)) \
         #                * np.sign(pt['fdrp_by_alt'] - pt['fdrp_by_ref'])
+
+        # pt[pt['es_mean_ref'].isnull()]['es_mean_ref'] = 0
+        # pt[pt['es_mean_alt'].isnull()]['es_mean_alt'] = 0
+        # pt[pt['es_mostsig_ref'].isnull()]['es_mostsig_ref'] = 0
+        # pt[pt['es_mostsig_alt'].isnull()]['es_mostsig_alt'] = 0
         #
-        pt['log_pv'] = (np.log10(
-            pt[['fdrp_by_ref', 'fdrp_by_alt']]).min(axis=1)) \
-                       * np.sign(pt['fdrp_by_alt'] - pt['fdrp_by_ref'])
+        # pt[pt['es_mean_ref'] < 0]['es_mean_ref'] = 0
+        # pt[pt['es_mean_alt'] < 0]['es_mean_alt'] = 0
+        # pt[pt['es_mostsig_ref'] < 0]['es_mostsig_ref'] = 0
+        # pt[pt['es_mostsig_alt'] < 0]['es_mostsig_alt'] = 0
+
+        # pt['es'] = (pt[['es_mean_ref', 'es_mean_alt']].max(axis=1)) \
+        #                * np.sign(pt['es_mean_alt'] - pt['es_mean_ref'])
+
+        pt['es'] = (pt[['es_mostsig_ref', 'es_mostsig_alt']].max(axis=1)) \
+                       * np.sign(pt['es_mostsig_alt'] - pt['es_mostsig_ref'])
 
         pt['log_fc'] = pt['fold_change']
         pt['col'] = pt.apply(lambda x: get_color(x), axis=1)
-        pt = pt[pt['max_cover'] <= maxcov_tr]
+
 
 
         #additional columns
@@ -68,10 +76,10 @@ if __name__ == '__main__':
         red = len(pt[pt['col'] == "red"].index)
         grey = len(pt[pt['col'] == "grey"].index)
 
-        i = len(pt[(pt['col'] == "blue") & (pt['log_pv'] > 0)].index)
-        ii = len(pt[(pt['col'] == "red") & (pt['log_pv'] < 0)].index)
-        iii = len(pt[(pt['col'] == "blue") & (pt['log_pv'] < 0)].index)
-        iv = len(pt[(pt['col'] == "red") & (pt['log_pv'] > 0)].index)
+        i = len(pt[(pt['col'] == "blue") & (pt['es'] > 0)].index)
+        ii = len(pt[(pt['col'] == "red") & (pt['es'] < 0)].index)
+        iii = len(pt[(pt['col'] == "blue") & (pt['es'] < 0)].index)
+        iv = len(pt[(pt['col'] == "red") & (pt['es'] > 0)].index)
 
         print(i, ii, iii, iv)
 
@@ -86,9 +94,10 @@ if __name__ == '__main__':
         pt_red = pt[pt['col'] == 'red']
         pt_blue = pt[pt['col'] == 'blue']
 
-        print('\n'.join(map(str, list(pt_red['ID']))))
-        print('blue')
-        print('\n'.join(map(str, list(pt_blue['ID']))))
+        # print('\n'.join(map(str, list(pt_red['ID']))))
+        # print('blue')
+        # print('\n'.join(map(str, list(pt_blue['ID']))))
+
 
         # print(pt.info())
         wc = {}
@@ -100,22 +109,22 @@ if __name__ == '__main__':
         l = sorted(l, key=lambda x: x[1])
         print('\n'.join(map(str, l)))
 
-        plt.scatter(x=pt['log_pv'], y=pt['log_fc'], c=pt['col'], s=5)
-        # sns.scatterplot(x=pt_grey['log_pv'], y=pt_grey['log_fc'], color='grey')
-        # sns.scatterplot(x=pt_red['log_pv'], y=pt_red['log_fc'], color='red')
-        # sns.scatterplot(x=pt_blue['log_pv'], y=pt_blue['log_fc'], color='blue')
+        plt.scatter(x=pt['es'], y=pt['log_fc'], c=pt['col'], s=5)
+        # sns.scatterplot(x=pt_grey['es'], y=pt_grey['log_fc'], color='grey')
+        # sns.scatterplot(x=pt_red['es'], y=pt_red['log_fc'], color='red')
+        # sns.scatterplot(x=pt_blue['es'], y=pt_blue['log_fc'], color='blue')
         plt.grid(True)
         plt.title(name + '\n' +
                   '\n'.join(['perfectos_pv <= {}', 'fold_change >= {}', 'fdr <= {}', 'max_cov <= {}']).format(perf_tr, fc_tr,
                                                                                                   fdr_tr, maxcov_tr))
-        plt.xlabel('best -log10 fdr_p')
+        plt.xlabel('effect size')
         plt.ylabel('log10 prefectos foldchange')
         label = 'blue/red: {}/{}({:.1f}%),\ngrey/all={:.1f}%'.format(blue, red,
                                                                      100 * blue / (blue + red),
                                                                      100 * grey / (grey + blue + red))
-        plt.text(x=max(pt['log_pv']) / 5, y=min(pt['log_fc']) / 2, s=label)
-        plt.text(x=min(pt['log_pv']) * 4 / 5, y=min(pt['log_fc']) / 2,
+        plt.text(x=max(pt['es']) / 5, y=min(pt['log_fc']) / 2, s=label)
+        plt.text(x=min(pt['es']) * 4 / 5, y=min(pt['log_fc']) / 2,
                  s=' P-value treshold: {},\nFC treshold: {}'.format(round(fdr_tr, 2), round(fc_tr, 1)))
 
-        plt.savefig(os.path.expanduser("~/TF_FC/{}_p_tr={:.2f}_fc_tr={:.2f}_fdr_tr={:.2f}_maxcov_tr={}.png".format(
+        plt.savefig(os.path.expanduser("~/TF_FC/{}_es_p_tr={:.2f}_fc_tr={:.2f}_fdr_tr={:.2f}_maxcov_tr={}.png".format(
             name.replace('_fc.tsv', ''), perf_tr, fc_tr, fdr_tr, maxcov_tr)))
