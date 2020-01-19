@@ -191,7 +191,7 @@ if __name__ == '__main__':
                                           len([x for x in debug_dict[tr] if
                                                (debug_dict[tr][x]['col'] == 'red' and
                                                 debug_dict[tr][x]['p'] <= strange_tr)])]
-        x = [x for x in strange_list if x < 0.1]
+        x = [x for x in strange_list if x < 0.001]
         y1 = [final_dict[tr][x_][0] for x_ in x]
         y2 = [final_dict[tr][x_][1] for x_ in x]
         final_dict[tr] = {}
