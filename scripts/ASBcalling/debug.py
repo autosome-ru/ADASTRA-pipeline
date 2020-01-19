@@ -175,7 +175,7 @@ if __name__ == '__main__':
             palt_array = []
             for v in value:
                 cov, ref_c, alt_c, in_callers, BAD, dip_qual, lq, rq, seg_c, sum_cov, p_ref, p_alt = v
-                if ref_c > 500 or alt_c > 500:
+                if ref_c > 500 or alt_c > 500 or min(ref_c, alt_c) > tr:
                     continue
                 elif r['alt'][BAD][alt_c] == 0 or r['ref'][BAD][ref_c] == 0:
                     continue
