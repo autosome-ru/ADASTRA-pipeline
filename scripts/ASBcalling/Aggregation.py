@@ -276,8 +276,6 @@ if __name__ == '__main__':
             mean_SNPs_per_segment = np.round(np.mean(SNPs_per_segment_array), 1)
             n_aggregated = len(value)
 
-            fisherp_ref = stats.combine_pvalues(pref_array)[1]
-            fisherp_alt = stats.combine_pvalues(palt_array)[1]
             logitp_ref = logit_combine_p_values(pref_array)
             logitp_palt = logit_combine_p_values(palt_array)
 
@@ -318,8 +316,7 @@ if __name__ == '__main__':
                  ref_c_mostsig_alt, alt_c_mostsig_alt, BAD_mostsig_alt, es_mostsig_alt,
                  min_cover, max_cover, med_cover, total_cover,
                  es_mean_ref, es_mean_alt,
-                 logitp_ref, logitp_palt,
-                 fisherp_ref, fisherp_alt]))
+                 logitp_ref, logitp_palt]))
             origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': table_names_array,
                                                             expected_args[what_for]: another_agr_name,
                                                             'ref_counts': ref_counts_array,
