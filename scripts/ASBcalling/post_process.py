@@ -14,10 +14,12 @@ from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_exp
 for table_name in os.listdir("/home/abramov/RESULTS/release-180120_Tambry/TF_P-values/"):
     table_path = "/home/abramov/RESULTS/release-180120_Tambry/TF_P-values/" + table_name
     out_path = "/home/abramov/RESULTS/CheckBH/TF_P-values/" + table_name
+    if "CTCF_HUMAN" not in table_name:
+        continue
     table = pd.read_table(table_path)
     list_of_chr = set("chr" + str(i) for i in range(11, 23))
     for chr in list_of_chr:
-        table = table[table["#chr"] != chr]
+        table = table[table["#  chr"] != chr]
     mc_filter_array = np.array(table['max_cover'] >= 10)
     if sum(mc_filter_array) != 0:
         bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_ref"],
