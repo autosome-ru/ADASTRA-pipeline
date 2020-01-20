@@ -17,12 +17,12 @@ def count_p(ref_c, alt_c, BADs):
 
         if ref_c[i] > 500:
             r = ref_c[i]
-            w = 0.5
+            w = 1
         else:
             r, w = weights[BADs[i]]['ref'][ref_c[i], :2]
             if r == 0:
                 r = ref_c[i]
-                w = 0.5
+                w = 1
         cdf1 = (st.nbinom(r, 1 / (BADs[i] + 1))).cdf
         cdf2 = (st.nbinom(r, BADs[i] / (BADs[i] + 1))).cdf
         cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
@@ -30,12 +30,12 @@ def count_p(ref_c, alt_c, BADs):
 
         if alt_c[i] > 500:
             r = alt_c[i]
-            w = 0.5
+            w = 1
         else:
             r, w = weights[BADs[i]]['alt'][alt_c[i], :2]
             if r == 0:
                 r = alt_c[i]
-                w = 0.5
+                w = 1
         cdf1 = (st.nbinom(r, 1 / (BADs[i] + 1))).cdf
         cdf2 = (st.nbinom(r, BADs[i] / (BADs[i] + 1))).cdf
         cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)

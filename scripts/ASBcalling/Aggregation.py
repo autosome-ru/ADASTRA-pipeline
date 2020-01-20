@@ -221,13 +221,13 @@ if __name__ == '__main__':
                 if p_ref != 1:
                     if alt_c > 500:
                         r_ref = alt_c
-                        w_ref = 0.5
+                        w_ref = 1
                     else:
                         r_ref = r['alt'][BAD][alt_c]
                         w_ref = w['alt'][BAD][alt_c]
                         if r_ref == 0:
                             r_ref = alt_c
-                            w_ref = 0.5
+                            w_ref = 1
                     dist1 = stats.nbinom(r_ref, p)
                     dist2 = stats.nbinom(r_ref, 1 - p)
                     cdf1_ref = dist1.cdf
@@ -244,13 +244,13 @@ if __name__ == '__main__':
                 if p_alt != 1:
                     if ref_c > 500:
                         r_alt = ref_c
-                        w_alt = 0.5
+                        w_alt = 1
                     else:
                         r_alt = r['ref'][BAD][ref_c]
                         w_alt = w['ref'][BAD][ref_c]
                         if r_alt == 0:
                             r_alt = ref_c
-                            w_alt = 0.5
+                            w_alt = 1
                     dist1 = stats.nbinom(r_alt, p)
                     dist2 = stats.nbinom(r_alt, 1 - p)
                     cdf1_alt = dist1.cdf
