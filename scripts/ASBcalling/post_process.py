@@ -12,8 +12,8 @@ from scripts.HELPERS.paths_for_components import parameters_path, results_path, 
 from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, expected_args, states
 
 for table_name in os.listdir("/home/abramov/RESULTS/release-180120_Tambry/TF_P-values/"):
-    table_path = "/home/abramov/RESULTS/release-180120_Tambry/TF_P-values/" + table_name
-    out_path = "/home/abramov/RESULTS/CheckBH/NEGBINOM/" + table_name
+    table_path = "/home/abramov/RESULTS/release-0601/TF_P-values/" + table_name
+    out_path = "/home/abramov/RESULTS/CheckBH/BINOM/" + table_name
     if "CTCF_HUMAN" not in table_name:
         continue
     table = pd.read_table(table_path)
