@@ -33,7 +33,7 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
         if line[0][0] == '#':
             out.write(pack(line + ['motif_log_pref', 'motif_log_palt', 'fold_change', 'motif_pos', 'orientation']))
             continue
-        ID = line[2]
+        ID = line[2] + ";" + line[4]
 
         dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['pos'])
         dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['orientation'])
