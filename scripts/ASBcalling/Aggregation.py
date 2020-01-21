@@ -219,7 +219,7 @@ if __name__ == '__main__':
                 p = 1 / (BAD + 1)
 
                 if p_ref != 1:
-                    if alt_c > 500:
+                    if alt_c > 30:
                         r_ref = alt_c
                         w_ref = 1
                     else:
@@ -242,7 +242,7 @@ if __name__ == '__main__':
                     ref_effect_size_array.append(np.log(ref_c / E_ref))
 
                 if p_alt != 1:
-                    if ref_c > 500:
+                    if ref_c > 30:
                         r_alt = ref_c
                         w_alt = 1
                     else:

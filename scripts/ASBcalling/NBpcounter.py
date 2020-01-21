@@ -15,7 +15,7 @@ def count_p(ref_c, alt_c, BADs):
 
     for i in range(N):
 
-        if ref_c[i] > 500:
+        if ref_c[i] > 30:
             r = ref_c[i]
             w = 1
         else:
@@ -28,7 +28,7 @@ def count_p(ref_c, alt_c, BADs):
         cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
         p_alt[i] = (1 - cdf(alt_c[i] - 1)) / (1 - cdf(4))
 
-        if alt_c[i] > 500:
+        if alt_c[i] > 30:
             r = alt_c[i]
             w = 1
         else:
