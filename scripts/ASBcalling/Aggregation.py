@@ -322,12 +322,20 @@ if __name__ == '__main__':
         os.remove(table_path)
         sys.exit(0)
 
+    bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"],
+                                                                             alpha=0.05, method='fdr_bh')
+    bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"],
+                                                                             alpha=0.05, method='fdr_bh')
+
+    table["fdrp_bh_alt"] = p_val_alt
+    table["fdrp_bh_ref"] = p_val_ref
+
     mc_filter_array = np.array(table['max_cover'] >= 30)
     if sum(mc_filter_array) != 0:
         bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_ref"],
-                                                                                 alpha=0.05, method='fdr_by')
+                                                                                 alpha=0.05, method='fdr_bh')
         bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_alt"],
-                                                                                 alpha=0.05, method='fdr_by')
+                                                                                 alpha=0.05, method='fdr_bh')
     else:
         p_val_ref = []
         p_val_alt = []
@@ -336,11 +344,11 @@ if __name__ == '__main__':
 
     fdr_by_ref = np.array(['NaN'] * len(table.index), dtype=np.float128)
     fdr_by_ref[mc_filter_array] = p_val_ref
-    table["fdrp_by_ref"] = fdr_by_ref
+    table["fdrp_bh30_ref"] = fdr_by_ref
 
     fdr_by_alt = np.array(['NaN'] * len(table.index), dtype=np.float128)
     fdr_by_alt[mc_filter_array] = p_val_alt
-    table["fdrp_by_alt"] = fdr_by_alt
+    table["fdrp_bh30_alt"] = fdr_by_alt
 
     table.to_csv(table_path, sep="\t", index=False)
 
