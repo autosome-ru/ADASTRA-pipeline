@@ -11,10 +11,10 @@ GETNAME(){
 }
 
 file=$1
-echo "${results_path}TF_P-values/"
 ExpFile=$( GETNAME "$file" )
 ExpName=${ExpFile%.*}
 
+# shellcheck disable=SC2154
 echo $PWMs_path"$ExpName"/
 if [ -d "${PWMs_path}/$ExpName"/ ]; then
   # shellcheck disable=SC2154
@@ -22,6 +22,7 @@ if [ -d "${PWMs_path}/$ExpName"/ ]; then
   motive_len=$(wc -l "${PWMs_path}/$ExpName/"*)
   motive_len=$((${motive_len%" "*}))
 
+  # shellcheck disable=SC2154
   if ! $python3 "${scripts_path}SARUSannotation/"extract_sarus_data.py "$file" "$FA" \
     "${sarus_path}${ExpName}_ape_data.txt" "${motive_len}"
   then
@@ -45,18 +46,24 @@ if [ -d "${PWMs_path}/$ExpName"/ ]; then
           exit 0
     fi
 
-    if ! $python3 "${scripts_path}SARUSannotation/"adjust_table_with_sarus.py "${file}" \
-      "${sarus_path}${ExpName}_ape.txt" "${sarus_path}${ExpName}_fc.tsv" "${motive_len}";
-    then
-      echo "Failed to add fc to the table"
-      exit 0
-    fi
 
-    rm "${sarus_path}${ExpName}_ape.txt"
+
+
   else
     echo "NO ASB found for ${ExpName}"
   fi
   rm "${sarus_path}${ExpName}_ape_data.txt"
 else
   echo "No PWMs_path found for $ExpName"
+fi
+
+if ! $python3 "${scripts_path}SARUSannotation/"adjust_table_with_sarus.py "${file}" \
+  "${sarus_path}${ExpName}_ape.txt" "${sarus_path}${ExpName}_fc.tsv" "${motive_len}";
+then
+  echo "Failed to add fc to the table"
+  exit 0
+fi
+
+if [ -f "${sarus_path}${ExpName}_ape_data.txt" ]; then
+  rm "${sarus_path}${ExpName}_ape.txt"
 fi

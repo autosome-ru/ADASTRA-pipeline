@@ -1,3 +1,4 @@
+import os
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
@@ -6,32 +7,36 @@ from scripts.HELPERS.helpers import pack
 motif_length = int(sys.argv[4])
 #read sarus file and choose best
 dict_of_snps = {}
+if os.path.isfile(sys.argv[2]):
+    with open(sys.argv[2], 'r') as sarus:
+        allele = None
+        current_snp_id = None
+        for line in sarus:
+            if line[0] == ">":
+                # choose best
+                allele = line[-4:-1]
+                current_snp_id = line[1:-5]
+                assert allele in ("ref", "alt")
+                if allele == "ref":
+                    dict_of_snps[current_snp_id] = {"ref": [], "alt": []}
+            else:
+                assert allele in ("ref", "alt")
+                line = line.strip().split("\t")
+                dict_of_snps[current_snp_id][allele].append({
+                    "p": float(line[0]),
+                    "orientation": line[2],
+                    "pos": int(line[1]) if line[2] == '-' else motif_length - 1 - int(line[1]),
+                })
 
-with open(sys.argv[2], 'r') as sarus:
-    allele = None
-    current_snp_id = None
-    for line in sarus:
-        if line[0] == ">":
-            # choose best
-            allele = line[-4:-1]
-            current_snp_id = line[1:-5]
-            assert allele in ("ref", "alt")
-            if allele == "ref":
-                dict_of_snps[current_snp_id] = {"ref": [], "alt": []}
-        else:
-            assert allele in ("ref", "alt")
-            line = line.strip().split("\t")
-            dict_of_snps[current_snp_id][allele].append({
-                "p": float(line[0]),
-                "orientation": line[2],
-                "pos": int(line[1]) if line[2] == '-' else motif_length - 1 - int(line[1]),
-            })
-
+adjusted_columns = ['motif_log_pref', 'motif_log_palt', 'fold_change', 'motif_pos', 'orientation']
 with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
     for line in table:
         line = line.strip('\n').split('\t')
         if line[0][0] == '#':
-            out.write(pack(line + ['motif_log_pref', 'motif_log_palt', 'fold_change', 'motif_pos', 'orientation']))
+            out.write(pack(line + adjusted_columns))
+            continue
+        if len(dict_of_snps) == 0:
+            out.write(pack(line + [""] * len(adjusted_columns)))
             continue
         ID = line[2] + ";" + line[4]
 
