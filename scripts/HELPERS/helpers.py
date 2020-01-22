@@ -1,9 +1,10 @@
 import sys
 import string
+import numpy as np
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function
-from scripts.HELPERS.paths_for_components import GTRD_slice_path, synonims_path
+from scripts.HELPERS.paths_for_components import GTRD_slice_path, synonims_path, parameters_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
@@ -399,3 +400,24 @@ def create_line_for_snp_calling(split_line, is_ctrl=False):
         return pack(result)
     else:
         return pack(split_line[:7])
+
+
+def read_weights():
+    r = {}
+    w = {}
+    gof = {}
+    for fixed_allele in ('ref', 'alt'):
+        r[fixed_allele] = {}
+        w[fixed_allele] = {}
+        gof[fixed_allele] = {}
+        for BAD in states:
+            precalc_params_path = parameters_path + 'NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD)
+            coefs_array = np.load(precalc_params_path)
+            r[fixed_allele][BAD] = coefs_array[:, 0]
+            w[fixed_allele][BAD] = coefs_array[:, 1]
+            gof[fixed_allele][BAD] = coefs_array[:, 3]
+            first_bad_gof = min(x for x in range(len(gof[fixed_allele][BAD])) if gof[fixed_allele][BAD][x] > 0.05)
+            gof[fixed_allele][BAD][first_bad_gof:] = 1
+            r[fixed_allele][BAD][first_bad_gof:] = 0
+            w[fixed_allele][BAD][first_bad_gof:] = 1
+    return r, w, gof

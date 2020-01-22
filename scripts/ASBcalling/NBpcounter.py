@@ -5,7 +5,7 @@ from scipy import stats as st
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths_for_components import parameters_path
-from scripts.HELPERS.helpers import states
+from scripts.HELPERS.helpers import read_weights
 
 
 def count_p(ref_c, alt_c, BADs):
@@ -15,12 +15,14 @@ def count_p(ref_c, alt_c, BADs):
 
     for i in range(N):
 
-        if ref_c[i] > 30:
+        if ref_c[i] > 500:
             r = ref_c[i]
             w = 1
         else:
-            r, w = weights[BADs[i]]['ref'][ref_c[i], :2]
-            if r == 0:
+            r, w, gof = (r_dict['ref'][BADs[i]][ref_c[i]],
+                         w_dict['ref'][BADs[i]][ref_c[i]],
+                         gof_dict['ref'][BADs[i]][ref_c[i]])
+            if gof < 0.05:
                 r = ref_c[i]
                 w = 1
         cdf1 = (st.nbinom(r, 1 / (BADs[i] + 1))).cdf
@@ -28,12 +30,14 @@ def count_p(ref_c, alt_c, BADs):
         cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
         p_alt[i] = (1 - cdf(alt_c[i] - 1)) / (1 - cdf(4))
 
-        if alt_c[i] > 30:
+        if alt_c[i] > 500:
             r = alt_c[i]
             w = 1
         else:
-            r, w = weights[BADs[i]]['alt'][alt_c[i], :2]
-            if r == 0:
+            r, w, gof = (r_dict['ref'][BADs[i]][ref_c[i]],
+                         w_dict['ref'][BADs[i]][ref_c[i]],
+                         gof_dict['ref'][BADs[i]][ref_c[i]])
+            if gof < 0.05:
                 r = alt_c[i]
                 w = 1
         cdf1 = (st.nbinom(r, 1 / (BADs[i] + 1))).cdf
@@ -49,11 +53,7 @@ if __name__ == '__main__':
     output = full_path + "_table_p.txt"
     print('Now counting P-value for {}'.format(table_BAD))
 
-    weights = {}
-    for BAD in states:
-        weights[BAD] = dict()
-        weights[BAD]['ref'] = np.load(parameters_path + 'NBweights_ref_BAD={:.1f}.npy'.format(BAD))
-        weights[BAD]['alt'] = np.load(parameters_path + 'NBweights_alt_BAD={:.1f}.npy'.format(BAD))
+    r_dict, w_dict, gof_dict = read_weights()
 
     df_with_BAD = pd.read_table(table_BAD)
     p_ref, p_alt = count_p(np.array(df_with_BAD["ref_read_counts"], dtype=np.int_),

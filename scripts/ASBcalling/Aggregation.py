@@ -10,7 +10,8 @@ from collections import OrderedDict
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths_for_components import parameters_path, results_path, tf_dict_path, cl_dict_path
-from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, expected_args, states
+from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args,\
+    expected_args, states, read_weights
 
 
 def logit_combine_p_values(pvalues):
@@ -41,20 +42,6 @@ def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return par
 
 def get_name(path):  # path format */ALIGNS000000_table_p.txt
     return path.split("/")[-1].split("_")[0]
-
-
-def read_weights():
-    r = {}
-    w = {}
-    for fixed_allele in ('ref', 'alt'):
-        r[fixed_allele] = {}
-        w[fixed_allele] = {}
-        for BAD in states:
-            precalc_params_path = parameters_path + 'NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD)
-            coefs_array = np.load(precalc_params_path)
-            r[fixed_allele][BAD] = coefs_array[:, 0]
-            w[fixed_allele][BAD] = coefs_array[:, 1]
-    return r, w
 
 
 def invert(dictionary):
@@ -164,7 +151,7 @@ if __name__ == '__main__':
 
         if len(filtered_snps) == 0:
             sys.exit(0)
-        r, w = read_weights()
+        r, w, gof = read_weights()
         origin_of_snp_dict = OrderedDict()
         keys = list(filtered_snps.keys())
         keys = sorted(keys, key=lambda chr_pos: chr_pos[1])
@@ -219,13 +206,13 @@ if __name__ == '__main__':
                 p = 1 / (BAD + 1)
 
                 if p_ref != 1:
-                    if alt_c > 30:
+                    if alt_c > 500:
                         r_ref = alt_c
                         w_ref = 1
                     else:
                         r_ref = r['alt'][BAD][alt_c]
                         w_ref = w['alt'][BAD][alt_c]
-                        if r_ref == 0:
+                        if r_ref == 0:  # it is = 0 if gof < 0.05
                             r_ref = alt_c
                             w_ref = 1
                     dist1 = stats.nbinom(r_ref, p)
@@ -242,13 +229,13 @@ if __name__ == '__main__':
                     ref_effect_size_array.append(np.log(ref_c / E_ref))
 
                 if p_alt != 1:
-                    if ref_c > 30:
+                    if ref_c > 500:
                         r_alt = ref_c
                         w_alt = 1
                     else:
                         r_alt = r['ref'][BAD][ref_c]
                         w_alt = w['ref'][BAD][ref_c]
-                        if r_alt == 0:
+                        if r_alt == 0:  # it is = 0 if gof < 0.05
                             r_alt = ref_c
                             w_alt = 1
                     dist1 = stats.nbinom(r_alt, p)
