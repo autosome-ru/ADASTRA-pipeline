@@ -64,6 +64,6 @@ then
   exit 0
 fi
 
-if [ -f "${sarus_path}${ExpName}_ape_data.txt" ]; then
+if [ -f "${sarus_path}${ExpName}_ape.txt" ]; then
   rm "${sarus_path}${ExpName}_ape.txt"
 fi
