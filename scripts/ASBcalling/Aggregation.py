@@ -130,8 +130,7 @@ if __name__ == '__main__':
                         'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'es_mostsig_alt',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
                         'es_mean_ref', 'es_mean_alt',
-                        'logitp_ref', 'logitp_alt',
-                        'fisherp_ref', 'fisherp_alt']))
+                        'logitp_ref', 'logitp_alt']))
 
         filtered_snps = dict()
         for key in common_snps:
