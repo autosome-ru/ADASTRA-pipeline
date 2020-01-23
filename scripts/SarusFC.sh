@@ -49,13 +49,15 @@ if [ -d "${PWMs_path}/$ExpName"/ ]; then
   else
     echo "NO ASB found for ${ExpName}"
   fi
-  rm "${sarus_path}${ExpName}_ape_data.txt"
+  if [ -f "${sarus_path}${ExpName}_ape_data.txt" ]; then
+    rm "${sarus_path}${ExpName}_ape_data.txt"
+  fi
 else
   echo "No PWMs_path found for $ExpName"
 fi
 
 if ! $python3 "${scripts_path}SARUSannotation/"adjust_table_with_sarus.py "${file}" \
-  "${sarus_path}${ExpName}_ape.txt" "${sarus_path}${ExpName}_fc.tsv" "${motive_len}";
+  "${sarus_path}${ExpName}_ape.txt" "${sarus_path}${ExpName}.tsv" "${motive_len}";
 then
   echo "Failed to add fc to the table"
   exit 0
