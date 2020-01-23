@@ -4,10 +4,10 @@ import sys
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import pack
 
-motif_length = int(sys.argv[4])
 #read sarus file and choose best
 dict_of_snps = {}
 if os.path.isfile(sys.argv[2]):
+    motif_length = int(sys.argv[4])
     with open(sys.argv[2], 'r') as sarus:
         allele = None
         current_snp_id = None

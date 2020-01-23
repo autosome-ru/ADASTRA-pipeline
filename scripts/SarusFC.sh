@@ -46,9 +46,6 @@ if [ -d "${PWMs_path}/$ExpName"/ ]; then
           exit 0
     fi
 
-
-
-
   else
     echo "NO ASB found for ${ExpName}"
   fi
