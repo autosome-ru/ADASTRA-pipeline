@@ -128,6 +128,8 @@ for line in table:
         continue
     line = line.split()
     chr = line[0]
+    if chr not in ChromPos.chrs:
+        continue
     try:
         p = int(line[1])
     except ValueError:
