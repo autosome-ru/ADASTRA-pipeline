@@ -1,8 +1,22 @@
 import os
 import sys
+import numpy as np
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import pack
+
+
+def get_color(p_val_ref, p_val_alt, motif_fc, motif_pval_ref, motif_pval_alt):
+    log_pv = np.log10(min(p_val_ref, p_val_alt)) * np.sign(p_val_alt - p_val_ref)
+    if abs(log_pv) < -np.log10(0.05) or abs(motif_fc) < 2 or max(motif_pval_ref, motif_pval_alt) < -np.log10(0.0005):
+        return None
+    if motif_fc * log_pv > 0:
+        return 'concordant'
+    elif motif_fc * log_pv < 0:
+        return 'discordant'
+    else:
+        return None
+
 
 #read sarus file and choose best
 dict_of_snps = {}
@@ -28,7 +42,7 @@ if os.path.isfile(sys.argv[2]):
                     "pos": int(line[1]) if line[2] == '-' else motif_length - 1 - int(line[1]),
                 })
 
-adjusted_columns = ['motif_log_pref', 'motif_log_palt', 'fold_change', 'motif_pos', 'orientation']
+adjusted_columns = ['motif_log_pref', 'motif_log_palt', 'motif_fc', 'motif_pos', 'motif_orient', "motif_conc"]
 with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
     for line in table:
         line = line.strip('\n').split('\t')
@@ -62,4 +76,9 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
                                dict_of_snps[ID]['alt'][best_idx]['p'] - dict_of_snps[ID]['ref'][best_idx]['p'],
                                dict_of_snps[ID]['ref'][best_idx]['pos'],
                                dict_of_snps[ID]['ref'][best_idx]['orientation'],
+                               get_color(np.float(line[-2]), np.float(line[-1]),
+                                         dict_of_snps[ID]['alt'][best_idx]['p'] -
+                                         dict_of_snps[ID]['ref'][best_idx]['p'],
+                                         dict_of_snps[ID]['ref'][best_idx]['p'],
+                                         dict_of_snps[ID]['alt'][best_idx]['p'])
                                ]))
