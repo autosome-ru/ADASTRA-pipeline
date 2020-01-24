@@ -22,6 +22,8 @@ for line in table:
     if line[0] == '#':
         continue
     line = line.split()
+    if line[0] not in ChromPos.chrs:
+        continue
     positions[line[0]].append(int(line[1]))
 table.seek(0)
 

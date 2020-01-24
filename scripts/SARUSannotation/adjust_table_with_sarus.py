@@ -3,7 +3,7 @@ import sys
 import numpy as np
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.helpers import pack
+from scripts.HELPERS.helpers import pack, ChromPos
 
 
 def get_color(p_val_ref, p_val_alt, motif_fc, motif_pval_ref, motif_pval_alt):
@@ -51,6 +51,8 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
             continue
         if len(dict_of_snps) == 0:
             out.write(pack(line + [""] * len(adjusted_columns)))
+            continue
+        if line[0] not in ChromPos.chrs:
             continue
         ID = ";".join(line[:4])
 
