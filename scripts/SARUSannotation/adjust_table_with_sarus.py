@@ -42,7 +42,7 @@ if os.path.isfile(sys.argv[2]):
                     "pos": int(line[1]) if line[2] == '-' else motif_length - 1 - int(line[1]),
                 })
 
-adjusted_columns = ['motif_log_pref', 'motif_log_palt', 'motif_fc', 'motif_pos', 'motif_orient', "motif_conc"]
+adjusted_columns = ['motif_log_pref', 'motif_log_palt', 'motif_fc', 'motif_pos', 'motif_orient']
 with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
     for line in table:
         line = line.strip('\n').split('\t')
@@ -80,9 +80,4 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
                                dict_of_snps[ID]['alt'][best_idx]['p'] - dict_of_snps[ID]['ref'][best_idx]['p'],
                                dict_of_snps[ID]['ref'][best_idx]['pos'],
                                dict_of_snps[ID]['ref'][best_idx]['orientation'],
-                               get_color(np.float(line[-2]), np.float(line[-1]),
-                                         dict_of_snps[ID]['alt'][best_idx]['p'] -
-                                         dict_of_snps[ID]['ref'][best_idx]['p'],
-                                         dict_of_snps[ID]['ref'][best_idx]['p'],
-                                         dict_of_snps[ID]['alt'][best_idx]['p'])
                                ]))
