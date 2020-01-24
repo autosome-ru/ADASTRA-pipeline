@@ -55,17 +55,19 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
         if line[0] not in ChromPos.chrs:
             continue
         ID = ";".join(line[:4])
+        try:
+            dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['pos'])
+            dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['orientation'])
 
-        dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['pos'])
-        dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['orientation'])
+            dict_of_snps[ID]['alt'] = sorted(dict_of_snps[ID]['alt'], key=lambda x: x['pos'])
+            dict_of_snps[ID]['alt'] = sorted(dict_of_snps[ID]['alt'], key=lambda x: x['orientation'])
 
-        dict_of_snps[ID]['alt'] = sorted(dict_of_snps[ID]['alt'], key=lambda x: x['pos'])
-        dict_of_snps[ID]['alt'] = sorted(dict_of_snps[ID]['alt'], key=lambda x: x['orientation'])
+            ref_best = max(enumerate(dict_of_snps[ID]['ref']), key=lambda x: x[1]['p'])
+            alt_best = max(enumerate(dict_of_snps[ID]['alt']), key=lambda x: x[1]['p'])
 
-        ref_best = max(enumerate(dict_of_snps[ID]['ref']), key=lambda x: x[1]['p'])
-        alt_best = max(enumerate(dict_of_snps[ID]['alt']), key=lambda x: x[1]['p'])
-
-        best_idx, _ = max((ref_best, alt_best), key=lambda x: x[1]['p'])
+            best_idx, _ = max((ref_best, alt_best), key=lambda x: x[1]['p'])
+        except KeyError:
+            continue
 
         if len(dict_of_snps[ID]['ref']) != len(dict_of_snps[ID]['alt']):
             print(ID, dict_of_snps[ID]['ref'], dict_of_snps[ID]['alt'])
