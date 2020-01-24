@@ -132,7 +132,7 @@ for line in table:
         continue
     R = line[3]
     A = line[4]
-    ID = line[2] + ";" + line[4]
+    ID = ";".join(line[:4])
     # print(chr, p, gen[chr][p])
     if gen[chr][p] == 0:
         continue

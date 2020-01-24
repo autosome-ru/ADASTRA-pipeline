@@ -52,7 +52,7 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
         if len(dict_of_snps) == 0:
             out.write(pack(line + [""] * len(adjusted_columns)))
             continue
-        ID = line[2] + ";" + line[4]
+        ID = ";".join(line[:4])
 
         dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['pos'])
         dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['orientation'])
