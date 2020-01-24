@@ -147,10 +147,11 @@ for line in table:
         continue
     if 0 in [gen[chr][p - (motive_length - 1) + i] for i in range(motive_length - 1)]:
         continue
-    if 0 in [[gen[chr][p + 1 + i]] for i in range((motive_length - 1))]:
+    if 0 in [[gen[chr][p + 1 + i]] for i in range(motive_length - 1)]:
         continue
-    left_tail = ''.join([nuc[gen[chr][p - (motive_length - 1) + i]] for i in range((motive_length - 1))])
-    right_tail = ''.join([nuc[gen[chr][p + 1 + i]] for i in range((motive_length - 1))])
+    print([[gen[chr][p + 1 + i]] for i in range(motive_length - 1)])
+    left_tail = ''.join([nuc[gen[chr][p - (motive_length - 1) + i]] for i in range(motive_length - 1)])
+    right_tail = ''.join([nuc[gen[chr][p + 1 + i]] for i in range(motive_length - 1)])
 
     out.write('>' + ID + '_ref' + '\n')
     out.write(left_tail + R + right_tail + '\n')
