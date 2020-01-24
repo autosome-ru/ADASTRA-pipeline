@@ -1,37 +1,56 @@
+import os
 import sys
+import numpy as np
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import pack
 
-motif_length = int(sys.argv[4])
+
+def get_color(p_val_ref, p_val_alt, motif_fc, motif_pval_ref, motif_pval_alt):
+    log_pv = np.log10(min(p_val_ref, p_val_alt)) * np.sign(p_val_alt - p_val_ref)
+    if abs(log_pv) < -np.log10(0.05) or abs(motif_fc) < 2 or max(motif_pval_ref, motif_pval_alt) < -np.log10(0.0005):
+        return None
+    if motif_fc * log_pv > 0:
+        return 'concordant'
+    elif motif_fc * log_pv < 0:
+        return 'discordant'
+    else:
+        return None
+
+
 #read sarus file and choose best
 dict_of_snps = {}
+if os.path.isfile(sys.argv[2]):
+    motif_length = int(sys.argv[4])
+    with open(sys.argv[2], 'r') as sarus:
+        allele = None
+        current_snp_id = None
+        for line in sarus:
+            if line[0] == ">":
+                # choose best
+                allele = line[-4:-1]
+                current_snp_id = line[1:-5]
+                assert allele in ("ref", "alt")
+                if allele == "ref":
+                    dict_of_snps[current_snp_id] = {"ref": [], "alt": []}
+            else:
+                assert allele in ("ref", "alt")
+                line = line.strip().split("\t")
+                dict_of_snps[current_snp_id][allele].append({
+                    "p": float(line[0]),
+                    "orientation": line[2],
+                    "pos": int(line[1]) if line[2] == '-' else motif_length - 1 - int(line[1]),
+                })
 
-with open(sys.argv[2], 'r') as sarus:
-    allele = None
-    current_snp_id = None
-    for line in sarus:
-        if line[0] == ">":
-            # choose best
-            allele = line[-4:-1]
-            current_snp_id = line[1:-5]
-            assert allele in ("ref", "alt")
-            if allele == "ref":
-                dict_of_snps[current_snp_id] = {"ref": [], "alt": []}
-        else:
-            assert allele in ("ref", "alt")
-            line = line.strip().split("\t")
-            dict_of_snps[current_snp_id][allele].append({
-                "p": float(line[0]),
-                "orientation": line[2],
-                "pos": int(line[1]) if line[2] == '-' else motif_length - 1 - int(line[1]),
-            })
-
+adjusted_columns = ['motif_log_pref', 'motif_log_palt', 'motif_fc', 'motif_pos', 'motif_orient', "motif_conc"]
 with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
     for line in table:
         line = line.strip('\n').split('\t')
         if line[0][0] == '#':
-            out.write(pack(line + ['motif_log_pref', 'motif_log_palt', 'fold_change', 'motif_pos', 'orientation']))
+            out.write(pack(line + adjusted_columns))
+            continue
+        if len(dict_of_snps) == 0:
+            out.write(pack(line + [""] * len(adjusted_columns)))
             continue
         ID = line[2] + ";" + line[4]
 
@@ -57,4 +76,9 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
                                dict_of_snps[ID]['alt'][best_idx]['p'] - dict_of_snps[ID]['ref'][best_idx]['p'],
                                dict_of_snps[ID]['ref'][best_idx]['pos'],
                                dict_of_snps[ID]['ref'][best_idx]['orientation'],
+                               get_color(np.float(line[-2]), np.float(line[-1]),
+                                         dict_of_snps[ID]['alt'][best_idx]['p'] -
+                                         dict_of_snps[ID]['ref'][best_idx]['p'],
+                                         dict_of_snps[ID]['ref'][best_idx]['p'],
+                                         dict_of_snps[ID]['alt'][best_idx]['p'])
                                ]))

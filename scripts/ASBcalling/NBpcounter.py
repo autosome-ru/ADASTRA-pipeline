@@ -22,7 +22,7 @@ def count_p(ref_c, alt_c, BADs):
             r, w, gof = (r_dict['ref'][BADs[i]][ref_c[i]],
                          w_dict['ref'][BADs[i]][ref_c[i]],
                          gof_dict['ref'][BADs[i]][ref_c[i]])
-            if gof < 0.05:
+            if r == 0:
                 r = ref_c[i]
                 w = 1
         cdf1 = (st.nbinom(r, 1 / (BADs[i] + 1))).cdf
@@ -34,10 +34,10 @@ def count_p(ref_c, alt_c, BADs):
             r = alt_c[i]
             w = 1
         else:
-            r, w, gof = (r_dict['ref'][BADs[i]][ref_c[i]],
-                         w_dict['ref'][BADs[i]][ref_c[i]],
-                         gof_dict['ref'][BADs[i]][ref_c[i]])
-            if gof < 0.05:
+            r, w, gof = (r_dict['alt'][BADs[i]][alt_c[i]],
+                         w_dict['alt'][BADs[i]][alt_c[i]],
+                         gof_dict['alt'][BADs[i]][alt_c[i]])
+            if r == 0:
                 r = alt_c[i]
                 w = 1
         cdf1 = (st.nbinom(r, 1 / (BADs[i] + 1))).cdf

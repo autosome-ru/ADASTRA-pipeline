@@ -9,9 +9,9 @@ import pandas as pd
 from collections import OrderedDict
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths_for_components import parameters_path, results_path, tf_dict_path, cl_dict_path
+from scripts.HELPERS.paths_for_components import results_path, tf_dict_path, cl_dict_path
 from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args,\
-    expected_args, states, read_weights
+    expected_args, read_weights
 
 
 def logit_combine_p_values(pvalues):
@@ -130,8 +130,7 @@ if __name__ == '__main__':
                         'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'es_mostsig_alt',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
                         'es_mean_ref', 'es_mean_alt',
-                        'logitp_ref', 'logitp_alt',
-                        'fisherp_ref', 'fisherp_alt']))
+                        'logitp_ref', 'logitp_alt']))
 
         filtered_snps = dict()
         for key in common_snps:
@@ -322,12 +321,12 @@ if __name__ == '__main__':
         os.remove(table_path)
         sys.exit(0)
 
-    mc_filter_array = np.array(table['max_cover'] >= 30)
+    mc_filter_array = np.array(table['max_cover'] >= 20)
     if sum(mc_filter_array) != 0:
         bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_ref"],
-                                                                                 alpha=0.05, method='fdr_by')
+                                                                                 alpha=0.05, method='fdr_bh')
         bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_alt"],
-                                                                                 alpha=0.05, method='fdr_by')
+                                                                                 alpha=0.05, method='fdr_bh')
     else:
         p_val_ref = []
         p_val_alt = []
@@ -336,11 +335,11 @@ if __name__ == '__main__':
 
     fdr_by_ref = np.array(['NaN'] * len(table.index), dtype=np.float128)
     fdr_by_ref[mc_filter_array] = p_val_ref
-    table["fdrp_by_ref"] = fdr_by_ref
+    table["fdrp_bh_ref"] = fdr_by_ref
 
     fdr_by_alt = np.array(['NaN'] * len(table.index), dtype=np.float128)
     fdr_by_alt[mc_filter_array] = p_val_alt
-    table["fdrp_by_alt"] = fdr_by_alt
+    table["fdrp_bh_alt"] = fdr_by_alt
 
     table.to_csv(table_path, sep="\t", index=False)
 
