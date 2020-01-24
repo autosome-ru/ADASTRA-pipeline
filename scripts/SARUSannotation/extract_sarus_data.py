@@ -134,8 +134,8 @@ for line in table:
         p = int(line[1])
     except ValueError:
         continue
-    R = line[3]
-    A = line[4]
+    R = line[2]
+    A = line[3]
     ID = ";".join(line[:4])
     # print(chr, p, gen[chr][p])
     if gen[chr][p] == 0:
