@@ -145,7 +145,7 @@ for line in table:
 
     if R.lower() != nuc[gen[chr][p]]:
         continue
-    print(chr, p, gen[chr][p])
+    print([gen[chr][p - (motive_length - 1) + i] for i in range(motive_length - 1)])
     left_tail = ''.join([nuc[gen[chr][p - (motive_length - 1) + i]] for i in range((motive_length - 1))])
     right_tail = ''.join([nuc[gen[chr][p + 1 + i]] for i in range((motive_length - 1))])
 
