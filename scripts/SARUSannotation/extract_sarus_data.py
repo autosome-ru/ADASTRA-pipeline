@@ -134,6 +134,8 @@ for line in table:
         p = int(line[1])
     except ValueError:
         continue
+    if p - motive_length <= 0:
+        continue
     R = line[2]
     A = line[3]
     ID = ";".join(line[:4])
