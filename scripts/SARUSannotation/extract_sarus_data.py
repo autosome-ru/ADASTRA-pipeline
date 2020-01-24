@@ -134,7 +134,7 @@ for line in table:
         p = int(line[1])
     except ValueError:
         continue
-    if p - motive_length <= 0:
+    if p - motive_length < 1:
         continue
     R = line[2]
     A = line[3]
@@ -142,10 +142,10 @@ for line in table:
     # print(chr, p, gen[chr][p])
     if gen[chr][p] == 0:
         continue
-    # print(chr, p, gen[chr][p])
+
     if R.lower() != nuc[gen[chr][p]]:
         continue
-
+    print(chr, p, gen[chr][p])
     left_tail = ''.join([nuc[gen[chr][p - (motive_length - 1) + i]] for i in range((motive_length - 1))])
     right_tail = ''.join([nuc[gen[chr][p + 1 + i]] for i in range((motive_length - 1))])
 
