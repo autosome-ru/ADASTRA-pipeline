@@ -3,9 +3,10 @@ import numpy as np
 import os
 from scipy import stats
 import pandas as pd
-from matplotlib import pyplot as plt
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.FIGURES import style_config
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 
 def get_color(row):
@@ -25,14 +26,14 @@ if __name__ == '__main__':
                    'ANDR_HUMAN.tsv', 'ESR1_HUMAN.tsv',
                    'NRF1_HUMAN.tsv', 'DUX4_HUMAN.tsv',
                    'CREB1_HUMAN.tsv', 'AP2A_HUMAN.tsv']
-    for name in top10_names:
+    for name in ['CTCF_HUMAN.tsv']:
         pt = pd.read_table(os.path.expanduser("~/scatter_why_red/{}".format(name)))
 
         field = 'fdrp_bh'
 
         perf_tr = 0.0005
-        fc_tr = 2
-        fdr_tr = 0.05
+        fc_tr = 4
+        fdr_tr = 0.005
 
         ##
         # pt = pt[pt['BAD'] != 4/3]
@@ -146,3 +147,4 @@ if __name__ == '__main__':
         plt.savefig(os.path.expanduser("~/TF_FC/final/{}_p_tr={:.2f}_fc_tr={:.2f}_fdr_tr={:.2f}_{}.png".format(
             name.replace('_fc.tsv', ''), perf_tr, fc_tr, fdr_tr, field)))
 
+        plt.show()
