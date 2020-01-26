@@ -80,8 +80,6 @@ print("Made {}/{} VCFS ({}/{} experiment VCFs, {}/{} control VCFs), {} annotated
 print("Total of {} SNPs in experiment VCFs".format(SNP_counter))
 with open(parameters_path + "TF_SNP_statistics.JSON", "w") as jsonFile:
     json.dump(dict_SNP_TF_statistics, jsonFile)
-SNP_TF_statistics = sorted(list(dict_SNP_TF_statistics.items()), key=lambda x: x[1], reverse=True)
-print(SNP_TF_statistics[:5])
 
 ploidy_control_vcfs = 0
 ploidy_vcfs_counter = 0
