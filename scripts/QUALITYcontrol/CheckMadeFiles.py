@@ -52,8 +52,8 @@ for line in master_list:
         annotated_table_path = create_path_from_GTRD_function(line, for_what="annotated_table")
         if os.path.isfile(annotated_table_path):
             made_annotated_tables += 1
-
             an_table = pd.read_table(annotated_table_path)
+
             local_counter = len(an_table.index)
             if local_counter != 0:
                 if line[1] not in dict_overall_statistics["SNP_calls"]["TF"]:
@@ -128,5 +128,5 @@ for cl in made_cls:
                     dict_overall_statistics["unique_asb"]["CL"][cl] += fdr_counter
 
 
-with open(parameters_path + "overall_statistics.JSON", "w") as jsonFile:
+with open(parameters_path + "overall_statistics.json", "w") as jsonFile:
     json.dump(dict_overall_statistics, jsonFile)
