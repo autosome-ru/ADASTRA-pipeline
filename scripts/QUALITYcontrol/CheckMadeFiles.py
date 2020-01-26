@@ -50,7 +50,7 @@ for line in master_list:
         annotated_table_path = create_path_from_GTRD_function(line, for_what="annotated_table")
         if os.path.isfile(annotated_table_path):
             made_annotated_tables += 1
-            dict_SNP_TF_statistics["datasets"][line[1]] += 1
+            dict_SNP_TF_statistics[line[1]]["datasets"] += 1
             with open(annotated_table_path, "r") as an_table:
                 local_counter = 0
                 for SNP in an_table:
@@ -68,7 +68,7 @@ for line in master_list:
             not_blacklisted_ctrl += 1
             counted_controls.add(vcf_path)
             if os.path.isfile(vcf_path):
-                dict_SNP_TF_statistics["datasets"][line[1]] += 1
+                dict_SNP_TF_statistics[line[1]]["datasets"] += 1
                 made_control_vcfs += 1
 
 print("Made {}/{} VCFS ({}/{} experiment VCFs, {}/{} control VCFs), {} annotated tables, {} P-value tables".format(
