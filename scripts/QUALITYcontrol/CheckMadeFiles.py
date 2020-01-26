@@ -82,6 +82,7 @@ tf_vcfs_counter = 0
 tf_counter = 0
 for tf in made_tfs:
     print(tf)
+    print(create_path_for_agr_name(tf, "TF"))
     if os.path.isfile(create_path_for_agr_name(tf, "TF")):
         tf_counter += 1
         for vcf_file in made_tfs[tf]:
