@@ -9,6 +9,8 @@
 njobs=$1
 flag=$2
 
+# python3 check_paths.py (должен создавать файл путей для bash скриптов а так же все папки под все части пайплайна заранее)
+
 if [ "$flag" == --BAD ]; then
   bash BAD_annotation.sh "$njobs"
 fi

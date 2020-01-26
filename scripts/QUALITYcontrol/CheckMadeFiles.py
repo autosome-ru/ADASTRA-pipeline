@@ -5,7 +5,7 @@ import sys
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import create_path_from_GTRD_function, create_ploidy_path_function, make_black_list
 from scripts.HELPERS.paths_for_components import results_path, ploidy_dict_path, GTRD_slice_path, tf_dict_path, \
-    cl_dict_path
+    cl_dict_path, parameters_path
 
 
 def create_path_for_agr_name(string, agr_name):
@@ -78,6 +78,8 @@ print("Made {}/{} VCFS ({}/{} experiment VCFs, {}/{} control VCFs), {} annotated
     made_annotated_tables, made_p_tables))
 
 print("Total of {} SNPs in experiment VCFs".format(SNP_counter))
+with open(parameters_path + "TF_SNP_statistics.JSON", "w") as jsonFile:
+    json.dump(dict_SNP_TF_statistics, jsonFile)
 SNP_TF_statistics = sorted(list(dict_SNP_TF_statistics.items()), key=lambda x: x[1], reverse=True)
 print(SNP_TF_statistics[:5])
 

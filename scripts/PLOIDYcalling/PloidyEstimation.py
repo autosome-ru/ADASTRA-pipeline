@@ -671,7 +671,7 @@ if __name__ == '__main__':
 
     mode = 'corrected'
     states = [1.5, 6]
-    b_penalty = sys.argv[2]
+    b_penalty = 'CAIC'
 
     if b_penalty == 'MIX_release':
         states = [1.5, 6]
