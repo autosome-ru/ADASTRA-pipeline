@@ -81,12 +81,10 @@ print("Made {}/{} VCFS ({}/{} experiment VCFs, {}/{} control VCFs), {} annotated
 tf_vcfs_counter = 0
 tf_counter = 0
 for tf in made_tfs:
-    print(tf)
     print(create_path_for_agr_name(tf, "TF"))
     if os.path.isfile(create_path_for_agr_name(tf, "TF")):
         tf_counter += 1
         for vcf_file in made_tfs[tf]:
-            print(vcf_file)
             exp_name = vcf_file.split("/")[-2]
             if os.path.isfile(vcf_file) and exp_name not in black_list:
                 tf_vcfs_counter += 1
