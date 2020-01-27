@@ -29,7 +29,6 @@ for line in master_list:
     if remove_punctuation(line[4]) not in interestingSet:
         continue
     vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
-    print(vcf_path)
     if not os.path.isfile(vcf_path):
         continue
     list_of_snps = make_list_from_vcf_without_filter(vcf_path)
@@ -38,7 +37,7 @@ for line in master_list:
             SNP_statistics_dict[(ref_counts, alt_counts)] += 1
         except KeyError:
             SNP_statistics_dict[(ref_counts, alt_counts)] = 1
-
+print(SNP_statistics_dict)
 df = pd.DataFrame({'ref': [], 'alt': [], 'count': []})
 for ref, alt in SNP_statistics_dict:
     df = df.append(pd.DataFrame({'ref': [ref], 'alt': [alt], 'count': [SNP_statistics_dict[(ref, alt)]]}))
