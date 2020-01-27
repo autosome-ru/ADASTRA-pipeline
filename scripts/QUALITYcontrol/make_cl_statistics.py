@@ -32,12 +32,12 @@ for line in master_list:
     if not os.path.isfile(vcf_path):
         continue
     list_of_snps = make_list_from_vcf_without_filter(vcf_path)
+    print(list_of_snps)
     for chr, pos, rs_id, ref, alt, ref_counts, alt_counts in list_of_snps:
         try:
             SNP_statistics_dict[(ref_counts, alt_counts)] += 1
         except KeyError:
             SNP_statistics_dict[(ref_counts, alt_counts)] = 1
-print(SNP_statistics_dict)
 df = pd.DataFrame({'ref': [], 'alt': [], 'count': []})
 for ref, alt in SNP_statistics_dict:
     df = df.append(pd.DataFrame({'ref': [ref], 'alt': [alt], 'count': [SNP_statistics_dict[(ref, alt)]]}))
