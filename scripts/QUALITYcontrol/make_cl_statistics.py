@@ -38,4 +38,6 @@ for line in master_list:
         except KeyError:
             SNP_statistics_dict[(ref_counts, alt_counts)] = 1
 
-for key in SNP_statistics_dict:
+df = pd.DataFrame({'ref': [], 'alt': [], 'count': []})
+for ref, alt in SNP_statistics_dict:
+    df = df.append(pd.DataFrame({'ref': [ref], 'alt': [alt], 'count': [SNP_statistics_dict[(ref, alt)]]}))
