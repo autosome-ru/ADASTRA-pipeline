@@ -1,3 +1,4 @@
+import gzip
 import os.path
 import sys
 import pandas as pd
@@ -31,7 +32,7 @@ for line in master_list:
     vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
     if not os.path.isfile(vcf_path):
         continue
-    with open(vcf_path) as vcf_buffer:
+    with gzip.open(vcf_path, "rt") as vcf_buffer:
         list_of_snps = make_list_from_vcf_without_filter(vcf_buffer)
         for chr, pos, rs_id, ref, alt, ref_counts, alt_counts in list_of_snps:
             try:
