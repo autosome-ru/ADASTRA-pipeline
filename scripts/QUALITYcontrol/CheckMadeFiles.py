@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.HELPERS.helpers import remove_punctuation
 from scripts.HELPERS.paths import create_path_from_GTRD_function, make_black_list
 from scripts.HELPERS.paths_for_components import results_path, ploidy_dict_path, GTRD_slice_path, tf_dict_path, \
     cl_dict_path, parameters_path
@@ -41,6 +42,7 @@ for line in master_list:
         not_blacklisted_exps += 1
         vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
         if os.path.isfile(vcf_path):
+            line[4] = remove_punctuation(line[4])
             if line[1] not in dict_overall_statistics["datasets"]["TF"]:
                 dict_overall_statistics["datasets"]["TF"][line[1]] = 0
             if line[4] not in dict_overall_statistics["datasets"]["CL"]:
@@ -85,20 +87,18 @@ for tf in made_tfs:
     tf_df_path = create_path_for_agr_name(tf, "TF")
     if os.path.isfile(tf_df_path):
         tf_counter += 1
-        if os.path.isfile(tf_df_path):
-            tf_vcfs_counter += 1
-            tf_table = pd.read_table(tf_df_path)
+        tf_table = pd.read_table(tf_df_path)
 
-            local_counter = len(tf_table.index)
-            fdr_counter = len(tf_table[(tf_table['fdrp_bh_ref'] <= 0.05) | (tf_table["fdrp_bh_alt"] <= 0.05)].index)
-            if local_counter != 0:
-                if tf not in dict_overall_statistics["unique_SNPs"]["TF"]:
-                    dict_overall_statistics["unique_SNPs"]["TF"][tf] = 0
-                dict_overall_statistics["unique_SNPs"]["TF"][tf] += local_counter
+        local_counter = len(tf_table.index)
+        fdr_counter = len(tf_table[(tf_table['fdrp_bh_ref'] <= 0.05) | (tf_table["fdrp_bh_alt"] <= 0.05)].index)
+        if local_counter != 0:
+            if tf not in dict_overall_statistics["unique_SNPs"]["TF"]:
+                dict_overall_statistics["unique_SNPs"]["TF"][tf] = 0
+            dict_overall_statistics["unique_SNPs"]["TF"][tf] += local_counter
 
-                if tf not in dict_overall_statistics["unique_asb"]["TF"]:
-                    dict_overall_statistics["unique_asb"]["TF"][tf] = 0
-                dict_overall_statistics["unique_asb"]["TF"][tf] += fdr_counter
+            if tf not in dict_overall_statistics["unique_asb"]["TF"]:
+                dict_overall_statistics["unique_asb"]["TF"][tf] = 0
+            dict_overall_statistics["unique_asb"]["TF"][tf] += fdr_counter
 
 print("Made aggregation for {} TFs from  {} VCFs".format(tf_counter, tf_vcfs_counter))
 
@@ -109,20 +109,19 @@ for cl in made_cls:
     cl_df_path = create_path_for_agr_name(cl, "CL")
     if os.path.isfile(cl_df_path):
         cl_counter += 1
-        if os.path.isfile(cl_df_path):
-            cl_vcfs_counter += 1
-            cl_table = pd.read_table(cl_df_path)
+        cl_vcfs_counter += 1
+        cl_table = pd.read_table(cl_df_path)
 
-            local_counter = len(cl_table.index)
-            fdr_counter = len(cl_table[(cl_table['fdrp_bh_ref'] <= 0.05) | (cl_table["fdrp_bh_alt"] <= 0.05)].index)
-            if local_counter != 0:
-                if cl not in dict_overall_statistics["unique_SNPs"]["CL"]:
-                    dict_overall_statistics["unique_SNPs"]["CL"][cl] = 0
-                dict_overall_statistics["unique_SNPs"]["CL"][cl] += local_counter
+        local_counter = len(cl_table.index)
+        fdr_counter = len(cl_table[(cl_table['fdrp_bh_ref'] <= 0.05) | (cl_table["fdrp_bh_alt"] <= 0.05)].index)
+        if local_counter != 0:
+            if cl not in dict_overall_statistics["unique_SNPs"]["CL"]:
+                dict_overall_statistics["unique_SNPs"]["CL"][cl] = 0
+            dict_overall_statistics["unique_SNPs"]["CL"][cl] += local_counter
 
-                if cl not in dict_overall_statistics["unique_asb"]["CL"]:
-                    dict_overall_statistics["unique_asb"]["CL"][cl] = 0
-                dict_overall_statistics["unique_asb"]["CL"][cl] += fdr_counter
+            if cl not in dict_overall_statistics["unique_asb"]["CL"]:
+                dict_overall_statistics["unique_asb"]["CL"][cl] = 0
+            dict_overall_statistics["unique_asb"]["CL"][cl] += fdr_counter
 
 
 with open(parameters_path + "overall_statistics.json", "w") as jsonFile:
