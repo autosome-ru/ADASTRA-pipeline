@@ -2,6 +2,8 @@ import sys
 import os
 import numpy as np
 import pandas as pd
+sys.path.insert(1, "/home/abramov/ASB-Project")
+from scripts.FIGURES import style_config
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import seaborn as sns
@@ -19,7 +21,7 @@ import seaborn as sns
 if __name__ == '__main__':
 	file_name = 'all_lines_union.tsv'
 	cl = 'all_lines no filter'
-	df_counts = pd.read_table('counts.tsv')
+	df_counts = pd.read_table(os.path.expanduser('~/Documents/ASB/Correlation/counts.tsv'))
 	# Draw Stripplot
 	fig, ax = plt.subplots(figsize=(16,10), dpi= 80)   
 	ax.set_yticks(list(set(df_counts.BAD)), minor=False)
@@ -36,5 +38,5 @@ if __name__ == '__main__':
 
 	# Decorations
 	plt.title('Counts Plot - {}'.format(cl), fontsize=22)
-	plt.savefig('Counts_plot_{}.png'.format(cl))
-#plt.show()
+	plt.savefig(os.path.expanduser('~/Documents/ASB/Correlation/Counts_plot_{}.png'.format(cl)))
+	plt.show()

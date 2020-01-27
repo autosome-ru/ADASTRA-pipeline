@@ -3,13 +3,14 @@ import numpy as np
 import os
 from scipy import stats
 import pandas as pd
-from matplotlib import pyplot as plt
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.FIGURES import style_config
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 
 def get_color(row):
-    if abs(row['log_fc']) < np.log10(fc_tr): # or abs(row['log_pv']) < -np.log10(fdr_tr):
+    if abs(row['log_fc']) < np.log10(fc_tr) or abs(row['log_pv']) < -np.log10(fdr_tr):
         return '#CCCCCC'
     # if row[field + '_ref'] < fdr_tr and row[field + '_alt'] < fdr_tr:
     #     return 'purple'
@@ -25,21 +26,21 @@ if __name__ == '__main__':
                    'ANDR_HUMAN.tsv', 'ESR1_HUMAN.tsv',
                    'NRF1_HUMAN.tsv', 'DUX4_HUMAN.tsv',
                    'CREB1_HUMAN.tsv', 'AP2A_HUMAN.tsv']
-    for name in ['CTCF_Mathelier.tsv']:
+    for name in ['CTCF_HUMAN.tsv']:
         pt = pd.read_table(os.path.expanduser("~/scatter_why_red/{}".format(name)))
 
-        field = 'binom_p-value'
+        field = 'fdrp_bh'
 
         perf_tr = 0.0005
         fc_tr = 4
-        fdr_tr = 0.05
+        fdr_tr = 0.005
 
         ##
         # pt = pt[pt['BAD'] != 4/3]
 
 
         pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
-        # pt = pt[~(pt[field + '_alt'].isnull() | pt[field + '_ref'].isnull())]
+        pt = pt[~(pt[field + '_alt'].isnull() | pt[field + '_ref'].isnull())]
         #pt = pt[(pt[field + '_alt'] <= fdr_tr) | (pt[field + '_ref'] <= fdr_tr)]
 
 
@@ -52,14 +53,12 @@ if __name__ == '__main__':
         #     pt[[field + '_ref', field + '_alt']]).min(axis=1)) \
         #                * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
         #
-        # pt['log_pv'] = (np.log10(
-        #     pt[[field + '_ref', field + '_alt']]).min(axis=1)) \
-        #                * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
+        pt['log_pv'] = (np.log10(
+            pt[[field + '_ref', field + '_alt']]).min(axis=1)) \
+                       * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
 
 
-        print(pt.columns.values)
-
-        pt['log_fc'] = pt['motif_fc']
+        pt['log_fc'] = pt['fold_change']
         pt['col'] = pt.apply(lambda x: get_color(x), axis=1)
         #pt = pt[pt['max_cover'] <= maxcov_tr]
 
@@ -148,3 +147,4 @@ if __name__ == '__main__':
         plt.savefig(os.path.expanduser("~/TF_FC/final/{}_p_tr={:.2f}_fc_tr={:.2f}_fdr_tr={:.2f}_{}.png".format(
             name.replace('_fc.tsv', ''), perf_tr, fc_tr, fdr_tr, field)))
 
+        plt.show()
