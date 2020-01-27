@@ -206,6 +206,36 @@ def make_list_from_vcf(vcf):
     return vcf_list
 
 
+def make_list_from_vcf_without_filter(vcf):
+    vcf_list = []
+    for line in vcf:
+        if line[0] == '#':
+            continue
+        line = line.split()
+        chr = line[0]
+        if chr not in ChromPos.chrs:
+            continue
+        pos = int(line[1])
+        if not len(line[3]) == 1 or not len(line[4]) == 1:
+            continue
+        if line[3] not in Nucleotides or line[4] not in Nucleotides:
+            continue
+        Inf = line[-1].split(':')
+        R = int(Inf[1].split(',')[0])
+        if Inf[1].split(",")[1] == "":
+            print(line)
+            print(vcf)
+        A = int(Inf[1].split(',')[1])
+        GT = Inf[0]
+        if GT != '0/1':
+            continue
+        ID = line[2]
+        REF = line[3]
+        ALT = line[4]
+        vcf_list.append((chr, pos, ID, REF, ALT, R, A))
+    return vcf_list
+
+
 def unpack(line, use_in):
     if line[0] == '#':
         return []
