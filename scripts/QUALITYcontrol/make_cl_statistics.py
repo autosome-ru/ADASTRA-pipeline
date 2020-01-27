@@ -26,8 +26,8 @@ for line in master_list:
     if line[0] == "#":
         continue
     line = line.split("\t")
-    if remove_punctuation(line[4]) not in interestingSet:
-        continue
+    # if remove_punctuation(line[4]) not in interestingSet:
+    #     continue
     vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
     if not os.path.isfile(vcf_path):
         continue
