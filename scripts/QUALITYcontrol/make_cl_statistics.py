@@ -29,6 +29,7 @@ for line in master_list:
     if remove_punctuation(line[4]) not in interestingSet:
         continue
     vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
+    print(vcf_path)
     if not os.path.isfile(vcf_path):
         continue
     list_of_snps = make_list_from_vcf_without_filter(vcf_path)
