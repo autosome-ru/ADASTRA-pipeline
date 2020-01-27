@@ -41,3 +41,4 @@ for line in master_list:
 df = pd.DataFrame({'ref': [], 'alt': [], 'count': []})
 for ref, alt in SNP_statistics_dict:
     df = df.append(pd.DataFrame({'ref': [ref], 'alt': [alt], 'count': [SNP_statistics_dict[(ref, alt)]]}))
+    print(df)
