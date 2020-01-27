@@ -6,8 +6,7 @@ import pandas as pd
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import remove_punctuation, make_list_from_vcf_without_filter
 from scripts.HELPERS.paths import create_path_from_GTRD_function
-from scripts.HELPERS.paths_for_components import  GTRD_slice_path
-
+from scripts.HELPERS.paths_for_components import GTRD_slice_path, parameters_path
 
 interestingSet = {'H1 (embryonic stem cells)',
                   'BGO3 (embryonic stem cells)',
@@ -42,4 +41,4 @@ for line in master_list:
 df = pd.DataFrame({'ref': [], 'alt': [], 'count': []})
 for ref, alt in SNP_statistics_dict:
     df = df.append(pd.DataFrame({'ref': [ref], 'alt': [alt], 'count': [SNP_statistics_dict[(ref, alt)]]}))
-    print(df)
+df.to_csv(parameters_path + "diploid_snps_statistics.tsv", sep="\t", index=False)
