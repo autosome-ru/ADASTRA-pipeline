@@ -18,7 +18,7 @@ from scripts.HELPERS.paths_for_components import GTRD_slice_path, parameters_pat
 #                   'embryonic stem cells',
 #                   'human embryonic stem cells, H1 (WA01)'}
 
-interestingSet = {"K562 (myelogenous leukemia)"}
+interestingSet = {"LoVo (colorectal adenocarcinoma)"}
 interestingSet = {remove_punctuation(x) for x in interestingSet}
 SNP_statistics_dict = {}
 with open(GTRD_slice_path, "r") as ml:
@@ -42,4 +42,4 @@ for line in master_list:
 df = pd.DataFrame({'ref': [], 'alt': [], 'count': []})
 for ref, alt in SNP_statistics_dict:
     df = df.append(pd.DataFrame({'ref': [ref], 'alt': [alt], 'count': [SNP_statistics_dict[(ref, alt)]]}))
-df.to_csv(parameters_path + "K562_snps_statistics.tsv", sep="\t", index=False)
+df.to_csv(parameters_path + "LoVo_snps_statistics.tsv", sep="\t", index=False)
