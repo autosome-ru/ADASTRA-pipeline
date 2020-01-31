@@ -360,6 +360,10 @@ class CorrelationReader:
                     if line[4] == 0:
                         continue
                     result.append([line[0], int(line[1])] + current_segment)
+                elif method == 'cover':
+                    if line[4] == 0:
+                        continue
+                    result.append([line[0], int(line[1]), int(line[2]) + int(line[3])] + current_segment)
                 elif method == 'naive':
                     ref = int(line[2])
                     alt = int(line[3])

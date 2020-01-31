@@ -41,7 +41,7 @@ def unpack_cosmic_segments(line, mode='normal'):
     return [line[1], int(line[2]), int(line[3]), value]
 
 
-def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
+def correlation_with_cosmic(SNP_objects, mode, method='normal', heatmap_data_file=None):
     if heatmap_data_file is not None:
         heatmap = open(heatmap_data_file, 'w')
     cosmic_segments = []
@@ -53,25 +53,47 @@ def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
                 cosmic_segments.append(v)
     snp_ploidy = []
     cosm_ploidy = []
-    for chr, pos, ploidy, qual, segn, in_intersect, cosmic_ploidy \
-            in Intersection(SNP_objects, cosmic_segments, write_intersect=True,
-                            write_segment_args=True):
-        if not in_intersect:
-            continue
-        snp_ploidy.append(ploidy)
-        cosm_ploidy.append(cosmic_ploidy)
+    if method == 'normal':
+        for chr, pos, ploidy, qual, segn, in_intersect, cosmic_ploidy \
+                in Intersection(SNP_objects, cosmic_segments, write_intersect=True,
+                                write_segment_args=True):
+            if not in_intersect:
+                continue
+            snp_ploidy.append(ploidy)
+            cosm_ploidy.append(cosmic_ploidy)
 
+            if heatmap_data_file is not None:
+                heatmap.write(pack([chr, pos, ploidy, cosmic_ploidy]))
         if heatmap_data_file is not None:
-            heatmap.write(pack([chr, pos, ploidy, cosmic_ploidy]))
-    if heatmap_data_file is not None:
-        heatmap.close()
+            heatmap.close()
 
-    if len(snp_ploidy) != 0:
-        kt = kendalltau(snp_ploidy, cosm_ploidy)[0]
-        if kt == 'nan':
-            return 'NaN'
-        return kt
-    return 'NaN'
+        if len(snp_ploidy) != 0:
+            kt = kendalltau(snp_ploidy, cosm_ploidy)[0]
+            if kt == 'nan':
+                return 'NaN'
+            return kt
+        return 'NaN'
+    elif method == 'cover':
+
+        for chr, pos, cov, ploidy, qual, segn, in_intersect, cosmic_ploidy \
+                in Intersection(SNP_objects, cosmic_segments, write_intersect=True,
+                                write_segment_args=True):
+            if not in_intersect:
+                continue
+            snp_ploidy.append(ploidy)
+            cosm_ploidy.append(cosmic_ploidy)
+
+            if heatmap_data_file is not None:
+                heatmap.write(pack([chr, pos, cov, ploidy, cosmic_ploidy]))
+        if heatmap_data_file is not None:
+            heatmap.close()
+
+        if len(snp_ploidy) != 0:
+            kt = kendalltau(snp_ploidy, cosm_ploidy)[0]
+            if kt == 'nan':
+                return 'NaN'
+            return kt
+        return 'NaN'
 
 
 def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
@@ -113,7 +135,6 @@ if __name__ == '__main__':
 
         corr_to_objects = {}
         segment_numbers = {}
-        lm_coefficients = {}
         # print('reading COSMIC')
         cell_line_name = file_name[:file_name.rfind('_')]
         index = file_name[file_name.rfind('_') + 1:file_name.rfind('.')]
@@ -132,14 +153,14 @@ if __name__ == '__main__':
             heatmap_data_file = heatmap_data_dir + file_name
 
             # print('reading SNP ' + type)
-            number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(method='normal')
+            number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(method='cover')
 
             segment_numbers[model] = segments_number
             if cosmic_names[cell_line_name]:
-                corr_to_objects[model] = correlation_with_cosmic(SNP_objects, mode='normal',
+                corr_to_objects[model] = correlation_with_cosmic(SNP_objects, mode='normal', method='cover',
                                                                  heatmap_data_file=heatmap_data_file)
             else:
-                corr_to_objects[model], lm_coefficients[model] = 'NaN', ('NaN', 'NaN')
+                corr_to_objects[model] = 'NaN'
 
         for naive_mode in naive_modes:
             if cosmic_names[cell_line_name]:
