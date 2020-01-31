@@ -7,8 +7,8 @@ flag=$2
 
 python3 "$scripts_path"PARAMETERS/MakeParametersForPE.py
 if [ "$flag" == --merge ]; then
-  parallel --jobs "$njobs" python3 "$scripts_path"PLOIDYcalling/VCFMerger.py :::: "$parameters_path"PE_parameters.cfg
+  parallel --jobs "$njobs" python3 "$scripts_path"PLOIDYcalling/VCFMerger.py :::: "$parallel_parameters_path"PE_parameters.cfg
 fi
 
 python3 "$scripts_path"PARAMETERS/SortParameters.py
-parallel --jobs "$njobs" python3 "$scripts_path"PLOIDYcalling/PloidyEstimation.py :::: "$parameters_path"PE_parameters.cfg :::: "$parameters_path"Podgonians.cfg
+parallel --jobs "$njobs" python3 "$scripts_path"PLOIDYcalling/PloidyEstimation.py :::: "$parallel_parameters_path"PE_parameters.cfg :::: "$parallel_parameters_path"Podgonians.cfg
