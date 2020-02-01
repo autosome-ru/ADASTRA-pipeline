@@ -3,7 +3,7 @@ import os
 
 df = pd.read_table(os.path.expanduser('~/uniuonSNPs.tsv'))
 df.columns = ['chr', 'pos', 'cov', 'BAD', 'COSMIC']
-thresholds = [x for x in range(10, 51, 5)]
+thresholds = [x for x in range(10, 101, 1)]
 for threshold in thresholds:
     print('Now doing threshold = {}'.format(threshold))
     df = df[df['cov'] > threshold]
