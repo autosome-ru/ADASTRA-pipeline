@@ -1,9 +1,9 @@
 import pandas as pd
 import os
 
-df = pd.read_table(os.path.expanduser('~/uniuonSNPs.tsv'))
+df = pd.read_table(os.path.expanduser('~/unionSNPs.tsv'))
 df.columns = ['chr', 'pos', 'cov', 'BAD', 'COSMIC', 'quality']
-thresholds = [x for x in range(101)] + [x for x in range(100, 1001, 10)]
+thresholds = [x for x in range(101)] + [x for x in range(110, 1001, 10)]
 print(df['quality'].unique())
 sum_df = None
 for threshold in thresholds:
