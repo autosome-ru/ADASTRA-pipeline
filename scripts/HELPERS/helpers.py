@@ -323,7 +323,8 @@ def read_synonims():
 
 def remove_punctuation(x):
     table = str.maketrans({key: "_" for key in string.punctuation})
-    return x.translate(table).replace(" ", "_")
+    return x.replace('-', '_').replace('(', '').replace('(', '').replace(' ', '')  # .replace('\'', '_')
+    #  return x.translate(table).replace(" ", "_")
 
 
 class CorrelationReader:
