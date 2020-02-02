@@ -315,7 +315,7 @@ def read_synonims():
     with open(synonims_path, 'r') as file:
         for line in file:
             line = line.strip('\n').split('\t')
-            name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
+            name = remove_punctuation(line[0])
             cosmic_names[name] = line[1]
             cgh_names[name] = line[2]
     return cosmic_names, cgh_names
