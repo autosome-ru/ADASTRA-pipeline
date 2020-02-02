@@ -16,4 +16,4 @@ for threshold in thresholds:
         sum_df = df_counts
     else:
         sum_df = sum_df.append(df_counts)
-sum_df.to_csv(os.path.expanduser('~/PARAMETERS/counts/counts_m.tsv'), index=False, sep='\t')
+sum_df.to_csv(os.path.expanduser('~/PARAMETERS/counts/counts_qm.tsv'), index=False, sep='\t')
