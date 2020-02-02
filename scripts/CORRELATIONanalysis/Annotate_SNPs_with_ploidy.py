@@ -10,7 +10,7 @@ from scripts.HELPERS.helpers import Intersection, pack
 
 def unpack_ploidy_segments(line):
     if line[0] == '#':
-        return [''] * 7
+        return [''] * 9
     line = line.strip().split('\t')
 
     return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]),
@@ -77,6 +77,6 @@ if __name__ == '__main__':
                 elif segment_ploidy == 6:
                     qual_mean = q_left
                 else:
-                    qual_mean = np.floor(0.5 * (q_left + q_right))
+                    qual_mean = (q_left + q_right) // 2
                 out.write(pack([chr, pos, ref, alt, segment_ploidy,
                                 qual_mean, segn, sumcov]))
