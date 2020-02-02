@@ -523,7 +523,7 @@ class ChromosomeSegmentation:  # chrom
             if ed != self.LINES:
                 self.bpos += [(self.positions[ed - 1], self.positions[ed])]
             self.ests += ests
-            self.LS += LS
+            self.LS += [list(LS)]
             self.counts += counts
             self.sum_cover += sum_cover
 
@@ -590,7 +590,7 @@ class GenomeSegmentator:  # seg
                     else:
                         cur = 1
                 elif isinstance(border, tuple):
-                    segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter]] + chrom.LS +
+                    segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter]] + chrom.LS[counter] +
                                              [chrom.counts[counter], chrom.sum_cover[counter]])
                     cur = border[0] + 1
                     segments_to_write.append([chrom.CHR, cur, border[1], 0] + [0] * len(chrom.i_list) + [0, 0])
@@ -598,7 +598,7 @@ class GenomeSegmentator:  # seg
                     counter += 1
                 else:
                     segments_to_write.append(
-                        [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter]] + chrom.LS +
+                        [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter]] + chrom.LS[counter] +
                         [chrom.counts[counter], chrom.sum_cover[counter]])
                     cur = math.floor(border) + 1
                     counter += 1
