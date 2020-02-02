@@ -616,23 +616,23 @@ class GenomeSegmentator:  # seg
 
     # noinspection PyTypeChecker
     def estimate_ploidy(self):
-        self.OUT.write(pack(['#chr', 'start', 'end', 'BAD'] + [str(BAD) for BAD in self.i_list] + ['SNP_count',
-                                                                                                   'sum_cover']))
+        self.OUT.write(
+            pack(['#chr', 'start', 'end', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in self.i_list] + ['SNP_count',
+                                                                                                     'sum_cover']))
         for j in range(len(self.chr_segmentations)):
             chrom = self.chr_segmentations[j]
             chrom.estimate_chr()
             self.write_ploidy_to_file(chrom)
             self.chr_segmentations[j] = None
 
-    @staticmethod
-    def filter_segments(segments, snp_number_tr=2):
+    def filter_segments(self, segments, snp_number_tr=2):
         is_bad_left = False
         is_bad_segment = False
         for k in range(len(segments)):
-            if segments[k][7] <= snp_number_tr and segments[k][3] != 0:  # если k сегмент "плохой"
+            if segments[k][4 + len(self.i_list)] <= snp_number_tr and segments[k][3] != 0:  # если k сегмент "плохой"
                 if is_bad_segment:  # если k-1 тоже "плохой"
                     is_bad_left = True
-                    for j in range(3, 7):
+                    for j in range(3, 4 + len(self.i_list)):
                         segments[k - 1][j] = 0
                 else:
                     is_bad_left = False
@@ -646,11 +646,11 @@ class GenomeSegmentator:  # seg
                     #     else:  # если BAD k-2 сегмента больше BAD k
                     #         segments[k - 1][3] = segments[k - 2][3]  # присвоить BAD k-2 сегмента
                     #
-                    #     for j in range(4, 7):
+                    #     for j in range(4, 4 + len(self.i_list)):
                     #         segments[k - 1][j] = 0
                     is_bad_left = True
                 if is_bad_left and is_bad_segment:
-                    for j in range(3, 7):
+                    for j in range(3, 4 + len(self.i_list)):
                         segments[k - 1][j] = 0
                     is_bad_left = True
 
