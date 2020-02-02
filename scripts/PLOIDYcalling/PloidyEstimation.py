@@ -423,8 +423,7 @@ class ChromosomeSegmentation:  # chrom
 
         self.bpos = []  # border positions, tuples or ints
         self.ests = []  # estimated BADs for split segments
-        self.quals = []  # qualities of estimations
-        self.Q1 = []  # diploid quality
+        self.LS = []  # qualities of estimations
         self.counts = []  # number of SNPs in segments
         self.sum_cover = []  # cover of SNPs in segments
         self.effective_length = self.positions[-1] - self.positions[0]
@@ -507,18 +506,16 @@ class ChromosomeSegmentation:  # chrom
             if length <= self.snp_filter:
                 bpos = []
                 ests = [0]
-                quals = [(0, 0)]
-                Q1 = [0]
+                LS = [0] * len(self.i_list)
                 counts = [ed - st]
                 sum_cover = [0]
             else:
-                sub_chrom = SubChromosomeSegmentation(self,  good_snps, part)
+                sub_chrom = SubChromosomeSegmentation(self, good_snps, part)
                 sub_chrom.estimate_sub_chr()
 
                 bpos = sub_chrom.bpos
                 ests = sub_chrom.ests
-                quals = sub_chrom.quals
-                Q1 = sub_chrom.Q1
+                LS = sub_chrom.LS
                 counts = sub_chrom.counts
                 sum_cover = sub_chrom.sum_covs
 
@@ -526,8 +523,7 @@ class ChromosomeSegmentation:  # chrom
             if ed != self.LINES:
                 self.bpos += [(self.positions[ed - 1], self.positions[ed])]
             self.ests += ests
-            self.quals += quals
-            self.Q1 += Q1
+            self.LS += LS
             self.counts += counts
             self.sum_cover += sum_cover
 
@@ -603,9 +599,8 @@ class GenomeSegmentator:  # seg
                     counter += 1
                 else:
                     segments_to_write.append(
-                        [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter], chrom.Q1[counter],
-                         chrom.quals[counter][0], chrom.quals[counter][1],
-                         chrom.counts[counter], chrom.sum_cover[counter]])
+                        [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter]] + chrom.LS +
+                        [chrom.counts[counter], chrom.sum_cover[counter]])
                     cur = math.floor(border) + 1
                     counter += 1
 
@@ -676,7 +671,7 @@ if __name__ == '__main__':
     if b_penalty == 'MIX_release':
         states = [1.5, 6]
     else:
-        states = [4/3, 1.5, 2.5, 6]
+        states = [4 / 3, 1.5, 2.5, 6]
 
     merged_vcfs_path = ploidy_path + 'merged_vcfs/' + key + ".tsv"
 
