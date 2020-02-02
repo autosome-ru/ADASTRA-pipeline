@@ -77,6 +77,6 @@ if __name__ == '__main__':
                 elif segment_ploidy == 6:
                     qual_mean = q_left
                 else:
-                    qual_mean = np.floor(0.5 * (q_left + q_right))
+                    qual_mean = (q_left + q_right) // 2
                 out.write(pack([chr, pos, ref, alt, segment_ploidy,
                                 qual_mean, segn, sumcov]))
