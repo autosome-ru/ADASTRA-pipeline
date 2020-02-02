@@ -590,11 +590,10 @@ class GenomeSegmentator:  # seg
                     else:
                         cur = 1
                 elif isinstance(border, tuple):
-                    segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
-                                              chrom.quals[counter][0], chrom.quals[counter][1],
-                                              chrom.counts[counter], chrom.sum_cover[counter]])
+                    segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter]] + chrom.LS +
+                                             [chrom.counts[counter], chrom.sum_cover[counter]])
                     cur = border[0] + 1
-                    segments_to_write.append([chrom.CHR, cur, border[1], 0, 0, 0, 0, 0, 0])
+                    segments_to_write.append([chrom.CHR, cur, border[1], 0] + [0] * len(chrom.i_list) + [0, 0])
                     cur = border[1]
                     counter += 1
                 else:
@@ -617,8 +616,8 @@ class GenomeSegmentator:  # seg
 
     # noinspection PyTypeChecker
     def estimate_ploidy(self):
-        self.OUT.write(pack(['#chr', 'start', 'end', 'BAD', 'Q1', 'qual_left', 'qual_right', 'SNP_count',
-                             'sum_cover']))
+        self.OUT.write(pack(['#chr', 'start', 'end', 'BAD'] + [str(BAD) for BAD in self.i_list] + ['SNP_count',
+                                                                                                   'sum_cover']))
         for j in range(len(self.chr_segmentations)):
             chrom = self.chr_segmentations[j]
             chrom.estimate_chr()
