@@ -251,6 +251,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         self.ests = []  # estimated ploidys for splited segments
         self.quals = []  # qualities of estimations
         self.Q1 = []  # diploid quality
+        self.Q = []  # LS
         self.counts = []  # number of snps in segments
         self.sum_covs = []  # sums of covers for each segment
 
@@ -353,6 +354,7 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
             self.ests.append(self.chrom.i_list[i_max])
             self.quals.append((left_qual, right_qual))
             self.Q1.append(Q1)
+            self.Q.append(list(self.LS))
 
     def estimate_sub_chr(self):
         if self.LINES == 0:
@@ -515,7 +517,7 @@ class ChromosomeSegmentation:  # chrom
 
                 bpos = sub_chrom.bpos
                 ests = sub_chrom.ests
-                LS = sub_chrom.LS
+                LS = sub_chrom.Q
                 counts = sub_chrom.counts
                 sum_cover = sub_chrom.sum_covs
 
@@ -523,7 +525,7 @@ class ChromosomeSegmentation:  # chrom
             if ed != self.LINES:
                 self.bpos += [(self.positions[ed - 1], self.positions[ed])]
             self.ests += ests
-            self.LS += [list(LS)]
+            self.LS += LS
             self.counts += counts
             self.sum_cover += sum_cover
 
