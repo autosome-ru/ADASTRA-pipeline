@@ -84,7 +84,7 @@ def correlation_with_cosmic(SNP_objects, mode, method='normal', heatmap_data_fil
             cosm_ploidy.append(cosmic_ploidy)
 
             if heatmap_data_file is not None:
-                heatmap.write(pack([chr, pos, cov, ploidy, cosmic_ploidy]))
+                heatmap.write(pack([chr, pos, cov, ploidy, cosmic_ploidy, qual]))
         if heatmap_data_file is not None:
             heatmap.close()
 
