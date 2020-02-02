@@ -506,7 +506,7 @@ class ChromosomeSegmentation:  # chrom
             if length <= self.snp_filter:
                 bpos = []
                 ests = [0]
-                LS = [0] * len(self.i_list)
+                LS = [[0] * len(self.i_list)]
                 counts = [ed - st]
                 sum_cover = [0]
             else:
