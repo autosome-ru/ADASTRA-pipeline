@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import numpy as np
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths_for_components import ploidy_path, ploidy_dict_path, correlation_path
@@ -12,7 +13,8 @@ def unpack_ploidy_segments(line):
         return [''] * 7
     line = line.strip().split('\t')
 
-    return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[7]), int(line[8])]
+    return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]),
+            int(line[5]), int(line[6]), int(line[7]), int(line[8])]
 
 
 def unpack_snps(line):
@@ -64,11 +66,17 @@ if __name__ == '__main__':
 
         with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
             out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list) + '\n')
-            for chr, pos, ref, alt, in_intersection, segment_ploidy, qual, segn, sumcov \
+            for chr, pos, ref, alt, in_intersection, segment_ploidy, qual, q_left, q_right, segn, sumcov \
                     in Intersection(table, ploidy,
                                     unpack_segments_function=unpack_ploidy_segments, unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
                 if not in_intersection:
                     continue
+                if segment_ploidy == 1:
+                    qual_mean = q_right
+                elif segment_ploidy == 6:
+                    qual_mean = q_left
+                else:
+                    qual_mean = np.floor(0.5 * (q_left + q_right))
                 out.write(pack([chr, pos, ref, alt, segment_ploidy,
-                                qual, segn, sumcov]))
+                                qual_mean, segn, sumcov]))
