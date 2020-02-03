@@ -4,7 +4,7 @@ import string
 
 
 def remove_punctuation_bad(x):
-    table = str.maketrans({key: "_" for key in string.punctuation if key not in '-'})
+    table = str.maketrans({key: "_" for key in string.punctuation if key != '-'})
     return x.translate(table).replace(" ", "_")
 
 
@@ -39,18 +39,13 @@ for key_old, value_old in old_d.items():
                 print("Found ya {}".format(key))
                 new_key = new_converter[key.split("!")[0]] + "!" + key.split("!")[1]
                 new_d[key_old] = new_key
-                #  change name in json too
-                val = d[key]
-                d[new_key] = val
-                del d[key]
             else:
                 new_d[key_old] = key
             break
     else:
         print('No match for {} ({})'.format(key_old, value_old))
 
-with open(os.path.expanduser('~/PARAMETERS/CELL_LINES.json'), "w") as f1:
-    json.dump(d, f1)
+
 path = os.path.expanduser('~/PloidyForRelease/CAIC/')
 for file in os.listdir(path):
     print(path + file)
