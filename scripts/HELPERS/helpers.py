@@ -356,7 +356,7 @@ class CorrelationReader:
                 current_segment = [float(line[4]), dict(zip(states, list(map(float, line[5:5 + len(states)]))))]
                 if previous_segment != current_segment:
                     uniq_segments_count += 1
-                    sum_cov += int(line[7])
+                    sum_cov += int(line[6 + len(states)])
                     previous_segment = current_segment
                 if method == 'normal':
                     if line[4] == 0:
