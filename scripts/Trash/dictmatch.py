@@ -34,7 +34,7 @@ for key_old, value_old in old_d.items():
     for key, value in d_items:
         if value == value_old:
             for convCL in new_converter:
-                if convCL not in key:
+                if convCL == key.split("!")[0]:
                     continue
                 print("Found ya {}".format(key))
                 new_key = new_converter[key.split("!")[0]] + "!" + key.split("!")[1]
