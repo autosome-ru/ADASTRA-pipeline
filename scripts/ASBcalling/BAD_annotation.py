@@ -4,7 +4,7 @@ import sys
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import create_ploidy_path_function
 from scripts.HELPERS.paths_for_components import ploidy_dict_path
-from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, unpackBADSegments
+from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, unpackBADSegments, states
 
 
 def make_reverse_dict(dictionary):
@@ -37,8 +37,8 @@ if __name__ == '__main__':
 
     with open(ploidy, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts',
-                        'repeat_type'] + callers_names + ['BAD', 'Q1', 'left_qual', 'right_qual', 'SNP_count',
-                                                          'sum_cover']))
+                        'repeat_type'] + callers_names + ['BAD'] + ["Q{:.2f}".format(x) for x in states] +
+                       ['SNP_count', 'sum_cover']))
 
         for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, \
             in_intersection, BAD, dip_qual, Quals, seg_c, sum_cov in \

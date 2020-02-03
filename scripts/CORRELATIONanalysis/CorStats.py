@@ -163,7 +163,7 @@ if __name__ == '__main__':
                 corr_to_objects[model] = 'NaN'
 
         for naive_mode in naive_modes:
-            if cosmic_names[cell_line_name]:
+            if cosmic_names[cell_CSSline_name]:
                 number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(
                     method=naive_mode)
 
