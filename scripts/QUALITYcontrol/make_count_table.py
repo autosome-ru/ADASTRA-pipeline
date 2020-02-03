@@ -14,7 +14,7 @@ for BAD in states:
     print(df['deltaQ{:.2f}'.format(BAD)].unique())
     min_tr = df['deltaQ{:.2f}'.format(BAD)].min()
     max_tr = df['deltaQ{:.2f}'.format(BAD)].max()
-    thresholds = (list(np.linspace(min_tr, -100, min(50, -100 - min_tr))) if min_tr < -100 else []) + list(
+    thresholds = (list(np.linspace(min_tr, -101, min(50, -101 - min_tr))) if min_tr < -101 else []) + list(
         range(-100, 101, 1)) + (list(np.linspace(101, max_tr, min(50, max_tr - 100))) if max_tr > 100 else [])
     print(thresholds)
     sum_df = None
