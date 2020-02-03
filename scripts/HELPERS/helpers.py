@@ -357,7 +357,7 @@ class CorrelationReader:
                 current_segment = [float(line[4]), dict(zip(states, list(map(float, line[5:5 + len(states)]))))]
                 if previous_segment != current_segment:
                     uniq_segments_count += 1
-                    sum_cov += int(line[7])
+                    sum_cov += int(line[6 + len(states)])
                     previous_segment = current_segment
                 if method == 'normal':
                     if line[4] == 0:
@@ -372,7 +372,8 @@ class CorrelationReader:
                     alt = int(line[3])
                     if min(ref, alt) == 0:
                         continue
-                    result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 10000, 10000])
+                    result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1,
+                                   dict(zip(states, [10000] * len(states)))])
                 else:
                     raise KeyError(method)
 
@@ -403,7 +404,7 @@ class CorrelationReader:
                     value = 2 ** (1 + float(line[idx]))
                 except ValueError:
                     continue
-                result.append([chr, pos, value, 100, 100])
+                result.append([chr, pos, value, dict(zip(states, [10000]* len(states)))])
             # result.sort_items()
             return result
 
