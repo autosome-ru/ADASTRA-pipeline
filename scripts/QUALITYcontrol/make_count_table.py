@@ -9,6 +9,7 @@ from scripts.HELPERS.helpers import states
 for BAD in states:
     df = pd.read_table(os.path.expanduser('~/unionSNPs.tsv'))
     df.columns = ['chr', 'pos', 'cov', 'BAD', 'COSMIC'] + ['Q{:.2f}'.format(state) for state in states]
+    df['BAD'] = BAD
     df['deltaQ{:.2f}'.format(BAD)] = df['Q{:.2f}'.format(BAD)] - df[
         ['Q{:.2f}'.format(another_BAD) for another_BAD in states if another_BAD != BAD]].max(axis=1)
     print(df['deltaQ{:.2f}'.format(BAD)].unique())
