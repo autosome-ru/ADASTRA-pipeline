@@ -322,7 +322,7 @@ def read_synonims():
 
 
 def remove_punctuation(x):
-    table = str.maketrans({key: "_" for key in string.punctuation})
+    table = str.maketrans({key: "_" for key in string.punctuation if key != '-'})
     # return x.replace('-', '_').replace('(', '').replace('(', '').replace(' ', '')  # .replace('\'', '_')
     return x.translate(table).replace(" ", "_")
 
