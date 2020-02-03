@@ -14,12 +14,15 @@ for key, value in d.items():
 
 path = os.path.expanduser('~/PloidyForRelease/CAIC/')
 for file in os.listdir(path):
+    print(path + file)
     os.rename(path + file, path + new_d[file.replace('_ploidy.tsv', '')] + '_ploidy.tsv')
 
 path = os.path.expanduser('~/PloidyForRelease/SQRT/')
 for file in os.listdir(path):
+    print(path + file)
     os.rename(path + file, path + new_d[file.replace('_ploidy.tsv', '')] + '_ploidy.tsv')
 
 path = os.path.expanduser('~/PloidyForRelease/merged_vcfs/')
 for file in os.listdir(path):
+    print(path + file)
     os.rename(path + file, path + new_d[file.replace('.tsv', '')] + '.tsv')
