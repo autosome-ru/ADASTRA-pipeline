@@ -12,14 +12,14 @@ for key, value in d.items():
             new_d[key_old] = key
             break
 
-path = '~/PloidyForRelease/CAIC/'
-for file in os.listdir(os.path.expanduser(path)):
+path = os.path.expanduser('~/PloidyForRelease/CAIC/')
+for file in os.listdir(path):
     os.rename(path + file, path + new_d[file.replace('_ploidy.tsv', '')] + '_ploidy.tsv')
 
-path = '~/PloidyForRelease/SQRT/'
-for file in os.listdir(os.path.expanduser(path)):
+path = os.path.expanduser('~/PloidyForRelease/SQRT/')
+for file in os.listdir(path):
     os.rename(path + file, path + new_d[file.replace('_ploidy.tsv', '')] + '_ploidy.tsv')
 
-path = '~/PloidyForRelease/merged_vcfs/'
-for file in os.listdir(os.path.expanduser(path)):
+path = os.path.expanduser('~/PloidyForRelease/merged_vcfs/')
+for file in os.listdir(path):
     os.rename(path + file, path + new_d[file.replace('.tsv', '')] + '.tsv')
