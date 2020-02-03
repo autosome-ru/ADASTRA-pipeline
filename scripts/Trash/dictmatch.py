@@ -9,7 +9,7 @@ def remove_punctuation_bad(x):
 
 
 def remove_punctuation(x):
-    table = str.maketrans({key: "_" for key in string.punctuation if key not in '-+'})
+    table = str.maketrans({key: "_" for key in string.punctuation if key not in {'-', '+'}})
     return x.translate(table).replace(" ", "_")
 
 
