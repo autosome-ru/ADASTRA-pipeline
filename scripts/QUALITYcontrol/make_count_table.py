@@ -20,7 +20,9 @@ for BAD in states:
     sum_df = None
     for threshold in thresholds:
         print('Now doing threshold = {}, BAD={:.2f}'.format(threshold, BAD))
+        print('before: {}'.format(len(df.index)))
         df = df[df['deltaQ{:.2f}'.format(BAD)] >= threshold]
+        print('after: {}'.format(len(df.index)))
         df_counts = df.groupby(['BAD', 'COSMIC']).size().reset_index(name='counts')
         df_counts = df_counts.groupby(['BAD', 'COSMIC'], as_index=False)['counts'].sum()
         df_counts['threshold'] = threshold
