@@ -9,6 +9,7 @@ from scripts.HELPERS.helpers import states
 for BAD in states:
     df = pd.read_table(os.path.expanduser('~/unionSNPs.tsv'))
     df.columns = ['chr', 'pos', 'cov', 'BAD', 'COSMIC'] + ['Q{:.2f}'.format(state) for state in states]
+    df['BAD'] = BAD
     df['deltaQ{:.2f}'.format(BAD)] = df['Q{:.2f}'.format(BAD)] - df[
         ['Q{:.2f}'.format(another_BAD) for another_BAD in states if another_BAD != BAD]].max(axis=1)
     print(df['deltaQ{:.2f}'.format(BAD)].unique())
@@ -20,7 +21,9 @@ for BAD in states:
     sum_df = None
     for threshold in thresholds:
         print('Now doing threshold = {}, BAD={:.2f}'.format(threshold, BAD))
+        print('before: {}'.format(len(df.index)))
         df = df[df['deltaQ{:.2f}'.format(BAD)] >= threshold]
+        print('after: {}'.format(len(df.index)))
         df_counts = df.groupby(['BAD', 'COSMIC']).size().reset_index(name='counts')
         df_counts = df_counts.groupby(['BAD', 'COSMIC'], as_index=False)['counts'].sum()
         df_counts['threshold'] = threshold
