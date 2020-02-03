@@ -372,7 +372,8 @@ class CorrelationReader:
                     alt = int(line[3])
                     if min(ref, alt) == 0:
                         continue
-                    result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 10000, 10000])
+                    result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1,
+                                   dict(zip(states, [10000] * len(states)))])
                 else:
                     raise KeyError(method)
 
