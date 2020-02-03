@@ -41,7 +41,7 @@ if __name__ == '__main__':
                        ['SNP_count', 'sum_cover']))
 
         for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, \
-            in_intersection, BAD, dip_qual, Quals, seg_c, sum_cov in \
+            in_intersection, BAD, Quals, seg_c, sum_cov in \
                 Intersection(table_file, ploidy_file, write_segment_args=True, write_intersect=True,
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter'),
                              unpack_segments_function=unpackBADSegments):
