@@ -404,7 +404,7 @@ class CorrelationReader:
                     value = 2 ** (1 + float(line[idx]))
                 except ValueError:
                     continue
-                result.append([chr, pos, value, 100, 100])
+                result.append([chr, pos, value, dict(zip(states, [10000]* len(states)))])
             # result.sort_items()
             return result
 
