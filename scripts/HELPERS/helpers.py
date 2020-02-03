@@ -96,7 +96,8 @@ class Intersection:
     def return_snp(self, intersect):
         return [self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
                + [int(intersect)] * self.write_intersect \
-               + [arg * intersect for arg in self.seg_args] * self.write_segment_args
+               + [((arg if intersect else {}) if isinstance(arg, dict) else arg * intersect)
+                  for arg in self.seg_args] * self.write_segment_args
 
     def get_next_snp(self):
         try:
