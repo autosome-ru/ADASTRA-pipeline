@@ -6,11 +6,14 @@ with open(os.path.expanduser('~/PARAMETERS/CELL_LINES.json')) as f1, open(os.pat
     old_d = json.loads(f2.readline())
 
 new_d = {}
-for key, value in d.items():
-    for key_old, value_old in old_d.items():
+
+for key_old, value_old in old_d.items():
+    for key, value in d.items():
         if value == value_old:
             new_d[key_old] = key
             break
+    else:
+        print('No match for {} ({})'.format(key_old, value_old))
 
 path = os.path.expanduser('~/PloidyForRelease/CAIC/')
 for file in os.listdir(path):
