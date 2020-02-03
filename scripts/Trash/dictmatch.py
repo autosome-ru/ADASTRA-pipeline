@@ -4,7 +4,7 @@ import string
 
 
 def remove_punctuation_bad(x):
-    table = str.maketrans({key: "_" for key in string.punctuation if key not in '-+'})
+    table = str.maketrans({key: "_" for key in string.punctuation if key not in '-'})
     return x.translate(table).replace(" ", "_")
 
 
@@ -32,7 +32,6 @@ for element in convertPluses:
     new_converter[remove_punctuation_bad(element)] = remove_punctuation(element)
 for key_old, value_old in old_d.items():
     for key, value in d_items:
-
         if value == value_old:
             for convCL in new_converter:
                 if convCL not in key:
