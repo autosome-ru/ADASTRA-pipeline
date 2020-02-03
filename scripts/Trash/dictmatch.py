@@ -18,14 +18,20 @@ for key_old, value_old in old_d.items():
 path = os.path.expanduser('~/PloidyForRelease/CAIC/')
 for file in os.listdir(path):
     print(path + file)
+    if file.replace('_ploidy.tsv', '') in new_d.values():
+        continue
     os.rename(path + file, path + new_d[file.replace('_ploidy.tsv', '')] + '_ploidy.tsv')
 
 path = os.path.expanduser('~/PloidyForRelease/SQRT/')
 for file in os.listdir(path):
     print(path + file)
+    if file.replace('_ploidy.tsv', '') in new_d.values():
+        continue
     os.rename(path + file, path + new_d[file.replace('_ploidy.tsv', '')] + '_ploidy.tsv')
 
 path = os.path.expanduser('~/PloidyForRelease/merged_vcfs/')
 for file in os.listdir(path):
     print(path + file)
+    if file.replace('.tsv', '') in new_d.values():
+        continue
     os.rename(path + file, path + new_d[file.replace('.tsv', '')] + '.tsv')
