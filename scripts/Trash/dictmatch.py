@@ -37,6 +37,7 @@ for key_old, value_old in old_d.items():
             for convCL in new_converter:
                 if convCL not in key:
                     continue
+                print("Found ya {}".format(key))
                 new_key = new_converter[key.split("!")[0]] + "!" + key.split("!")[1]
                 new_d[key_old] = new_key
                 #  change name in json too
