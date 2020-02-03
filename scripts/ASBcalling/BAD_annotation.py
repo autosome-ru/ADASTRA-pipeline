@@ -4,7 +4,7 @@ import sys
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import create_ploidy_path_function
 from scripts.HELPERS.paths_for_components import ploidy_dict_path
-from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection
+from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, unpackBADSegments
 
 
 def make_reverse_dict(dictionary):
@@ -41,10 +41,11 @@ if __name__ == '__main__':
                                                           'sum_cover']))
 
         for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, \
-            in_intersection, BAD, dip_qual, lq, rq, seg_c, sum_cov in \
+            in_intersection, BAD, dip_qual, Quals, seg_c, sum_cov in \
                 Intersection(table_file, ploidy_file, write_segment_args=True, write_intersect=True,
-                             unpack_snp_function=lambda x: unpack(x, use_in='Pcounter')):
+                             unpack_snp_function=lambda x: unpack(x, use_in='Pcounter'),
+                             unpack_segments_function=unpackBADSegments):
             if in_intersection:
                 out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type] +
                                [in_callers[name] for name in callers_names] +
-                               [BAD, dip_qual, lq, rq, seg_c, sum_cov]))
+                               [BAD] + [Quals[x] for x in Quals] + [seg_c, sum_cov]))

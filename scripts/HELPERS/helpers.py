@@ -255,12 +255,14 @@ def unpack(line, use_in):
     if use_in == "Pcounter":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
     ploidy = float(line_split[8 + difference])
-    dip_qual, lq, rq, seg_c, sum_cov = map(int, line_split[9 + difference:14 + difference])
-
-    p_ref, p_alt = map(float, line_split[14 + difference:16 + difference])
+    quals = list(map(int, line_split[9 + difference:9 + difference + len(states)]))
+    quals_dict = dict(zip(states, quals))
+    difference += len(states)
+    seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
+    p_ref, p_alt = map(float, line_split[11 + difference:13 + difference])
     if use_in == "Aggregation":
-        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, dip_qual, \
-               lq, rq, seg_c, sum_cov, p_ref, p_alt
+        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, quals_dict,\
+               seg_c, sum_cov, p_ref, p_alt
 
     raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
 
@@ -351,7 +353,7 @@ class CorrelationReader:
                 line = line.split("\t")
                 if line[0] not in ChromPos.chrs:
                     continue
-                current_segment = list(map(float, line[4:]))
+                current_segment = [float(line[4]), dict(zip(states, list(map(float, line[5:5 + len(states)]))))]
                 if previous_segment != current_segment:
                     uniq_segments_count += 1
                     sum_cov += int(line[7])
@@ -455,3 +457,12 @@ def read_weights():
             r[fixed_allele][BAD][first_bad_gof:] = 0
             w[fixed_allele][BAD][first_bad_gof:] = 1
     return r, w, gof
+
+
+def unpackBADSegments(line):
+    if line[0] == '#':
+        return [''] * (len(line.strip().split('\t')) - len(states))
+    line = line.strip().split('\t')
+
+    return [line[0], int(line[1]), int(line[2]), float(line[4])] + \
+           [dict(zip(states, line[4: 4+ len(states)]))] +line[(4 + len(states)):]

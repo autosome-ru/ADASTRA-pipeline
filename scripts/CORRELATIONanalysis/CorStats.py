@@ -54,7 +54,7 @@ def correlation_with_cosmic(SNP_objects, mode, method='normal', heatmap_data_fil
     snp_ploidy = []
     cosm_ploidy = []
     if method == 'normal':
-        for chr, pos, ploidy, qual, segn, in_intersect, cosmic_ploidy \
+        for chr, pos, ploidy, quals, in_intersect, cosmic_ploidy \
                 in Intersection(SNP_objects, cosmic_segments, write_intersect=True,
                                 write_segment_args=True):
             if not in_intersect:
@@ -75,7 +75,7 @@ def correlation_with_cosmic(SNP_objects, mode, method='normal', heatmap_data_fil
         return 'NaN'
     elif method == 'cover':
 
-        for chr, pos, cov, ploidy, qual, segn, in_intersect, cosmic_ploidy \
+        for chr, pos, cov, ploidy, quals, in_intersect, cosmic_ploidy \
                 in Intersection(SNP_objects, cosmic_segments, write_intersect=True,
                                 write_segment_args=True):
             if not in_intersect:
@@ -84,7 +84,7 @@ def correlation_with_cosmic(SNP_objects, mode, method='normal', heatmap_data_fil
             cosm_ploidy.append(cosmic_ploidy)
 
             if heatmap_data_file is not None:
-                heatmap.write(pack([chr, pos, cov, ploidy, cosmic_ploidy, qual]))
+                heatmap.write(pack([chr, pos, cov, ploidy, cosmic_ploidy] + [quals[x] for x in quals]))
         if heatmap_data_file is not None:
             heatmap.close()
 

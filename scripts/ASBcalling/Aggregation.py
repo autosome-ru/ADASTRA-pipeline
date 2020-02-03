@@ -99,8 +99,7 @@ if __name__ == '__main__':
                 for line in file:
                     try:
                         (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
-                         BAD, dip_qual, lq, rq, seg_c, sum_cov,
-                         p_ref, p_alt) = unpack(line, use_in="Aggregation")
+                         BAD, Quals, seg_c, sum_cov, p_ref, p_alt) = unpack(line, use_in="Aggregation")
                     except ValueError:
                         continue
                     if p_ref == '.' or ID == '.':
@@ -109,13 +108,13 @@ if __name__ == '__main__':
 
                     try:
                         common_snps[(chr, pos, ID, ref, alt, repeat)].append(
-                            (cov, ref_c, alt_c, in_callers, BAD, dip_qual, lq, rq,
+                            (cov, ref_c, alt_c, in_callers, BAD, Quals,
                              seg_c, sum_cov,
                              p_ref, p_alt,
                              table_name, another_agr))
                     except KeyError:
                         common_snps[(chr, pos, ID, ref, alt, repeat)] = [
-                            (cov, ref_c, alt_c, in_callers, BAD, dip_qual, lq, rq,
+                            (cov, ref_c, alt_c, in_callers, BAD, Quals,
                              seg_c, sum_cov,
                              p_ref, p_alt,
                              table_name, another_agr)]
@@ -124,8 +123,7 @@ if __name__ == '__main__':
 
     with open(table_path, 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
-                        'mean_BAD',
-                        'mean_deltaL_neighborBAD', 'mean_deltaL_BAD1', 'mean_SNP_per_segment', 'n_aggregated',
+                        'mean_BAD', 'mean_SNP_per_segment', 'n_aggregated',
                         'refc_mostsig_ref', 'altc_mostsig_ref', 'BAD_mostsig_ref', 'es_mostsig_ref',
                         'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'es_mostsig_alt',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
@@ -164,8 +162,6 @@ if __name__ == '__main__':
             uniq_callers_counter = dict(zip(callers_names, [False] * len(callers_names)))
             total_callers_counter = 0
             BAD_array = []
-            deltaL_BAD1_array = []
-            deltaL_neighbour_BAD_array = []
             SNPs_per_segment_array = []
             pref_array = []
             palt_array = []
@@ -178,7 +174,7 @@ if __name__ == '__main__':
             alt_counts_array = []
 
             for v in value:
-                cov, ref_c, alt_c, in_callers, BAD, dip_qual, lq, rq, seg_c, sum_cov, p_ref, p_alt, table_name, \
+                cov, ref_c, alt_c, in_callers, BAD, Quals, seg_c, sum_cov, p_ref, p_alt, table_name, \
                 another_agr = v
 
                 table_names_array.append(table_name)
@@ -187,13 +183,6 @@ if __name__ == '__main__':
                     uniq_callers_counter[caller] = uniq_callers_counter[caller] or in_callers[caller]
                     total_callers_counter += in_callers[caller]
                 BAD_array.append(BAD)
-                deltaL_BAD1_array.append(dip_qual)
-                if BAD == 1:
-                    deltaL_neighbour_BAD_array.append(rq)
-                elif BAD == 5:
-                    deltaL_neighbour_BAD_array.append(lq)
-                else:
-                    deltaL_neighbour_BAD_array.append(min(lq, rq))
                 SNPs_per_segment_array.append(seg_c)
                 pref_array.append(p_ref)
                 palt_array.append(p_alt)
@@ -257,8 +246,6 @@ if __name__ == '__main__':
             total_cover = sum(cover_array)
             unique_callers = sum(uniq_callers_counter[caller] for caller in callers_names)
             mean_BAD = np.round(np.mean(BAD_array), 2)
-            mean_deltaL_BAD1 = np.round(np.mean(deltaL_BAD1_array), 1)
-            mean_deltaL_neighbour_BAD = np.round(np.mean(deltaL_neighbour_BAD_array), 1)
             mean_SNPs_per_segment = np.round(np.mean(SNPs_per_segment_array), 1)
             n_aggregated = len(value)
 
@@ -297,7 +284,7 @@ if __name__ == '__main__':
 
             out.write(pack(
                 [chr, pos, ID, ref, alt, repeat, total_callers_counter, unique_callers,
-                 mean_BAD, mean_deltaL_neighbour_BAD, mean_deltaL_BAD1, mean_SNPs_per_segment, n_aggregated,
+                 mean_BAD, mean_SNPs_per_segment, n_aggregated,
                  ref_c_mostsig_ref, alt_c_mostsig_ref, BAD_mostsig_ref, es_mostsig_ref,
                  ref_c_mostsig_alt, alt_c_mostsig_alt, BAD_mostsig_alt, es_mostsig_alt,
                  min_cover, max_cover, med_cover, total_cover,

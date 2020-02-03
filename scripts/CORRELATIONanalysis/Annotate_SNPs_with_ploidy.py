@@ -4,7 +4,7 @@ import json
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths_for_components import ploidy_path, ploidy_dict_path, correlation_path
-from scripts.HELPERS.helpers import Intersection, pack
+from scripts.HELPERS.helpers import Intersection, pack, unpackBADSegments
 
 
 def unpack_ploidy_segments(line):
@@ -65,17 +65,10 @@ if __name__ == '__main__':
 
         with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
             out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list) + '\n')
-            for chr, pos, ref, alt, in_intersection, segment_ploidy, qual, q_left, q_right, segn, sumcov \
+            for chr, pos, ref, alt, in_intersection, segment_ploidy, Qual, segn, sumcov \
                     in Intersection(table, ploidy,
-                                    unpack_segments_function=unpack_ploidy_segments, unpack_snp_function=unpack_snps,
+                                    unpack_segments_function=unpackBADSegments, unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
                 if not in_intersection:
                     continue
-                if segment_ploidy == 1:
-                    qual_mean = q_right
-                elif segment_ploidy == 6:
-                    qual_mean = q_left
-                else:
-                    qual_mean = (q_left + q_right) // 2
-                out.write(pack([chr, pos, ref, alt, segment_ploidy,
-                                qual_mean, segn, sumcov]))
+                out.write(pack([chr, pos, ref, alt, segment_ploidy] + [Qual[x] for x in Qual]+ [segn, sumcov]))
