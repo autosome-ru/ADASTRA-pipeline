@@ -352,7 +352,7 @@ class CorrelationReader:
                 line = line.split("\t")
                 if line[0] not in ChromPos.chrs:
                     continue
-                current_segment = [float(line[4]), int(line[5]), int(line[6])]
+                current_segment = list(map(float, line[4:]))
                 if previous_segment != current_segment:
                     uniq_segments_count += 1
                     sum_cov += int(line[7])

@@ -8,7 +8,6 @@ from scripts.HELPERS.paths_for_components import ploidy_dict_path, GTRD_slice_pa
 from scripts.HELPERS.helpers import remove_punctuation
 
 
-
 def findLAB(enc):
     if enc.find(";") != -1:
         enc = enc.split(";")[0]
@@ -17,7 +16,7 @@ def findLAB(enc):
         lab = json.loads(r.text)['lab']['@id']
         biosample = json.loads(r.text)['replicates'][0]['library']['biosample']['@id']
         ret = lab + "_" + biosample
-        return ret.replace("/", "_")
+        return remove_punctuation(ret)
     else:
         return 'False'
 
