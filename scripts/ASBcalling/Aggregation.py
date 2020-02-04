@@ -130,7 +130,7 @@ if __name__ == '__main__':
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
                         'es_mean_ref', 'es_mean_alt',
                         'logitp_ref', 'logitp_alt']))
-
+        print(common_snps)
         filtered_snps = dict()
         for key in common_snps:
             values = []
