@@ -118,7 +118,8 @@ if __name__ == '__main__':
                              seg_c, sum_cov,
                              p_ref, p_alt,
                              table_name, another_agr)]
-
+        else:
+            print("There is no {}".format(table))
     print('Writing {}'.format(key_name))
 
     with open(table_path, 'w') as out:
