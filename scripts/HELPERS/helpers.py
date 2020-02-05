@@ -256,7 +256,7 @@ def unpack(line, use_in):
     if use_in == "Pcounter":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
     ploidy = float(line_split[8 + difference])
-    quals = list(map(int, line_split[9 + difference:9 + difference + len(states)]))
+    quals = list(map(float, line_split[9 + difference:9 + difference + len(states)]))
     quals_dict = dict(zip(states, quals))
     difference += len(states)
     seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
