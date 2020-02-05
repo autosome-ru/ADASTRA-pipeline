@@ -24,13 +24,18 @@ plt.rcParams['axes.xmargin'] = 0
 plt.rcParams['axes.ymargin'] = 0
 plt.rcParams["legend.framealpha"] = 0.5
 
-t = pd.read_table(os.path.expanduser('~/counts_qm.tsv'))
-
-t.replace(1.3333333333333337, 4/3, inplace=True)
+t = {}
+min_tr = {}
+max_tr = {}
+for BAD in states:
+    t[BAD] = pd.read_table(os.path.expanduser('~/counts_deltaqm_{:.2f}.tsv'.format(BAD)))
+    t[BAD].replace(1.3333333333333337, 4/3, inplace=True)
+    min_tr[BAD] = t[BAD]['threshold'].min()
+    max_tr[BAD] = t[BAD]['threshold'].max()
 # for x in t['COSMIC'].unique():
 #     print(x, t[t['COSMIC'] == x]['counts'].sum())
 
-x = [x for x in range(101)] + [x for x in range(110, 201, 10)]
+# x = [x for x in range(101)] + [x for x in range(110, 201, 10)]
 
 TP = {}
 FP = {}
@@ -44,31 +49,36 @@ for BAD in states:
     Recall[BAD] = {}
     FPR[BAD] = {}
 
-All = {}
-Global_precision = {}
+# All = {}
+# Global_precision = {}
 
-t = t[t['BAD'].isin(states) & t['COSMIC'].isin(states)]
+for BAD in states:
+    t[BAD] = t[BAD][t[BAD]['BAD'].isin(states) & t[BAD]['COSMIC'].isin(states)]
 l = len(states)
 
 P = {}
 N = {}
 for BAD in states:
-    P[BAD] = t[t['COSMIC'] == BAD]['counts'].sum()
-    N[BAD] = t[t['COSMIC'] != BAD]['counts'].sum()
+    P[BAD] = t[BAD][(t[BAD]['COSMIC'] == BAD) & (t[BAD]['threshold'] == min_tr[BAD])]['counts'].sum()
+    N[BAD] = t[BAD][(t[BAD]['COSMIC'] != BAD) & (t[BAD]['threshold'] == min_tr[BAD])]['counts'].sum()
 
+x = {}
+s = {}
 print('starto')
 
-for tr in x:
-    s = t[t['threshold'] == tr].copy()
-    All[tr] = s['counts'].sum()
-    Global_precision[tr] = s[s['BAD'] == s['COSMIC']]['counts'].sum() / All[tr]
-    for BAD in states:
+for BAD in states:
+    x[BAD] = sorted(list(t[BAD]['threshold'].unique()))
+    print(x[BAD])
+    for tr in x[BAD]:
+        s[BAD] = t[BAD][t[BAD]['threshold'] == tr].copy()
         # print(tr, BAD)
-        TP[BAD][tr] = s[(s['COSMIC'] == BAD) & (s['BAD'] == BAD)]['counts'].sum()
-        FP[BAD][tr] = s[(s['COSMIC'] != BAD) & (s['BAD'] == BAD)]['counts'].sum()
+        TP[BAD][tr] = s[BAD][(s[BAD]['COSMIC'] == BAD) & (s[BAD]['BAD'] == BAD)]['counts'].sum()
+        FP[BAD][tr] = s[BAD][(s[BAD]['COSMIC'] != BAD) & (s[BAD]['BAD'] == BAD)]['counts'].sum()
         Precision[BAD][tr] = TP[BAD][tr] / (TP[BAD][tr] + FP[BAD][tr])
         Recall[BAD][tr] = TP[BAD][tr] / P[BAD]
         FPR[BAD][tr] = FP[BAD][tr] / N[BAD]
+    # All[tr] = s['counts'].sum()
+    # Global_precision[tr] = s[s['BAD'] == s['COSMIC']]['counts'].sum() / All[tr]
 
 # s[((s['COSMIC'] == BAD) & (s['BAD'] == BAD)) | ((s['COSMIC'] != BAD) & (s['BAD'] != BAD))]['counts'].sum() / All)
 
@@ -78,17 +88,21 @@ print('starto2')
 for metric, label in (Precision, 'Precision'), (Recall, 'Recall'):
     fig, ax = plt.subplots()
     for BAD in states:
-        plt.plot(x, [metric[BAD][tr] for tr in x], label='{:.2f}'.format(BAD))
-    plt.plot(x, [Global_precision[tr] for tr in x], label='All', color='black')
+        plt.plot([tr for tr in x[BAD] if 100 >= tr >= -100], [metric[BAD][tr] for tr in x[BAD] if 100 >= tr >= -100],
+                 label='{:.2f}'.format(BAD))
+    # plt.plot(x, [Global_precision[tr] for tr in x], label='All', color='black')
     # ax.axhline(y=((l - 1) ** 2 + 1) / ((l - 1) ** 2 + 1 + 2 * (l - 1)), color='black', linestyle='--')
-    ax.axhline(y=1 / l, color='black', linestyle='--')
+    if label == 'Precision':
+        ax.axhline(y=1 / l, color='black', linestyle='--')
+    ax.axvline(x=0, color='black', linestyle='--')
 
     plt.legend(loc='lower right')
     plt.grid(True)
+    plt.ylim(0, 1)
     plt.xlabel('SNP qual >= x')
     plt.ylabel(label)
 
-    plt.savefig(os.path.expanduser('~/AC_5/figa_{}.png'.format(label)))
+    plt.savefig(os.path.expanduser('~/AC_5/figa_{}.png'.format(label)), dpi=300)
     plt.close(fig)
 
 print('starto3')
@@ -96,14 +110,17 @@ print('starto3')
 # PR-curve
 fig, ax = plt.subplots()
 for BAD in states:
-    ax.plot([Recall[BAD][tr] for tr in x], [Precision[BAD][tr] for tr in x], label='{:.2f}'.format(BAD))
+    ax.plot([Recall[BAD][tr] for tr in x[BAD]], [Precision[BAD][tr] for tr in x[BAD]], label='{:.2f}'.format(BAD))
+    ax.scatter([Recall[BAD][0]], [Precision[BAD][0]], s=50)
 ax.axhline(y=1 / l, color='black', linestyle='--')
 # ax.axvline(x=1 / l, color='black', linestyle='--')
 plt.legend(loc='lower center')
 plt.grid(True)
+plt.xlim(0, 1)
+plt.ylim(0, 1)
 plt.xlabel('Recall')
 plt.ylabel('Precision')
-plt.savefig(os.path.expanduser('~/AC_5/figa_PR.png'))
+plt.savefig(os.path.expanduser('~/AC_5/figa_PR.png'), dpi=300)
 plt.close(fig)
 
 print('starto4')
@@ -111,14 +128,16 @@ print('starto4')
 # ROC
 fig, ax = plt.subplots()
 for BAD in states:
-    ax.plot([Recall[BAD][tr] for tr in x], [FPR[BAD][tr] for tr in x], label='{:.2f}'.format(BAD))
-ax.axhline(y=1 / l, color='black', linestyle='--')
-ax.axvline(x=1 / l, color='black', linestyle='--')
+    ax.plot([FPR[BAD][tr] for tr in x[BAD]], [Recall[BAD][tr] for tr in x[BAD]], label='{:.2f}'.format(BAD))
+    ax.scatter([FPR[BAD][0]], [Recall[BAD][0]], s=50)
+plt.plot([0, 1], [0, 1], color='black', linestyle='--')
 plt.legend(loc='lower right')
 plt.grid(True)
-plt.xlabel('TPR')
-plt.ylabel('FPR')
-plt.savefig(os.path.expanduser('~/AC_5/figa_ROC.png'))
+plt.xlim(0, 1)
+plt.ylim(0, 1)
+plt.xlabel('FPR')
+plt.ylabel('TPR')
+plt.savefig(os.path.expanduser('~/AC_5/figa_ROC.png'), dpi=300)
 
-plt.show()
+# plt.show()
 plt.close(fig)
