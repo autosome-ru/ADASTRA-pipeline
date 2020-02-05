@@ -4,7 +4,7 @@ import numpy as np
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function
-from scripts.HELPERS.paths_for_components import GTRD_slice_path, synonims_path, parameters_path
+from scripts.HELPERS.paths_for_components import GTRD_slice_path, synonims_path, parameters_path, cl_dict_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
@@ -468,3 +468,15 @@ def unpackBADSegments(line):
 
     return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
            [dict(zip(states, line[4: 4 + len(states)]))] +line[(4 + len(states)):]
+
+
+if __name__ == "__main__":
+    import pandas as pd
+    import json
+    with open(parameters_path + 'CONVERT_CL_NAMES.json', 'w') as o:
+        d_to_write = {}
+        d = pd.read_table(GTRD_slice_path)
+        for key in d["cell_title"].tolist():
+            d_to_write[key] = remove_punctuation(key)
+        json.dump(d_to_write, o)
+
