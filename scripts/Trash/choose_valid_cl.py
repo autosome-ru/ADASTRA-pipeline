@@ -1,7 +1,7 @@
 import os
 
-inp_path = os.path.expanduser("~/DATA/CL_P-values/")
-out_path = os.path.expanduser("~/DATA/CL_P-values_good/")
+inp_path = os.path.expanduser("~/DATA/CL_DICTS/")
+out_path = os.path.expanduser("~/DATA/CL_DICTS_new/")
 good_path = os.path.expanduser("~/ParallelParameters/Agr_parameters.cfg")
 good_one = set()
 with open(good_path) as f:
@@ -10,5 +10,5 @@ with open(good_path) as f:
 
 for file in os.listdir(inp_path):
     print(file)
-    if file.replace(".tsv", "") in good_one:
+    if file.replace("_DICT.json", "") in good_one:
         os.rename(inp_path + file, out_path + file)
