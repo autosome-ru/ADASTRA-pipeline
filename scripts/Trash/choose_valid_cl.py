@@ -2,7 +2,7 @@ import json
 import os
 import pandas as pd
 
-inp_path = os.path.expanduser("~/DATA/CL_DICTS/")
+inp_path = os.path.expanduser("~/DATA/CL_P-values/")
 
 for file in os.listdir(inp_path):
     table = pd.read_table(inp_path + file)
