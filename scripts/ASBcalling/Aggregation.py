@@ -147,6 +147,7 @@ if __name__ == '__main__':
         print('{} snps'.format(len(filtered_snps)))
 
         if len(filtered_snps) == 0:
+            os.remove(table_path)
             sys.exit(0)
         r, w, gof = read_weights()
         origin_of_snp_dict = OrderedDict()
