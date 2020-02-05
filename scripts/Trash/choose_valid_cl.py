@@ -1,12 +1,11 @@
 import json
 import os
+import pandas as pd
 
 inp_path = os.path.expanduser("~/DATA/CL_DICTS/")
 
 for file in os.listdir(inp_path):
-    print(file)
-    with open(inp_path + file) as f:
-        d = json.loads(f.readline())
-    if len(d.keys()) == 0:
+    table = pd.read_table(inp_path + file)
+    if table.empty:
         print(inp_path + file)
         #os.remove(inp_path + file)
