@@ -17,7 +17,7 @@ for BAD in states:
     N = 300
     idxs = set(int(x) for x in np.linspace(0, len(df.index) - 1, N))
     thresholds = []
-    for index, row in df.sort_values(by='threshold').reset_index(drop=True):
+    for index, row in df.sort_values(by='threshold').reset_index(drop=True).iterrows():
         if index in idxs:
             thresholds.append(row['threshold'])
     print(thresholds)
