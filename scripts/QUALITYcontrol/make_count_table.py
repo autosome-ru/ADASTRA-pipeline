@@ -26,6 +26,7 @@ for BAD in states:
     for index, value in enumerate(sorted_by_thresholds):
         if index in idxs:
             thresholds.add(value)
+    thresholds = sorted(thresholds)
     print(thresholds)
     sum_df = None
     for threshold in thresholds:
