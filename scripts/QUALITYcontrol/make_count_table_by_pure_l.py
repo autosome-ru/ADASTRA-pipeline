@@ -7,7 +7,7 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import states
 
 for BAD in states:
-    df = pd.read_table(os.path.expanduser('~/unionSNPs_{:.2f}.tsv'.format(BAD)))
+    df = pd.read_table(os.path.expanduser('~/unionSNPs.tsv'))#_{:.2f}.tsv'.format(BAD)))
     df.columns = ['chr', 'pos', 'cov', 'BAD', 'COSMIC'] + ['Q{:.2f}'.format(state) for state in states]
     df['BAD'] = BAD
     df['threshold'] = df['Q{:.2f}'.format(BAD)]
