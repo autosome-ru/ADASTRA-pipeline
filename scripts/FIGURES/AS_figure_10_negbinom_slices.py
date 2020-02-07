@@ -107,13 +107,15 @@ ax1.vlines(x=max_c + 1 - 5, ymin=0, ymax=max_c + 1 - 5, colors=['black', ], line
 for cov in covs:
     ax1.plot([0, cov], [max_c - cov + 0.5, max_c + 0.5], linestyle='dashed', linewidth=lw, color='black')
 
-
+# Params
 r_dict, w_dict, gof_dict = read_weights()
 fix_c = 20
 main_allele = "alt"
 fixed_allele = "ref" if main_allele == "alt" else "alt"
 BAD = 1
-stats = pd.read_table()
+if BAD not in states:
+    print("Sanya hueviy BAD")
+stats = pd.read_table(os.path.expanduser('~/fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD)))
 stats_filtered = stats[stats['{}_counts'.format(fixed_allele)] == fix_c]
 max_cover_in_stats = max(stats_filtered['{}_counts'.format(main_allele)])
 counts_array = np.zeros(max_cover_in_stats + 1, dtype=np.int64)
