@@ -274,5 +274,6 @@ def collectPValueStatistics(key_name=None, BAD=None):
 
 
 if __name__ == "__main__":
-    for BAD in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
-        collectPValueStatistics(BAD=BAD)
+    for alt in {True, False}:
+        for BAD in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
+            collectNegativeBinomStatistics(alt=alt, BAD=BAD)
