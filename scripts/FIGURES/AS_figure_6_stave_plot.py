@@ -127,5 +127,5 @@ for name in top10_names:
 
     ax.text(x=0.99, y=2.95, s=name.replace('_HUMAN.tsv', ''), color=text_color, va='top', ha='right')
 
-    plt.savefig(os.path.expanduser('~/AC_6/Figure_AS_6_stave_{}_05022020.png'.format(name.replace('_HUMAN.tsv', ''))))
+    plt.savefig(os.path.expanduser('~/AC_6/AS_Figure_6_stave_{}_05022020.png'.format(name.replace('_HUMAN.tsv', ''))))
     plt.close(fig)

@@ -45,4 +45,4 @@ if __name__ == '__main__':
     ax.set_axisbelow(True)
 
     # Decorations
-    plt.savefig(os.path.expanduser('~/AC_8/Counts_plot_{}.png'.format(cl)), dpi=300)
+    plt.savefig(os.path.expanduser('~/AC_8/AS_Figure_8_Counts_plot_{}.png'.format(cl)), dpi=300)

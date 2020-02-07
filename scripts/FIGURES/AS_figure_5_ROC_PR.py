@@ -28,7 +28,7 @@ t = {}
 min_tr = {}
 max_tr = {}
 for BAD in states:
-    t[BAD] = pd.read_table(os.path.expanduser('~/counts_deltaqm_{:.2f}.tsv'.format(BAD)))
+    t[BAD] = pd.read_table(os.path.expanduser('~/counts_rawlm_{:.2f}.tsv'.format(BAD)))
     t[BAD].replace(1.3333333333333337, 4/3, inplace=True)
     min_tr[BAD] = t[BAD]['threshold'].min()
     max_tr[BAD] = t[BAD]['threshold'].max()
@@ -98,14 +98,14 @@ for metric, label in (Precision, 'Precision'), (Recall, 'Recall'):
     plt.xlabel('SNP qual >= x')
     plt.ylabel(label)
 
-    plt.savefig(os.path.expanduser('~/AC_5/figa_{}.png'.format(label)), dpi=300)
+    plt.savefig(os.path.expanduser('~/AC_5/AS_Figure_5_{}.png'.format(label)), dpi=300)
     plt.close(fig)
 
 # PR-curve
 fig, ax = plt.subplots()
 for BAD in states:
     ax.plot([Recall[BAD][tr] for tr in x[BAD]], [Precision[BAD][tr] for tr in x[BAD]], label='{:.2f}'.format(BAD))
-    ax.scatter([Recall[BAD][0]], [Precision[BAD][0]], s=50)
+    # ax.scatter([Recall[BAD][0]], [Precision[BAD][0]], s=50)
 ax.axhline(y=1 / l, color='black', linestyle='--')
 # ax.axvline(x=1 / l, color='black', linestyle='--')
 plt.legend(loc='lower center')
@@ -114,14 +114,14 @@ plt.xlim(0, 1)
 plt.ylim(0, 1)
 plt.xlabel('Recall')
 plt.ylabel('Precision')
-plt.savefig(os.path.expanduser('~/AC_5/figa_PR.png'), dpi=300)
+plt.savefig(os.path.expanduser('~/AC_5/AS_Figure_5_PR.png'), dpi=300)
 plt.close(fig)
 
 # ROC
 fig, ax = plt.subplots()
 for BAD in states:
     ax.plot([FPR[BAD][tr] for tr in x[BAD]], [Recall[BAD][tr] for tr in x[BAD]], label='{:.2f}'.format(BAD))
-    ax.scatter([FPR[BAD][0]], [Recall[BAD][0]], s=50)
+    # ax.scatter([FPR[BAD][0]], [Recall[BAD][0]], s=50)
 plt.plot([0, 1], [0, 1], color='black', linestyle='--')
 plt.legend(loc='lower right')
 plt.grid(True)
@@ -129,7 +129,7 @@ plt.xlim(0, 1)
 plt.ylim(0, 1)
 plt.xlabel('FPR')
 plt.ylabel('TPR')
-plt.savefig(os.path.expanduser('~/AC_5/figa_ROC.png'), dpi=300)
+plt.savefig(os.path.expanduser('~/AC_5/AS_Figure_5_ROC.png'), dpi=300)
 
 # plt.show()
 plt.close(fig)

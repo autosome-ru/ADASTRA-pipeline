@@ -25,6 +25,11 @@ lw = 1.25
 t = pd.read_table(os.path.expanduser('~/all_snps_statistics.tsv'))
 t = t[(t['ref'] >= min_c) & (t['alt'] >= min_c)]
 t = t[(t['ref'] <= max_c) & (t['alt'] <= max_c)]
+for count in range(min_c, max_c + 1):
+    if not t[(t['ref'] == count) & (t['alt'] == count)]['count'].tolist():
+        t = t.append(pd.DataFrame({'ref': [count], 'alt': [count], 'count': [0]}))
+t.reset_index(inplace=True, drop=True)
+t['count'] = t['count'].astype(int)
 t['ref'] = t['ref'].astype(int)
 t['alt'] = t['alt'].astype(int)
 print(t['count'].sum(axis=0))
@@ -69,14 +74,14 @@ ax1.xaxis.set_major_locator(ticker.FixedLocator(np.arange(0, max_c + 1, div) + 0
 ax1.xaxis.set_major_formatter(ticker.FixedFormatter(range(0, max_c + 1)[::div]))
 ax1.tick_params(axis="x", rotation=-90)
 
-plt.hlines(y=max_c + 1, xmin=0, xmax=max_c + 1, colors=['black', ], linewidth=lw*2 + 0.5)
-plt.vlines(x=0, ymin=0, ymax=max_c + 1, colors=['black', ], linewidth=lw*2)
+ax1.hlines(y=max_c + 1, xmin=0, xmax=max_c + 1, colors=['black', ], linewidth=lw*2 + 0.5)
+ax1.vlines(x=0, ymin=0, ymax=max_c + 1, colors=['black', ], linewidth=lw*2)
 
 
-plt.hlines(y=0, xmin=5, xmax=max_c + 1, colors=['#AAAAAA', ], linewidth=lw*2)
-plt.vlines(x=max_c + 1, ymin=0, ymax=max_c + 1 - 5, colors=['#AAAAAA', ], linewidth=lw*2 + 0.5)
-plt.hlines(y=max_c + 1 - 5, xmin=5-lw/10, xmax=max_c + 1, colors=['#AAAAAA', ], linewidth=lw)
-plt.vlines(x=5, ymin=0, ymax=max_c + 1 - 5 +lw/10, colors=['#AAAAAA', ], linewidth=lw)
+ax1.hlines(y=0, xmin=5, xmax=max_c + 1, colors=['#AAAAAA', ], linewidth=lw*2)
+ax1.vlines(x=max_c + 1, ymin=0, ymax=max_c + 1 - 5, colors=['#AAAAAA', ], linewidth=lw*2 + 0.5)
+ax1.hlines(y=max_c + 1 - 5, xmin=5-lw/10, xmax=max_c + 1, colors=['#AAAAAA', ], linewidth=lw)
+ax1.vlines(x=5, ymin=0, ymax=max_c + 1 - 5 +lw/10, colors=['#AAAAAA', ], linewidth=lw)
 
 
 
@@ -95,23 +100,23 @@ if max_c <= 50:
 else:
     div = 10
 
-ax1.yaxis.set_major_locator(ticker.FixedLocator(np.arange(0, max_c - 5 + 1, div) + 0.5))
-ax1.yaxis.set_major_formatter(ticker.FixedFormatter(range(0, max_c + 1)[::-div]))
-ax1.tick_params(axis="y", rotation=0)
+ax2.yaxis.set_major_locator(ticker.FixedLocator(np.arange(0, max_c - 5 + 1, div) + 0.5))
+ax2.yaxis.set_major_formatter(ticker.FixedFormatter(range(0, max_c + 1)[::-div]))
+ax2.tick_params(axis="y", rotation=0)
 
-ax1.xaxis.set_major_locator(ticker.FixedLocator(np.arange(0, max_c + 1, div) + 0.5))
-ax1.xaxis.set_major_formatter(ticker.FixedFormatter(range(0, max_c + 1)[::div]))
-ax1.tick_params(axis="x", rotation=-90)
+ax2.xaxis.set_major_locator(ticker.FixedLocator(np.arange(0, max_c + 1, div) + 0.5))
+ax2.xaxis.set_major_formatter(ticker.FixedFormatter(range(0, max_c + 1)[::div]))
+ax2.tick_params(axis="x", rotation=-90)
 
-plt.hlines(y=max_c + 1, xmin=0, xmax=max_c + 1, colors=['black', ], linewidth=lw*2 + 0.5)
-plt.vlines(x=0, ymin=0, ymax=max_c + 1, colors=['black', ], linewidth=lw*2)
-
-
-plt.hlines(y=0, xmin=5, xmax=max_c + 1, colors=['#AAAAAA', ], linewidth=lw*2)
-plt.vlines(x=max_c + 1, ymin=0, ymax=max_c + 1 - 5, colors=['#AAAAAA', ], linewidth=lw*2 + 0.5)
-plt.hlines(y=max_c + 1 - 5, xmin=5-lw/10, xmax=max_c + 1, colors=['#AAAAAA', ], linewidth=lw)
-plt.vlines(x=5, ymin=0, ymax=max_c + 1 - 5 +lw/10, colors=['#AAAAAA', ], linewidth=lw)
+ax2.hlines(y=max_c + 1, xmin=0, xmax=max_c + 1, colors=['black', ], linewidth=lw*2 + 0.5)
+ax2.vlines(x=0, ymin=0, ymax=max_c + 1, colors=['black', ], linewidth=lw*2)
 
 
+ax2.hlines(y=0, xmin=5, xmax=max_c + 1, colors=['#AAAAAA', ], linewidth=lw*2)
+ax2.vlines(x=max_c + 1, ymin=0, ymax=max_c + 1 - 5, colors=['#AAAAAA', ], linewidth=lw*2 + 0.5)
+ax2.hlines(y=max_c + 1 - 5, xmin=5-lw/10, xmax=max_c + 1, colors=['#AAAAAA', ], linewidth=lw)
+ax2.vlines(x=5, ymin=0, ymax=max_c + 1 - 5 +lw/10, colors=['#AAAAAA', ], linewidth=lw)
 
-plt.savefig(os.path.expanduser('~/AC_2/Figure_AS_2_080220.png'), dpi=300)
+
+
+plt.savefig(os.path.expanduser('~/AC_2/AS_Figure_2_maxc={}_080220.svg'.format(max_c)), dpi=300)

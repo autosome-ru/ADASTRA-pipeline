@@ -17,16 +17,16 @@ for BAD in states:
     df = df[['BAD', 'COSMIC', 'threshold']]
     min_tr = df['threshold'].min()
     max_tr = df['threshold'].max()
-    N = 300
+    N = 1000
     idxs = set(int(x) for x in np.linspace(0, len(df.index) - 1, N))
     sorted_by_thresholds = df['threshold'].to_numpy(copy=True)
     sorted_by_thresholds.sort()
     print('isort')
-    thresholds = set()
+    thresholds = {0}
     for index, value in enumerate(sorted_by_thresholds):
         if index in idxs:
             thresholds.add(value)
-    thresholds = sorted(thresholds)
+    thresholds = sorted(list(thresholds))
     print(thresholds)
     sum_df = None
     for threshold in thresholds:

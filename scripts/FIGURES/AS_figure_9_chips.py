@@ -7,7 +7,6 @@ import seaborn as sns
 
 
 def get_hue(row):
-    print(row)
     if row['#cell_line'] == 'K562__myelogenous_leukemia_':
         return 'K562__myelogenous_leukemia_'
     elif row['#cell_line'] == "MCF7__Invasive_ductal_breast_carcinoma_":
@@ -17,7 +16,6 @@ def get_hue(row):
 
 
 def get_color(row):
-    print(row)
     if row['#cell_line'] == 'K562__myelogenous_leukemia_':
         return 'C0'
     elif row['#cell_line'] == "MCF7__Invasive_ductal_breast_carcinoma_":
@@ -81,8 +79,8 @@ sns.scatterplot(x="cor_by_snp_CAIC", y="cor_by_snp_probe_CGH", hue='hue', data=d
 sns.lineplot(x=[-1, 1], y=[-1, 1], color='#505050')
 ax.axvline(x=0, ymax=0, color='#505050', linestyle='--')
 ax.axhline(y=0, xmax=0, color='#505050', linestyle='--')
-ax.xlim(-1, 1)
-ax.ylim(-1, 1)
+ax.set_xlim(-1, 1)
+ax.set_ylim(-1, 1)
 ax.grid(True)
 plt.savefig(os.path.expanduser("~/AC_9/AS_Figure_9_scatter.png"), dpi=300)
 plt.close(fig)
