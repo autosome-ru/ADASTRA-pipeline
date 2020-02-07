@@ -8,10 +8,12 @@ from scripts.HELPERS.helpers import states
 
 for BAD in states:
     df = pd.read_table(os.path.expanduser('~/unionSNPs.tsv'))#_{:.2f}.tsv'.format(BAD)))
+    print('iread')
     df.columns = ['chr', 'pos', 'cov', 'BAD', 'COSMIC'] + ['Q{:.2f}'.format(state) for state in states]
     df['BAD'] = BAD
     df['threshold'] = df['Q{:.2f}'.format(BAD)]
     print(df['threshold'].unique())
+    df = df[['BAD', 'COSMIC', 'counts', 'threshold']]
     min_tr = df['threshold'].min()
     max_tr = df['threshold'].max()
     N = 300
