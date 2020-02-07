@@ -13,7 +13,7 @@ for BAD in states:
     df['BAD'] = BAD
     df['threshold'] = df['Q{:.2f}'.format(BAD)]
     print(df['threshold'].unique())
-    df = df[['BAD', 'COSMIC', 'counts', 'threshold']]
+    df = df[['BAD', 'COSMIC', 'threshold']]
     min_tr = df['threshold'].min()
     max_tr = df['threshold'].max()
     N = 300
