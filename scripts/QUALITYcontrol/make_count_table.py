@@ -15,8 +15,15 @@ for BAD in states:
     print(df['threshold'].unique())
     min_tr = df['threshold'].min()
     max_tr = df['threshold'].max()
-    thresholds = (list(np.linspace(min_tr, -101, min(50, -101 - min_tr))) if min_tr < -101 else []) + list(
-        range(-100, 101, 1)) + (list(np.linspace(101, max_tr, min(50, max_tr - 100))) if max_tr > 100 else [])
+    N = 300
+    idxs = set(int(x) for x in np.linspace(0, len(df.index) - 1, N))
+    thresholds = []
+    sorted_by_thresholds = df['threshold'].to_numpy(copy=True)
+    sorted_by_thresholds.sort()
+    print('isort')
+    for index, value in enumerate(sorted_by_thresholds):
+        if index in idxs:
+            thresholds.append(value)
     print(thresholds)
     sum_df = None
     for threshold in thresholds:
