@@ -276,4 +276,4 @@ def collectPValueStatistics(key_name=None, BAD=None):
 if __name__ == "__main__":
     for alt in {True, False}:
         for BAD in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
-            collectFixedAltStatistics(alt=alt, BAD=BAD)
+            collectFixedAltStatistics(BAD=BAD)
