@@ -7,26 +7,29 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import states
 
 for BAD in states:
-    df = pd.read_table(os.path.expanduser('~/unionSNPs.tsv'))
+    df = pd.read_table(os.path.expanduser('~/unionSNPs.tsv'))#_{:.2f}.tsv'.format(BAD)))
     df.columns = ['chr', 'pos', 'cov', 'BAD', 'COSMIC'] + ['Q{:.2f}'.format(state) for state in states]
     df['BAD'] = BAD
-    df['thershold'] = df['Q{:.2f}'.format(BAD)]
-    print(df['thershold'].unique())
-    min_tr = df['thershold'].min()
-    max_tr = df['thershold'].max()
+    df['threshold'] = df['Q{:.2f}'.format(BAD)]
+    print(df['threshold'].unique())
+    min_tr = df['threshold'].min()
+    max_tr = df['threshold'].max()
     N = 300
     idxs = set(int(x) for x in np.linspace(0, len(df.index) - 1, N))
-    thresholds = []
-    for index, row in df.sort_values(by='threshold').reset_index(drop=True).iterrows():
+    sorted_by_thresholds = df['threshold'].to_numpy(copy=True)
+    sorted_by_thresholds.sort()
+    print('isort')
+    thresholds = set()
+    for index, value in enumerate(sorted_by_thresholds):
         if index in idxs:
-            thresholds.append(row['threshold'])
+            thresholds.add(value)
     print(thresholds)
     sum_df = None
     for threshold in thresholds:
         print('Now doing threshold = {}, BAD={:.2f}'.format(threshold, BAD))
-        print('before: {}'.format(len(df.index)))
-        df = df[df['thershold'] >= threshold]
-        print('after: {}'.format(len(df.index)))
+        before = len(df.index)
+        df = df[df['threshold'] >= threshold]
+        print('change: {}'.format(before - len(df.index)))
         df_counts = df.groupby(['BAD', 'COSMIC']).size().reset_index(name='counts')
         df_counts = df_counts.groupby(['BAD', 'COSMIC'], as_index=False)['counts'].sum()
         df_counts['threshold'] = threshold
