@@ -100,5 +100,5 @@ plt.legend()
 # plt.show()
 
 
-plt.savefig(os.path.expanduser("~/AC_delta_tau_chips.png"), dpi=300)
+plt.savefig(os.path.expanduser("~/AC_9/AS_Figure_9_delta_tau_chips.png"), dpi=300)
 plt.close()

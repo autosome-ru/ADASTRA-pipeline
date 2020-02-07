@@ -40,7 +40,7 @@ if __name__ == '__main__':
     plt.ylabel('Number of SNP calls')
     plt.yscale('log')
     plt.xlabel('TFs sorted by number of datasets')
-    plt.savefig(os.path.expanduser('~/phantom_style/Figure_AS_1_total_snp_barplot_TF.svg'), dpi=300)
+    plt.savefig(os.path.expanduser('~/AC_1/Figure_AS_1_total_snp_barplot_TF.svg'), dpi=300)
     # plt.show()
     plt.close(fig)
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     plt.ylabel('Number of SNP calls')
     plt.yscale('log')
     plt.xlabel('Cell types sorted by number of datasets')
-    plt.savefig(os.path.expanduser('~/phantom_style/Figure_AS_1_total_snp_barplot_CL.svg'), dpi=300)
+    plt.savefig(os.path.expanduser('~/AC_1/Figure_AS_1_total_snp_barplot_CL.svg'), dpi=300)
     # plt.show()
     plt.close(fig)
 
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     plt.yscale('log')
     plt.ylim(0.7, 405)
     plt.xlabel('TFs sorted by number of datasets')
-    plt.savefig(os.path.expanduser('~/phantom_style/Figure_AS_1_datasets_barplot_TF.svg'), dpi=300)
+    plt.savefig(os.path.expanduser('~/AC_1/Figure_AS_1_datasets_barplot_TF.svg'), dpi=300)
     # plt.show()
     plt.close(fig)
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     plt.yscale('log')
     plt.ylim(0.7, 405)
     plt.xlabel('Cell types sorted by number of SNP calls')
-    plt.savefig(os.path.expanduser('~/phantom_style/Figure_AS_1_datasets_barplot_CL.svg'), dpi=300)
+    plt.savefig(os.path.expanduser('~/AC_1/Figure_AS_1_datasets_barplot_CL.svg'), dpi=300)
     # plt.show()
     plt.close(fig)
 
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     plt.yscale('log')
     plt.xlabel('TFs sorted by number of rsSNPs')
     plt.legend(loc='upper right')
-    plt.savefig(os.path.expanduser('~/phantom_style/Figure_AS_1_unique_snp_barplot_TF.svg'), dpi=300)
+    plt.savefig(os.path.expanduser('~/AC_1/Figure_AS_1_unique_snp_barplot_TF.svg'), dpi=300)
     # plt.show()
 
     vals = []
@@ -126,5 +126,5 @@ if __name__ == '__main__':
     plt.yscale('log')
     plt.xlabel('Cell types sorted by number of rsSNPs')
     plt.legend(loc='upper right')
-    plt.savefig(os.path.expanduser('~/phantom_style/Figure_AS_1_unique_snp_barplot_CL.svg'), dpi=300)
+    plt.savefig(os.path.expanduser('~/AC_1/Figure_AS_1_unique_snp_barplot_CL.svg'), dpi=300)
     # plt.show()

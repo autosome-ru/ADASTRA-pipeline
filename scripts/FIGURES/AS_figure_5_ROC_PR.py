@@ -64,11 +64,9 @@ for BAD in states:
 
 x = {}
 s = {}
-print('starto')
 
 for BAD in states:
     x[BAD] = sorted(list(t[BAD]['threshold'].unique()))
-    print(x[BAD])
     for tr in x[BAD]:
         s[BAD] = t[BAD][t[BAD]['threshold'] == tr].copy()
         # print(tr, BAD)
@@ -81,8 +79,6 @@ for BAD in states:
     # Global_precision[tr] = s[s['BAD'] == s['COSMIC']]['counts'].sum() / All[tr]
 
 # s[((s['COSMIC'] == BAD) & (s['BAD'] == BAD)) | ((s['COSMIC'] != BAD) & (s['BAD'] != BAD))]['counts'].sum() / All)
-
-print('starto2')
 
 # P[tr] R[tr]
 for metric, label in (Precision, 'Precision'), (Recall, 'Recall'):
@@ -105,8 +101,6 @@ for metric, label in (Precision, 'Precision'), (Recall, 'Recall'):
     plt.savefig(os.path.expanduser('~/AC_5/figa_{}.png'.format(label)), dpi=300)
     plt.close(fig)
 
-print('starto3')
-
 # PR-curve
 fig, ax = plt.subplots()
 for BAD in states:
@@ -122,8 +116,6 @@ plt.xlabel('Recall')
 plt.ylabel('Precision')
 plt.savefig(os.path.expanduser('~/AC_5/figa_PR.png'), dpi=300)
 plt.close(fig)
-
-print('starto4')
 
 # ROC
 fig, ax = plt.subplots()
