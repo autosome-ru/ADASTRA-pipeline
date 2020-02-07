@@ -17,20 +17,20 @@ for BAD in states:
     max_tr = df['threshold'].max()
     N = 300
     idxs = set(int(x) for x in np.linspace(0, len(df.index) - 1, N))
-    thresholds = []
     sorted_by_thresholds = df['threshold'].to_numpy(copy=True)
     sorted_by_thresholds.sort()
     print('isort')
+    thresholds = set()
     for index, value in enumerate(sorted_by_thresholds):
         if index in idxs:
-            thresholds.append(value)
+            thresholds.add(value)
     print(thresholds)
     sum_df = None
     for threshold in thresholds:
         print('Now doing threshold = {}, BAD={:.2f}'.format(threshold, BAD))
-        print('before: {}'.format(len(df.index)))
+        before = len(df.index)
         df = df[df['threshold'] >= threshold]
-        print('after: {}'.format(len(df.index)))
+        print('change: {}'.format(before - len(df.index)))
         df_counts = df.groupby(['BAD', 'COSMIC']).size().reset_index(name='counts')
         df_counts = df_counts.groupby(['BAD', 'COSMIC'], as_index=False)['counts'].sum()
         df_counts['threshold'] = threshold
