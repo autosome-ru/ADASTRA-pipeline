@@ -85,7 +85,6 @@ ax.grid(True)
 plt.savefig(os.path.expanduser("~/AC_9/AS_Figure_9_scatter.png"), dpi=300)
 plt.close(fig)
 
-
 # delta tau 3 colors
 fig, ax = plt.subplots()
 fig.tight_layout(pad=1.5)
@@ -98,14 +97,13 @@ df_mcf7 = df.apply(lambda x: get_cl(x, "MCF7"), axis=1)
 df_other = df.apply(lambda x: get_cl(x, "other"), axis=1)
 
 ax.stackplot(range(len(df.index)), df_k562["delta_tau"], alpha=0.7,
-              linewidth=0.7, color='C1', labels=["K562"])
+             linewidth=0.7, color='C1', labels=["K562"])
 ax.stackplot(range(len(df.index)), df_mcf7["delta_tau"], alpha=0.7,
-              linewidth=0.7, color='C2', labels=["MCF7"])
+             linewidth=0.7, color='C2', labels=["MCF7"])
 ax.stackplot(range(len(df.index)), df_other["delta_tau"], alpha=0.7,
-              linewidth=0.7, color='C0', labels=["other"])
+             linewidth=0.7, color='C0', labels=["other"])
 
 ax.grid(True)
 ax.legend()
 plt.savefig(os.path.expanduser("~/AC_9/AS_Figure_9_delta_tau_chips.png"), dpi=300)
 plt.close(fig)
-
