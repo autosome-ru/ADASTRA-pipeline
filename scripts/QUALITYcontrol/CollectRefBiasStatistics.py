@@ -4,8 +4,10 @@ import json
 import pandas as pd
 import numpy as np
 
+
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths_for_components import parameters_path, cl_dict_path
+from scripts.HELPERS.helpers import remove_punctuation
 
 
 def collectRefAltStatistics(key_name=None, BAD=None):
@@ -180,7 +182,7 @@ def collectFixedAltStatistics(key_name=None, BAD=None):
                 out_t = out_t.append(tmp_df).groupby(['alt_counts', 'ref_counts'], as_index=False).sum()
     if out_t is None:
         return
-    with open(parameters_path + 'fixed_alt_bias_statistics_BAD={:.1f}_k562.tsv'.format(BAD), 'w') as out:
+    with open(parameters_path + 'fixed_alt_bias_statistics_BAD={:.1f}_esc.tsv'.format(BAD), 'w') as out:
         out_t.to_csv(out, sep="\t", index=False)
 
 
@@ -274,5 +276,14 @@ def collectPValueStatistics(key_name=None, BAD=None):
 
 
 if __name__ == "__main__":
+    i_set = {'H1 (embryonic stem cells)',
+             'BGO3 (embryonic stem cells)',
+             'HUES64 (embryonic stem cells)',
+             'CyT49 (embryonic stem cells)',
+             'H9 (embryonic stem cells)',
+             'VAL-3 (embryonic stem cells)',
+             'WA09 (embryonic stem cells)',
+             'embryonic stem cells',
+             'human embryonic stem cells, H1 (WA01)'}
     for BAD in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
-        collectFixedAltStatistics(BAD=BAD, key_name='K562__myelogenous_leukemia_')
+        collectFixedAltStatistics(BAD=BAD, key_name={remove_punctuation(x) for x in i_set})
