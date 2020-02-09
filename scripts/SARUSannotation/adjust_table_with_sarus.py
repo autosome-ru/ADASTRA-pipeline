@@ -76,7 +76,7 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
                                dict_of_snps[ID]['alt'][best_idx]['p'] - dict_of_snps[ID]['ref'][best_idx]['p'],
                                dict_of_snps[ID]['ref'][best_idx]['pos'],
                                dict_of_snps[ID]['ref'][best_idx]['orientation'],
-                               get_color(np.float(line[-2]), np.float(line[-1]),
+                               get_color(float(line[-2]), float(line[-1]),
                                          dict_of_snps[ID]['alt'][best_idx]['p'] -
                                          dict_of_snps[ID]['ref'][best_idx]['p'],
                                          dict_of_snps[ID]['ref'][best_idx]['p'],
