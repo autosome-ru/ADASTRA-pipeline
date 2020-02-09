@@ -36,7 +36,7 @@ def CollectRedBlue():
             pt[[field + '_ref', field + '_alt']]).min(axis=1)) \
                        * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
 
-        pt['log_fc'] = pt['fold_change']
+        pt['log_fc'] = pt['motif_fc']
         pt['col'] = pt.apply(lambda x: get_color(x), axis=1)
 
         red_counts = len(pt[pt['col'] == red_color].index)
