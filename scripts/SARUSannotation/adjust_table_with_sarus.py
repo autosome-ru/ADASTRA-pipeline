@@ -70,15 +70,22 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
 
         assert len(dict_of_snps[ID]['ref']) == len(dict_of_snps[ID]['alt'])
         assert dict_of_snps[ID]['ref'][best_idx]['pos'] == dict_of_snps[ID]['alt'][best_idx]['pos']
-        print(line[-1], line[-2])
-        out.write(pack(line + [dict_of_snps[ID]['ref'][best_idx]['p'],
-                               dict_of_snps[ID]['alt'][best_idx]['p'],
-                               dict_of_snps[ID]['alt'][best_idx]['p'] - dict_of_snps[ID]['ref'][best_idx]['p'],
-                               dict_of_snps[ID]['ref'][best_idx]['pos'],
-                               dict_of_snps[ID]['ref'][best_idx]['orientation'],
-                               get_color(float(line[-2]), float(line[-1]),
-                                         dict_of_snps[ID]['alt'][best_idx]['p'] -
-                                         dict_of_snps[ID]['ref'][best_idx]['p'],
-                                         dict_of_snps[ID]['ref'][best_idx]['p'],
-                                         dict_of_snps[ID]['alt'][best_idx]['p'])
-                               ]))
+        if line[-1] == "":
+            out.write(pack(line + [dict_of_snps[ID]['ref'][best_idx]['p'],
+                                   dict_of_snps[ID]['alt'][best_idx]['p'],
+                                   dict_of_snps[ID]['alt'][best_idx]['p'] - dict_of_snps[ID]['ref'][best_idx]['p'],
+                                   dict_of_snps[ID]['ref'][best_idx]['pos'],
+                                   dict_of_snps[ID]['ref'][best_idx]['orientation'],
+                                   "", ""]))
+        else:
+            out.write(pack(line + [dict_of_snps[ID]['ref'][best_idx]['p'],
+                                   dict_of_snps[ID]['alt'][best_idx]['p'],
+                                   dict_of_snps[ID]['alt'][best_idx]['p'] - dict_of_snps[ID]['ref'][best_idx]['p'],
+                                   dict_of_snps[ID]['ref'][best_idx]['pos'],
+                                   dict_of_snps[ID]['ref'][best_idx]['orientation'],
+                                   get_color(float(line[-2]), float(line[-1]),
+                                             dict_of_snps[ID]['alt'][best_idx]['p'] -
+                                             dict_of_snps[ID]['ref'][best_idx]['p'],
+                                             dict_of_snps[ID]['ref'][best_idx]['p'],
+                                             dict_of_snps[ID]['alt'][best_idx]['p'])
+                                   ]))
