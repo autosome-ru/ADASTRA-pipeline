@@ -50,14 +50,18 @@ if __name__ == '__main__':
     bar_width = 0.8
     df = pd.read_table(os.path.expanduser("~/blue_red_stats.tsv"))
     fig, ax = plt.subplots()
-    plt.tight_layout(pad=1.5)
+    plt.tight_layout(pad=2.5)
     df['sum'] = df["red"] + df["blue"]
     df['part'] = df["blue"] / df['sum']
-    df = df[df['sum'] >= 50].sort_values("sum", ascending=False)
-    x, blue, blue_and_red = range(len(df.index)), df["part"].tolist(), [1] * len(df.index)
+    df = df[df['sum'] >= 50].sort_values("sum")
+    x, blue, red, blue_n, ticks = range(len(df.index)), \
+                                   df["part"].tolist(), (df["red"] / df['sum']).tolist(), df["blue"].tolist(), \
+                                   df["name"].apply(lambda x: x.replace("_HUMAN", ""))
 
-    ax.barh(x, blue_and_red, color=red_color, height=bar_width, linewidth=0)
-    ax.barh(x, blue, color=blue_color, height=bar_width, linewidth=0)
+    ax.barh(x, red, left=blue, color=red_color, height=bar_width, linewidth=0, tick_label=ticks, alpha=0.5)
+    ax.barh(x, blue, color=blue_color, height=bar_width, linewidth=0, alpha=0.5)
+    for i in x:
+        ax.text(x=0.5, y=i-0.1, s=str(blue_n[i]), va="center", ha="center", fontdict={"size": 13}, color="#505050")
     plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_11.png"), dpi=300)
     plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_11.svg"), dpi=300)
 
@@ -101,5 +105,3 @@ if __name__ == '__main__':
         plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_{}_p_tr={:.2f}_fc_tr={:.2f}_fdr_tr={:.2f}_{}.svg".format(
             name.replace('_fc.tsv', ''), perf_tr, fc_tr, fdr_tr, field)), dpi=300)
         plt.close(fig)
-
-
