@@ -8,6 +8,7 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths_for_components import parameters_path
 from scripts.HELPERS.helpers import states
 
+
 def get_color(row):
     if abs(row['log_fc']) < np.log10(fc_tr) or abs(row['log_pv']) < -np.log10(fdr_tr):
         return grey_color
@@ -25,9 +26,8 @@ def CollectRedBlue():
     for file_name in os.listdir(agr_dir):
         print(file_name)
         pt = pd.read_table(agr_dir + file_name)
-        if pt.empty:
-            continue
         pt = pt.dropna(subset=["motif_fc"])
+        print("Values dropped")
         if pt.empty:
             continue
         pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
@@ -42,6 +42,7 @@ def CollectRedBlue():
 
         red_counts = len(pt[pt['col'] == red_color].index)
         blue_counts = len(pt[pt['col'] == blue_color].index)
+        print(out_df)
         out_df = out_df.append(pd.DataFrame({"red": [red_counts], "blue": [blue_counts]}))
     out_df.to_csv(os.path.expanduser("~/PARAMETERS/blue_red_stats.tsv"), sep="\t", index=False)
 
