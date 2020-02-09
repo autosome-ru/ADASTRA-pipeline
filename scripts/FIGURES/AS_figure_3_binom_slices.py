@@ -38,11 +38,21 @@ plt.rcParams["legend.framealpha"] = 1
 
 max_c = 50
 lw = 1.25
-cells = 'LoVo'
+cells = 'diploid'
 p = 1 / 2
 covs = [15, 30]
 
 t = pd.read_table(os.path.expanduser('~/{}_snps_statistics.tsv'.format(cells)))
+# BAD = 6
+# p = 1/(BAD + 1)
+# t = pd.read_table(os.path.expanduser(
+#     '~/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
+#                                                           {'all': '',
+#                                                            'K562': '_k562',
+#                                                            'diploid': '_esc'}[
+#                                                               cells])))
+t.columns = ['alt', 'ref', 'count']
+
 t = t[(t['ref'] >= 5) & (t['alt'] >= 5)]
 t = t[(t['ref'] <= max_c) & (t['alt'] <= max_c)]
 for count in range(5, max_c + 1):
@@ -65,6 +75,7 @@ for cov in covs:
                    for k in range(cov + 1)]
 
 t.columns = ['Reference allele read count', 'Alternative allele read count', 'count']
+# t.columns = ['Alternative allele read count', 'Reference allele read count', 'count']
 t = t.pivot('Alternative allele read count', 'Reference allele read count', 'count')
 t.sort_index(ascending=False, inplace=True)
 t.fillna(0, inplace=True)
@@ -96,10 +107,10 @@ ax1.xaxis.set_major_locator(ticker.FixedLocator(np.arange(div - 5, max_c + 1, di
 ax1.xaxis.set_major_formatter(ticker.FixedFormatter(range(div, max_c + 1)[::div]))
 ax1.tick_params(axis="x", rotation=0)
 
-ax1.hlines(y=max_c + 1 - 5, xmin=0, xmax=max_c + 1 - 5, colors=['black', ], linewidth=lw*2 + 1)
+ax1.hlines(y=max_c + 1 - 5, xmin=0, xmax=max_c + 1 - 5, colors=['black', ], linewidth=lw*2)
 ax1.vlines(x=0, ymin=0, ymax=max_c + 1 - 5, colors=['black', ], linewidth=lw*2)
 ax1.hlines(y=0, xmin=0, xmax=max_c + 1 - 5, colors=['black', ], linewidth=lw*2)
-ax1.vlines(x=max_c + 1 - 5, ymin=0, ymax=max_c + 1 - 5, colors=['black', ], linewidth=lw*2 + 1)
+ax1.vlines(x=max_c + 1 - 5, ymin=0, ymax=max_c + 1 - 5, colors=['black', ], linewidth=lw*2)
 
 for cov in covs:
     ax1.plot([0, cov], [max_c - cov + 0.5, max_c + 0.5], linestyle='dashed', linewidth=lw, color='black')
@@ -123,4 +134,5 @@ for cov, ax in zip(covs, (ax2, ax3)):
     ax.set_xlabel('Reference allele read count')
 
 plt.savefig(os.path.expanduser('~/AC_3/AC3_{}.svg'.format(cells)))
-plt.show()
+# plt.savefig(os.path.expanduser('~/AC_3/AC3_{}_{:.2f}_scale.svg'.format(cells, BAD)))
+# plt.show()
