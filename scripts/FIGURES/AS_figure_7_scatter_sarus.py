@@ -48,6 +48,7 @@ if __name__ == '__main__':
     red_color = '#DC3220'  # 762A83'
     grey_color = '#CCCCCC'
     bar_width = 0.8
+    bar_alpha = 0.5
     df = pd.read_table(os.path.expanduser("~/blue_red_stats.tsv"))
     fig, ax = plt.subplots()
     plt.tight_layout(pad=2.5)
@@ -58,10 +59,11 @@ if __name__ == '__main__':
                                    df["part"].tolist(), (df["red"] / df['sum']).tolist(), df["blue"].tolist(), \
                                    df["name"].apply(lambda x: x.replace("_HUMAN", ""))
 
-    ax.barh(x, red, left=blue, color=red_color, height=bar_width, linewidth=0, tick_label=ticks, alpha=0.5)
-    ax.barh(x, blue, color=blue_color, height=bar_width, linewidth=0, alpha=0.5)
+    ax.barh(x, red, left=blue, color="C5", height=bar_width, linewidth=0, tick_label=ticks, alpha=bar_alpha)
+    ax.barh(x, blue, color="C4", height=bar_width, linewidth=0, alpha=bar_alpha)
     for i in x:
-        ax.text(x=0.5, y=i-0.1, s=str(blue_n[i]), va="center", ha="center", fontdict={"size": 13}, color="#505050")
+        ax.text(x=0.5, y=i-0.1, s='{}/{:.0f}'.format(blue_n[i], blue_n[i]/blue[i]), va="center", ha="center",
+                fontdict={"size": 13})
     plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_11.png"), dpi=300)
     plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_11.svg"), dpi=300)
 
