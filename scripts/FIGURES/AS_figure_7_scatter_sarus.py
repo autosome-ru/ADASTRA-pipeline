@@ -47,18 +47,20 @@ if __name__ == '__main__':
     blue_color = '#005AB5'  # 1B7837'
     red_color = '#DC3220'  # 762A83'
     grey_color = '#CCCCCC'
-    bar_width = 1.2
+    bar_width = 0.8
     df = pd.read_table(os.path.expanduser("~/blue_red_stats.tsv"))
     fig, ax = plt.subplots()
     plt.tight_layout(pad=1.5)
     df['sum'] = df["red"] + df["blue"]
-    df = df[df['sum'] != 0].sort_values("sum", ascending=False)
-    x, blue, blue_and_red = list(range(len(df.index))), df["blue"].tolist(), df["sum"].tolist()
-    blue[0] /= 3
-    blue_and_red[0] /= 3
-    ax.bar(x, blue_and_red, color=red_color, width=bar_width, linewidth=0, alpha=1)
-    ax.bar(x, blue, color=blue_color, alpha=1, width=bar_width, linewidth=0)
+    df['part'] = df["blue"] / df['sum']
+    df = df[df['sum'] >= 50].sort_values("sum", ascending=False)
+    x, blue, blue_and_red = range(len(df.index)), df["part"].tolist(), [1] * len(df.index)
+
+    ax.barh(x, blue_and_red, color=red_color, height=bar_width, linewidth=0)
+    ax.barh(x, blue, color=blue_color, height=bar_width, linewidth=0)
+    plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_11.png"), dpi=300)
     plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_11.svg"), dpi=300)
+
     plt.close(fig)
 
     for name in top10_names:

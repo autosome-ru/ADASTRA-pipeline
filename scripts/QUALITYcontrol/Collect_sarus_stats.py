@@ -21,7 +21,7 @@ def get_color(row):
 
 
 def CollectRedBlue():
-    out_df = pd.DataFrame(columns=["red", "blue"])
+    out_df = pd.DataFrame(columns=["name", "red", "blue"])
 
     for file_name in os.listdir(agr_dir):
         print(file_name)
@@ -43,7 +43,7 @@ def CollectRedBlue():
         red_counts = len(pt[pt['col'] == red_color].index)
         blue_counts = len(pt[pt['col'] == blue_color].index)
         print(out_df)
-        tmp_df = pd.DataFrame({"red": [red_counts], "blue": [blue_counts]})
+        tmp_df = pd.DataFrame({"name": [file_name.replace(".tsv", "")], "red": [red_counts], "blue": [blue_counts]})
         print(tmp_df)
         out_df = out_df.append(tmp_df)
     out_df.to_csv(os.path.expanduser("~/PARAMETERS/blue_red_stats.tsv"), sep="\t", index=False)
