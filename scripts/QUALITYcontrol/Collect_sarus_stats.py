@@ -27,7 +27,6 @@ def CollectRedBlue():
         print(file_name)
         pt = pd.read_table(agr_dir + file_name)
         pt = pt.dropna(subset=["motif_fc"])
-        print("Values dropped")
         if pt.empty:
             continue
         pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
@@ -38,9 +37,9 @@ def CollectRedBlue():
                        * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
 
         pt['log_fc'] = pt['motif_fc']
-        print(pt.head())
+        if pt.empty:
+            continue
         pt['col'] = pt.apply(lambda x: get_color(x), axis=1)
-        print("Df filtered")
         red_counts = len(pt[pt['col'] == red_color].index)
         blue_counts = len(pt[pt['col'] == blue_color].index)
         print(out_df)
