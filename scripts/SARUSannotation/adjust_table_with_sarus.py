@@ -15,7 +15,7 @@ def get_color(p_val_ref, p_val_alt, motif_fc, motif_pval_ref, motif_pval_alt):
     elif motif_fc * log_pv < 0:
         return 'discordant'
     else:
-        return None
+        return ""
 
 
 #read sarus file and choose best
@@ -75,8 +75,7 @@ with open(sys.argv[1], 'r') as table, open(sys.argv[3], 'w') as out:
                                    dict_of_snps[ID]['alt'][best_idx]['p'],
                                    dict_of_snps[ID]['alt'][best_idx]['p'] - dict_of_snps[ID]['ref'][best_idx]['p'],
                                    dict_of_snps[ID]['ref'][best_idx]['pos'],
-                                   dict_of_snps[ID]['ref'][best_idx]['orientation'],
-                                   "", ""]))
+                                   dict_of_snps[ID]['ref'][best_idx]['orientation'], ""]))
         else:
             out.write(pack(line + [dict_of_snps[ID]['ref'][best_idx]['p'],
                                    dict_of_snps[ID]['alt'][best_idx]['p'],
