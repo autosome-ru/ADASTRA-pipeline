@@ -38,6 +38,7 @@ def CollectRedBlue():
                        * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
 
         pt['log_fc'] = pt['motif_fc']
+        print("Df filtered")
         pt['col'] = pt.apply(lambda x: get_color(x), axis=1)
 
         red_counts = len(pt[pt['col'] == red_color].index)
