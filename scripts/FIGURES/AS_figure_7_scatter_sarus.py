@@ -18,6 +18,7 @@ def get_color(row):
 
 
 if __name__ == '__main__':
+
     top10_names = ['CTCF_HUMAN.tsv', 'SPI1_HUMAN.tsv',
                    'FOXA1_HUMAN.tsv', 'CEBPB_HUMAN.tsv',
                    'ANDR_HUMAN.tsv', 'ESR1_HUMAN.tsv',
@@ -46,6 +47,19 @@ if __name__ == '__main__':
     blue_color = '#005AB5'  # 1B7837'
     red_color = '#DC3220'  # 762A83'
     grey_color = '#CCCCCC'
+    bar_width = 1.2
+    df = pd.read_table(os.path.expanduser("~/blue_red_stats.tsv"))
+    fig, ax = plt.subplots()
+    plt.tight_layout(pad=1.5)
+    df['sum'] = df["red"] + df["blue"]
+    df = df[df['sum'] != 0].sort_values("sum", ascending=False)
+    x, blue, blue_and_red = list(range(len(df.index))), df["blue"].tolist(), df["sum"].tolist()
+    blue[0] /= 3
+    blue_and_red[0] /= 3
+    ax.bar(x, blue_and_red, color=red_color, width=bar_width, linewidth=0, alpha=1)
+    ax.bar(x, blue, color=blue_color, alpha=1, width=bar_width, linewidth=0)
+    plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_11.svg"), dpi=300)
+    plt.close(fig)
 
     for name in top10_names:
         pt = pd.read_table(os.path.expanduser("~/scatter_why_red/{}".format(name)))
@@ -69,7 +83,7 @@ if __name__ == '__main__':
         pt_blue = pt[pt['col'] == blue_color]
 
         fig, ax = plt.subplots()
-        ax.tight_layout(pad=1.5)
+        plt.tight_layout(pad=1.5)
         ax.scatter(x=pt['log_pv'], y=pt['log_fc'], c=pt['col'], s=5)
         ax.grid(True)
         ax.xlabel('Best -log10 fdr_p')
@@ -86,8 +100,4 @@ if __name__ == '__main__':
             name.replace('_fc.tsv', ''), perf_tr, fc_tr, fdr_tr, field)), dpi=300)
         plt.close(fig)
 
-
-    fig, ax = plt.subplots()
-    plt.tight_layout(pad=1.5)
-    ax.stackplot()
 
