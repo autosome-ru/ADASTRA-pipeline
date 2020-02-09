@@ -46,7 +46,7 @@ def CollectRedBlue():
 
 
 if __name__ == '__main__':
-    agr_dir = os.path.expanduser('~/RESULTS/release-230120_Durland/TF_P-values/')
+    agr_dir = os.path.expanduser('~/SARUS/')
     perf_tr = 0.0005
     fc_tr = 4
     fdr_tr = 0.005
