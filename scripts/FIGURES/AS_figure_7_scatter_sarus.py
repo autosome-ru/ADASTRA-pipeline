@@ -47,23 +47,31 @@ if __name__ == '__main__':
     blue_color = '#005AB5'  # 1B7837'
     red_color = '#DC3220'  # 762A83'
     grey_color = '#CCCCCC'
-    bar_width = 1.2
+    bar_width = 0.8
+    bar_alpha = 0.5
 
     # Barplot
     df = pd.read_table(os.path.expanduser("~/blue_red_stats.tsv"))
     fig, ax = plt.subplots()
-    plt.tight_layout(pad=1.5)
+    plt.tight_layout(pad=2.5)
     df['sum'] = df["red"] + df["blue"]
-    df = df[df['sum'] != 0].sort_values("sum", ascending=False)
-    x, blue, blue_and_red = list(range(len(df.index))), df["blue"].tolist(), df["sum"].tolist()
-    blue[0] /= 3
-    blue_and_red[0] /= 3
-    ax.bar(x, blue_and_red, color=red_color, width=bar_width, linewidth=0, alpha=1, label='discordant')
-    ax.bar(x, blue, color=blue_color, alpha=1, width=bar_width, linewidth=0, label='concordant')
+    df['part'] = df["blue"] / df['sum']
+    df = df[df['sum'] >= 50].sort_values("sum")
+    x, blue, red, blue_n, ticks = range(len(df.index)), \
+                                   df["part"].tolist(), (df["red"] / df['sum']).tolist(), df["blue"].tolist(), \
+                                   df["name"].apply(lambda x: x.replace("_HUMAN", ""))
+
+    ax.barh(x, red, left=blue, color="C5", height=bar_width, linewidth=0, tick_label=ticks, alpha=bar_alpha)
+    ax.barh(x, blue, color="C4", height=bar_width, linewidth=0, alpha=bar_alpha)
+    for i in x:
+        ax.text(x=0.5, y=i-0.1, s='{}/{:.0f}'.format(blue_n[i], blue_n[i]/blue[i]), va="center", ha="center",
+                fontdict={"size": 13})
     ax.set_xlabel('TFs sorted by # of snps in motifs')
     ax.set_ylabel('# of snps')
     ax.legend(loc='upper right')
-    plt.savefig(os.path.expanduser("~/AC_7/Figure_AS_10_barplot.svg"), dpi=300)
+    plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_11.png"), dpi=300)
+    plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_11.svg"), dpi=300)
+
     plt.close(fig)
 
     # Scatters
@@ -105,5 +113,3 @@ if __name__ == '__main__':
         plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_{}_p_tr={:.2f}_fc_tr={:.2f}_fdr_tr={:.2f}_{}.svg".format(
             name.replace('_fc.tsv', ''), perf_tr, fc_tr, fdr_tr, field)), dpi=300)
         plt.close(fig)
-
-
