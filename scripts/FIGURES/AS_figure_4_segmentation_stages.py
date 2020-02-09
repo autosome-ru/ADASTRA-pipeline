@@ -98,7 +98,7 @@ for chr, ax in zip(chrs, axs):
     ax.grid(which='major', axis='both')
     ax.set_xticklabels([])
     ax.set_yticks(list(range(1, int(y_max) + 1)))
-    ax.text(0.99, 0.95, 'HCT-116 {}'.format(chr),
+    ax.text(0.99, 0.95, 'HCT116 {}'.format(chr),
             horizontalalignment='right',
             verticalalignment='top',
             transform=ax.transAxes)
@@ -189,7 +189,7 @@ for chr, ax in zip(chrs, axs):
     ax.grid(which='major', axis='both')
     ax.set_xticklabels([])
     ax.set_yticks(list(range(1, int(y_max) + 1)))
-    ax.text(0.99, 0.95, 'HCT-116 {}'.format(chr),
+    ax.text(0.99, 0.95, 'HCT116 {}'.format(chr),
             horizontalalignment='right',
             verticalalignment='top',
             transform=ax.transAxes)
@@ -335,7 +335,7 @@ for chr, ax in zip(chrs, axs):
     ax.grid(which='major', axis='both')
     ax.set_xticklabels([])
     ax.set_yticks(list(range(1, int(y_max) + 1)))
-    ax.text(0.99, 0.95, 'HCT-116 {}'.format(chr),
+    ax.text(0.99, 0.95, 'HCT116 {}'.format(chr),
             horizontalalignment='right',
             verticalalignment='top',
             transform=ax.transAxes)

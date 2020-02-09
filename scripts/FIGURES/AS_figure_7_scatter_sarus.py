@@ -48,6 +48,8 @@ if __name__ == '__main__':
     red_color = '#DC3220'  # 762A83'
     grey_color = '#CCCCCC'
     bar_width = 1.2
+
+    # Barplot
     df = pd.read_table(os.path.expanduser("~/blue_red_stats.tsv"))
     fig, ax = plt.subplots()
     plt.tight_layout(pad=1.5)
@@ -56,11 +58,15 @@ if __name__ == '__main__':
     x, blue, blue_and_red = list(range(len(df.index))), df["blue"].tolist(), df["sum"].tolist()
     blue[0] /= 3
     blue_and_red[0] /= 3
-    ax.bar(x, blue_and_red, color=red_color, width=bar_width, linewidth=0, alpha=1)
-    ax.bar(x, blue, color=blue_color, alpha=1, width=bar_width, linewidth=0)
-    plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_11.svg"), dpi=300)
+    ax.bar(x, blue_and_red, color=red_color, width=bar_width, linewidth=0, alpha=1, label='discordant')
+    ax.bar(x, blue, color=blue_color, alpha=1, width=bar_width, linewidth=0, label='concordant')
+    ax.set_xlabel('TFs sorted by # of snps in motifs')
+    ax.set_ylabel('# of snps')
+    ax.legend(loc='upper right')
+    plt.savefig(os.path.expanduser("~/AC_7/Figure_AS_10_barplot.svg"), dpi=300)
     plt.close(fig)
 
+    # Scatters
     for name in top10_names:
         pt = pd.read_table(os.path.expanduser("~/scatter_why_red/{}".format(name)))
 
@@ -86,8 +92,8 @@ if __name__ == '__main__':
         plt.tight_layout(pad=1.5)
         ax.scatter(x=pt['log_pv'], y=pt['log_fc'], c=pt['col'], s=5)
         ax.grid(True)
-        ax.xlabel('Best -log10 fdr_p')
-        ax.ylabel('Log10 motif foldchange')
+        ax.set_xlabel('Best -log10 fdr_p')
+        ax.set_ylabel('Log10 motif foldchange')
         label = 'blue/red: {}/{}({:.1f}%),\ngrey/all={:.1f}%'.format(blue, red,
                                                                      100 * blue / (blue + red),
                                                                      100 * grey / (grey + blue + red))
