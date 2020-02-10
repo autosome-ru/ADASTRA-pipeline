@@ -125,7 +125,7 @@ plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_cor_cosmic.svg"), dpi=300)
 plt.close(fig)
 
 # Draw scatter vs COSMIC
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(5, 5))
 fig.tight_layout(pad=2)
 
 sns.scatterplot(x="cor_by_snp_CAIC", y="cor_by_snp_probe_CGH", zorder=10,
@@ -149,6 +149,40 @@ ax.set_xlabel("Kendall's τ (Segmentation, COSMIC)")
 
 plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter.png"), dpi=300)
 plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter.svg"), dpi=300)
+plt.close(fig)
+
+# Draw scatter vs COSMIC
+fig, ax = plt.subplots()
+fig.tight_layout(pad=2)
+
+df_k562 = df[df['color'] == 'C1']
+df_mcf7 = df[df['color'] == 'C2']
+df_other = df[df['color'] == 'C0']
+
+field = 'total_snps'
+
+sns.scatterplot(y=df_k562["cor_by_snp_CAIC"], x=df_k562[field], zorder=10,
+                linewidth=0, alpha=0.7, color='C1', label='K562')
+sns.scatterplot(y=df_mcf7["cor_by_snp_CAIC"], x=df_mcf7[field], zorder=10,
+                linewidth=0, alpha=0.7, color='C2', label='MCF7')
+sns.scatterplot(y=df_other["cor_by_snp_CAIC"], x=df_other[field], zorder=10,
+                linewidth=0, alpha=0.7, color='C0', label='Other')
+sns.lineplot(x=[-1, 1], y=[-1, 1], color='#505050')
+ax.axvline(x=0, color='#505050', linestyle='--')
+ax.axhline(y=0, color='#505050', linestyle='--')
+ax.legend(loc='lower right', handletextpad=0.3, handlelength=1)
+# ax.set_xticks([-0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
+ax.set_yticks([-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
+ax.set_xscale('log')
+ax.set_xlim(100, 2000000)
+ax.set_ylim(-0.5, 1)
+ax.grid(True)
+
+ax.set_ylabel("Kendall's τ (Segmentation, COSMIC)")
+ax.set_xlabel("Number of SNPs in a group of datasets")
+
+plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter_{}.png".format(field)), dpi=300)
+plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter_{}.svg".format(field)), dpi=300)
 plt.close(fig)
 
 # delta tau 3 colors

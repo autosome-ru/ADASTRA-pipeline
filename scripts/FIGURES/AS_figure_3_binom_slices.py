@@ -38,7 +38,7 @@ plt.rcParams["legend.framealpha"] = 1
 
 max_c = 50
 lw = 1.25
-cells = 'diploid'
+cells = 'HCT116'
 p = 1 / 2
 covs = [15, 30]
 
@@ -49,9 +49,12 @@ t = pd.read_table(os.path.expanduser('~/{}_snps_statistics.tsv'.format(cells)))
 #     '~/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
 #                                                           {'all': '',
 #                                                            'K562': '_k562',
-#                                                            'diploid': '_esc'}[
+#                                                            'diploid': '_esc',
+#                                                            'HCT116': '_hct116'}[
 #                                                               cells])))
-t.columns = ['alt', 'ref', 'count']
+
+# t.columns = ['alt', 'ref', 'count']
+t.columns = ['ref', 'alt', 'count']
 
 t = t[(t['ref'] >= 5) & (t['alt'] >= 5)]
 t = t[(t['ref'] <= max_c) & (t['alt'] <= max_c)]
@@ -74,8 +77,8 @@ for cov in covs:
                    else 0
                    for k in range(cov + 1)]
 
-t.columns = ['Reference allele read count', 'Alternative allele read count', 'count']
-# t.columns = ['Alternative allele read count', 'Reference allele read count', 'count']
+# t.columns = ['Reference allele read count', 'Alternative allele read count', 'count']
+t.columns = ['Alternative allele read count', 'Reference allele read count', 'count']
 t = t.pivot('Alternative allele read count', 'Reference allele read count', 'count')
 t.sort_index(ascending=False, inplace=True)
 t.fillna(0, inplace=True)
@@ -129,10 +132,14 @@ for cov, ax in zip(covs, (ax2, ax3)):
 
     current_density = list(make_binom_density(cov, p=p))
 
+    slope, intercept, r_value, p_value, std_err = st.linregress(x[5: -5], counts_array[5: -5] / total_snps)
+    print(slope, intercept)
+    ax.plot(x, np.array(x) * slope + intercept, color='#DC3220')
+
     ax.plot(sorted(x + [5, cov - 5]), [0] + current_density + [0], color='#4d004b')
-    ax.set_ylim(0, max(current_density) * 1.05)
+    ax.set_ylim(0, max(max(current_density), max(counts_array / total_snps)) * 1.05)
     ax.set_xlabel('Reference allele read count')
 
-plt.savefig(os.path.expanduser('~/AC_3/AC3_{}.svg'.format(cells)))
-# plt.savefig(os.path.expanduser('~/AC_3/AC3_{}_{:.2f}_scale.svg'.format(cells, BAD)))
+plt.savefig(os.path.expanduser('~/AC_3/Figure_AS_3_{}.svg'.format(cells)))
+# plt.savefig(os.path.expanduser('~/AC_3/Figure_AS_3_{}_{:.2f}.svg'.format(cells, BAD)))
 # plt.show()
