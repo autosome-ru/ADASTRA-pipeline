@@ -200,3 +200,17 @@ for BAD in states:
 
     plt.savefig(os.path.expanduser('~/AC_10/Figure_AS_10_{}_{:.2f}.svg'.format(cells, BAD)))
     plt.close(fig)
+
+    # gof vs read cov
+
+    fig, ax = plt.subplots()
+    fig.tight_layout(pad=1.5)
+
+    df_alt = pd.read_table(os.path.expanduser('~/weights/NBweights_alt_BAD={:.1f}.tsv'.format(BAD)))
+    df_ref = pd.read_table(os.path.expanduser('~/weights/NBweights_ref_BAD={:.1f}.tsv'.format(BAD)))
+
+    ax.scatter(x=range(6, len(df_alt.index)), y=df_alt["gof"].tolist()[6:])
+    ax.scatter(x=range(6, len(df_ref.index)), y=df_ref["gof"].tolist()[6:])
+
+    plt.show()
+    plt.close(fig)
