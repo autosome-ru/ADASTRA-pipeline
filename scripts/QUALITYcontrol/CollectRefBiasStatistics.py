@@ -285,6 +285,6 @@ if __name__ == "__main__":
              'WA09 (embryonic stem cells)',
              'embryonic stem cells',
              'human embryonic stem cells, H1 (WA01)'}
-    i_set = "HCT-116 (colon carcinoma)"
+    i_set = {"HCT-116 (colon carcinoma)"}
     for BAD in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
         collectFixedAltStatistics(BAD=BAD, key_name={remove_punctuation(x) for x in i_set})
