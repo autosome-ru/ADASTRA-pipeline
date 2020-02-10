@@ -182,7 +182,7 @@ def collectFixedAltStatistics(key_name=None, BAD=None):
                 out_t = out_t.append(tmp_df).groupby(['alt_counts', 'ref_counts'], as_index=False).sum()
     if out_t is None:
         return
-    with open(parameters_path + 'fixed_alt_bias_statistics_BAD={:.1f}_esc.tsv'.format(BAD), 'w') as out:
+    with open(parameters_path + 'fixed_alt_bias_statistics_BAD={:.1f}_hct116.tsv'.format(BAD), 'w') as out:
         out_t.to_csv(out, sep="\t", index=False)
 
 
@@ -285,5 +285,6 @@ if __name__ == "__main__":
              'WA09 (embryonic stem cells)',
              'embryonic stem cells',
              'human embryonic stem cells, H1 (WA01)'}
+    i_set = {"HCT-116 (colon carcinoma)"}
     for BAD in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
         collectFixedAltStatistics(BAD=BAD, key_name={remove_punctuation(x) for x in i_set})
