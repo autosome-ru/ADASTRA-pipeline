@@ -9,7 +9,17 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import states
 
 sns.set(font_scale=1.4, style="ticks", font="lato")
-sns.set_palette('Set1', desat=0.9, n_colors=9)
+sns.set_palette((
+'#56B4E9',
+'#0072B2',
+'#009E73',
+'#E69F00',
+'#F0E442',
+'#D55E00',
+'#999999',
+'#505050',
+'#CC79A7'))
+# sns.set_palette('Set1', desat=0.9, n_colors=9)
 # '#e41a1c',
 # '#377eb8',
 # '#4daf4a',
@@ -141,6 +151,7 @@ legend.get_frame().set_edgecolor('black')
 # for i, BAD in enumerate(states):
 #     ax.axhline(y=P[BAD] / ALL * 1 / l, color='C'+str(i), linestyle='--', label=None, lw=1)
 
+plt.savefig(os.path.expanduser('~/AC_5/Figure_AS_5_PR.png'), dpi=300)
 plt.savefig(os.path.expanduser('~/AC_5/Figure_AS_5_PR.svg'), dpi=300)
 plt.close(fig)
 
@@ -167,6 +178,7 @@ legend = ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='BAD', fram
                    labels=['1', '4/3', '3/2', '2', '5/2', '3', '4', '5', '6'])
 legend.get_frame().set_edgecolor('black')
 
+plt.savefig(os.path.expanduser('~/AC_5/Figure_AS_5_ROC.png'), dpi=300)
 plt.savefig(os.path.expanduser('~/AC_5/Figure_AS_5_ROC.svg'), dpi=300)
 
 # plt.show()

@@ -41,7 +41,8 @@ snps['log_cov'] = np.log10(snps['cov'])
 ploidy = pd.read_table(ploidy_name)
 
 chrs = ('chr10', 'chr17')
-BAD_color = '#0072B2CC'
+BAD_color = '#0072B266'
+BAD_color_1 = '#0072B2CC'
 COSMIC_color = '#D55E00'
 BAD_lw = 10
 COSMIC_lw = 4
@@ -98,7 +99,7 @@ for chr, ax in zip(chrs, axs):
     ax.grid(which='major', axis='both')
     ax.set_xticklabels([])
     ax.set_yticks(list(range(1, int(y_max) + 1)))
-    ax.text(0.99, 0.95, 'HCT-116 {}'.format(chr),
+    ax.text(0.99, 0.95, 'HCT116 {}'.format(chr),
             horizontalalignment='right',
             verticalalignment='top',
             transform=ax.transAxes)
@@ -180,7 +181,7 @@ for chr, ax in zip(chrs, axs):
             ax.axhline(y=BADs[i],
                        xmin=all_borders[i] / ChromPos.chrs[chr],
                        xmax=all_borders[i + 1] / ChromPos.chrs[chr],
-                       linewidth=BAD_lw, color=BAD_color,
+                       linewidth=BAD_lw, color=BAD_color_1,
                        solid_capstyle='butt')
 
     ax.scatter(x=chr_snps['pos'], y=list(chr_snps['AD']), c=chr_snps['cov'], cmap='BuPu', s=2, vmin=10, vmax=30)
@@ -189,7 +190,7 @@ for chr, ax in zip(chrs, axs):
     ax.grid(which='major', axis='both')
     ax.set_xticklabels([])
     ax.set_yticks(list(range(1, int(y_max) + 1)))
-    ax.text(0.99, 0.95, 'HCT-116 {}'.format(chr),
+    ax.text(0.99, 0.95, 'HCT116 {}'.format(chr),
             horizontalalignment='right',
             verticalalignment='top',
             transform=ax.transAxes)
@@ -207,7 +208,7 @@ cax.set_xlabel('Chromosome position, bp')
 plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0), useMathText=True)
 
 ax = axs[-1]
-ax.plot([0, 0], [0, 0], color=BAD_color, label='Estimated BAD')
+ax.plot([0, 0], [0, 0], color=BAD_color_1, label='Estimated BAD')
 ax.legend(loc='upper left')
 
 ax = fig.add_axes([0.07, 0.87, 0.2, 0.03])
@@ -335,7 +336,7 @@ for chr, ax in zip(chrs, axs):
     ax.grid(which='major', axis='both')
     ax.set_xticklabels([])
     ax.set_yticks(list(range(1, int(y_max) + 1)))
-    ax.text(0.99, 0.95, 'HCT-116 {}'.format(chr),
+    ax.text(0.99, 0.95, 'HCT116 {}'.format(chr),
             horizontalalignment='right',
             verticalalignment='top',
             transform=ax.transAxes)
