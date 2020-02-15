@@ -27,6 +27,8 @@ tf_set = set()
 vcf_counter = 0
 counter = 0
 cl_set = set()
+counted_ctrls = set()
+ctrl_snp_counter = 0
 num = 0
 with open(GTRD_slice_path, "r") as ml:
     master_list = ml.readlines()
@@ -39,6 +41,14 @@ for line in master_list:
         print(num)
     # if remove_punctuation(line[4]) not in interestingSet:
     #     continue
+    vcf_path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)
+    if os.path.isfile(vcf_path) and vcf_path not in counted_ctrls:
+        counted_ctrls.add(vcf_path)
+        vcf_counter += 1
+        with gzip.open(vcf_path, "rt") as vcf_buffer:
+            list_of_snps = make_list_from_vcf_without_filter(vcf_buffer)
+            ctrl_snp_counter += len(list_of_snps)
+
     vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
     if not os.path.isfile(vcf_path):
         continue
@@ -61,3 +71,4 @@ for ref, alt in SNP_statistics_dict:
 print('Total snp calls {}, different TFs {}, different cell types {}'.format(counter,
       len(tf_set), len(cl_set)))
 print(vcf_counter)
+print(ctrl_snp_counter)
