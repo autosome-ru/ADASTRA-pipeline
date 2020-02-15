@@ -23,17 +23,23 @@ interestingSet = {"K562 (myelogenous leukemia)"}
 interestingSet = {"HCT-116 (colon carcinoma)"}
 interestingSet = {remove_punctuation(x) for x in interestingSet}
 SNP_statistics_dict = {}
+tf_set = set()
+vcf_counter = 0
+cl_set = set()
 with open(GTRD_slice_path, "r") as ml:
     master_list = ml.readlines()
 for line in master_list:
     if line[0] == "#":
         continue
     line = line.split("\t")
-    if remove_punctuation(line[4]) not in interestingSet:
-        continue
+    # if remove_punctuation(line[4]) not in interestingSet:
+    #     continue
     vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
     if not os.path.isfile(vcf_path):
         continue
+    vcf_counter +=1
+    tf_set.add(line[1])
+    cl_set.add(line[4])
     with gzip.open(vcf_path, "rt") as vcf_buffer:
         list_of_snps = make_list_from_vcf_without_filter(vcf_buffer)
         for chr, pos, rs_id, ref, alt, ref_counts, alt_counts in list_of_snps:
@@ -44,4 +50,7 @@ for line in master_list:
 df = pd.DataFrame({'ref': [], 'alt': [], 'count': []})
 for ref, alt in SNP_statistics_dict:
     df = df.append(pd.DataFrame({'ref': [ref], 'alt': [alt], 'count': [SNP_statistics_dict[(ref, alt)]]}))
-df.to_csv(parameters_path + "HCT116_snps_statistics.tsv", sep="\t", index=False)
+# df.to_csv(parameters_path + "HCT116_snps_statistics.tsv", sep="\t", index=False)
+
+print('Total snp calls {}, different TFs {}, different cell types {}'.format(df['count'].sum(),
+      len(tf_set), len(cl_set)))
