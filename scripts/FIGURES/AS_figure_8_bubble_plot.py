@@ -74,6 +74,10 @@ if __name__ == '__main__':
     ax.tick_params(axis="x", rotation=-90)
 
     for i, c_bad in enumerate(cosmics):
+        if i == 0:
+            leg = 'brief'
+        else:
+            leg = False
         sns.scatterplot(df_counts[df_counts['COSMIC'] == c_bad]['COSMIC'],
                         df_counts[df_counts['COSMIC'] == c_bad]['BAD'],
                         size=df_counts.counts ** 0.5, sizes=(2, 800),
@@ -81,12 +85,20 @@ if __name__ == '__main__':
                         linewidth=0.5,
                         # color='C' + str(i),
                         edgecolor='#505050',
-                        legend=False)
+                        legend=leg)
 
     ax.set_axisbelow(True)
     ax.set_ylabel('Segmentation BAD')
     ax.set_xlabel('COSMIC BAD')
 
-    # Decorations
+    # Shrink current axis by 20%
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
+    # Put a legend to the right of the current axis
+    legend = ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='BAD', frameon=True, fancybox=False,
+                       labels=['1', '4/3', '3/2', '2', '5/2', '3', '4', '5', '6'])
+    legend.get_frame().set_edgecolor('black')
+
     plt.savefig(os.path.expanduser('~/AC_8/AS_Figure_8_Counts_plot_{}.png'.format(cl)), dpi=300)
     plt.savefig(os.path.expanduser('~/AC_8/AS_Figure_8_Counts_plot_{}.svg'.format(cl)), dpi=300)

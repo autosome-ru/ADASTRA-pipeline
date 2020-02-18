@@ -203,14 +203,28 @@ for BAD in states:
 
     # gof vs read cov
 
-    fig, ax = plt.subplots()
-    fig.tight_layout(pad=1.5)
+    fig, ax = plt.subplots(figsize=(6, 5))
+    fig.tight_layout(pad=2)
 
     df_alt = pd.read_table(os.path.expanduser('~/weights/NBweights_alt_BAD={:.1f}.tsv'.format(BAD)))
     df_ref = pd.read_table(os.path.expanduser('~/weights/NBweights_ref_BAD={:.1f}.tsv'.format(BAD)))
 
-    ax.scatter(x=range(6, len(df_alt.index)), y=df_alt["gof"].tolist()[6:])
-    ax.scatter(x=range(6, len(df_ref.index)), y=df_ref["gof"].tolist()[6:])
+    df_ref = df_ref[(df_ref['gof'] > 0) & (df_ref.index <= 50)]
+    df_alt = df_alt[(df_alt['gof'] > 0) & (df_alt.index <= 50)]
 
-    plt.show()
+    ax.set_xlim(5, 50)
+    ax.set_ylim(0, max(max(df_ref['gof']), max(df_alt['gof'])) * 1.05)
+    ax.grid(True)
+
+    ax.axhline(y=0.05, lw=2, linestyle='--', color='#505050')
+
+    ax.scatter(x=df_alt.index, y=df_alt["gof"].tolist(), color='C1', label='Alt')
+    ax.scatter(x=df_ref.index, y=df_ref["gof"].tolist(), color='C2', label='Ref')
+
+    ax.set_xlabel('Read count for the fixed allele')
+    ax.set_ylabel('Goodness of fit, RMSEA')
+
+    ax.legend()
+
+    plt.savefig(os.path.expanduser('~/AC_10/Figure_AS_10_gof_{:.2f}.svg'.format(BAD)))
     plt.close(fig)

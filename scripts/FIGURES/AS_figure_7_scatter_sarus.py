@@ -88,7 +88,7 @@ if __name__ == '__main__':
     for i in x:
         ax.text(x=0.5, y=i - 0.1, s='{}/{:.0f}'.format(blue_n[i], blue_n[i] / blue[i]), va="center", ha="center",
                 fontdict={"size": 13})
-    ax.set_xlabel('Concordant snps fraction')
+    ax.set_xlabel('Concordant AS SNPs fraction')
     ax.tick_params(axis="y", length=0)
     # plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_barplot.png"), dpi=300)
     plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_barplot.svg"), dpi=300)
