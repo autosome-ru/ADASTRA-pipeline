@@ -88,7 +88,7 @@ if __name__ == '__main__':
     for i in x:
         ax.text(x=0.5, y=i - 0.1, s='{}/{:.0f}'.format(blue_n[i], blue_n[i] / blue[i]), va="center", ha="center",
                 fontdict={"size": 13})
-    ax.set_xlabel('Concordant snps fraction')
+    ax.set_xlabel('Concordant ASB fraction')
     ax.tick_params(axis="y", length=0)
     # plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_barplot.png"), dpi=300)
     plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_barplot.svg"), dpi=300)
@@ -124,7 +124,7 @@ if __name__ == '__main__':
         ax.scatter(x=pt_red['log_pv'], y=pt_red['log_fc'], c=red_color, s=point_size, alpha=point_alpha, lw=point_lw, zorder=3)
         ax.scatter(x=pt_blue['log_pv'], y=pt_blue['log_fc'], c=blue_color, s=point_size, alpha=point_alpha, lw=point_lw, zorder=4)
         ax.set_xlabel('ASB significance')
-        ax.set_ylabel('Motif fold change (Ref-to-Alt)')
+        ax.set_ylabel('Motif fold change (Alt vs Ref)')
 
         xlim = max(np.abs(pt['log_pv'])) * 1.05
         ylim = max(np.abs(pt['log_fc'])) * 1.06

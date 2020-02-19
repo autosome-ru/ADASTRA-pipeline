@@ -9,6 +9,25 @@ from scripts.FIGURES import style_config
 from matplotlib import pyplot as plt
 import seaborn as sns
 
+
+def rectangulize(x_array, y_array):
+    assert len(x_array) == len(y_array)
+    n = len(x_array)
+    x_out = []
+    y_out = []
+    for i, (x, y) in enumerate(zip(x_array, y_array)):
+        if i == 0:
+            x_out += [x, x + 0.5]
+            y_out += [y, y]
+        elif i == n - 1:
+            x_out += [x - 0.5, x]
+            y_out += [y, y]
+        else:
+            x_out += [x - 0.5, x + 0.5]
+            y_out += [y, y]
+    return x_out, y_out
+
+
 if __name__ == '__main__':
     with open(os.path.expanduser('~/phantom_style/overall_statistics.json')) as j:
         d = json.loads(j.readline())
@@ -49,7 +68,8 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
     fig.tight_layout(pad=1.5)
     # ax.margins(x=0, y=0)
-    plt.stackplot(range(len(vals)), vals, alpha=0.7, linewidth=0.7, color='C4')
+    x, y = rectangulize(list(range(len(vals))), vals)
+    plt.stackplot(x, y, alpha=0.7, linewidth=0.7, color='C4')
     # plt.yticks(range(1, 8), [''])
 
     plt.ylabel('Number of SNP calls')
@@ -65,7 +85,8 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
     fig.tight_layout(pad=1.5)
     # ax.margins(x=0, y=0)
-    plt.stackplot(range(len(vals)), vals, alpha=0.7, linewidth=0.7, color='C4')
+    x, y = rectangulize(list(range(len(vals))), vals)
+    plt.stackplot(x, y, alpha=0.7, linewidth=0.7, color='C4')
     # plt.yticks(range(1, 8), [''])
     plt.ylabel('Number of datasets')
     plt.yscale('log')
@@ -80,7 +101,8 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
     fig.tight_layout(pad=1.5)
     # ax.margins(x=0, y=0)
-    plt.stackplot(range(len(vals)), vals, alpha=0.7, linewidth=0.7, color='C4')
+    x, y = rectangulize(list(range(len(vals))), vals)
+    plt.stackplot(x, y, alpha=0.7, linewidth=0.7, color='C4')
     # plt.yticks(range(1, 8), [''])
     plt.ylabel('Number of datasets')
     plt.yscale('log')
@@ -97,11 +119,13 @@ if __name__ == '__main__':
         vals.append(d['unique_SNPs']['TF'][key] - d['unique_asb']['TF'][key])
         vals_asb.append(d['unique_asb']['TF'][key])
     vals, vals_asb = list(zip(*sorted(list(zip(vals, vals_asb)), key=lambda x: x[0], reverse=True)))
+    x_non, y_non = rectangulize(list(range(len(vals))), vals)
+    x_asb, y_asb = rectangulize(list(range(len(vals_asb))), vals_asb)
     fig, ax = plt.subplots()
     fig.tight_layout(pad=1.5)
     # ax.margins(x=0, y=0)
-    plt.stackplot(range(len(vals)), vals, alpha=0.7, linewidth=0.7, color='#CCCCCC', labels=['non-ASB'])
-    plt.stackplot(range(len(vals)), vals_asb, alpha=0.7, linewidth=0.7, color='C0', labels=['ASB'])
+    plt.stackplot(x_non, y_non, alpha=0.7, linewidth=0.7, color='#CCCCCC', labels=['non-ASB'])
+    plt.stackplot(x_asb, y_asb, alpha=0.7, linewidth=0.7, color='C0', labels=['ASB'])
     # plt.yticks(range(1, 8), [''])
     plt.ylabel('Number of rsSNPs')
     plt.yscale('log')
@@ -116,11 +140,13 @@ if __name__ == '__main__':
         vals.append(d['unique_SNPs']['CL'][key] - d['unique_asb']['CL'][key])
         vals_asb.append(d['unique_asb']['CL'][key])
     vals, vals_asb = list(zip(*sorted(list(zip(vals, vals_asb)), key=lambda x: x[0], reverse=True)))
+    x_non, y_non = rectangulize(list(range(len(vals))), vals)
+    x_asb, y_asb = rectangulize(list(range(len(vals_asb))), vals_asb)
     fig, ax = plt.subplots()
     fig.tight_layout(pad=1.5)
     # ax.margins(x=0, y=0)
-    plt.stackplot(range(len(vals)), vals, alpha=0.7, linewidth=0.7, color='#CCCCCC', labels=['non-ASB'])
-    plt.stackplot(range(len(vals)), vals_asb, alpha=0.7, linewidth=0.7, color='C0', labels=['ASB'])
+    plt.stackplot(x_non, y_non, alpha=0.7, linewidth=0.7, color='#CCCCCC', labels=['non-ASB'])
+    plt.stackplot(x_asb, y_asb, alpha=0.7, linewidth=0.7, color='C0', labels=['ASB'])
     # plt.yticks(range(1, 8), [''])
     plt.ylabel('Number of rsSNPs')
     plt.yscale('log')
