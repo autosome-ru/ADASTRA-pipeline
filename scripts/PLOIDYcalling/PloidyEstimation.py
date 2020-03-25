@@ -572,6 +572,8 @@ class GenomeSegmentator:  # seg
         self.b_penalty = b_penalty
         if prior is None:
             self.prior = dict(zip(self.i_list, [1] * len(self.i_list)))
+        else:
+            self.prior = prior
 
         for CHR in self.chrs:
             chrom = ChromosomeSegmentation(self, CHR, ChromPos.chrs[CHR])
