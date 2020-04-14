@@ -9,6 +9,8 @@ from scipy import stats as st
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import states
 
+BAD_dict = {1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 4/3: '4/3', 3/2: '3/2', 5/2: '5/2'}
+
 
 def make_negative_binom_density(r, p, w, size_of_counts):
     negative_binom_density_array = np.zeros(size_of_counts + 1, dtype=np.float128)
@@ -203,14 +205,14 @@ for BAD in states:
 
     # gof vs read cov
 
-    fig, ax = plt.subplots(figsize=(6, 5))
-    fig.tight_layout(pad=2)
-
     df_alt = pd.read_table(os.path.expanduser('~/weights/NBweights_alt_BAD={:.1f}.tsv'.format(BAD)))
     df_ref = pd.read_table(os.path.expanduser('~/weights/NBweights_ref_BAD={:.1f}.tsv'.format(BAD)))
 
     df_ref = df_ref[(df_ref['gof'] > 0) & (df_ref.index <= 50)]
     df_alt = df_alt[(df_alt['gof'] > 0) & (df_alt.index <= 50)]
+
+    fig, ax = plt.subplots(figsize=(6, 5))
+    fig.tight_layout(pad=2)
 
     ax.set_xlim(5, 50)
     ax.set_ylim(0, max(max(df_ref['gof']), max(df_alt['gof'])) * 1.05)
@@ -224,7 +226,71 @@ for BAD in states:
     ax.set_xlabel('Read count for the fixed allele')
     ax.set_ylabel('Goodness of fit, RMSEA')
 
-    ax.legend()
+    plt.title('BAD={}'.format(BAD_dict[BAD]))
+
+    ax.legend(title='Fixed allele')
 
     plt.savefig(os.path.expanduser('~/AC_10/Figure_AS_10_gof_{:.2f}.svg'.format(BAD)))
+    plt.close(fig)
+
+    # ref bias in r scatter
+
+    df_ref = df_ref[(df_ref['gof'] <= 0.05)]
+    df_alt = df_alt[(df_alt['gof'] <= 0.05)]
+
+    fig, ax = plt.subplots(figsize=(6, 5))
+    fig.tight_layout(pad=2)
+
+    ax.set_xlim(5, 50)
+    y_max = max(max(df_ref['r']), max(df_alt['r']))
+    ax.set_ylim(0, y_max * 1.05)
+    ax.grid(True)
+
+    ax.plot([5, y_max], [5, y_max], c='grey', label='y=x', linestyle='dashed')
+    if BAD == 4 / 3:
+        ax.plot([10 * 4 / 3, y_max * 4 / 3], [10, y_max], label='y=3/4 x', c='black', linestyle='dashed')
+
+    ax.scatter(x=df_alt.index, y=df_alt["r"].tolist(), color='C1', label='Alt')
+    ax.scatter(x=df_ref.index, y=df_ref["r"].tolist(), color='C2', label='Ref')
+
+    ax.set_xlabel('Read count for the fixed allele')
+    ax.set_ylabel('Fitted r value')
+
+    ax.legend(title='Fixed allele')
+
+    plt.title('BAD={}'.format(BAD_dict[BAD]))
+
+    plt.savefig(os.path.expanduser('~/AC_10/Figure_AS_10_r_scatter_{:.2f}.svg'.format(BAD)))
+    plt.close(fig)
+
+    # ref bias in r scatter 2
+
+    fig, ax = plt.subplots(figsize=(6, 5))
+    fig.tight_layout(pad=2)
+
+    # ax.set_xlim(5, 50)
+    y_max = max(max(df_ref['r']), max(df_alt['r']))
+    # ax.set_ylim(0, y_max * 1.05)
+    ax.grid(True)
+
+    ax.plot([0, y_max], [0, y_max], c='grey', label='y=x', linestyle='dashed')
+
+    x = [row['r'] for index, row in df_alt.iterrows() if index in df_ref.index]
+    y = [row['r'] for index, row in df_ref.iterrows() if index in df_alt.index]
+
+    ax.scatter(x=x, y=y, color='C1')
+
+    ax.set_xlabel('Fitted r value for fixed Alt')
+    ax.set_ylabel('Fitted r value for fixed Ref')
+
+    plt.title('BAD={}'.format(BAD_dict[BAD]))
+
+    slope, intercept, r_value, p_value, std_err = st.linregress(x, y)
+    print(slope, intercept)
+    ax.plot(x, np.array(x) * slope + intercept, color='#DC3220', label='y={:.2f} x {} {:.2f}'
+            .format(slope, '+' if np.sign(intercept) > 0 else '-', abs(intercept)))
+
+    plt.legend()
+
+    plt.savefig(os.path.expanduser('~/AC_10/Figure_AS_10_r_scatter_ref_alt_{:.2f}.svg'.format(BAD)))
     plt.close(fig)

@@ -85,20 +85,52 @@ if __name__ == '__main__':
                         linewidth=0.5,
                         # color='C' + str(i),
                         edgecolor='#505050',
-                        legend=leg)
+                        legend=False)
 
     ax.set_axisbelow(True)
     ax.set_ylabel('Segmentation BAD')
     ax.set_xlabel('COSMIC BAD')
 
+    print(max(df_counts.counts ** 0.5), min(df_counts.counts ** 0.5))
+
     # Shrink current axis by 20%
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
+    legend_elements = [
+        plt.scatter([-1], [-1], s=117,
+                        alpha=0.7,
+                        linewidth=0.5,
+                        color='#505050',
+                        edgecolor='#505050',
+                        label='5 x 10⁵'),
+        plt.scatter([-1], [-1], s=400.6,
+                        alpha=0.7,
+                        linewidth=0.5,
+                        color='#505050',
+                        edgecolor='#505050',
+                        label='6 x 10⁶'),
+        plt.scatter([-1], [-1], s=799,
+                        alpha=0.7,
+                        linewidth=0.5,
+                        color='#505050',
+                        edgecolor='#505050',
+                        label='24 x 10⁶'),
+    ]
+
     # Put a legend to the right of the current axis
-    legend = ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='BAD', frameon=True, fancybox=False,
-                       labels=['1', '4/3', '3/2', '2', '5/2', '3', '4', '5', '6'])
+    legend = ax.legend(
+        loc='center left', bbox_to_anchor=(1, 0.5), frameon=True, fancybox=False,
+        handles=legend_elements,
+        fontsize='small',
+        labelspacing=2.5,
+        borderpad=1.2,
+        title='# of SNPs'
+    )
     legend.get_frame().set_edgecolor('black')
+
+    ax.set_xlim(0.67, 6.3)
+    ax.set_ylim(0.67, 6.25)
 
     plt.savefig(os.path.expanduser('~/AC_8/AS_Figure_8_Counts_plot_{}.png'.format(cl)), dpi=300)
     plt.savefig(os.path.expanduser('~/AC_8/AS_Figure_8_Counts_plot_{}.svg'.format(cl)), dpi=300)
