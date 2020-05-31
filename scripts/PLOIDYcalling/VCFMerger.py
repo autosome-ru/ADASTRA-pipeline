@@ -26,13 +26,19 @@ def merge_vcfs_add_counts(out_file_name, in_files):
 
 def merge_vcfs_independent_snps(out_file_name, in_files):
     vcf_list = []
+    vcf_counter = 0
+    snp_counter = 0
     for file in in_files:
         with gzip.open(file, 'rt') as vcf:
-            vcf_list += make_list_from_vcf(vcf)
+            cur_vcf_list = make_list_from_vcf(vcf)
+            if len(cur_vcf_list) > 0:
+                vcf_counter += 1
+                snp_counter += len(cur_vcf_list)
+            vcf_list += cur_vcf_list
 
     vcf_list.sort(key=lambda cords: cords[1])
     vcf_list.sort(key=lambda cords: cords[0])
-
+    print("{}\t{}".format(vcf_counter, snp_counter))
     with open(out_file_name, 'w') as out:
         for (chr, pos, ID, REF, ALT, R, A) in vcf_list:
             out.write('\t'.join(map(str, [chr, pos, ID, REF, ALT, R, A])) + '\n')
