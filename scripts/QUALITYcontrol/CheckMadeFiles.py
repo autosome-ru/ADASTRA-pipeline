@@ -31,7 +31,7 @@ made_p_tables = 0
 made_annotated_tables = 0
 counted_controls = set()
 dict_overall_statistics = {"SNP_calls": None, "unique_SNPs": None, "unique_asb": None, "datasets": None,
-                           "unique_SNP_rs": None, "unique_asb_rs": None}
+                           "unique_SNPs_rs": None, "unique_asb_rs": None}
 for key in dict_overall_statistics:
     dict_overall_statistics[key] = {"TF": {}, "CL": {}}
 black_list = make_black_list()
