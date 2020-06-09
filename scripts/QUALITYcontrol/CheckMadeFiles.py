@@ -30,7 +30,8 @@ made_control_vcfs = 0
 made_p_tables = 0
 made_annotated_tables = 0
 counted_controls = set()
-dict_overall_statistics = {"SNP_calls": None, "unique_SNPs": None, "unique_asb": None, "datasets": None}
+dict_overall_statistics = {"SNP_calls": None, "unique_SNPs": None, "unique_asb": None, "datasets": None,
+                           "unique_SNP_rs": None, "unique_asb_rs": None}
 for key in dict_overall_statistics:
     dict_overall_statistics[key] = {"TF": {}, "CL": {}}
 black_list = make_black_list()
@@ -55,6 +56,7 @@ for line in master_list:
         if os.path.isfile(annotated_table_path):
             made_annotated_tables += 1
             an_table = pd.read_table(annotated_table_path)
+            an_table = an_table[(an_table['ID'] != '.') & (an_table['ID'])]
 
             local_counter = len(an_table.index)
             if local_counter != 0:
@@ -90,15 +92,21 @@ for tf in made_tfs:
         tf_table = pd.read_table(tf_df_path)
 
         local_counter = len(tf_table.index)
+        local_counter_rs = len(tf_table['ID'].unique())
         fdr_counter = len(tf_table[(tf_table['fdrp_bh_ref'] <= 0.05) | (tf_table["fdrp_bh_alt"] <= 0.05)].index)
+        fdr_counter_rs = len(tf_table[(tf_table['fdrp_bh_ref'] <= 0.05) | (tf_table["fdrp_bh_alt"] <= 0.05)]['ID'].unique())
         if local_counter != 0:
             if tf not in dict_overall_statistics["unique_SNPs"]["TF"]:
                 dict_overall_statistics["unique_SNPs"]["TF"][tf] = 0
+                dict_overall_statistics["unique_SNPs_rs"]["TF"][tf] = 0
             dict_overall_statistics["unique_SNPs"]["TF"][tf] += local_counter
+            dict_overall_statistics["unique_SNPs_rs"]["TF"][tf] += local_counter_rs
 
             if tf not in dict_overall_statistics["unique_asb"]["TF"]:
                 dict_overall_statistics["unique_asb"]["TF"][tf] = 0
+                dict_overall_statistics["unique_asb_rs"]["TF"][tf] = 0
             dict_overall_statistics["unique_asb"]["TF"][tf] += fdr_counter
+            dict_overall_statistics["unique_asb_rs"]["TF"][tf] += fdr_counter_rs
 
 print("Made aggregation for {} TFs from  {} VCFs".format(tf_counter, tf_vcfs_counter))
 
@@ -113,15 +121,21 @@ for cl in made_cls:
         cl_table = pd.read_table(cl_df_path)
 
         local_counter = len(cl_table.index)
+        local_counter_rs = len(cl_table['ID'].unique())
         fdr_counter = len(cl_table[(cl_table['fdrp_bh_ref'] <= 0.05) | (cl_table["fdrp_bh_alt"] <= 0.05)].index)
+        fdr_counter_rs = len(cl_table[(cl_table['fdrp_bh_ref'] <= 0.05) | (cl_table["fdrp_bh_alt"] <= 0.05)]['ID'].unique())
         if local_counter != 0:
             if cl not in dict_overall_statistics["unique_SNPs"]["CL"]:
                 dict_overall_statistics["unique_SNPs"]["CL"][cl] = 0
+                dict_overall_statistics["unique_SNPs_rs"]["CL"][cl] = 0
             dict_overall_statistics["unique_SNPs"]["CL"][cl] += local_counter
+            dict_overall_statistics["unique_SNPs_rs"]["CL"][cl] += local_counter_rs
 
             if cl not in dict_overall_statistics["unique_asb"]["CL"]:
                 dict_overall_statistics["unique_asb"]["CL"][cl] = 0
+                dict_overall_statistics["unique_asb_rs"]["CL"][cl] = 0
             dict_overall_statistics["unique_asb"]["CL"][cl] += fdr_counter
+            dict_overall_statistics["unique_asb_rs"]["CL"][cl] += fdr_counter_rs
 
 
 with open(parameters_path + "overall_statistics.json", "w") as jsonFile:
