@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source HELPERS/paths_for_components.py
+
 #TODO:
 # 1) Dont save parameters files, work with stdin
 # 2) Make pipeline start script
@@ -13,7 +15,11 @@ if [ "$flag" == --BAD ]; then
   bash BAD_annotation.sh "$njobs"
 fi
 
-if [ "$flag" == --pvalue ] || [ "$flag" == --BAD ]; then
+if [ "$flag" == --BAD ] || [ "$flag" == --NBfit ]; then
+  python3 "$scripts_path"FITnoise/fit_negative_binom_with_weights.py
+fi
+
+if [ "$flag" == --pvalue ] || [ "$flag" == --BAD ] || [ "$flag" == --NBfit ]; then
   bash p_value_count.sh "$njobs"
 fi
 
