@@ -260,10 +260,10 @@ def unpack(line, use_in):
     quals_dict = dict(zip(states, quals))
     difference += len(states)
     seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
-    p_ref, p_alt = map(float, line_split[11 + difference:13 + difference])
+    p_ref, p_alt, es_ref, es_alt = map(float, line_split[11 + difference:15 + difference])
     if use_in == "Aggregation":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, quals_dict,\
-               seg_c, sum_cov, p_ref, p_alt
+               seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt
 
     raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
 
