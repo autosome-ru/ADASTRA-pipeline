@@ -99,7 +99,7 @@ if __name__ == '__main__':
                 for line in file:
                     try:
                         (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
-                         BAD, Quals, seg_c, sum_cov, p_ref, p_alt) = unpack(line, use_in="Aggregation")
+                         BAD, Quals, seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt) = unpack(line, use_in="Aggregation")
                     except ValueError:
                         continue
                     if p_ref == '.' or ID == '.':
@@ -110,13 +110,13 @@ if __name__ == '__main__':
                         common_snps[(chr, pos, ID, ref, alt, repeat)].append(
                             (cov, ref_c, alt_c, in_callers, BAD, Quals,
                              seg_c, sum_cov,
-                             p_ref, p_alt,
+                             p_ref, p_alt, es_ref, es_alt,
                              table_name, another_agr))
                     except KeyError:
                         common_snps[(chr, pos, ID, ref, alt, repeat)] = [
                             (cov, ref_c, alt_c, in_callers, BAD, Quals,
                              seg_c, sum_cov,
-                             p_ref, p_alt,
+                             p_ref, p_alt, es_ref, es_alt,
                              table_name, another_agr)]
         else:
             print("There is no {}".format(table))
@@ -149,7 +149,6 @@ if __name__ == '__main__':
         if len(filtered_snps) == 0:
             os.remove(table_path)
             sys.exit(0)
-        r, w, gof = read_weights()
         origin_of_snp_dict = OrderedDict()
         keys = list(filtered_snps.keys())
         keys = sorted(keys, key=lambda chr_pos: chr_pos[1])
@@ -175,7 +174,7 @@ if __name__ == '__main__':
             alt_counts_array = []
 
             for v in value:
-                cov, ref_c, alt_c, in_callers, BAD, Quals, seg_c, sum_cov, p_ref, p_alt, table_name, \
+                cov, ref_c, alt_c, in_callers, BAD, Quals, seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt, table_name, \
                 another_agr = v
 
                 table_names_array.append(table_name)
@@ -187,59 +186,15 @@ if __name__ == '__main__':
                 SNPs_per_segment_array.append(seg_c)
                 pref_array.append(p_ref)
                 palt_array.append(p_alt)
+                if es_ref is not None:
+                    ref_effect_size_array.append(es_ref)
+                if es_alt is not None:
+                    alt_effect_size_array.append(es_alt)
                 cover_array.append(cov)
 
                 ref_counts_array.append(ref_c)
                 alt_counts_array.append(alt_c)
-
                 p = 1 / (BAD + 1)
-
-                if p_ref != 1:
-                    if alt_c > 500:
-                        r_ref = alt_c
-                        w_ref = 1
-                    else:
-                        r_ref = r['alt'][BAD][alt_c]
-                        w_ref = w['alt'][BAD][alt_c]
-                        if r_ref == 0:  # it is = 0 if gof < 0.05
-                            r_ref = alt_c
-                            w_ref = 1
-                    dist1 = stats.nbinom(r_ref, p)
-                    dist2 = stats.nbinom(r_ref, 1 - p)
-                    cdf1_ref = dist1.cdf
-                    cdf2_ref = dist2.cdf
-                    cdf_ref = lambda x: w_ref * cdf1_ref(x) + (1 - w_ref) * cdf2_ref(x)
-                    pmf1_ref = dist1.pmf
-                    pmf2_ref = dist2.pmf
-                    pmf_ref = lambda x: w_ref * pmf1_ref(x) + (1 - w_ref) * pmf2_ref(x)
-
-                    E_ref = (r_ref * (BAD * w_ref + (1 - w_ref) / BAD) - sum(i * pmf_ref(i) for i in range(5))) / (
-                            1 - cdf_ref(4))
-                    ref_effect_size_array.append(np.log(ref_c / E_ref))
-
-                if p_alt != 1:
-                    if ref_c > 500:
-                        r_alt = ref_c
-                        w_alt = 1
-                    else:
-                        r_alt = r['ref'][BAD][ref_c]
-                        w_alt = w['ref'][BAD][ref_c]
-                        if r_alt == 0:  # it is = 0 if gof < 0.05
-                            r_alt = ref_c
-                            w_alt = 1
-                    dist1 = stats.nbinom(r_alt, p)
-                    dist2 = stats.nbinom(r_alt, 1 - p)
-                    cdf1_alt = dist1.cdf
-                    cdf2_alt = dist2.cdf
-                    cdf_alt = lambda x: w_alt * cdf1_alt(x) + (1 - w_alt) * cdf2_alt(x)
-                    pmf1_alt = dist1.pmf
-                    pmf2_alt = dist2.pmf
-                    pmf_alt = lambda x: w_alt * pmf1_alt(x) + (1 - w_alt) * pmf2_alt(x)
-
-                    E_alt = (r_alt * (BAD * w_alt + (1 - w_alt) / BAD) - sum(i * pmf_alt(i) for i in range(5))) / (
-                                1 - cdf_alt(4))
-
-                    alt_effect_size_array.append(np.log(alt_c / E_alt))
 
             min_cover = min(cover_array)
             max_cover = max(cover_array)
