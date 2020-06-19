@@ -58,10 +58,11 @@ if __name__ == '__main__':
     # plt.yticks(range(1, 8), [''])
     plt.ylabel('Number of SNP calls')
     plt.yscale('log')
-    plt.xlabel('TFs sorted by number of datasets')
+    plt.xlabel('TFs sorted by number of SNP calls')
     plt.savefig(os.path.expanduser('~/AC_1/Figure_AS_1_total_snp_barplot_TF.svg'), dpi=300)
     # plt.show()
     plt.close(fig)
+    print(len(vals), sum(vals))
 
     vals = list(d['SNP_calls']['CL'].values())
     vals = sorted(vals, reverse=True)
@@ -74,10 +75,12 @@ if __name__ == '__main__':
 
     plt.ylabel('Number of SNP calls')
     plt.yscale('log')
-    plt.xlabel('Cell types sorted by number of datasets')
+    plt.xlabel('Cell types sorted by number of SNP calls')
     plt.savefig(os.path.expanduser('~/AC_1/Figure_AS_1_total_snp_barplot_CL.svg'), dpi=300)
     # plt.show()
     plt.close(fig)
+    print(len(vals), sum(vals))
+    print(d['unique_SNPs'])
 
     #Datasets
     vals = list(d['datasets']['TF'].values())
@@ -95,6 +98,7 @@ if __name__ == '__main__':
     plt.savefig(os.path.expanduser('~/AC_1/Figure_AS_1_datasets_barplot_TF.svg'), dpi=300)
     # plt.show()
     plt.close(fig)
+    print(len(vals), sum(vals))
 
     vals = list(d['datasets']['CL'].values())
     vals = sorted(vals, reverse=True)
@@ -107,17 +111,18 @@ if __name__ == '__main__':
     plt.ylabel('Number of datasets')
     plt.yscale('log')
     plt.ylim(0.7, 405)
-    plt.xlabel('Cell types sorted by number of SNP calls')
+    plt.xlabel('Cell types sorted by number of datasets')
     plt.savefig(os.path.expanduser('~/AC_1/Figure_AS_1_datasets_barplot_CL.svg'), dpi=300)
     # plt.show()
     plt.close(fig)
+    print(len(vals), sum(vals))
 
     #Unique SNPS
     vals = []
     vals_asb = []
-    for key in d['unique_SNPs']['TF']:
-        vals.append(d['unique_SNPs']['TF'][key] - d['unique_asb']['TF'][key])
-        vals_asb.append(d['unique_asb']['TF'][key])
+    for key in d['unique_SNPs_rs']['TF']:
+        vals.append(d['unique_SNPs_rs']['TF'][key] - d['unique_asb_rs']['TF'][key])
+        vals_asb.append(d['unique_asb_rs']['TF'][key])
     vals, vals_asb = list(zip(*sorted(list(zip(vals, vals_asb)), key=lambda x: x[0], reverse=True)))
     x_non, y_non = rectangulize(list(range(len(vals))), vals)
     x_asb, y_asb = rectangulize(list(range(len(vals_asb))), vals_asb)
@@ -137,8 +142,8 @@ if __name__ == '__main__':
     vals = []
     vals_asb = []
     for key in d['unique_SNPs']['CL']:
-        vals.append(d['unique_SNPs']['CL'][key] - d['unique_asb']['CL'][key])
-        vals_asb.append(d['unique_asb']['CL'][key])
+        vals.append(d['unique_SNPs_rs']['CL'][key] - d['unique_asb_rs']['CL'][key])
+        vals_asb.append(d['unique_asb_rs']['CL'][key])
     vals, vals_asb = list(zip(*sorted(list(zip(vals, vals_asb)), key=lambda x: x[0], reverse=True)))
     x_non, y_non = rectangulize(list(range(len(vals))), vals)
     x_asb, y_asb = rectangulize(list(range(len(vals_asb))), vals_asb)

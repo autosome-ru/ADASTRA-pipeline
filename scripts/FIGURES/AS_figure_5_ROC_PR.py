@@ -129,7 +129,12 @@ actual_seg_tr = dict(zip(states, [min(x for x in Recall[BAD].keys() if x >= 0) f
 # PR-curve
 fig, ax = plt.subplots()
 for i, BAD in enumerate(states):
-    ax.plot([Recall[BAD][tr] for tr in x[BAD]], [Precision[BAD][tr] for tr in x[BAD]], label='{:.2f}'.format(BAD))
+    x_list, y_list = zip(*sorted(zip([Recall[BAD][tr] for tr in x[BAD]], [Precision[BAD][tr] for tr in x[BAD]]),
+                                 key=lambda z: z[0]))
+    AUC = np.trapz(x=x_list, y=y_list)
+    # print('AUPRC for {:.2f}: {:.3f}'.format(BAD, AUC))
+    print('Prec. {:.3f}, Rec. {:.3f} for {:.2f}'.format(Precision[BAD][0], Recall[BAD][0], BAD))
+    ax.plot(x_list, y_list, label='{:.2f}'.format(BAD))
     ax.scatter([Recall[BAD][actual_seg_tr[BAD]]], [Precision[BAD][actual_seg_tr[BAD]]],
                s=50, zorder=10, alpha=0.7, lw=0)
 ax.grid(True)
@@ -158,7 +163,11 @@ plt.close(fig)
 # ROC
 fig, ax = plt.subplots()
 for BAD in states:
-    ax.plot([FPR[BAD][tr] for tr in x[BAD]], [Recall[BAD][tr] for tr in x[BAD]], label='{:.2f}'.format(BAD))
+    x_list, y_list = zip(*sorted(zip([FPR[BAD][tr] for tr in x[BAD]], [Recall[BAD][tr] for tr in x[BAD]]),
+                                 key=lambda z: z[0]))
+    AUC = np.trapz(x=x_list, y=y_list)
+    print('AUROC for {:.2f}: {:.3f}'.format(BAD, AUC))
+    ax.plot(x_list, y_list, label='{:.2f}'.format(BAD))
     ax.scatter([FPR[BAD][actual_seg_tr[BAD]]], [Recall[BAD][actual_seg_tr[BAD]]],
                s=50, zorder=10, alpha=0.7, lw=0)
 ax.plot([0, 1], [0, 1], color='black', linestyle='--')

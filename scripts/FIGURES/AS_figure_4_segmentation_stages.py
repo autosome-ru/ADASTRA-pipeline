@@ -25,11 +25,19 @@ plt.rcParams['axes.ymargin'] = 0
 plt.rcParams["legend.framealpha"] = 1
 
 # name = 'HCT-116_colon_carcinoma!_labs_richard-myers___biosamples_ENCBS389ENC_'
-name = 'HCT-116_colon_carcinoma!_labs_michael-snyder___biosamples_ENCBS626JHZ_'
-snps_name = os.path.expanduser('~/Documents/ASB/simulation/' + name + '.tsv')
-ploidy_name = os.path.expanduser('~/Documents/ASB/simulation/' + name + '_ploidy.tsv')
+# name = 'HCT-116_colon_carcinoma!_labs_michael-snyder___biosamples_ENCBS626JHZ_'
+# snps_name = os.path.expanduser('~/Documents/ASB/simulation/' + name + '.tsv')
+# ploidy_name = os.path.expanduser('~/Documents/ASB/simulation/' + name + '_ploidy.tsv')
+
+# snps_name = os.path.expanduser('~/cherry_BAD/K562__myelogenous_leukemia_!_labs_xiang-dong-fu___biosamples_ENCBS074NGX_.tsv')
+# ploidy_name = os.path.expanduser('~/K562_BAD_Segments/K562_myelogenous_leukemia!_labs_xiang-dong-fu___biosamples_ENCBS074NGX__ploidy.tsv')
+
+snps_name = os.path.expanduser('~/cherry_BAD/K562__myelogenous_leukemia_!_labs_michael-snyder___biosamples_ENCBS725WFV_.tsv')
+ploidy_name = os.path.expanduser('~/K562_BAD_Segments/K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS725WFV__ploidy.tsv')
+
+
 cosmic_name = os.path.expanduser('~/Documents/ASB/Cell_lines/cell_lines_copy_number.csv')
-cnv_line = 'HCT-116'
+cnv_line = 'K-562'
 
 snps = pd.read_table(snps_name, header=None)
 snps.columns = ['chr', 'pos', 'ID', 'ref', 'alt', 'ref_c', 'alt_c']
@@ -40,7 +48,8 @@ snps['log_cov'] = np.log10(snps['cov'])
 
 ploidy = pd.read_table(ploidy_name)
 
-chrs = ('chr10', 'chr17')
+# chrs = ('chr10', 'chr17')
+chrs = ('chr2', 'chr6')
 BAD_color = '#0072B266'
 BAD_color_1 = '#0072B2CC'
 COSMIC_color = '#D55E00'
@@ -99,7 +108,7 @@ for chr, ax in zip(chrs, axs):
     ax.grid(which='major', axis='both')
     ax.set_xticklabels([])
     ax.set_yticks(list(range(1, int(y_max) + 1)))
-    ax.text(0.99, 0.95, 'HCT116 {}'.format(chr),
+    ax.text(0.99, 0.95, 'K562 {}'.format(chr),
             horizontalalignment='right',
             verticalalignment='top',
             transform=ax.transAxes)
@@ -117,7 +126,8 @@ cax.set_xlabel('Chromosome position, bp')
 plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0), useMathText=True)
 
 plt.savefig(os.path.expanduser('~/AC_4/Figure_AS_4_stage1.svg'), dpi=300)
-plt.show()
+plt.savefig(os.path.expanduser('~/AC_4/Figure_AS_4_stage1.png'), dpi=300)
+# plt.show()
 plt.close(fig)
 
 # BAD step
@@ -190,7 +200,7 @@ for chr, ax in zip(chrs, axs):
     ax.grid(which='major', axis='both')
     ax.set_xticklabels([])
     ax.set_yticks(list(range(1, int(y_max) + 1)))
-    ax.text(0.99, 0.95, 'HCT116 {}'.format(chr),
+    ax.text(0.99, 0.95, 'K562 {}'.format(chr),
             horizontalalignment='right',
             verticalalignment='top',
             transform=ax.transAxes)
@@ -219,7 +229,8 @@ cb = mpl.colorbar.ColorbarBase(ax, cmap=cmap,
                                orientation='horizontal')
 
 plt.savefig(os.path.expanduser('~/AC_4/Figure_AS_4_stage2.svg'), dpi=300)
-plt.show()
+plt.savefig(os.path.expanduser('~/AC_4/Figure_AS_4_stage2.png'), dpi=300)
+# plt.show()
 plt.close(fig)
 
 #COSMIC comparison
@@ -336,7 +347,7 @@ for chr, ax in zip(chrs, axs):
     ax.grid(which='major', axis='both')
     ax.set_xticklabels([])
     ax.set_yticks(list(range(1, int(y_max) + 1)))
-    ax.text(0.99, 0.95, 'HCT116 {}'.format(chr),
+    ax.text(0.99, 0.95, 'K562 {}'.format(chr),
             horizontalalignment='right',
             verticalalignment='top',
             transform=ax.transAxes)
@@ -366,5 +377,6 @@ cb = mpl.colorbar.ColorbarBase(ax, cmap=cmap,
                                orientation='horizontal')
 
 plt.savefig(os.path.expanduser('~/AC_4/Figure_AS_4_stage2_cosmic.svg'), dpi=300)
+plt.savefig(os.path.expanduser('~/AC_4/Figure_AS_4_stage2_cosmic.png'), dpi=300)
 plt.show()
 plt.close(fig)

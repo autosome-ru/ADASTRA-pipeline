@@ -36,25 +36,25 @@ plt.rcParams['axes.xmargin'] = 0
 plt.rcParams['axes.ymargin'] = 0
 plt.rcParams["legend.framealpha"] = 1
 
-max_c = 50
+max_c = 100
 lw = 1.25
-cells = 'HCT116'
-p = 1 / 2
-covs = [15, 30]
+cells = 'K562'
+p = 1/3
+covs = [30, 60]
 
-t = pd.read_table(os.path.expanduser('~/{}_snps_statistics.tsv'.format(cells)))
-# BAD = 6
-# p = 1/(BAD + 1)
-# t = pd.read_table(os.path.expanduser(
-#     '~/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
-#                                                           {'all': '',
-#                                                            'K562': '_k562',
-#                                                            'diploid': '_esc',
-#                                                            'HCT116': '_hct116'}[
-#                                                               cells])))
+# t = pd.read_table(os.path.expanduser('~/{}_snps_statistics.tsv'.format(cells)))
+BAD = 2
+p = 1/(BAD + 1)
+t = pd.read_table(os.path.expanduser(
+    '~/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
+                                                          {'all': '',
+                                                           'K562': '_k562',
+                                                           'diploid': '_esc',
+                                                           'HCT116': '_hct116'}[
+                                                              cells])))
 
-# t.columns = ['alt', 'ref', 'count']
-t.columns = ['ref', 'alt', 'count']
+t.columns = ['alt', 'ref', 'count']
+# t.columns = ['ref', 'alt', 'count']
 
 t = t[(t['ref'] >= 5) & (t['alt'] >= 5)]
 t = t[(t['ref'] <= max_c) & (t['alt'] <= max_c)]
@@ -140,6 +140,8 @@ for cov, ax in zip(covs, (ax2, ax3)):
     ax.set_ylim(0, max(max(current_density), max(counts_array / total_snps)) * 1.05)
     ax.set_xlabel('Reference allele read count')
 
-plt.savefig(os.path.expanduser('~/AC_3/Figure_AS_3_{}.svg'.format(cells)))
-# plt.savefig(os.path.expanduser('~/AC_3/Figure_AS_3_{}_{:.2f}.svg'.format(cells, BAD)))
+# plt.savefig(os.path.expanduser('~/AC_3/Figure_AS_3_{}.svg'.format(cells)))
+# plt.savefig(os.path.expanduser('~/AC_3/Figure_AS_3_{}.png'.format(cells)))
+plt.savefig(os.path.expanduser('~/AC_3/Figure_AS_3_{}_{:.2f}.svg'.format(cells, BAD)))
+plt.savefig(os.path.expanduser('~/AC_3/Figure_AS_3_{}_{:.2f}.png'.format(cells, BAD)))
 # plt.show()
