@@ -25,5 +25,5 @@ for filename in os.listdir(dirname_old):
     df_new = pd.read_table(os.path.join(dirname_new, filename_new))
     if not df_new[['#chr', 'start', 'end', 'BAD']].equals(df_old[['#chr', 'start', 'end', 'BAD']]):
         print('kazino {}'.format(filename_new))
-        not_eq = df_new[['#chr', 'start', 'end', 'BAD']].eq(df_old[['#chr', 'start', 'end', 'BAD']])
-        print(not_eq)
+        eq = df_new[['#chr', 'start', 'end', 'BAD']].eq(df_old[['#chr', 'start', 'end', 'BAD']])
+        print(df_new['BAD'][~eq['BAD']], df_old['BAD'][~eq['BAD']])
