@@ -35,23 +35,20 @@ class Segmentation(ABC):
         self.bnum = None  # bnum[i] = number of borders before ith snp in best segmentation
 
     @staticmethod
-    def get_norm(p, N, trim_cover):
-        result = 0
-        current_mult = 1
-        denom_mult = 1
-        for k in range(trim_cover):
-            result += current_mult * np.power(p, N - k) * np.power(1 - p, k) / denom_mult
-            current_mult *= (N - k)
-            denom_mult *= k + 1
-
-        return -result
+    def get_norm(p, N):
+        """
+        binomial tail of 3
+        """
+        return - (p ** N + N * p ** (N - 1) * (1 - p) + N * (N - 1) / 2 * p ** (N - 2) * (1 - p) ** 2 +
+                  N * (N - 1) * (N - 2) / 6 * p ** (N - 3) * (1 - p) ** 3 +
+                  N * (N - 1) * (N - 2) * (N - 3) / 24 * p ** (N - 4) * (1 - p) ** 4)
 
     def loglikelyhood(self, N, X, i):
         """
         5 <= X <= N/2
         """
         p = 1.0 / (1.0 + i)
-        log_norm = np.log1p(self.get_norm(p, N, 5) + self.get_norm(1 - p, N, 5))
+        log_norm = np.log1p(self.get_norm(p, N) + self.get_norm(1 - p, N))
         if (self.sub_chrom.chrom.mode == 'corrected' and N == 2 * X) or self.sub_chrom.chrom.mode == 'binomial':
             return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.sub_chrom.chrom.prior[i]) - log_norm
         elif self.sub_chrom.chrom.mode == 'corrected':
@@ -254,7 +251,6 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
         self.ests = []  # estimated ploidys for splited segments
         self.quals = []  # qualities of estimations
         self.Q1 = []  # diploid quality
-        self.Q = []  # LS
         self.counts = []  # number of snps in segments
         self.sum_covs = []  # sums of covers for each segment
 
@@ -357,7 +353,6 @@ class SubChromosomeSegmentation(Segmentation):  # sub_chrom
             self.ests.append(self.chrom.i_list[i_max])
             self.quals.append((left_qual, right_qual))
             self.Q1.append(Q1)
-            self.Q.append(list(self.LS))
 
     def estimate_sub_chr(self):
         if self.LINES == 0:
@@ -428,7 +423,8 @@ class ChromosomeSegmentation:  # chrom
 
         self.bpos = []  # border positions, tuples or ints
         self.ests = []  # estimated BADs for split segments
-        self.LS = []  # qualities of estimations
+        self.quals = []  # qualities of estimations
+        self.Q1 = []  # diploid quality
         self.counts = []  # number of SNPs in segments
         self.sum_cover = []  # cover of SNPs in segments
         self.effective_length = self.positions[-1] - self.positions[0]
@@ -511,16 +507,18 @@ class ChromosomeSegmentation:  # chrom
             if length <= self.snp_filter:
                 bpos = []
                 ests = [0]
-                LS = [[0] * len(self.i_list)]
+                quals = [(0, 0)]
+                Q1 = [0]
                 counts = [ed - st]
                 sum_cover = [0]
             else:
-                sub_chrom = SubChromosomeSegmentation(self, good_snps, part)
+                sub_chrom = SubChromosomeSegmentation(self,  good_snps, part)
                 sub_chrom.estimate_sub_chr()
 
                 bpos = sub_chrom.bpos
                 ests = sub_chrom.ests
-                LS = sub_chrom.Q
+                quals = sub_chrom.quals
+                Q1 = sub_chrom.Q1
                 counts = sub_chrom.counts
                 sum_cover = sub_chrom.sum_covs
 
@@ -528,7 +526,8 @@ class ChromosomeSegmentation:  # chrom
             if ed != self.LINES:
                 self.bpos += [(self.positions[ed - 1], self.positions[ed])]
             self.ests += ests
-            self.LS += LS
+            self.quals += quals
+            self.Q1 += Q1
             self.counts += counts
             self.sum_cover += sum_cover
 
@@ -575,8 +574,6 @@ class GenomeSegmentator:  # seg
         self.b_penalty = b_penalty
         if prior is None:
             self.prior = dict(zip(self.i_list, [1] * len(self.i_list)))
-        else:
-            self.prior = prior
 
         for CHR in self.chrs:
             chrom = ChromosomeSegmentation(self, CHR, ChromPos.chrs[CHR])
@@ -597,16 +594,18 @@ class GenomeSegmentator:  # seg
                     else:
                         cur = 1
                 elif isinstance(border, tuple):
-                    segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter]] + chrom.LS[counter] +
-                                             [chrom.counts[counter], chrom.sum_cover[counter]])
+                    segments_to_write.append([chrom.CHR, cur, border[0] + 1, chrom.ests[counter], chrom.Q1[counter],
+                                              chrom.quals[counter][0], chrom.quals[counter][1],
+                                              chrom.counts[counter], chrom.sum_cover[counter]])
                     cur = border[0] + 1
-                    segments_to_write.append([chrom.CHR, cur, border[1], 0] + [0] * len(chrom.i_list) + [0, 0])
+                    segments_to_write.append([chrom.CHR, cur, border[1], 0, 0, 0, 0, 0, 0])
                     cur = border[1]
                     counter += 1
                 else:
                     segments_to_write.append(
-                        [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter]] + chrom.LS[counter] +
-                        [chrom.counts[counter], chrom.sum_cover[counter]])
+                        [chrom.CHR, cur, math.floor(border) + 1, chrom.ests[counter], chrom.Q1[counter],
+                         chrom.quals[counter][0], chrom.quals[counter][1],
+                         chrom.counts[counter], chrom.sum_cover[counter]])
                     cur = math.floor(border) + 1
                     counter += 1
 
@@ -623,20 +622,20 @@ class GenomeSegmentator:  # seg
 
     # noinspection PyTypeChecker
     def estimate_ploidy(self):
-        self.OUT.write(
-            pack(['#chr', 'start', 'end', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in self.i_list] + ['SNP_count',
-                                                                                                     'sum_cover']))
+        self.OUT.write(pack(['#chr', 'start', 'end', 'BAD', 'Q1', 'qual_left', 'qual_right', 'SNP_count',
+                             'sum_cover']))
         for j in range(len(self.chr_segmentations)):
             chrom = self.chr_segmentations[j]
             chrom.estimate_chr()
             self.write_ploidy_to_file(chrom)
             self.chr_segmentations[j] = None
 
-    def filter_segments(self, segments, snp_number_tr=2):
+    @staticmethod
+    def filter_segments(segments, snp_number_tr=2):
         is_bad_left = False
         is_bad_segment = False
         for k in range(len(segments)):
-            if segments[k][4 + len(self.i_list)] <= snp_number_tr and segments[k][3] != 0:  # если k сегмент "плохой"
+            if segments[k][7] <= snp_number_tr and segments[k][3] != 0:  # если k сегмент "плохой"
                 if is_bad_segment:  # если k-1 тоже "плохой"
                     is_bad_left = True
                     for j in range(3, 4 + len(self.i_list)):
@@ -653,11 +652,11 @@ class GenomeSegmentator:  # seg
                     #     else:  # если BAD k-2 сегмента больше BAD k
                     #         segments[k - 1][3] = segments[k - 2][3]  # присвоить BAD k-2 сегмента
                     #
-                    #     for j in range(4, 4 + len(self.i_list)):
+                    #     for j in range(4, 7):
                     #         segments[k - 1][j] = 0
                     is_bad_left = True
                 if is_bad_left and is_bad_segment:
-                    for j in range(3, 4 + len(self.i_list)):
+                    for j in range(3, 7):
                         segments[k - 1][j] = 0
                     is_bad_left = True
 
@@ -677,7 +676,7 @@ if __name__ == '__main__':
     if b_penalty == 'MIX_release':
         states = [1.5, 6]
     else:
-        states = [4 / 3, 1.5, 2.5, 6]
+        states = [4/3, 1.5, 2.5, 6]
 
     merged_vcfs_path = ploidy_path + 'merged_vcfs/' + key + ".tsv"
 
@@ -696,27 +695,7 @@ if __name__ == '__main__':
             os.mkdir(ploidy_path + model)
         except:
             pass
-    GS = GenomeSegmentator(merged_vcfs_path, ploidy_path + model + '/' + key + "_ploidy.tsv", mode, states, b_penalty,
-                           # prior={1.0: 528820834,
-                           #        4 / 3: 939595,
-                           #        1.5: 65802469,
-                           #        2.0: 836167610,
-                           #        2.5: 4644750,
-                           #        3.0: 134757109,
-                           #        4.0: 12509507,
-                           #        5.0: 3049258,
-                           #        6.0: 1665069
-                           #        },
-                           # prior={1.0: 0.5772023955595271,
-                           #         1.3333333333333333: 0.0021981197199758295,
-                           #         1.5: 0.03626651172688886,
-                           #         2.0: 0.32028118409027445,
-                           #         2.5: 0.0020880383929476215,
-                           #         3.0: 0.048053530732062893,
-                           #         4.0: 0.010669694590770586,
-                           #         5.0: 0.0023994107964389034,
-                           #         6.0: 0.0008411143911137256}
-                           )
+    GS = GenomeSegmentator(merged_vcfs_path, ploidy_path + model + '/' + key + "_ploidy.tsv", mode, states, b_penalty)
     try:
         GS.estimate_ploidy()
     except Exception as e:
