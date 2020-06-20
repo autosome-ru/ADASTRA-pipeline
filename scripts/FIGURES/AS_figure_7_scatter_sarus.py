@@ -7,7 +7,7 @@ import seaborn as sns
 
 
 def get_color(row):
-    if abs(row['log_fc']) < np.log10(fc_tr) or abs(row['log_pv']) < -np.log10(fdr_tr):
+    if abs(row['log_fc']) < 2 or abs(row['log_pv']) < -np.log10(fdr_tr):
         return grey_color
     # if row[field + '_ref'] < fdr_tr and row[field + '_alt'] < fdr_tr:
     #     return 'purple'
@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     perf_tr = 0.0005
     fc_tr = 4
-    # fdr_tr = 0.000000000000000000002
+    fdr_tr_mat = 0.0000000000000000023
     fdr_tr = 0.05
 
     # blue_color = '#1B7837'
@@ -96,17 +96,27 @@ if __name__ == '__main__':
     plt.close(fig)
 
     # Scatters
-    for name in top10_names: #['CTCF_HUMAN.tsv']:
-        pt = pd.read_table(os.path.expanduser("~/Top10TFs/{}".format(name)))
+    for name in ['All_TFs.tsv'] + top10_names + ['CTCF_for_comparison.tsv']:
+        mat = False
+        if name == 'CTCF_for_comparison.tsv':
+            mat = True
+        pt = pd.read_table(os.path.expanduser("~/Top10TFs/{}".format('CTCF_HUMAN.tsv' if mat else name)))
 
-        pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
+        if 'All' in name:
+            pt['log_fc'] = pt['motif_log_2_fc']
+            pt['log_pv'] = pt[['log_p_value_ref', 'log_p_value_alt']].max(axis=1) * np.sign(pt['log_p_value_alt'] -
+                                                                                            pt['log_p_value_ref'])
+        else:
+            pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
+            if 'Mathelier' not in name:
+                pt = pt[~(pt[field + '_alt'].isnull() | pt[field + '_ref'].isnull())]
+                pt['log_pv'] = (np.log10(
+                    pt[[field + '_ref', field + '_alt']]).min(axis=1)) \
+                               * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
+            pt['log_fc'] = pt['motif_fc'] / np.log10(2)  # Fixme
 
-        if 'Mathelier' not in name:
-            pt = pt[~(pt[field + '_alt'].isnull() | pt[field + '_ref'].isnull())]
-            pt['log_pv'] = (np.log10(
-                pt[[field + '_ref', field + '_alt']]).min(axis=1)) \
-                           * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
-        pt['log_fc'] = pt['motif_fc'] / np.log10(2)  # Fixme
+        if mat:
+            fdr_tr, fdr_tr_mat = fdr_tr_mat, fdr_tr
 
         pt['col'] = pt.apply(lambda x: get_color(x), axis=1)
 
@@ -120,9 +130,9 @@ if __name__ == '__main__':
 
         fig, ax = plt.subplots()
         plt.tight_layout(pad=2.5)
-        ax.scatter(x=pt_grey['log_pv'], y=pt_grey['log_fc'], c=grey_color, s=point_size, alpha=point_alpha, lw=point_lw, zorder=2)
-        ax.scatter(x=pt_red['log_pv'], y=pt_red['log_fc'], c=red_color, s=point_size, alpha=point_alpha, lw=point_lw, zorder=3)
-        ax.scatter(x=pt_blue['log_pv'], y=pt_blue['log_fc'], c=blue_color, s=point_size, alpha=point_alpha, lw=point_lw, zorder=4)
+        ax.scatter(x=pt_grey['log_pv'], y=pt_grey['log_fc'], c=grey_color, s=point_size, alpha=point_alpha, lw=point_lw, zorder=2, label=None)
+        ax.scatter(x=pt_red['log_pv'], y=pt_red['log_fc'], c=red_color, s=point_size, alpha=point_alpha, lw=point_lw, zorder=3, label='Discordant:\n{} ({:.1f})%'.format(red, red / (blue + red) * 100))
+        ax.scatter(x=pt_blue['log_pv'], y=pt_blue['log_fc'], c=blue_color, s=point_size, alpha=point_alpha, lw=point_lw, zorder=4, label='Concordant:\n{} ({:.1f})%'.format(blue, blue / (blue + red) * 100))
         ax.set_xlabel('ASB significance')
         ax.set_ylabel('Motif fold change (Alt vs Ref)')
 
@@ -136,22 +146,37 @@ if __name__ == '__main__':
         ax.set_yticklabels(['{}'.format(x) for x in ax.get_yticks()])
         ax.tick_params(axis='both', zorder=500)
         # print(xlim, ylim, ax.get_xticks(), [x for x in ax.get_xticklabels()])
-        label = 'blue/red: {}/{}({:.1f}%),\ngrey/all={:.1f}%'.format(blue, red,
-                                                                     100 * blue / (blue + red),
-                                                                     100 * grey / (grey + blue + red))
+        # label = 'blue/red: {}/{}({:.1f}%),\ngrey/all={:.1f}%'.format(blue, red,
+        #                                                              100 * blue / (blue + red),
+        #                                                              100 * grey / (grey + blue + red))
+        label = 'concordant/\ndiscordant:\n{}/{}({:.1f}%)'.format(blue, red, 100 * blue / (blue + red))
         # ax.text(x=-xlim * 0.9, y=0, ha='left', va='center', s='Ref', style='italic', color='#505050')
         # ax.text(x=xlim * 0.9, y=0, ha='right', va='center', s='Alt', style='italic', color='#505050')
         ax.text(x=0.22, y=0.066, ha='left', va='bottom', s='Ref', style='italic', color='0.15',
                 transform=plt.gcf().transFigure)
         ax.text(x=0.81, y=0.066, ha='right', va='bottom', s='Alt', style='italic', color='0.15',
                 transform=plt.gcf().transFigure)
-        # plt.text(x=max(pt['log_pv']) / 5, y=min(pt['log_fc']) / 2, s=label)
+        # plt.text(x=max(pt['log_pv']) / 6, y=min(pt['log_fc']) / 2, s=label)  #, fontdict={'size': 10})
         # plt.text(x=min(pt['log_pv']) * 4 / 5, y=min(pt['log_fc']) / 2,
         #          s=' P-value treshold: {},\nFC treshold: {}'.format(round(fdr_tr, 2), round(fc_tr, 1)))
         ax.grid(True, zorder=-10)
+
+        # box = ax.get_position()
+        # ax.set_position([box.x0, box.y0 + box.height * 0.2, box.width, box.height * 0.8])
+
+        ax.legend(
+                  fontsize='small',
+                  framealpha=0.5,
+                  borderpad=0.3,
+                  handletextpad=0,
+                  fancybox=False,
+                  )
 
         plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_{}_p_tr={:.2f}_fc_tr={:.2f}_fdr_tr={:.2f}_{}.svg".format(
             name.replace('_fc.tsv', ''), perf_tr, fc_tr, fdr_tr, field)), dpi=300)
         # plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_{}_p_tr={:.2f}_fc_tr={:.2f}_fdr_tr={:.2f}_{}.png".format(
         #     name.replace('_fc.tsv', ''), perf_tr, fc_tr, fdr_tr, field)), dpi=300)
         plt.close(fig)
+
+        if mat:
+            fdr_tr, fdr_tr_mat = fdr_tr_mat, fdr_tr

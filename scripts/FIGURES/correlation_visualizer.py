@@ -6,7 +6,7 @@ import seaborn as sns
 import os
 
 if __name__ == '__main__':
-    corstats_path = '/home/sashok/Documents/ASB/Correlation/cor_stats_without_34.tsv'
+    corstats_path = '/home/sashok/cor/cor_stats_test.tsv'
     heatmapdata_path = '/home/sashok/Documents/ASB/Correlation/HeatmapData/'
 
     out_folder = '/home/sashok/Documents/ASB/corpics/'
@@ -21,9 +21,9 @@ if __name__ == '__main__':
 
     # cell_lines = ['MCF7_Invasive_ductal_breast_carcinoma']
     cell_lines = [
-         'K562_myelogenous_leukemia',
-        # 'HCT-116_colon_carcinoma',
-        # 'MCF7_Invasive_ductal_breast_carcinoma',
+         'K562__myelogenous_leukemia_',
+         'HCT-116__colon_carcinoma_',
+         'MCF7__Invasive_ductal_breast_carcinoma_',
         # 'PC3_prostate_carcinoma',
         # 'LoVo_colorectal_adenocarcinoma',
         # 'HeLa_S3_cervical_adenocarcinoma',
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     ]
     # cell_lines = ['HCT-116_colon_carcinoma']
     models = ['CAIC',
-              'SQRT',
+              # 'SQRT',
               ]
 
     # plots = ['# of segments', 'cor', 'cor-seg', 'cosm_heatmap']
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     regnames = dict(zip(['1', '2', '3'], ['snp_0-25k', 'snp25-150k', 'snp150k+']))
 
     short_name = dict(zip(
-        ['K562_myelogenous_leukemia', 'MCF7_Invasive_ductal_breast_carcinoma', 'HCT-116_colon_carcinoma',
+        ['K562__myelogenous_leukemia_', 'MCF7__Invasive_ductal_breast_carcinoma_', 'HCT-116__colon_carcinoma_',
          'PC3_prostate_carcinoma', 'LoVo_colorectal_adenocarcinoma', 'all_lines'],
         ['K562', 'MCF7', 'HCT116', 'PC3', 'LoVo', 'All lines']))
 
@@ -95,7 +95,7 @@ if __name__ == '__main__':
                     plt.vlines(x=v2, ymin=-1, ymax=1)
 
                     for y_cut in (0, 0.3, 0.8):
-                        plt.hlines(y=y_cut, xmin=0, xmax=max(table['total_snps']))
+                        plt.hlines(y=y_cut, xmin=0, xmax=max(table['total_snps'], default=10000))
 
                         value = len(table[(table['cor_by_snp_' + model] >= y_cut) & (table['total_snps'] <= v1)].index)
                         vals.append(value)
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 
                         value = len(table[(table['cor_by_snp_' + model] >= y_cut) & (table['total_snps'] > v2)].index)
                         vals.append(value)
-                        plt.text(x=min(max(table['total_snps'] + v2) / 2, max(table['total_snps'] * 0.95)), y=y_cut,
+                        plt.text(x=min(max(table['total_snps'] + v2, default=10000) / 2, max(table['total_snps'] * 0.95, default=10000)), y=y_cut,
                                  va='bottom', ha='center', s=str(value))
 
                     ax = plt.subplot(223)
@@ -123,7 +123,7 @@ if __name__ == '__main__':
                     plt.vlines(x=v2c, ymin=-1, ymax=1)
 
                     for y_cut in (0, 0.3, 0.8):
-                        plt.hlines(y=y_cut, xmin=0, xmax=max(table['sum_cov']))
+                        plt.hlines(y=y_cut, xmin=0, xmax=max(table['sum_cov'], default=10000))
 
                         value = len(table[(table['cor_by_snp_' + model] >= y_cut) & (table['sum_cov'] <= v1c)].index)
                         vals.append(value)
@@ -136,7 +136,7 @@ if __name__ == '__main__':
 
                         value = len(table[(table['cor_by_snp_' + model] >= y_cut) & (table['sum_cov'] > v2c)].index)
                         vals.append(value)
-                        plt.text(x=min(max(table['sum_cov'] + v2c) / 2, max(table['sum_cov'] * 0.95)), y=y_cut,
+                        plt.text(x=min(max(table['sum_cov'] + v2c, default=10000) / 2, max(table['sum_cov'] * 0.95, default=10000)), y=y_cut,
                                  va='bottom', ha='center', s=str(value))
 
                     ax = plt.subplot(222)
@@ -150,7 +150,7 @@ if __name__ == '__main__':
                     plt.vlines(x=np.log10(v2), ymin=-1, ymax=1)
 
                     for y_cut in (0, 0.3, 0.8):
-                        plt.hlines(y=y_cut, xmin=2, xmax=np.log10(1 + max(table['total_snps'])))
+                        plt.hlines(y=y_cut, xmin=2, xmax=np.log10(1 + max(table['total_snps'], default=10000)))
 
                         value = len(table[(table['cor_by_snp_' + model] >= y_cut) & (table['total_snps'] <= v1)].index)
                         vals.append(value)
@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
                         value = len(table[(table['cor_by_snp_' + model] >= y_cut) & (table['total_snps'] > v2)].index)
                         vals.append(value)
-                        plt.text(x=min(max(table['total_snps'] + v2) / 2, max(table['total_snps'] * 0.95)), y=y_cut,
+                        plt.text(x=min(max(table['total_snps'] + v2, default=10000) / 2, max(table['total_snps'] * 0.95, default=10000)), y=y_cut,
                                  va='bottom', ha='center', s=str(value))
 
                     ax = plt.subplot(224)
@@ -177,7 +177,7 @@ if __name__ == '__main__':
                     plt.vlines(x=np.log10(v2c), ymin=-1, ymax=1)
 
                     for y_cut in (0, 0.3, 0.8):
-                        plt.hlines(y=y_cut, xmin=3, xmax=np.log10(1 + max(table['sum_cov'])))
+                        plt.hlines(y=y_cut, xmin=3, xmax=np.log10(1 + max(table['sum_cov'], default=10000)))
 
                         value = len(table[(table['cor_by_snp_' + model] >= y_cut) & (table['sum_cov'] <= v1c)].index)
                         vals.append(value)
@@ -190,7 +190,7 @@ if __name__ == '__main__':
 
                         value = len(table[(table['cor_by_snp_' + model] >= y_cut) & (table['sum_cov'] > v2c)].index)
                         vals.append(value)
-                        plt.text(x=min(max(table['sum_cov'] + v2c) / 2, max(table['sum_cov'] * 0.95)), y=y_cut,
+                        plt.text(x=min(max(table['sum_cov'] + v2c, default=10000) / 2, max(table['sum_cov'] * 0.95, default=10000)), y=y_cut,
                                  va='bottom', ha='center', s=str(value))
 
                     otab.write('\t'.join(map(str, vals)) + '\n')

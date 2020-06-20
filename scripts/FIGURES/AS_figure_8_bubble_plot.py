@@ -52,6 +52,9 @@ if __name__ == '__main__':
             3.666666666666667: 11/3}
     for val in conv:
         df_counts = df_counts.replace(val, conv[val])
+    for f in states:
+        print('{:.2f}: {:.2f}'.format(f, df_counts[df_counts['COSMIC'].isin([f])]['counts'].sum() / df_counts['counts'].sum() * 100))
+    print('{}: {:.2f}'.format('other', df_counts[~df_counts['COSMIC'].isin(states)]['counts'].sum() / df_counts['counts'].sum() * 100))
     df_counts = df_counts[df_counts['COSMIC'].isin(cosmics)]
     # Draw Stripplot
     fig, ax = plt.subplots()
@@ -120,7 +123,7 @@ if __name__ == '__main__':
 
     # Put a legend to the right of the current axis
     legend = ax.legend(
-        loc='center left', bbox_to_anchor=(1, 0.5), frameon=True, fancybox=False,
+        loc='center left', bbox_to_anchor=(1, 0.5), frameon=False, fancybox=False,
         handles=legend_elements,
         fontsize='small',
         labelspacing=2.5,

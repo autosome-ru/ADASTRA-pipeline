@@ -155,10 +155,11 @@ def collectFixedAltStatistics(key_name=None, BAD=None):
             if key not in key_name:  # <------
                 continue
         for align_path in cell_lines_dict[key]:
-            if not os.path.isfile(align_path):
+            bad_table_path = align_path.replace("_table_p", "_table_BADs")
+            if not os.path.isfile(bad_table_path):
                 continue
-            print(align_path)
-            df = pd.read_table(align_path)
+            print(bad_table_path)
+            df = pd.read_table(bad_table_path)
             if df.empty:
                 continue
             df = df[df['ID'] != '.']
