@@ -21,7 +21,11 @@ dirname_new = sys.argv[1]
 dirname_old = sys.argv[2]
 for filename in os.listdir(dirname_old):
     df_old = pd.read_table(os.path.join(dirname_old, filename))
-    filename_new = rev_old_BAD_dic[filename.split("!")[0]] + "!" + filename.split("!")[1]
+    try:
+        filename_new = rev_old_BAD_dic[filename.split("!")[0]] + "!" + filename.split("!")[1]
+    except KeyError as e:
+        print(filename)
+        raise e
     df_new = pd.read_table(os.path.join(dirname_new, filename_new))
     if not df_new[['#chr', 'start', 'end', 'BAD']].equals(df_old[['#chr', 'start', 'end', 'BAD']]):
         print('kazino {}'.format(filename_new))
