@@ -4,7 +4,7 @@ import numpy as np
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function
-from scripts.HELPERS.paths_for_components import GTRD_slice_path, synonims_path, parameters_path, cl_dict_path
+from scripts.HELPERS.paths_for_components import GTRD_slice_path, synonims_path, parameters_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
@@ -256,13 +256,12 @@ def unpack(line, use_in):
     if use_in == "Pcounter":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
     ploidy = float(line_split[8 + difference])
-    quals = list(map(float, line_split[9 + difference:9 + difference + len(states)]))
-    quals_dict = dict(zip(states, quals))
-    difference += len(states)
+    quals = list(map(int, line_split[9 + difference:9 + difference + 3]))
+    difference += 3
     seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
     p_ref, p_alt, es_ref, es_alt = map(float, line_split[11 + difference:15 + difference])
     if use_in == "Aggregation":
-        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, quals_dict,\
+        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, quals,\
                seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt
 
     raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
@@ -378,7 +377,7 @@ class CorrelationReader:
                     raise KeyError(method)
 
             return datasets_number, lab, result, aligns, uniq_segments_count, sum_cov
-    
+
     def read_CGH(self, cgh_name):
         cgnames = ['BR:MCF7', 'BR:MDA-MB-231', 'BR:HS 578T', 'BR:BT-549', 'BR:T-47D', 'CNS:SF-268', 'CNS:SF-295',
                    'CNS:SF-539', 'CNS:SNB-19', 'CNS:SNB-75', 'CNS:U251', 'CO:COLO 205', 'CO:HCC-2998', 'CO:HCT-116',
@@ -467,7 +466,7 @@ def unpackBADSegments(line):
     line = line.strip().split('\t')
 
     return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
-           [dict(zip(states, line[4: 4 + len(states)]))] +line[(4 + len(states)):]
+           [line[4: 4+3]] + line[(4 + 3):]
 
 
 if __name__ == "__main__":

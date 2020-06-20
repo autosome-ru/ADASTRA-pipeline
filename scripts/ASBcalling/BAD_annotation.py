@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     with open(ploidy, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts',
-                        'repeat_type'] + callers_names + ['BAD'] + ["Q{:.2f}".format(x) for x in states] +
+                        'repeat_type'] + callers_names + ['BAD'] + ["REDUNDANT_QUAL#{}".format(x) for x in range(3)] +
                        ['SNP_count', 'sum_cover']))
 
         for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, \
@@ -48,4 +48,4 @@ if __name__ == '__main__':
             if in_intersection:
                 out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type] +
                                [in_callers[name] for name in callers_names] +
-                               [BAD] + [Quals[x] for x in Quals] + [seg_c, sum_cov]))
+                               [BAD] + Quals + [seg_c, sum_cov]))
