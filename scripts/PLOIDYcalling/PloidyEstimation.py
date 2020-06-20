@@ -638,7 +638,7 @@ class GenomeSegmentator:  # seg
             if segments[k][7] <= snp_number_tr and segments[k][3] != 0:  # если k сегмент "плохой"
                 if is_bad_segment:  # если k-1 тоже "плохой"
                     is_bad_left = True
-                    for j in range(3, 4 + len(self.i_list)):
+                    for j in range(3, 7):
                         segments[k - 1][j] = 0
                 else:
                     is_bad_left = False
