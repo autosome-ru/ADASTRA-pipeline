@@ -462,7 +462,7 @@ def read_weights():
 
 def unpackBADSegments(line):
     if line[0] == '#':
-        return [''] * (len(line.strip().split('\t')) - len(states) + 1)
+        return [''] * (len(line.strip().split('\t')) - 3 + 1)
     line = line.strip().split('\t')
 
     return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
