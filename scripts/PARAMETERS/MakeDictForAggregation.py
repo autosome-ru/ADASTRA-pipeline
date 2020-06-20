@@ -23,7 +23,7 @@ def makedict(what_for):
             except KeyError:
                 d[ln[1]] = [path]
         if what_for == "CL":
-            cell_line = remove_punctuation(ln[4])
+            cell_line = ln[4].replace("(", "").replace(")", "").replace(" ", "_").replace("/", "_")
             try:
                 d[cell_line].append(path)
             except KeyError:
