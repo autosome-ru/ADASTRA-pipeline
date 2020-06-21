@@ -27,5 +27,4 @@ fi
 python3 "$scripts_path"PARAMETERS/MakeDictForAggregation.py TF
 python3 "$scripts_path"PARAMETERS/MakeDictForAggregation.py CL
 bash aggregation.sh "$njobs" --forTF
-
 bash aggregation.sh "$njobs" --forCL
