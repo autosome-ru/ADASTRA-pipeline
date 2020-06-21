@@ -97,6 +97,7 @@ if __name__ == '__main__':
                                           what_for)  # returns name of cell-line for aggregation on TF and vice versa
             with open(table, 'r') as file:
                 for line in file:
+                    print(line)
                     try:
                         (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
                          BAD, Quals, seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt) = unpack(line, use_in="Aggregation")
@@ -121,7 +122,6 @@ if __name__ == '__main__':
         else:
             print("There is no {}".format(table))
     print('Writing {}'.format(key_name))
-    print(common_snps)
 
     with open(table_path, 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
