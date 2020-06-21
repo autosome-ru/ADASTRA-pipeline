@@ -259,7 +259,13 @@ def unpack(line, use_in):
     quals = list(map(int, line_split[9 + difference:9 + difference + 3]))
     difference += 3
     seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
-    p_ref, p_alt, es_ref, es_alt = map(float, line_split[11 + difference:15 + difference])
+    p_ref, p_alt = map(float, line_split[11 + difference:13 + difference])
+    es_ref = line_split[13 + difference]
+    es_alt = line_split[14 + difference]
+    if es_ref != '' and es_ref is not None:
+        es_ref = float(es_ref)
+    if es_alt != '' and es_alt is not None:
+        es_alt = float(es_alt)
     if use_in == "Aggregation":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, quals,\
                seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt
