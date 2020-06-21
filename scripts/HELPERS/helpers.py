@@ -240,7 +240,7 @@ def make_list_from_vcf_without_filter(vcf):
 def unpack(line, use_in):
     if line[0] == '#':
         return []
-    line_split = line.strip().split('\t')
+    line_split = line.strip('\n').split('\t')
     chr = line_split[0]
     pos = int(line_split[1])
     ID = line_split[2]
