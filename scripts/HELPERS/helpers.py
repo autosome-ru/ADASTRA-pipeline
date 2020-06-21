@@ -260,7 +260,17 @@ def unpack(line, use_in):
     quals_dict = dict(zip(states, quals))
     difference += len(states)
     seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
-    p_ref, p_alt, es_ref, es_alt = map(float, line_split[11 + difference:15 + difference])
+    p_ref, p_alt, es_ref, es_alt = map(float, line_split[11 + difference:13 + difference])
+    es_ref = line_split[13 + difference]
+    es_alt = line_split[14 + difference]
+    if es_ref != '' and es_ref is not None:
+        es_ref = float(es_ref)
+    else:
+        es_ref = None
+    if es_alt != '' and es_alt is not None:
+        es_alt = float(es_alt)
+    else:
+        es_alt = None
     if use_in == "Aggregation":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, quals_dict,\
                seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt

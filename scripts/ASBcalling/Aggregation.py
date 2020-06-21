@@ -101,8 +101,10 @@ if __name__ == '__main__':
                         (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
                          BAD, Quals, seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt) = unpack(line, use_in="Aggregation")
                     except ValueError:
-                        print(line)
-                        raise
+                        if line.startswith('#'):
+                            continue
+                        else:
+                            raise
                     if p_ref == '.' or ID == '.':
                         continue
                     cov = ref_c + alt_c
