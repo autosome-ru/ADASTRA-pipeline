@@ -264,8 +264,12 @@ def unpack(line, use_in):
     es_alt = line_split[14 + difference]
     if es_ref != '' and es_ref is not None:
         es_ref = float(es_ref)
+    else:
+        es_ref = None
     if es_alt != '' and es_alt is not None:
         es_alt = float(es_alt)
+    else:
+        es_alt = None
     if use_in == "Aggregation":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, quals,\
                seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt
