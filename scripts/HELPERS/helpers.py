@@ -201,7 +201,7 @@ def make_list_from_vcf(vcf, filter_no_rs=False):
         if GT != '0/1':
             continue
         ID = line[2]
-        if not ID.startwith('.') and filter_no_rs:
+        if not ID.startswith('rs') and filter_no_rs:
             continue
         REF = line[3]
         ALT = line[4]
