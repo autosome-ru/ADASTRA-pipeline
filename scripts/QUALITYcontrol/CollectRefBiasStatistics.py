@@ -9,6 +9,7 @@ sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths_for_components import parameters_path, cl_dict_path
 from scripts.HELPERS.helpers import remove_punctuation
 
+
 def collectFixedAltStatistics(key_name=None, BAD=None, suffix=''):
     with open(cl_dict_path, "r") as read_file:
         cell_lines_dict = json.loads(read_file.readline())
@@ -29,7 +30,7 @@ def collectFixedAltStatistics(key_name=None, BAD=None, suffix=''):
             df = pd.read_table(bad_table_path)
             if df.empty:
                 continue
-            df = df[df['ID'] != '.']
+            df = df[df['ID'].startswith('rs')]
             if BAD is not None:
                 sum_df = df[df['BAD'] == BAD][['ref_read_counts', 'alt_read_counts']]  # <------
             else:
@@ -50,7 +51,7 @@ def collectFixedAltStatistics(key_name=None, BAD=None, suffix=''):
                 out_t = out_t.append(tmp_df).groupby(['alt_counts', 'ref_counts'], as_index=False).sum()
     if out_t is None:
         return
-    with open(parameters_path + 'fixed_min_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD if BAD else 0, suffix), 'w') as out:
+    with open(parameters_path + 'fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD if BAD else 0, suffix), 'w') as out:
         out_t.to_csv(out, sep="\t", index=False)
 
 
