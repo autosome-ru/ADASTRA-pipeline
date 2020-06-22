@@ -175,7 +175,7 @@ def make_dict_from_vcf(vcf, vcf_dict):
             vcf_dict[(chr, pos, ID, REF, ALT)] = (R, A)
 
 
-def make_list_from_vcf(vcf):
+def make_list_from_vcf(vcf, filter_no_rs=False):
     vcf_list = []
     for line in vcf:
         if line[0] == '#':
@@ -201,6 +201,8 @@ def make_list_from_vcf(vcf):
         if GT != '0/1':
             continue
         ID = line[2]
+        if not ID.startwith('.') and filter_no_rs:
+            continue
         REF = line[3]
         ALT = line[4]
         vcf_list.append((chr, pos, ID, REF, ALT, R, A))
