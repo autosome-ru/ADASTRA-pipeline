@@ -150,6 +150,9 @@ def collectFixedAltStatistics(key_name=None, BAD=None, suffix=''):
         cell_lines_dict = json.loads(read_file.readline())
     out_t = None
 
+    if key_name:
+        key_name = {remove_punctuation(key) for key in key_name}
+
     for key in cell_lines_dict:
         if key_name is not None:
             if key not in key_name:  # <------
