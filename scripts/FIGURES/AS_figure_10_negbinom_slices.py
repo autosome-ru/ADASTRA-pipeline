@@ -37,7 +37,7 @@ def local_read_weights():
         w[fixed_allele] = {}
         gof[fixed_allele] = {}
         for BAD in states:
-            precalc_params_path = os.path.expanduser('~/NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD))
+            precalc_params_path = os.path.expanduser('~/DataForFigures/NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD))
             coefs_array = np.load(precalc_params_path)
             r[fixed_allele][BAD] = coefs_array[:, 0]
             w[fixed_allele][BAD] = coefs_array[:, 1]
@@ -77,7 +77,7 @@ for BAD in states:
         max_c = 50
 
     t = pd.read_table(os.path.expanduser(
-        '~/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
+        '~/DataForFigures/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
                                                               {'all': '',
                                                                'K562': '_k562',
                                                                'diploid': '_esc'}[
@@ -151,7 +151,7 @@ for BAD in states:
     for fix_c, fixed_allele, ax in zip(covs, fixs, (ax2, ax3)):
         main_allele = "ref" if fixed_allele == "alt" else "alt"
         stats = pd.read_table(os.path.expanduser(
-            '~/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
+            '~/DataForFigures/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
                                                                   {'all': '',
                                                                    'K562': '_k562',
                                                                    'diploid': '_esc'}[
@@ -205,8 +205,8 @@ for BAD in states:
 
     # gof vs read cov
 
-    df_alt = pd.read_table(os.path.expanduser('~/weights/NBweights_alt_BAD={:.1f}.tsv'.format(BAD)))
-    df_ref = pd.read_table(os.path.expanduser('~/weights/NBweights_ref_BAD={:.1f}.tsv'.format(BAD)))
+    df_alt = pd.read_table(os.path.expanduser('~/DataForFigures/NBweights_alt_BAD={:.1f}.tsv'.format(BAD)))
+    df_ref = pd.read_table(os.path.expanduser('~/DataForFigures/NBweights_ref_BAD={:.1f}.tsv'.format(BAD)))
 
     df_ref = df_ref[(df_ref['gof'] > 0) & (df_ref.index <= 50)]
     df_alt = df_alt[(df_alt['gof'] > 0) & (df_alt.index <= 50)]

@@ -10,7 +10,7 @@ from scripts.HELPERS.helpers import states
 
 
 def get_color(row):
-    if abs(row['log_fc']) < np.log10(fc_tr) or abs(row['log_pv']) < -np.log10(fdr_tr):
+    if abs(row['log_fc']) < np.log2(fc_tr) or abs(row['log_pv']) < -np.log10(fdr_tr):
         return grey_color
     # if row[field + '_ref'] < fdr_tr and row[field + '_alt'] < fdr_tr:
     #     return 'purple'

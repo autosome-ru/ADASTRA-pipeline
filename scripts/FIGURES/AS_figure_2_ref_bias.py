@@ -22,7 +22,7 @@ max_c = 100
 min_c = 0
 lw = 1.25
 
-t = pd.read_table(os.path.expanduser('~/all_snps_statistics.tsv'))
+t = pd.read_table(os.path.expanduser('~/DataForFigures/all_snps_statistics.tsv'))
 t = t[(t['ref'] >= min_c) & (t['alt'] >= min_c)]
 t = t[(t['ref'] <= max_c) & (t['alt'] <= max_c)]
 for count in range(min_c, max_c + 1):

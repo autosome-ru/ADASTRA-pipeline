@@ -42,11 +42,10 @@ cells = 'K562'
 p = 1/3
 covs = [30, 60]
 
-# t = pd.read_table(os.path.expanduser('~/{}_snps_statistics.tsv'.format(cells)))
 BAD = 2
 p = 1/(BAD + 1)
 t = pd.read_table(os.path.expanduser(
-    '~/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
+    '~/DataForFigures/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
                                                           {'all': '',
                                                            'K562': '_k562',
                                                            'diploid': '_esc',

@@ -50,7 +50,7 @@ t = {}
 min_tr = {}
 max_tr = {}
 for BAD in states:
-    t[BAD] = pd.read_table(os.path.expanduser('~/counts_deltaqm_{:.2f}.tsv'.format(BAD)))
+    t[BAD] = pd.read_table(os.path.expanduser('~/DataForFigures/counts_deltaqm_{:.2f}.tsv'.format(BAD)))
     t[BAD].replace(1.3333333333333337, 4 / 3, inplace=True)
     min_tr[BAD] = t[BAD]['threshold'].min()
     max_tr[BAD] = t[BAD]['threshold'].max()

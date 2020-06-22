@@ -32,11 +32,11 @@ plt.rcParams["legend.framealpha"] = 1
 # snps_name = os.path.expanduser('~/cherry_BAD/K562__myelogenous_leukemia_!_labs_xiang-dong-fu___biosamples_ENCBS074NGX_.tsv')
 # ploidy_name = os.path.expanduser('~/K562_BAD_Segments/K562_myelogenous_leukemia!_labs_xiang-dong-fu___biosamples_ENCBS074NGX__ploidy.tsv')
 
-snps_name = os.path.expanduser('~/cherry_BAD/K562__myelogenous_leukemia_!_labs_michael-snyder___biosamples_ENCBS725WFV_.tsv')
-ploidy_name = os.path.expanduser('~/K562_BAD_Segments/K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS725WFV__ploidy.tsv')
+snps_name = os.path.expanduser('~/DataForFigures/K562__myelogenous_leukemia_!_labs_michael-snyder___biosamples_ENCBS725WFV_.tsv')
+ploidy_name = os.path.expanduser('~/DataForFigures/K562_myelogenous_leukemia!_labs_michael-snyder___biosamples_ENCBS725WFV__ploidy.tsv')
 
 
-cosmic_name = os.path.expanduser('~/Documents/ASB/Cell_lines/cell_lines_copy_number.csv')
+cosmic_name = os.path.expanduser('~/DataForFigures/cell_lines_copy_number.csv')
 cnv_line = 'K-562'
 
 snps = pd.read_table(snps_name, header=None)

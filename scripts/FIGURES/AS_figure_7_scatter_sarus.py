@@ -72,7 +72,7 @@ if __name__ == '__main__':
     point_size = 10
 
     # Barplot
-    df = pd.read_table(os.path.expanduser("~/blue_red_stats.tsv"))
+    df = pd.read_table(os.path.expanduser("~/DataForFigures/blue_red_stats.tsv"))
     fig, ax = plt.subplots()
     plt.tight_layout(pad=2.5)
     df['sum'] = df["red"] + df["blue"]
