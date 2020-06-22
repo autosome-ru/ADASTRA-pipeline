@@ -18,10 +18,10 @@ from scripts.HELPERS.paths_for_components import GTRD_slice_path, parameters_pat
 #                   'embryonic stem cells',
 #                   'human embryonic stem cells, H1 (WA01)'}
 
-interestingSet = {"K562 (myelogenous leukemia)"}
-
-interestingSet = {"HCT-116 (colon carcinoma)"}
-interestingSet = {remove_punctuation(x) for x in interestingSet}
+# interestingSet = {"K562 (myelogenous leukemia)"}
+#
+# interestingSet = {"HCT-116 (colon carcinoma)"}
+# interestingSet = {remove_punctuation(x) for x in interestingSet}
 SNP_statistics_dict = {}
 tf_set = set()
 vcf_counter = 0
