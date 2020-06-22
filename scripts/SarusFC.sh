@@ -37,7 +37,7 @@ if [ -d "${PWMs_path}/$ExpName"/ ]; then
     if ! $Java -cp "${parameters_path}sarus-2.0.1.jar" ru.autosome.SARUS "${sarus_path}${ExpName}_ape_data.txt" \
                             "${PWMs_path}/$ExpName/"* \
                             -10000000 \
-                            --pvalues-file "${threshold_path}"* \
+                            --pvalues-file "${threshold_path}${ExpName}"* \
                             --threshold-mode score \
                             --output-scoring-mode logpvalue \
                             > "${sarus_path}${ExpName}_ape.txt"
