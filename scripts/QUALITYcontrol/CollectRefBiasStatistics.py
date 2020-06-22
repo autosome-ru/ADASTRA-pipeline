@@ -145,7 +145,7 @@ def collectNegativeBinomStatistics(key_name=None, BAD=None, alt=True):
         out_t.to_csv(out, sep="\t", index=False)
 
 
-def collectFixedAltStatistics(key_name=None, BAD=None):
+def collectFixedAltStatistics(key_name=None, BAD=None, suffix=''):
     with open(cl_dict_path, "r") as read_file:
         cell_lines_dict = json.loads(read_file.readline())
     out_t = None
@@ -183,7 +183,7 @@ def collectFixedAltStatistics(key_name=None, BAD=None):
                 out_t = out_t.append(tmp_df).groupby(['alt_counts', 'ref_counts'], as_index=False).sum()
     if out_t is None:
         return
-    with open(parameters_path + 'fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD), 'w') as out:
+    with open(parameters_path + 'fixed_min_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD, suffix), 'w') as out:
         out_t.to_csv(out, sep="\t", index=False)
 
 
@@ -277,7 +277,7 @@ def collectPValueStatistics(key_name=None, BAD=None):
 
 
 if __name__ == "__main__":
-    i_set = {'H1 (embryonic stem cells)',
+    esc = {'H1 (embryonic stem cells)',
              'BGO3 (embryonic stem cells)',
              'HUES64 (embryonic stem cells)',
              'CyT49 (embryonic stem cells)',
@@ -286,6 +286,7 @@ if __name__ == "__main__":
              'WA09 (embryonic stem cells)',
              'embryonic stem cells',
              'human embryonic stem cells, H1 (WA01)'}
-    i_set = {"HCT-116 (colon carcinoma)"}
+    hct116 = {"HCT-116 (colon carcinoma)"}
+    k562 = {'K562 (myelogenous leukemia)'}
     for BAD in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
-        collectFixedAltStatistics(BAD=BAD)
+        collectFixedAltStatistics(BAD=BAD, key_name=None, suffix='')  # substitute key_name and suffix if needed
