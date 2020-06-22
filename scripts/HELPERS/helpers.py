@@ -260,7 +260,7 @@ def unpack(line, use_in):
     quals_dict = dict(zip(states, quals))
     difference += len(states)
     seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
-    p_ref, p_alt, es_ref, es_alt = map(float, line_split[11 + difference:13 + difference])
+    p_ref, p_alt = map(float, line_split[11 + difference:13 + difference])
     es_ref = line_split[13 + difference]
     es_alt = line_split[14 + difference]
     if es_ref != '' and es_ref is not None:
