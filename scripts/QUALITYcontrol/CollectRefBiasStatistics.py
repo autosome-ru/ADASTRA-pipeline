@@ -30,7 +30,6 @@ def collectFixedAltStatistics(key_name=None, BAD=None, suffix=''):
             df = pd.read_table(bad_table_path)
             if df.empty:
                 continue
-            df = df[df['ID'].startswith('rs')]
             if BAD is not None:
                 sum_df = df[df['BAD'] == BAD][['ref_read_counts', 'alt_read_counts']]  # <------
             else:
