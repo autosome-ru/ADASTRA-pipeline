@@ -117,6 +117,4 @@ ax2.vlines(x=max_c + 1, ymin=0, ymax=max_c + 1 - 5, colors=['#AAAAAA', ], linewi
 ax2.hlines(y=max_c + 1 - 5, xmin=5-lw/10, xmax=max_c + 1, colors=['#AAAAAA', ], linewidth=lw)
 ax2.vlines(x=5, ymin=0, ymax=max_c + 1 - 5 +lw/10, colors=['#AAAAAA', ], linewidth=lw)
 
-
-
-plt.savefig(os.path.expanduser('~/AC_2/Figure_AS_2_maxc={}_080220.svg'.format(max_c)), dpi=300)
+plt.savefig(os.path.expanduser('~/AC_2/Figure_AS_2_maxc={}.svg'.format(max_c)), dpi=300)

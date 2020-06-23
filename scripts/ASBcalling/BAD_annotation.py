@@ -45,7 +45,7 @@ if __name__ == '__main__':
                 Intersection(table_file, ploidy_file, write_segment_args=True, write_intersect=True,
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter'),
                              unpack_segments_function=unpackBADSegments):
-            if in_intersection:
+            if in_intersection and ID.startswith('rs'):
                 out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type] +
                                [in_callers[name] for name in callers_names] +
                                [BAD] + [Quals[x] for x in Quals] + [seg_c, sum_cov]))

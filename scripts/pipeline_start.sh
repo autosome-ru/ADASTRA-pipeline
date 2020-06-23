@@ -13,10 +13,10 @@ flag=$2
 
 if [ "$flag" == --BAD ]; then
   bash ploidy_est.sh "$njobs" --merge
-  bash BAD_annotation.sh "$njobs"
 fi
 
 if [ "$flag" == --BAD ] || [ "$flag" == --NBfit ]; then
+  bash BAD_annotation.sh "$njobs"
   python3 "$scripts_path"QUALITYcontrol/CollectRefBiasStatistics.py
   python3 "$scripts_path"FITnoise/fit_negative_binom_with_weights.py
 fi
