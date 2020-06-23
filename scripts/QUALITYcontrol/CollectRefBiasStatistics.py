@@ -51,6 +51,7 @@ def collectRefAltStatistics(key_name=None, BAD=None):
                 tmp_df['allele_reads'] = sorted(list(set(s1.index) | set(s2.index)))
                 tmp_df.index = tmp_df['allele_reads']
                 tmp_df['ref'] = s1
+
                 tmp_df['alt'] = s2
                 tmp_df = tmp_df.reset_index(drop=True)
                 tmp_df.fillna(0, inplace=True)
