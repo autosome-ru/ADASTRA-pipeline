@@ -23,10 +23,10 @@ def collectStats(to_filter=True):
     for line in master_list:
         if line[0] == "#":
             continue
-        num +=1
+        num += 1
+        print(line)
         line = line.split("\t")
-        if num % 50 == 0:
-            print(num)
+
         vcf_path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)
         if os.path.isfile(vcf_path) and vcf_path not in counted_ctrls:
             counted_ctrls.add(vcf_path)
@@ -67,8 +67,8 @@ def collectStats(to_filter=True):
         for ref, alt in SNP_statistics_dict:
             df = df.append(pd.DataFrame({'ref': [ref], 'alt': [alt], 'count': [SNP_statistics_dict[(ref, alt)]]}))
         df.to_csv(os.path.join(parameters_path, "all_snps_statistics.tsv"), sep="\t", index=False)
-
-    print('Total snp calls {}, different TFs {}, different cell types {}, VCFs {}'.format(counter + ctrl_snp_counter,
+    if to_filter:
+        print('Total snp calls {}, different TFs {}, different cell types {}, VCFs {}'.format(counter + ctrl_snp_counter,
           len(tf_set), len(cl_set), vcf_counter))
 
 
