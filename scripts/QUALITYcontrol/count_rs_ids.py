@@ -15,4 +15,4 @@ for filename in os.listdir(dirname):
         ids_set |= set(df['ID'])
         all_asb_snps += len(df.index)
 
-print(len(ids_set))
+print(len(ids_set), all_asb_snps, num_files)
