@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     perf_tr = 0.0005
     fc_tr = 4
-    fdr_tr_mat = 0.0000000000000000023
+    fdr_tr_mat = 0.000000000000000003
     fdr_tr = 0.05
 
     # blue_color = '#1B7837'
@@ -100,20 +100,17 @@ if __name__ == '__main__':
         mat = False
         if name == 'CTCF_for_comparison.tsv':
             mat = True
-        pt = pd.read_table(os.path.expanduser("~/Top10TFs/{}".format('CTCF_HUMAN.tsv' if mat else name)))
+        pt = pd.read_table(os.path.expanduser("~/DataForFigures/scatter/{}".format('CTCF_HUMAN.tsv' if mat else name)))
 
-        if 'All' in name:
-            pt['log_fc'] = pt['motif_log_2_fc']
-            pt['log_pv'] = pt[['log_p_value_ref', 'log_p_value_alt']].max(axis=1) * np.sign(pt['log_p_value_alt'] -
-                                                                                            pt['log_p_value_ref'])
+        pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
+        if 'Mathelier' not in name:
+            pt = pt[~(pt[field + '_alt'].isnull() | pt[field + '_ref'].isnull())]
+            pt['log_pv'] = (np.log10(
+                pt[[field + '_ref', field + '_alt']]).min(axis=1)) \
+                           * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
+            pt['log_fc'] = pt['motif_fc']
         else:
-            pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
-            if 'Mathelier' not in name:
-                pt = pt[~(pt[field + '_alt'].isnull() | pt[field + '_ref'].isnull())]
-                pt['log_pv'] = (np.log10(
-                    pt[[field + '_ref', field + '_alt']]).min(axis=1)) \
-                               * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
-            pt['log_fc'] = pt['motif_fc'] / np.log10(2)  # Fixme
+            pt['log_fc'] = pt['motif_fc'] / np.log10(2)  # FIXME
 
         if mat:
             fdr_tr, fdr_tr_mat = fdr_tr_mat, fdr_tr
