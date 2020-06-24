@@ -292,7 +292,5 @@ if __name__ == '__main__':
     bool_ar = np.array([False] * len(table.index), dtype=np.bool)
     bool_ar[mc_filter_array] = bool_ar_alt + bool_ar_ref
 
-    annotate_snp_with_tables(origin_of_snp_dict, p_val_ref, p_val_alt, bool_ar)
-
     with open(results_path + what_for + '_DICTS/{}_DICT.json'.format(key_name), 'w') as out:
         json.dump(origin_of_snp_dict, out)
