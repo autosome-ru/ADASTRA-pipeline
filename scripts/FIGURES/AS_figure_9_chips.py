@@ -86,7 +86,7 @@ lw = 0.05
 a = 0.8
 
 
-df = pd.read_table(os.path.expanduser("~/cor_stats_test.tsv"))
+df = pd.read_table(os.path.expanduser("~/DataForFigures/cor_stats_test.tsv"))
 # df = df[df['total_snps'] >= 10000]
 df['color'] = df.apply(get_color, axis=1)
 df['hue'] = df.apply(get_hue, axis=1)

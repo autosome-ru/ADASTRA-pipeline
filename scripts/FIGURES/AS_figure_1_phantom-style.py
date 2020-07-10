@@ -29,7 +29,7 @@ def rectangulize(x_array, y_array):
 
 
 if __name__ == '__main__':
-    with open(os.path.expanduser('~/AC_1/overall_statistics.json')) as j:
+    with open(os.path.expanduser('~/DataForFigures/overall_statistics.json')) as j:
         d = json.loads(j.readline())
 
     print(d.keys())

@@ -51,8 +51,8 @@ motive_lengths = dict(zip(top10_names, [19, 17, 12, 12, 18, 15, 17, 11, 11, 15])
 logos = dict(zip(top10_names, [name.replace('.tsv', '.H11MO.0.A.png') for name in top10_names]))
 
 for name in top10_names:
-    pt = pd.read_table(os.path.expanduser("~/scatter_why_red/{}".format(name)))
-    logo_file = os.path.expanduser("~/logos/" + logos[name])
+    pt = pd.read_table(os.path.expanduser("~/DataForFigures/scatter/{}".format(name)))
+    logo_file = os.path.expanduser("~/DataForFigures/logos/" + logos[name])
     motive_length = motive_lengths[name]
     fsx = motive_length + 2.4
     fsy = 10

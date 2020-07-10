@@ -43,7 +43,8 @@ if __name__ == '__main__':
     file_name = 'all_lines_union.tsv'
     cl = 'all_lines no filter'
     cosmics = [1, 4/3, 3/2, 5/3, 2, 5/2, 3, 7/2, 11/3, 4, 9/2, 5, 11/2, 6, 7]
-    df_counts = pd.read_table(os.path.expanduser('~/Documents/ASB/Correlation/counts.tsv'))
+    df_counts = pd.read_table(os.path.expanduser('~/DataForFigures/counts.tsv'))
+    df_counts.columns = ['chr', 'pos', 'cov', 'BAD', 'COSMIC'] + ['Q{:.2f}'.format(state) for state in states]
     conv = {1.3333333333333337: 4/3,
             1.6666666666666663: 5/3,
             2.333333333333333: 7/3,
