@@ -22,13 +22,13 @@ if __name__ == '__main__':
     top10_names = ['BHE40_HUMAN.tsv',
                    'EGR1_HUMAN.tsv',
                    'CEBPB_HUMAN.tsv',
-                   'RFX1_HUMAN.tsv',
-                   'ESR1_HUMAN.tsv',
+                   # 'RFX1_HUMAN.tsv',
+                   # 'ESR1_HUMAN.tsv',
                    'MAFK_HUMAN.tsv',
-                   'JUND_HUMAN.tsv',
-                   'ATF2_HUMAN.tsv',
+                   # 'JUND_HUMAN.tsv',
+                   # 'ATF2_HUMAN.tsv',
                    'CREB1_HUMAN.tsv',
-                   'NRF1_HUMAN.tsv',
+                   # 'NRF1_HUMAN.tsv',
                    'ANDR_HUMAN.tsv',
                    'FOXA1_HUMAN.tsv',
                    'SPI1_HUMAN.tsv',
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     plt.rcParams['axes.labelweight'] = 'medium'
     plt.rcParams['figure.titleweight'] = 'medium'
     plt.rcParams['axes.titleweight'] = 'medium'
-    plt.rcParams['figure.figsize'] = 6, 5
+    plt.rcParams['figure.figsize'] = 6, 5*2/3
     plt.rcParams["legend.framealpha"] = 1
     plt.rcParams['axes.xmargin'] = 0
     plt.rcParams['axes.ymargin'] = 0
@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     perf_tr = 0.0005
     fc_tr = 4
-    fdr_tr_mat = 0.0000000000000000023
+    fdr_tr_mat = 0.000000000000000003
     fdr_tr = 0.05
 
     # blue_color = '#1B7837'
@@ -71,49 +71,49 @@ if __name__ == '__main__':
     point_alpha = 0.7
     point_size = 10
 
-    # Barplot
-    df = pd.read_table(os.path.expanduser("~/DataForFigures/blue_red_stats.tsv"))
-    fig, ax = plt.subplots()
-    plt.tight_layout(pad=2.5)
-    df['sum'] = df["red"] + df["blue"]
-    df['part'] = df["blue"] / df['sum']
-    df = df[df['sum'] >= 50].sort_values("sum")
-    print(df['name'])
-    x, blue, red, blue_n, ticks = range(len(df.index)), \
-                                  df["part"].tolist(), (df["red"] / df['sum']).tolist(), df["blue"].tolist(), \
-                                  df["name"].apply(lambda x: x.replace("_HUMAN", ""))
-
-    ax.barh(x, red, left=blue, color=red_color, height=bar_width, linewidth=0, tick_label=ticks, alpha=bar_alpha)
-    ax.barh(x, blue, color=blue_color, height=bar_width, linewidth=0, alpha=bar_alpha)
-    for i in x:
-        ax.text(x=0.5, y=i - 0.1, s='{}/{:.0f}'.format(blue_n[i], blue_n[i] / blue[i]), va="center", ha="center",
-                fontdict={"size": 13})
-    ax.set_xlabel('Concordant ASB SNPs fraction')
-    ax.tick_params(axis="y", length=0)
-    # plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_barplot.png"), dpi=300)
-    plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_barplot.svg"), dpi=300)
-
-    plt.close(fig)
+    # # Barplot
+    # df = pd.read_table(os.path.expanduser("~/PARAMETERS/blue_red_stats.tsv"))
+    # # df = pd.read_table(os.path.expanduser("~/DataForFigures/blue_red_stats.tsv"))
+    # fig, ax = plt.subplots()
+    # plt.tight_layout(rect=(0.025, 0, 1, 1))
+    # df['sum'] = df["red"] + df["blue"]
+    # df['part'] = df["blue"] / df['sum']
+    # df = df[df['sum'] >= 100].sort_values("sum")
+    # print(df['name'])
+    # x, blue, red, blue_n, ticks = range(len(df.index)), \
+    #                               df["part"].tolist(), (df["red"] / df['sum']).tolist(), df["blue"].tolist(), \
+    #                               df["name"].apply(lambda x: x.replace("_HUMAN", ""))
+    #
+    # ax.barh(x, red, left=blue, color=red_color, height=bar_width, linewidth=0, tick_label=ticks, alpha=bar_alpha)
+    # ax.barh(x, blue, color=blue_color, height=bar_width, linewidth=0, alpha=bar_alpha)
+    # for i in x:
+    #     ax.text(x=0.5, y=i - 0.1, s='{}/{:.0f}'.format(blue_n[i], blue_n[i] / blue[i]), va="center", ha="center",
+    #             fontdict={"size": 13})
+    # ax.set_xlabel('Concordant ASB SNPs fraction')
+    # ax.tick_params(axis="y", length=0)
+    # # plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_barplot.png"), dpi=300)
+    # plt.savefig(os.path.expanduser("~/AC_7/AS_Figure_7_barplot.svg"), dpi=300)
+    #
+    # plt.close(fig)
 
     # Scatters
-    for name in ['All_TFs.tsv'] + top10_names + ['CTCF_for_comparison.tsv']:
+    for name in ['All_TFs.tsv']:  # + top10_names + ['CTCF_for_comparison.tsv']:
         mat = False
         if name == 'CTCF_for_comparison.tsv':
             mat = True
-        pt = pd.read_table(os.path.expanduser("~/Top10TFs/{}".format('CTCF_HUMAN.tsv' if mat else name)))
+        pt = pd.read_table(os.path.expanduser("~/DataForFigures/scatter/{}".format('CTCF_HUMAN.tsv' if mat else name)))
+        # pt = pd.read_table(os.path.expanduser("~/Releases/TF_P-values/TF_P-values/{}".format('CTCF_HUMAN.tsv' if mat else name)))
 
-        if 'All' in name:
-            pt['log_fc'] = pt['motif_log_2_fc']
-            pt['log_pv'] = pt[['log_p_value_ref', 'log_p_value_alt']].max(axis=1) * np.sign(pt['log_p_value_alt'] -
-                                                                                            pt['log_p_value_ref'])
+        pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
+        if 'Mathelier' not in name:
+            pt = pt[~(pt[field + '_alt'].isnull() | pt[field + '_ref'].isnull())]
+            pt = pt[~(pt['motif_fc'].isnull())]
+            pt['log_pv'] = (np.log10(
+                pt[[field + '_ref', field + '_alt']]).min(axis=1)) \
+                           * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
+            pt['log_fc'] = pt['motif_fc']
         else:
-            pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
-            if 'Mathelier' not in name:
-                pt = pt[~(pt[field + '_alt'].isnull() | pt[field + '_ref'].isnull())]
-                pt['log_pv'] = (np.log10(
-                    pt[[field + '_ref', field + '_alt']]).min(axis=1)) \
-                               * np.sign(pt[field + '_alt'] - pt[field + '_ref'])
-            pt['log_fc'] = pt['motif_fc'] / np.log10(2)  # Fixme
+            pt['log_fc'] = pt['motif_fc'] / np.log10(2)  # FIXME
 
         if mat:
             fdr_tr, fdr_tr_mat = fdr_tr_mat, fdr_tr
