@@ -85,7 +85,7 @@ print("Made {}/{} VCFS ({}/{} experiment VCFs, {}/{} control VCFs), {} annotated
     made_experiment_vcfs, not_blacklisted_exps,
     made_control_vcfs, not_blacklisted_ctrl,
     made_annotated_tables, made_p_tables))
-
+additional_stats.close()
 
 tf_vcfs_counter = 0
 tf_counter = 0
