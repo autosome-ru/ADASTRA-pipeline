@@ -1,8 +1,10 @@
 import sys
+import string
+import numpy as np
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function, GTRD_slice_path, \
-    synonims_path
+from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function
+from scripts.HELPERS.paths_for_components import GTRD_slice_path, synonims_path, parameters_path, cl_dict_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
@@ -13,6 +15,8 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
 
 Nucleotides = {'A', 'T', 'G', 'C'}
 expected_args = {"CL": "TF", "TF": "CL"}
+
+states = [1, 4/3, 3/2, 2, 5/2, 3, 4, 5, 6]
 
 
 class ChromPos:
@@ -92,7 +96,8 @@ class Intersection:
     def return_snp(self, intersect):
         return [self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
                + [int(intersect)] * self.write_intersect \
-               + [arg * intersect for arg in self.seg_args] * self.write_segment_args
+               + [((arg if intersect else {}) if isinstance(arg, dict) else arg * intersect)
+                  for arg in self.seg_args] * self.write_segment_args
 
     def get_next_snp(self):
         try:
@@ -155,7 +160,7 @@ def make_dict_from_vcf(vcf, vcf_dict):
             print(line)
             print(vcf)
         A = int(Inf[1].split(',')[1])
-        if min(R, A) < 3:
+        if min(R, A) < 5:
             continue
         GT = Inf[0]
         if GT != '0/1':
@@ -170,10 +175,74 @@ def make_dict_from_vcf(vcf, vcf_dict):
             vcf_dict[(chr, pos, ID, REF, ALT)] = (R, A)
 
 
+def make_list_from_vcf(vcf, filter_no_rs=False):
+    vcf_list = []
+    for line in vcf:
+        if line[0] == '#':
+            continue
+        line = line.split()
+        chr = line[0]
+        if chr not in ChromPos.chrs:
+            continue
+        pos = int(line[1])
+        if not len(line[3]) == 1 or not len(line[4]) == 1:
+            continue
+        if line[3] not in Nucleotides or line[4] not in Nucleotides:
+            continue
+        Inf = line[-1].split(':')
+        R = int(Inf[1].split(',')[0])
+        if Inf[1].split(",")[1] == "":
+            print(line)
+            print(vcf)
+        A = int(Inf[1].split(',')[1])
+        if min(R, A) < 5:
+            continue
+        GT = Inf[0]
+        if GT != '0/1':
+            continue
+        ID = line[2]
+        if not ID.startswith('rs') and filter_no_rs:
+            continue
+        REF = line[3]
+        ALT = line[4]
+        vcf_list.append((chr, pos, ID, REF, ALT, R, A))
+    return vcf_list
+
+
+def make_list_from_vcf_without_filter(vcf):
+    vcf_list = []
+    for line in vcf:
+        if line[0] == '#':
+            continue
+        line = line.split()
+        chr = line[0]
+        if chr not in ChromPos.chrs:
+            continue
+        pos = int(line[1])
+        if not len(line[3]) == 1 or not len(line[4]) == 1:
+            continue
+        if line[3] not in Nucleotides or line[4] not in Nucleotides:
+            continue
+        Inf = line[-1].split(':')
+        R = int(Inf[1].split(',')[0])
+        if Inf[1].split(",")[1] == "":
+            print(line)
+            print(vcf)
+        A = int(Inf[1].split(',')[1])
+        GT = Inf[0]
+        if GT != '0/1':
+            continue
+        ID = line[2]
+        REF = line[3]
+        ALT = line[4]
+        vcf_list.append((chr, pos, ID, REF, ALT, R, A))
+    return vcf_list
+
+
 def unpack(line, use_in):
     if line[0] == '#':
         return []
-    line_split = line.strip().split('\t')
+    line_split = line.strip('\n').split('\t')
     chr = line_split[0]
     pos = int(line_split[1])
     ID = line_split[2]
@@ -189,16 +258,24 @@ def unpack(line, use_in):
     if use_in == "Pcounter":
         return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
     ploidy = float(line_split[8 + difference])
-    dip_qual, lq, rq, seg_c, sum_cov = map(int, line_split[9 + difference:14 + difference])
-
-    if line_split[14 + difference] == '.':
-        p_ref, p_ref_cor, p_ref_bal = '.', '.', '.'
-        p_alt, p_alt_cor, p_alt_bal = '.', '.', '.'
+    quals = list(map(float, line_split[9 + difference:9 + difference + len(states)]))
+    quals_dict = dict(zip(states, quals))
+    difference += len(states)
+    seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
+    p_ref, p_alt = map(float, line_split[11 + difference:13 + difference])
+    es_ref = line_split[13 + difference]
+    es_alt = line_split[14 + difference]
+    if es_ref != '' and es_ref is not None:
+        es_ref = float(es_ref)
     else:
-        p_ref, p_alt, p_ref_cor, p_alt_cor, p_ref_bal, p_alt_bal = map(float, line_split[14 + difference:20 + difference])
+        es_ref = None
+    if es_alt != '' and es_alt is not None:
+        es_alt = float(es_alt)
+    else:
+        es_alt = None
     if use_in == "Aggregation":
-        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, dip_qual, \
-               lq, rq, seg_c, sum_cov, p_ref, p_alt, p_ref_cor, p_alt_cor, p_ref_bal, p_alt_bal
+        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, quals_dict,\
+               seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt
 
     raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
 
@@ -253,10 +330,15 @@ def read_synonims():
     with open(synonims_path, 'r') as file:
         for line in file:
             line = line.strip('\n').split('\t')
-            name = line[0].replace(')', '').replace('(', '').replace(' ', '_')
+            name = remove_punctuation(line[0])
             cosmic_names[name] = line[1]
             cgh_names[name] = line[2]
     return cosmic_names, cgh_names
+
+
+def remove_punctuation(x):
+    table = str.maketrans({key: "_" for key in string.punctuation if key not in {'-', '+'}})
+    return x.translate(table).replace(" ", "_")
 
 
 class CorrelationReader:
@@ -284,21 +366,26 @@ class CorrelationReader:
                 line = line.split("\t")
                 if line[0] not in ChromPos.chrs:
                     continue
-                current_segment = [float(line[4]), int(line[5]), int(line[6])]
+                current_segment = [float(line[4]), dict(zip(states, list(map(float, line[5:5 + len(states)]))))]
                 if previous_segment != current_segment:
                     uniq_segments_count += 1
-                    sum_cov += int(line[7])
+                    sum_cov += int(line[6 + len(states)])
                     previous_segment = current_segment
                 if method == 'normal':
                     if line[4] == 0:
                         continue
                     result.append([line[0], int(line[1])] + current_segment)
+                elif method == 'cover':
+                    if line[4] == 0:
+                        continue
+                    result.append([line[0], int(line[1]), int(line[2]) + int(line[3])] + current_segment)
                 elif method == 'naive':
                     ref = int(line[2])
                     alt = int(line[3])
                     if min(ref, alt) == 0:
                         continue
-                    result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1, 10000, 10000])
+                    result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1,
+                                   dict(zip(states, [10000] * len(states)))])
                 else:
                     raise KeyError(method)
 
@@ -329,7 +416,7 @@ class CorrelationReader:
                     value = 2 ** (1 + float(line[idx]))
                 except ValueError:
                     continue
-                result.append([chr, pos, value, 100, 100])
+                result.append([chr, pos, value, dict(zip(states, [10000]* len(states)))])
             # result.sort_items()
             return result
 
@@ -363,3 +450,45 @@ def create_line_for_snp_calling(split_line, is_ctrl=False):
         return pack(result)
     else:
         return pack(split_line[:7])
+
+
+def read_weights():
+    r = {}
+    w = {}
+    gof = {}
+    for fixed_allele in ('ref', 'alt'):
+        r[fixed_allele] = {}
+        w[fixed_allele] = {}
+        gof[fixed_allele] = {}
+        for BAD in states:
+            precalc_params_path = parameters_path + 'NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD)
+            coefs_array = np.load(precalc_params_path)
+            r[fixed_allele][BAD] = coefs_array[:, 0]
+            w[fixed_allele][BAD] = coefs_array[:, 1]
+            gof[fixed_allele][BAD] = coefs_array[:, 3]
+            first_bad_gof = min(x for x in range(len(gof[fixed_allele][BAD])) if gof[fixed_allele][BAD][x] > 0.05)
+            gof[fixed_allele][BAD][first_bad_gof:] = 1
+            r[fixed_allele][BAD][first_bad_gof:] = 0
+            w[fixed_allele][BAD][first_bad_gof:] = 1
+    return r, w, gof
+
+
+def unpackBADSegments(line):
+    if line[0] == '#':
+        return [''] * (len(line.strip().split('\t')) - len(states) + 1)
+    line = line.strip().split('\t')
+
+    return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
+           [dict(zip(states, line[4: 4 + len(states)]))] +line[(4 + len(states)):]
+
+
+if __name__ == "__main__":
+    import pandas as pd
+    import json
+    with open(parameters_path + 'CONVERT_CL_NAMES.json', 'w') as o:
+        d_to_write = {}
+        d = pd.read_table(GTRD_slice_path)
+        for key in d["cell_title"].tolist():
+            d_to_write[key] = remove_punctuation(key)
+        json.dump(d_to_write, o)
+

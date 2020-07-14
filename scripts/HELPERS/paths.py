@@ -1,25 +1,8 @@
 import sys
+
 sys.path.insert(1, "/home/abramov/ASB-Project")
-
-project_path = "/home/abramov/ASB-Project/"
-alignments_path = "/home/abramov/Alignments/"
-
-scripts_path = project_path + "scripts/"
-parameters_path = "/home/abramov/PARAMETERS/"
-parallel_parameters_path = '/home/abramov/ParallelParameters/'
-
-ploidy_path = "/home/abramov/PloidyForRelease/"
-results_path = "/home/abramov/DATA/"
-
-ploidy_dict_path = parameters_path + "CELL_LINES.json"
-GTRD_slice_path = parameters_path + "Master-lines.tsv"
-blacklisted_exps_path = parameters_path + "blacklisted_exps.tsv"
-tf_dict_path = parameters_path + "TF_DICT.json"
-cl_dict_path = parameters_path + "CL_DICT.json"
-
-correlation_path = '/home/abramov/Correlation/'
-synonims_path = parameters_path + 'synonims.tsv'
-heatmap_data_path = '/home/abramov/HeatmapData/'
+from scripts.HELPERS.paths_for_components import alignments_path, ploidy_path, blacklisted_exps_path, tf_dict_path, \
+    cl_dict_path
 
 
 def create_path_from_GTRD_function(line, for_what, ctrl=False):

@@ -3,7 +3,9 @@ import json
 import sys
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_dict_path, GTRD_slice_path, create_path_from_GTRD_function
+from scripts.HELPERS.paths import create_path_from_GTRD_function
+from scripts.HELPERS.paths_for_components import ploidy_dict_path, GTRD_slice_path
+from scripts.HELPERS.helpers import remove_punctuation
 
 
 def findLAB(enc):
@@ -14,7 +16,7 @@ def findLAB(enc):
         lab = json.loads(r.text)['lab']['@id']
         biosample = json.loads(r.text)['replicates'][0]['library']['biosample']['@id']
         ret = lab + "_" + biosample
-        return ret.replace("/", "_")
+        return remove_punctuation(ret)
     else:
         return 'False'
 
@@ -36,7 +38,7 @@ def add_record(d, line, ctrl=False):
     path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=ctrl)
     if line[idcs[0]] == "LoVo (colorectal adenocarcinoma)":
         is_lovo = True
-    line[idcs[0]] = line[idcs[0]].replace("(", "").replace(")", "").replace(" ", "_").replace("/", "_")
+    line[idcs[0]] = remove_punctuation(line[idcs[0]])
     if is_lovo:
         add_to_dict(d, line[idcs[0]] + '!None', path)
         return

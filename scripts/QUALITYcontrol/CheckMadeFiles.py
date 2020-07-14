@@ -1,14 +1,17 @@
 import os.path
 import json
 import sys
+import pandas as pd
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_dict_path, create_path_from_GTRD_function, results_path, \
-    GTRD_slice_path, create_ploidy_path_function, make_black_list, cl_dict_path, tf_dict_path
+from scripts.HELPERS.helpers import remove_punctuation
+from scripts.HELPERS.paths import create_path_from_GTRD_function, make_black_list
+from scripts.HELPERS.paths_for_components import results_path, ploidy_dict_path, GTRD_slice_path, tf_dict_path, \
+    cl_dict_path, parameters_path
 
 
 def create_path_for_agr_name(string, agr_name):
-    return results_path + agr_name + "_P-values/" + string + '_common_table.tsv'
+    return results_path + agr_name + '_P-values/{}.tsv'.format(string)
 
 
 with open(ploidy_dict_path, "r") as cl_file, \
@@ -27,9 +30,10 @@ made_control_vcfs = 0
 made_p_tables = 0
 made_annotated_tables = 0
 counted_controls = set()
-SNP_counter = 0
-dict_SNP_TF_statistics = {}
-
+dict_overall_statistics = {"SNP_calls": None, "unique_SNPs": None, "unique_asb": None, "datasets": None,
+                           "unique_SNPs_rs": None, "unique_asb_rs": None}
+for key in dict_overall_statistics:
+    dict_overall_statistics[key] = {"TF": {}, "CL": {}}
 black_list = make_black_list()
 for line in master_list:
     if line[0] == "#":
@@ -39,28 +43,29 @@ for line in master_list:
         not_blacklisted_exps += 1
         vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
         if os.path.isfile(vcf_path):
+            line[4] = remove_punctuation(line[4])
+            if line[1] not in dict_overall_statistics["datasets"]["TF"]:
+                dict_overall_statistics["datasets"]["TF"][line[1]] = 0
+            if line[4] not in dict_overall_statistics["datasets"]["CL"]:
+                dict_overall_statistics["datasets"]["CL"][line[4]] = 0
+            dict_overall_statistics["datasets"]["CL"][line[4]] += 1
+            dict_overall_statistics["datasets"]["TF"][line[1]] += 1
             made_experiment_vcfs += 1
-
-        p_value_table_path = create_path_from_GTRD_function(line, for_what="p-value_table")
-        if os.path.isfile(p_value_table_path):
-            made_p_tables += 1
 
         annotated_table_path = create_path_from_GTRD_function(line, for_what="annotated_table")
         if os.path.isfile(annotated_table_path):
             made_annotated_tables += 1
-            with open(annotated_table_path, "r") as an_table:
-                local_counter = 0
-                for SNP in an_table:
-                    if SNP[0] == "#":
-                        continue
-                    local_counter += 1
-                    SNP_counter += 1
-                if local_counter != 0:
-                    try:
-                        el = dict_SNP_TF_statistics[line[1]]
-                        dict_SNP_TF_statistics[line[1]] = el + local_counter
-                    except KeyError:
-                        dict_SNP_TF_statistics[line[1]] = local_counter
+            an_table = pd.read_table(annotated_table_path)
+            an_table = an_table[(an_table['ID'] != '.') & (an_table['ID'])]
+
+            local_counter = len(an_table.index)
+            if local_counter != 0:
+                if line[1] not in dict_overall_statistics["SNP_calls"]["TF"]:
+                    dict_overall_statistics["SNP_calls"]["TF"][line[1]] = 0
+                if line[4] not in dict_overall_statistics["SNP_calls"]["CL"]:
+                    dict_overall_statistics["SNP_calls"]["CL"][line[4]] = 0
+                dict_overall_statistics["SNP_calls"]["CL"][line[4]] += local_counter
+                dict_overall_statistics["SNP_calls"]["TF"][line[1]] += local_counter
 
         if len(line) > 10 and line[10] not in black_list:
             vcf_path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)
@@ -77,47 +82,61 @@ print("Made {}/{} VCFS ({}/{} experiment VCFs, {}/{} control VCFs), {} annotated
     made_control_vcfs, not_blacklisted_ctrl,
     made_annotated_tables, made_p_tables))
 
-print("Total of {} SNPs in experiment VCFs".format(SNP_counter))
-SNP_TF_statistics = sorted(list(dict_SNP_TF_statistics.items()), key=lambda x: x[1], reverse=True)
-print(SNP_TF_statistics[:5])
-
-ploidy_control_vcfs = 0
-ploidy_vcfs_counter = 0
-ploidy_counter = 0
-counted_control_vcfs = set()
-for ploidy in cell_lines:
-    ploidy_file = create_ploidy_path_function(ploidy)
-    if os.path.isfile(ploidy_file):
-        ploidy_counter += 1
-        for vcf_file in cell_lines[ploidy]:
-            exp_name = vcf_file.split("/")[-2]
-            if os.path.isfile(vcf_file) and exp_name not in black_list:
-                ploidy_vcfs_counter += 1
-                if vcf_file.find("CTRL") != -1 and vcf_file not in counted_control_vcfs:
-                    ploidy_control_vcfs += 1
-                    counted_control_vcfs.add(vcf_file)
-print("Made {} ploidies from  {} VCFs ({} experiment VCFs)".format(ploidy_counter, ploidy_vcfs_counter,
-                                                                   ploidy_vcfs_counter - ploidy_control_vcfs))
 
 tf_vcfs_counter = 0
 tf_counter = 0
 for tf in made_tfs:
-    if os.path.isfile(create_path_for_agr_name(tf, "TF")):
+    tf_df_path = create_path_for_agr_name(tf, "TF")
+    if os.path.isfile(tf_df_path):
         tf_counter += 1
-        for vcf_file in made_tfs[tf]:
-            exp_name = vcf_file.split("/")[-2]
-            if os.path.isfile(vcf_file) and exp_name not in black_list:
-                tf_vcfs_counter += 1
+        tf_table = pd.read_table(tf_df_path)
+
+        local_counter = len(tf_table.index)
+        local_counter_rs = len(tf_table['ID'].unique())
+        fdr_counter = len(tf_table[(tf_table['fdrp_bh_ref'] <= 0.05) | (tf_table["fdrp_bh_alt"] <= 0.05)].index)
+        fdr_counter_rs = len(tf_table[(tf_table['fdrp_bh_ref'] <= 0.05) | (tf_table["fdrp_bh_alt"] <= 0.05)]['ID'].unique())
+        if local_counter != 0:
+            if tf not in dict_overall_statistics["unique_SNPs"]["TF"]:
+                dict_overall_statistics["unique_SNPs"]["TF"][tf] = 0
+                dict_overall_statistics["unique_SNPs_rs"]["TF"][tf] = 0
+            dict_overall_statistics["unique_SNPs"]["TF"][tf] += local_counter
+            dict_overall_statistics["unique_SNPs_rs"]["TF"][tf] += local_counter_rs
+
+            if tf not in dict_overall_statistics["unique_asb"]["TF"]:
+                dict_overall_statistics["unique_asb"]["TF"][tf] = 0
+                dict_overall_statistics["unique_asb_rs"]["TF"][tf] = 0
+            dict_overall_statistics["unique_asb"]["TF"][tf] += fdr_counter
+            dict_overall_statistics["unique_asb_rs"]["TF"][tf] += fdr_counter_rs
+
 print("Made aggregation for {} TFs from  {} VCFs".format(tf_counter, tf_vcfs_counter))
 
 
 cl_vcfs_counter = 0
 cl_counter = 0
 for cl in made_cls:
-    if os.path.isfile(create_path_for_agr_name(cl, "CL")):
+    cl_df_path = create_path_for_agr_name(cl, "CL")
+    if os.path.isfile(cl_df_path):
         cl_counter += 1
-        for vcf_file in made_cls[cl]:
-            exp_name = vcf_file.split("/")[-2]
-            if os.path.isfile(vcf_file) and exp_name not in black_list:
-                cl_vcfs_counter += 1
-print("Made aggregation for {} cell lines from  {} VCFs".format(cl_counter, cl_vcfs_counter))
+        cl_vcfs_counter += 1
+        cl_table = pd.read_table(cl_df_path)
+
+        local_counter = len(cl_table.index)
+        local_counter_rs = len(cl_table['ID'].unique())
+        fdr_counter = len(cl_table[(cl_table['fdrp_bh_ref'] <= 0.05) | (cl_table["fdrp_bh_alt"] <= 0.05)].index)
+        fdr_counter_rs = len(cl_table[(cl_table['fdrp_bh_ref'] <= 0.05) | (cl_table["fdrp_bh_alt"] <= 0.05)]['ID'].unique())
+        if local_counter != 0:
+            if cl not in dict_overall_statistics["unique_SNPs"]["CL"]:
+                dict_overall_statistics["unique_SNPs"]["CL"][cl] = 0
+                dict_overall_statistics["unique_SNPs_rs"]["CL"][cl] = 0
+            dict_overall_statistics["unique_SNPs"]["CL"][cl] += local_counter
+            dict_overall_statistics["unique_SNPs_rs"]["CL"][cl] += local_counter_rs
+
+            if cl not in dict_overall_statistics["unique_asb"]["CL"]:
+                dict_overall_statistics["unique_asb"]["CL"][cl] = 0
+                dict_overall_statistics["unique_asb_rs"]["CL"][cl] = 0
+            dict_overall_statistics["unique_asb"]["CL"][cl] += fdr_counter
+            dict_overall_statistics["unique_asb_rs"]["CL"][cl] += fdr_counter_rs
+
+
+with open(parameters_path + "overall_statistics.json", "w") as jsonFile:
+    json.dump(dict_overall_statistics, jsonFile)

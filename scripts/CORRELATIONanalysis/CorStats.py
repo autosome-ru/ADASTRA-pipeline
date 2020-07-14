@@ -1,12 +1,10 @@
 import os
 import sys
-import numpy as np
 from scipy.stats import kendalltau
-from sklearn import linear_model
 
 sys.path.insert(1, '/home/abramov/ASB-Project')
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos
-from scripts.HELPERS.paths import parameters_path, correlation_path, heatmap_data_path
+from scripts.HELPERS.paths_for_components import parameters_path, correlation_path, heatmap_data_path
 
 CGH_path = parameters_path + 'CHIP_hg38.sorted.bed'
 cosmic_path = parameters_path + 'COSMIC_copy_number.sorted.tsv'
@@ -43,7 +41,7 @@ def unpack_cosmic_segments(line, mode='normal'):
     return [line[1], int(line[2]), int(line[3]), value]
 
 
-def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
+def correlation_with_cosmic(SNP_objects, mode, method='normal', heatmap_data_file=None):
     if heatmap_data_file is not None:
         heatmap = open(heatmap_data_file, 'w')
     cosmic_segments = []
@@ -55,27 +53,47 @@ def correlation_with_cosmic(SNP_objects, mode, heatmap_data_file=None):
                 cosmic_segments.append(v)
     snp_ploidy = []
     cosm_ploidy = []
-    for chr, pos, ploidy, qual, segn, in_intersect, cosmic_ploidy \
-            in Intersection(SNP_objects, cosmic_segments, write_intersect=True,
-                            write_segment_args=True):
-        if not in_intersect:
-            continue
-        snp_ploidy.append(ploidy)
-        cosm_ploidy.append(cosmic_ploidy)
+    if method == 'normal':
+        for chr, pos, ploidy, quals, in_intersect, cosmic_ploidy \
+                in Intersection(SNP_objects, cosmic_segments, write_intersect=True,
+                                write_segment_args=True):
+            if not in_intersect:
+                continue
+            snp_ploidy.append(ploidy)
+            cosm_ploidy.append(cosmic_ploidy)
 
+            if heatmap_data_file is not None:
+                heatmap.write(pack([chr, pos, ploidy, cosmic_ploidy]))
         if heatmap_data_file is not None:
-            heatmap.write(pack([chr, pos, ploidy, cosmic_ploidy]))
-    if heatmap_data_file is not None:
-        heatmap.close()
+            heatmap.close()
 
-    if len(snp_ploidy) != 0:
-        kt = kendalltau(snp_ploidy, cosm_ploidy)[0]
-        if kt == 'nan':
-            return 'NaN', ('NaN', 'NaN')
-        lm = linear_model.LinearRegression(fit_intercept=False)
-        lm.fit(np.array(snp_ploidy).reshape(-1, 1), np.array(cosm_ploidy).reshape(-1, 1))
-        return kt, tuple(map(float, lm.predict(np.array([0, 1]).reshape(-1, 1))))
-    return 'NaN', ('NaN', 'NaN')
+        if len(snp_ploidy) != 0:
+            kt = kendalltau(snp_ploidy, cosm_ploidy)[0]
+            if kt == 'nan':
+                return 'NaN'
+            return kt
+        return 'NaN'
+    elif method == 'cover':
+
+        for chr, pos, cov, ploidy, quals, in_intersect, cosmic_ploidy \
+                in Intersection(SNP_objects, cosmic_segments, write_intersect=True,
+                                write_segment_args=True):
+            if not in_intersect:
+                continue
+            snp_ploidy.append(ploidy)
+            cosm_ploidy.append(cosmic_ploidy)
+
+            if heatmap_data_file is not None:
+                heatmap.write(pack([chr, pos, cov, ploidy, cosmic_ploidy] + [quals[x] for x in quals]))
+        if heatmap_data_file is not None:
+            heatmap.close()
+
+        if len(snp_ploidy) != 0:
+            kt = kendalltau(snp_ploidy, cosm_ploidy)[0]
+            if kt == 'nan':
+                return 'NaN'
+            return kt
+        return 'NaN'
 
 
 def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
@@ -117,7 +135,6 @@ if __name__ == '__main__':
 
         corr_to_objects = {}
         segment_numbers = {}
-        lm_coefficients = {}
         # print('reading COSMIC')
         cell_line_name = file_name[:file_name.rfind('_')]
         index = file_name[file_name.rfind('_') + 1:file_name.rfind('.')]
@@ -136,23 +153,21 @@ if __name__ == '__main__':
             heatmap_data_file = heatmap_data_dir + file_name
 
             # print('reading SNP ' + type)
-            number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(method='normal')
+            number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(method='cover')
 
             segment_numbers[model] = segments_number
             if cosmic_names[cell_line_name]:
-                corr_to_objects[model], lm_coefficients[model] = correlation_with_cosmic(
-                                                                                        SNP_objects,
-                                                                                        mode='normal',
-                                                                                        heatmap_data_file=heatmap_data_file
-                )
+                corr_to_objects[model] = correlation_with_cosmic(SNP_objects, mode='normal', method='cover',
+                                                                 heatmap_data_file=heatmap_data_file)
             else:
-                corr_to_objects[model], lm_coefficients[model] = 'NaN', ('NaN', 'NaN')
+                corr_to_objects[model] = 'NaN'
 
         for naive_mode in naive_modes:
             if cosmic_names[cell_line_name]:
-                number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(method=naive_mode)
+                number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(
+                    method=naive_mode)
 
-                corr_to_objects[naive_mode], _ = correlation_with_cosmic(SNP_objects, mode='normal')
+                corr_to_objects[naive_mode] = correlation_with_cosmic(SNP_objects, mode='normal')
             else:
                 corr_to_objects[naive_mode] = 'NaN'
 
@@ -161,8 +176,8 @@ if __name__ == '__main__':
         nearest_cgh_objects = find_nearest_probe_to_SNP(SNP_objects, CGH_objects)
 
         if cosmic_names[cell_line_name]:
-            corr_to_objects_chip, _ = correlation_with_cosmic(CGH_objects, mode='total')
-            corr_to_objects_chip_nearest, _ = correlation_with_cosmic(nearest_cgh_objects, mode='total')
+            corr_to_objects_chip = correlation_with_cosmic(CGH_objects, mode='total')
+            corr_to_objects_chip_nearest = correlation_with_cosmic(nearest_cgh_objects, mode='total')
         else:
             corr_to_objects_chip = 'NaN'
             corr_to_objects_chip_nearest = 'NaN'

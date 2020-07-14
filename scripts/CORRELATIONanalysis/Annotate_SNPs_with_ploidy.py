@@ -3,16 +3,17 @@ import sys
 import json
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import ploidy_dict_path, ploidy_path, correlation_path
-from scripts.HELPERS.helpers import Intersection, pack, read_synonims
+from scripts.HELPERS.paths_for_components import ploidy_path, ploidy_dict_path, correlation_path
+from scripts.HELPERS.helpers import Intersection, pack, unpackBADSegments
 
 
 def unpack_ploidy_segments(line):
     if line[0] == '#':
-        return [''] * 7
+        return [''] * 9
     line = line.strip().split('\t')
 
-    return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[7]), int(line[8])]
+    return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]),
+            int(line[5]), int(line[6]), int(line[7]), int(line[8])]
 
 
 def unpack_snps(line):
@@ -64,11 +65,10 @@ if __name__ == '__main__':
 
         with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
             out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list) + '\n')
-            for chr, pos, ref, alt, in_intersection, segment_ploidy, qual, segn, sumcov \
+            for chr, pos, ref, alt, in_intersection, segment_ploidy, Qual, segn, sumcov \
                     in Intersection(table, ploidy,
-                                    unpack_segments_function=unpack_ploidy_segments, unpack_snp_function=unpack_snps,
+                                    unpack_segments_function=unpackBADSegments, unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
                 if not in_intersection:
                     continue
-                out.write(pack([chr, pos, ref, alt, segment_ploidy,
-                                qual, segn, sumcov]))
+                out.write(pack([chr, pos, ref, alt, segment_ploidy] + [Qual[x] for x in Qual]+ [segn, sumcov]))

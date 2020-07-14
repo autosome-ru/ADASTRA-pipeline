@@ -9,12 +9,13 @@ import pandas as pd
 from collections import OrderedDict
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths import results_path, cl_dict_path, tf_dict_path
-from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, expected_args
+from scripts.HELPERS.paths_for_components import results_path, tf_dict_path, cl_dict_path
+from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, \
+    expected_args, read_weights
 
 
 def logit_combine_p_values(pvalues):
-    pvalues = np.array([p for p in pvalues if 1 > p > 0])
+    pvalues = np.array([pvalue for pvalue in pvalues if 1 > pvalue > 0])
     if len(pvalues) == 0:
         return 1
     elif len(pvalues) == 1:
@@ -22,8 +23,8 @@ def logit_combine_p_values(pvalues):
 
     statistic = -np.sum(np.log(pvalues)) + np.sum(np.log1p(-pvalues))
     k = len(pvalues)
-    nu = 5 * k + 4
-    approx_factor = np.sqrt(3 * nu / (k * np.pi ** 2 * (nu - 2)))
+    nu = np.int_(5 * k + 4)
+    approx_factor = np.sqrt(np.int_(3) * nu / (np.int_(k) * np.square(np.pi) * (nu - np.int_(2))))
     pval = stats.distributions.t.sf(statistic * approx_factor, nu)
     return pval
 
@@ -58,7 +59,16 @@ def get_another_agr(path, what_for):
         return invert(tf_dict).get(path, "None")
 
 
+def get_noise(k, n, weight):
+    if n == 10:
+        return 1
+    if k <= 4 or k >= n - 4:
+        return 0
+    return weight * max(k - n / 2, 0) / (1 / 2 * (n - 5 - n // 2) * (n // 2 - 4))
+
+
 if __name__ == '__main__':
+
     what_for = sys.argv[1]  # "TF" or "CL" arguments are expected
     check_if_in_expected_args(what_for)
     key_name = sys.argv[2]
@@ -68,6 +78,7 @@ if __name__ == '__main__':
     if not os.path.isdir(results_path + what_for + "_P-values/"):
         os.mkdir(results_path + what_for + "_P-values/")
 
+    table_path = results_path + what_for + '_P-values/{}.tsv'.format(key_name)
     with open(cl_dict_path, "r") as read_file:
         cell_lines_dict = json.loads(read_file.readline())
     with open(tf_dict_path, "r") as read_file:
@@ -88,65 +99,58 @@ if __name__ == '__main__':
                 for line in file:
                     try:
                         (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
-                         ploidy, dip_qual, lq, rq, seg_c, sum_cov,
-                         p_ref, p_alt,
-                         p_ref_cor, p_alt_cor,
-                         p_ref_bal, p_alt_bal,
-                         ) = unpack(line, use_in="Aggregation")
+                         BAD, Quals, seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt) = unpack(line, use_in="Aggregation")
                     except ValueError:
-                        continue
-                    if p_ref == '.':
+                        if line.startswith('#'):
+                            continue
+                        else:
+                            raise
+                    if p_ref == '.' or ID == '.':
                         continue
                     cov = ref_c + alt_c
 
                     try:
                         common_snps[(chr, pos, ID, ref, alt, repeat)].append(
-                            (cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq,
+                            (cov, ref_c, alt_c, in_callers, BAD, Quals,
                              seg_c, sum_cov,
-                             p_ref, p_alt,
-                             p_ref_cor, p_alt_cor,
-                             p_ref_bal, p_alt_bal,
+                             p_ref, p_alt, es_ref, es_alt,
                              table_name, another_agr))
                     except KeyError:
                         common_snps[(chr, pos, ID, ref, alt, repeat)] = [
-                            (cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, rq,
+                            (cov, ref_c, alt_c, in_callers, BAD, Quals,
                              seg_c, sum_cov,
-                             p_ref, p_alt,
-                             p_ref_cor, p_alt_cor,
-                             p_ref_bal, p_alt_bal,
+                             p_ref, p_alt, es_ref, es_alt,
                              table_name, another_agr)]
-
+        else:
+            print("There is no {}".format(table))
     print('Writing {}'.format(key_name))
 
-    with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'w') as out:
+    with open(table_path, 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
-                        'mean_sBAD',
-                        'mean_deltaL_neighborBAD', 'mean_deltaL_BAD1', 'mean_SNP_per_segment', 'n_aggregated',
-                        'refc_maxdepth', 'altc_maxdepth', 'sBAD_maxdepth', 'm1_maxdepth', 'm2_maxdepth',
-                        'refc_mostsig', 'altc_mostsig', 'sBAD_mostsig', 'm1_mostsig', 'm2_mostsig',
+                        'mean_BAD', 'mean_SNP_per_segment', 'n_aggregated',
+                        'refc_mostsig_ref', 'altc_mostsig_ref', 'BAD_mostsig_ref', 'es_mostsig_ref',
+                        'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'es_mostsig_alt',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
-                        'm1_mean_ref', 'm1_mean_alt',
-                        'm2_mean_ref', 'm2_mean_alt',
-                        'logitp_ref', 'logitp_alt',
-                        'logitp_ref_cor', 'logitp_alt_cor',
-                        'logitp_ref_bal', 'logitp_alt_bal']))
-
+                        'es_mean_ref', 'es_mean_alt',
+                        'logitp_ref', 'logitp_alt']))
         filtered_snps = dict()
         for key in common_snps:
             values = []
             accept = False
             for value in common_snps[key]:
-                if value[0] >= 8:
+                # filtering part is now redundant
+                if value[0] >= 10:
                     values.append(value)
-                if value[0] >= 25:
+                if value[0] >= 10:
                     accept = True
-            if accept:
+            if accept or sum(value[0] for value in values) >= 10:
                 filtered_snps[key] = values
 
-        counter = 0
+        SNP_counter = 0
         print('{} snps'.format(len(filtered_snps)))
 
         if len(filtered_snps) == 0:
+            os.remove(table_path)
             sys.exit(0)
         origin_of_snp_dict = OrderedDict()
         keys = list(filtered_snps.keys())
@@ -155,199 +159,138 @@ if __name__ == '__main__':
         for key in keys:
             chr, pos, ID, ref, alt, repeat = key
             value = filtered_snps[key]
-            counter += 1
-            if counter % 10000 == 0:
-                print('done {}'.format(counter))
-            c_uniq_callers = dict(zip(callers_names, [False] * len(callers_names)))
-            m_total_callers = 0
-            c_ploidy = []
-            c_dipq = []
-            c_q = []
-            c_segc = []
-            c_pref = []
-            c_palt = []
-            c_pref_cor = []
-            c_palt_cor = []
-            c_pref_bal = []
-            c_palt_bal = []
-            c_cover = []
-            c_m1 = []
-            c_m2 = []
-            c_table_names = []
-            c_another_agr = []
-            c_ref = []
-            c_alt = []
+            SNP_counter += 1
+            if SNP_counter % 10000 == 0:
+                print('done {}'.format(SNP_counter))
+            uniq_callers_counter = dict(zip(callers_names, [False] * len(callers_names)))
+            total_callers_counter = 0
+            BAD_array = []
+            SNPs_per_segment_array = []
+            pref_array = []
+            palt_array = []
+            cover_array = []
+            ref_effect_size_array = []
+            alt_effect_size_array = []
+            table_names_array = []
+            another_agr_name = []
+            ref_counts_array = []
+            alt_counts_array = []
 
             for v in value:
-                cov, ref_c, alt_c, in_callers, ploidy, dip_qual, lq, \
-                rq, seg_c, sum_cov, \
-                p_ref, p_alt, \
-                p_ref_cor, p_alt_cor, \
-                p_ref_bal, p_alt_bal, \
-                table_name, another_agr = v
+                cov, ref_c, alt_c, in_callers, BAD, Quals, seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt, table_name, \
+                another_agr = v
 
-                c_table_names.append(table_name)
-                c_another_agr.append(another_agr)
+                table_names_array.append(table_name)
+                another_agr_name.append(another_agr)
                 for caller in callers_names:
-                    c_uniq_callers[caller] = c_uniq_callers[caller] or in_callers[caller]
-                    m_total_callers += in_callers[caller]
-                c_ploidy.append(ploidy)
-                c_dipq.append(dip_qual)
-                if ploidy == 1:
-                    c_q.append(rq)
-                elif ploidy == 5:
-                    c_q.append(lq)
-                else:
-                    c_q.append(min(lq, rq))
-                c_segc.append(seg_c)
-                c_pref.append(p_ref)
-                c_palt.append(p_alt)
-                c_pref_cor.append(p_ref_cor)
-                c_palt_cor.append(p_alt_cor)
-                c_pref_bal.append(p_ref_bal)
-                c_palt_bal.append(p_alt_bal)
-                c_cover.append(cov)
+                    uniq_callers_counter[caller] = uniq_callers_counter[caller] or in_callers[caller]
+                    total_callers_counter += in_callers[caller]
+                BAD_array.append(BAD)
+                SNPs_per_segment_array.append(seg_c)
+                pref_array.append(p_ref)
+                palt_array.append(p_alt)
+                if es_ref is not None:
+                    ref_effect_size_array.append(es_ref)
+                if es_alt is not None:
+                    alt_effect_size_array.append(es_alt)
+                cover_array.append(cov)
 
-                c_ref.append(ref_c)
-                c_alt.append(alt_c)
+                ref_counts_array.append(ref_c)
+                alt_counts_array.append(alt_c)
+                p = 1 / (BAD + 1)
 
-                x = ref_c / (ref_c + alt_c)
+            min_cover = min(cover_array)
+            max_cover = max(cover_array)
+            med_cover = median_grouped(cover_array)
+            total_cover = sum(cover_array)
+            unique_callers = sum(uniq_callers_counter[caller] for caller in callers_names)
+            mean_BAD = np.round(np.mean(BAD_array), 2)
+            mean_SNPs_per_segment = np.round(np.mean(SNPs_per_segment_array), 1)
+            n_aggregated = len(value)
 
-                p = 1 / (ploidy + 1)
+            logitp_ref = logit_combine_p_values(pref_array)
+            logitp_palt = logit_combine_p_values(palt_array)
 
-                if x <= p or x >= 1 - p:
-                    c_m1.append(-1 * np.math.log(min(x, 1 - x) / p, 2) * np.sign(ref_c - alt_c))
-                    c_m2.append(np.math.log(max(x, 1 - x) / (1 - p), 2) * np.sign(ref_c - alt_c))
-
-            min_cover = min(c_cover)
-            max_cover = max(c_cover)
-            med_cover = median_grouped(c_cover)
-            total_cover = sum(c_cover)
-            m_unique_callers = sum(c_uniq_callers[caller] for caller in callers_names)
-            m_ploidy = np.round(np.mean(c_ploidy), 2)
-            m_dipq = np.round(np.mean(c_dipq), 1)
-            m_q = np.round(np.mean(c_q), 1)
-            m_segc = np.round(np.mean(c_segc), 1)
-            m_datasets = len(value)
-
-            m_logpref = logit_combine_p_values(c_pref)
-            m_logpalt = logit_combine_p_values(c_palt)
-
-            m_logpref_cor = logit_combine_p_values(c_pref_cor)
-            m_logpalt_cor = logit_combine_p_values(c_palt_cor)
-
-            m_logpref_bal = logit_combine_p_values(c_pref_bal)
-            m_logpalt_bal = logit_combine_p_values(c_palt_bal)
-
-            c_m1_ref = [x for x in c_m1 if x > 0]
-            if c_m1_ref:
-                m1_ref = np.round(np.mean(c_m1_ref), 3)
+            if ref_effect_size_array:
+                weights = [-1 * np.log10(x) for x in pref_array if x != 1]
+                es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
+                es_mostsig_ref = ref_effect_size_array[np.argmax(weights)]
+                idx = np.argmax([-x for x in pref_array])
+                ref_c_mostsig_ref = ref_counts_array[idx]
+                alt_c_mostsig_ref = alt_counts_array[idx]
+                BAD_mostsig_ref = BAD_array[idx]
             else:
-                m1_ref = 0
+                es_mean_ref = 'NaN'
+                es_mostsig_ref = 'NaN'
+                ref_c_mostsig_ref = 'NaN'
+                alt_c_mostsig_ref = 'NaN'
+                BAD_mostsig_ref = 'NaN'
 
-            c_m1_alt = [x for x in c_m1 if x < 0]
-            if c_m1_alt:
-                m1_alt = np.round(np.mean(c_m1_alt), 3)
+            if alt_effect_size_array:
+                weights = [-1 * np.log10(x) for x in palt_array if x != 1]
+                es_mean_alt = np.round(np.average(alt_effect_size_array, weights=weights), 3)
+                es_mostsig_alt = alt_effect_size_array[np.argmax(weights)]
+                idx = np.argmax([-x for x in palt_array])
+                ref_c_mostsig_alt = ref_counts_array[idx]
+                alt_c_mostsig_alt = alt_counts_array[idx]
+                BAD_mostsig_alt = BAD_array[idx]
             else:
-                m1_alt = 0
-
-            c_m2_ref = [x for x in c_m2 if x > 0]
-            if c_m2_ref:
-                m2_ref = np.round(np.mean(c_m2_ref), 3)
-            else:
-                m2_ref = 0
-
-            c_m2_alt = [x for x in c_m2 if x < 0]
-            if c_m2_alt:
-                m2_alt = np.round(np.mean(c_m2_alt), 3)
-            else:
-                m2_alt = 0
-
-            m1_dict = dict()
-            m2_dict = dict()
-            p_dict = dict()
-            ref_dict = dict()
-            alt_dict = dict()
-
-            for method, sort_key in (('maxdepth', lambda j: c_cover[j]),
-                                     ('mostsig', lambda j: min(c_pref[j], c_palt[j]))):
-                try:
-                    i_most = min([i for i in range(len(c_cover))
-                                  if np.sign(c_ref[i] - c_alt[i]) == np.sign(m_logpalt - m_logpref)],
-                                 key=sort_key)
-                except ValueError:
-                    ref_dict[method] = 'NaN'
-                    alt_dict[method] = 'NaN'
-                    p_dict[method] = 'NaN'
-                    m1_dict[method] = 'NaN'
-                    m2_dict[method] = 'NaN'
-                    continue
-                ref_dict[method] = str(c_ref[i_most])
-                alt_dict[method] = str(c_alt[i_most])
-                p_dict[method] = c_ploidy[i_most]
-                x = c_ref[i_most] / (c_ref[i_most] + c_alt[i_most])
-                p = 1 / (c_ploidy[i_most] + 1)
-                if x <= p or x >= 1 - p:
-                    m1_dict[method] = -1 * np.math.log(min(x, 1 - x) / p, 2) * np.sign(c_ref[i_most] - c_alt[i_most])
-                    m2_dict[method] = np.math.log(max(x, 1 - x) / (1 - p), 2) * np.sign(c_ref[i_most] - c_alt[i_most])
-                else:
-                    m1_dict[method] = 0
-                    m2_dict[method] = 0
+                es_mean_alt = 'NaN'
+                es_mostsig_alt = 'NaN'
+                ref_c_mostsig_alt = 'NaN'
+                alt_c_mostsig_alt = 'NaN'
+                BAD_mostsig_alt = 'NaN'
 
             out.write(pack(
-                [chr, pos, ID, ref, alt, repeat, m_total_callers, m_unique_callers,
-                 m_ploidy, m_q, m_dipq, m_segc, m_datasets,
-                 ref_dict['maxdepth'], alt_dict['maxdepth'], p_dict['maxdepth'],
-                 m1_dict['maxdepth'], m2_dict['maxdepth'],
-                 ref_dict['mostsig'], alt_dict['mostsig'], p_dict['mostsig'],
-                 m1_dict['mostsig'], m2_dict['mostsig'],
+                [chr, pos, ID, ref, alt, repeat, total_callers_counter, unique_callers,
+                 mean_BAD, mean_SNPs_per_segment, n_aggregated,
+                 ref_c_mostsig_ref, alt_c_mostsig_ref, BAD_mostsig_ref, es_mostsig_ref,
+                 ref_c_mostsig_alt, alt_c_mostsig_alt, BAD_mostsig_alt, es_mostsig_alt,
                  min_cover, max_cover, med_cover, total_cover,
-                 m1_ref, m1_alt, m2_ref, m2_alt,
-                 m_logpref, m_logpalt,
-                 m_logpref_cor, m_logpalt_cor,
-                 m_logpref_bal, m_logpalt_bal]))
-            origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': c_table_names,
-                                                            expected_args[what_for]: c_another_agr,
-                                                            'ref_counts': c_ref, 'alt_counts': c_alt,
-                                                            'ref_pvalues': c_pref, 'alt_pvalues': c_palt,
-                                                            'ref_pvalues_corrected': c_pref_cor,
-                                                            'alt_pvalues_corrected': c_palt_cor,
-                                                            'ref_pvalues_balanced': c_pref_bal,
-                                                            'alt_pvalues_balanced': c_palt_bal}
+                 es_mean_ref, es_mean_alt,
+                 logitp_ref, logitp_palt]))
+            origin_of_snp_dict["\t".join(map(str, key))] = {'aligns': table_names_array,
+                                                            expected_args[what_for]: another_agr_name,
+                                                            'ref_counts': ref_counts_array,
+                                                            'alt_counts': alt_counts_array,
+                                                            'ref_ef': ref_effect_size_array,
+                                                            'alt_ef': alt_effect_size_array,
+                                                            'BAD': BAD_array,
+                                                            'ref_pvalues': pref_array,
+                                                            'alt_pvalues': palt_array,
+                                                            }
 
     print("Counting FDR")
-    with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', 'r') as f:
-        table = pd.read_table(f)
 
-    bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref"],
-                                                                             alpha=0.05, method='fdr_bh')
-    bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt"],
-                                                                             alpha=0.05, method='fdr_bh')
-    table["fdrp_ref"] = pd.Series(p_val_ref)
-    table["fdrp_alt"] = pd.Series(p_val_alt)
+    table = pd.read_table(table_path)
+    if table.empty:
+        os.remove(table_path)
+        sys.exit(0)
 
-    bool_ar_ref_cor, p_val_ref_cor, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref_cor"],
-                                                                                     alpha=0.05, method='fdr_bh')
-    bool_ar_alt_cor, p_val_alt_cor, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt_cor"],
-                                                                                     alpha=0.05, method='fdr_bh')
-    table["fdrp_ref_cor"] = pd.Series(p_val_ref_cor)
-    table["fdrp_alt_cor"] = pd.Series(p_val_alt_cor)
+    mc_filter_array = np.array(table['max_cover'] >= 20)
+    if sum(mc_filter_array) != 0:
+        bool_ar_ref, p_val_ref, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_ref"],
+                                                                                 alpha=0.05, method='fdr_bh')
+        bool_ar_alt, p_val_alt, _, _ = statsmodels.stats.multitest.multipletests(table[mc_filter_array]["logitp_alt"],
+                                                                                 alpha=0.05, method='fdr_bh')
+    else:
+        p_val_ref = []
+        p_val_alt = []
+        bool_ar_ref = []
+        bool_ar_alt = []
 
-    bool_ar_ref_bal, p_val_ref_bal, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_ref_bal"],
-                                                                                     alpha=0.05, method='fdr_bh')
-    bool_ar_alt_bal, p_val_alt_bal, _, _ = statsmodels.stats.multitest.multipletests(table["logitp_alt_bal"],
-                                                                                     alpha=0.05, method='fdr_bh')
-    table["fdrp_ref_bal"] = pd.Series(p_val_ref_bal)
-    table["fdrp_alt_bal"] = pd.Series(p_val_alt_bal)
+    fdr_by_ref = np.array(['NaN'] * len(table.index), dtype=np.float128)
+    fdr_by_ref[mc_filter_array] = p_val_ref
+    table["fdrp_bh_ref"] = fdr_by_ref
 
-    with open(results_path + what_for + "_P-values/" + key_name + '_common_table.tsv', "w") as w:
-        table.to_csv(w, sep="\t", index=False)
+    fdr_by_alt = np.array(['NaN'] * len(table.index), dtype=np.float128)
+    fdr_by_alt[mc_filter_array] = p_val_alt
+    table["fdrp_bh_alt"] = fdr_by_alt
 
-    bool_ar = bool_ar_ref + bool_ar_alt
-    bool_ar_cor = bool_ar_ref_cor + bool_ar_alt_cor
-    bool_ar_bal = bool_ar_ref_bal + bool_ar_alt_bal
+    table.to_csv(table_path, sep="\t", index=False)
 
-    annotate_snp_with_tables(origin_of_snp_dict, p_val_ref, p_val_alt, bool_ar)
+    bool_ar = np.array([False] * len(table.index), dtype=np.bool)
+    bool_ar[mc_filter_array] = bool_ar_alt + bool_ar_ref
 
-    with open(results_path + what_for + '_DICTS/' + key_name + '_DICT.json', 'w') as out:
+    with open(results_path + what_for + '_DICTS/{}_DICT.json'.format(key_name), 'w') as out:
         json.dump(origin_of_snp_dict, out)
