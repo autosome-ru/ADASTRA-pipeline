@@ -190,9 +190,9 @@ if __name__ == '__main__':
                 pref_array.append(p_ref)
                 palt_array.append(p_alt)
                 if es_ref is not None:
-                    ref_effect_size_array.append(es_ref)
+                    ref_effect_size_array.append(es_ref/np.log(2))
                 if es_alt is not None:
-                    alt_effect_size_array.append(es_alt)
+                    alt_effect_size_array.append(es_alt/np.log(2))
                 cover_array.append(cov)
 
                 ref_counts_array.append(ref_c)
