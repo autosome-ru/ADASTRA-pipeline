@@ -69,7 +69,7 @@ for line in master_list:
                     dict_overall_statistics["SNP_calls"]["CL"][line[4]] = 0
                 dict_overall_statistics["SNP_calls"]["CL"][line[4]] += local_counter
                 dict_overall_statistics["SNP_calls"]["TF"][line[1]] += local_counter
-        if os.path.isfile(create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)):
+        if len(line) > 10 and os.path.isfile(create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)):
             additional_stats.write(line[10] + '\n')
         if len(line) > 10 and line[10] not in black_list:
             vcf_path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)
