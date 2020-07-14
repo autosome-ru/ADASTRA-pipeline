@@ -14,6 +14,7 @@ def create_path_for_agr_name(string, agr_name):
     return results_path + agr_name + '_P-values/{}.tsv'.format(string)
 
 
+additional_stats = open(os.path.expanduser("~/made.tsv"), 'w')
 with open(ploidy_dict_path, "r") as cl_file, \
         open(GTRD_slice_path, "r") as ml, \
         open(tf_dict_path, "r") as tfs, \
@@ -39,6 +40,8 @@ for line in master_list:
     if line[0] == "#":
         continue
     line = line.split("\t")
+    if os.path.isfile(create_path_from_GTRD_function(line, for_what="vcf")):
+        additional_stats.write(line[0] + '\n')
     if line[0] not in black_list:
         not_blacklisted_exps += 1
         vcf_path = create_path_from_GTRD_function(line, for_what="vcf")
@@ -66,7 +69,8 @@ for line in master_list:
                     dict_overall_statistics["SNP_calls"]["CL"][line[4]] = 0
                 dict_overall_statistics["SNP_calls"]["CL"][line[4]] += local_counter
                 dict_overall_statistics["SNP_calls"]["TF"][line[1]] += local_counter
-
+        if os.path.isfile(create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)):
+            additional_stats.write(line[10] + '\n')
         if len(line) > 10 and line[10] not in black_list:
             vcf_path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=True)
             if vcf_path in counted_controls:
