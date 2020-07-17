@@ -34,7 +34,7 @@ if [ -d "${PWMs_path}/$ExpName"/ ]; then
     echo "Make sarus"
     # shellcheck disable=SC2154
 
-    if ! $Java -cp "${parameters_path}sarus-2.0.1.jar" ru.autosome.SARUS "${sarus_path}${ExpName}_ape_data.txt" \
+    if ! $Java -cp "${parameters_path}sarus.jar" ru.autosome.SARUS "${sarus_path}${ExpName}_ape_data.txt" \
                             "${PWMs_path}/$ExpName/"* \
                             -10000000 \
                             --pvalues-file "${threshold_path}${ExpName}"* \
