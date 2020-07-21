@@ -29,7 +29,7 @@ def CollectRedBlue():
         pt = pt.dropna(subset=["motif_fc"])
         if pt.empty:
             continue
-        pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
+        pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) | (pt['motif_log_palt'] >= -np.log10(perf_tr))]
         pt = pt[~(pt[field + '_alt'].isnull() | pt[field + '_ref'].isnull())]
 
         pt['log_pv'] = (np.log10(
