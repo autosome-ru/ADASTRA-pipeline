@@ -58,39 +58,40 @@ def renorm(position):
 
 
 if __name__ == '__main__':
-    pcm_path = os.path.expanduser('~/pcm/CTCF_HUMAN.H11MO.0.A.pcm')
+    for name in os.listdir(os.path.expanduser('~/pcm/')):
+        pcm_path = os.path.expanduser('~/pcm/{}'.format(name))
 
-    letters = ['A', 'C', 'G', 'T']
+        letters = ['A', 'C', 'G', 'T']
 
-    unit_width = 300
-    unit_height = 600
+        unit_width = 300
+        unit_height = 450
 
-    visible_cut_tr = 0.01
+        visible_cut_tr = 0.05
 
-    revcomp = True
+        revcomp = False
 
-    letter_svgs = {
-        'A': os.path.expanduser('~/letters/lettarA_path.svg'),
-        'C': os.path.expanduser('~/letters/lettarC_path.svg'),
-        'G': os.path.expanduser('~/letters/lettarG_path.svg'),
-        'T': os.path.expanduser('~/letters/lettarT_path.svg'),
-    }
+        letter_svgs = {
+            'A': os.path.expanduser('~/letters/lettarA_path.svg'),
+            'C': os.path.expanduser('~/letters/lettarC_path.svg'),
+            'G': os.path.expanduser('~/letters/lettarG_path.svg'),
+            'T': os.path.expanduser('~/letters/lettarT_path.svg'),
+        }
 
-    get_revcomp = {
-        'A': 'T',
-        'T': 'A',
-        'C': 'G',
-        'G': 'C',
-    }
+        get_revcomp = {
+            'A': 'T',
+            'T': 'A',
+            'C': 'G',
+            'G': 'C',
+        }
 
-    m, heights = get_heights(pcm_path, mode='KDIC')
-    fig = transform.SVGFigure("{}px".format(m * unit_width), "{}px".format(unit_height))
+        m, heights = get_heights(pcm_path, mode='KDIC')
+        fig = transform.SVGFigure("{}px".format(m * unit_width), "{}px".format(unit_height))
 
-    for pos, pack in enumerate(heights[::-1] if revcomp else heights):
-        current_height = 0
-        for letter, height in renorm(pack):
-            # Draw letter with offset of pos*unit_width, current_height*unit_height and height of height*unit_height
-            place_letter_on_svg(fig, letter_svgs[get_revcomp[letter] if revcomp else letter], pos*unit_width, (1-current_height - height)*unit_height, height*unit_height)
-            current_height += height
+        for pos, pack in enumerate(heights[::-1] if revcomp else heights):
+            current_height = 0
+            for letter, height in renorm(pack):
+                # Draw letter with offset of pos*unit_width, current_height*unit_height and height of height*unit_height
+                place_letter_on_svg(fig, letter_svgs[get_revcomp[letter] if revcomp else letter], pos*unit_width, (1-current_height - height)*unit_height, height*unit_height)
+                current_height += height
 
-    fig.save(os.path.expanduser('~/test.svg'))
+        fig.save(os.path.expanduser('~/logosvg/{}.svg'.format(name)))
