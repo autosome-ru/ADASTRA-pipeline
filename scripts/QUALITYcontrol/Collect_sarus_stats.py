@@ -10,7 +10,7 @@ from scripts.HELPERS.helpers import states
 
 
 def get_color(row):
-    if abs(row['log_fc']) < np.log2(fc_tr) or abs(row['log_pv']) < -np.log10(fdr_tr):
+    if abs(row['log_fc']) < fc_tr or abs(row['log_pv']) < -np.log10(fdr_tr):
         return grey_color
     # if row[field + '_ref'] < fdr_tr and row[field + '_alt'] < fdr_tr:
     #     return 'purple'
@@ -29,7 +29,7 @@ def CollectRedBlue():
         pt = pt.dropna(subset=["motif_fc"])
         if pt.empty:
             continue
-        pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
+        pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) | (pt['motif_log_palt'] >= -np.log10(perf_tr))]
         pt = pt[~(pt[field + '_alt'].isnull() | pt[field + '_ref'].isnull())]
 
         pt['log_pv'] = (np.log10(
@@ -52,7 +52,7 @@ def CollectRedBlue():
 if __name__ == '__main__':
     agr_dir = os.path.expanduser('~/SARUS/')
     perf_tr = 0.0005
-    fc_tr = 4
+    fc_tr = 2
     fdr_tr = 0.05
     field = 'fdrp_bh'
 
