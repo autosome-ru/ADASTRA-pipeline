@@ -32,7 +32,7 @@ plt.rcParams['font.weight'] = "medium"
 plt.rcParams['axes.labelweight'] = 'medium'
 plt.rcParams['figure.titleweight'] = 'medium'
 plt.rcParams['axes.titleweight'] = 'medium'
-plt.rcParams['figure.figsize'] = 6, 5
+plt.rcParams['figure.figsize'] = 6.5, 5
 plt.rcParams["legend.framealpha"] = 1
 # plt.rcParams['axes.xmargin'] = 0
 # plt.rcParams['axes.ymargin'] = 0
@@ -44,7 +44,6 @@ if __name__ == '__main__':
     cl = 'all_lines no filter'
     cosmics = [1, 4/3, 3/2, 5/3, 2, 5/2, 3, 7/2, 11/3, 4, 9/2, 5, 11/2, 6, 7]
     df_counts = pd.read_table(os.path.expanduser('~/DataForFigures/counts.tsv'))
-    df_counts.columns = ['chr', 'pos', 'cov', 'BAD', 'COSMIC'] + ['Q{:.2f}'.format(state) for state in states]
     conv = {1.3333333333333337: 4/3,
             1.6666666666666663: 5/3,
             2.333333333333333: 7/3,
@@ -102,24 +101,24 @@ if __name__ == '__main__':
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
     legend_elements = [
-        plt.scatter([-1], [-1], s=117,
+        plt.scatter([-1], [-1], s=(10**(5/2)-1) / 4897.98 * 798 + 2,
                         alpha=0.7,
                         linewidth=0.5,
                         color='#505050',
                         edgecolor='#505050',
-                        label='5 x 10⁵'),
-        plt.scatter([-1], [-1], s=400.6,
+                        label='1 x 10⁵'),
+        plt.scatter([-1], [-1], s=(10**(6/2)-1) / 4897.98 * 798 + 2,
                         alpha=0.7,
                         linewidth=0.5,
                         color='#505050',
                         edgecolor='#505050',
-                        label='6 x 10⁶'),
-        plt.scatter([-1], [-1], s=799,
+                        label='1 x 10⁶'),
+        plt.scatter([-1], [-1], s=(10**(7/2)-1) / 4897.98 * 798 + 2,
                         alpha=0.7,
                         linewidth=0.5,
                         color='#505050',
                         edgecolor='#505050',
-                        label='24 x 10⁶'),
+                        label='1 x 10⁷'),
     ]
 
     # Put a legend to the right of the current axis

@@ -87,7 +87,7 @@ for name in top10_names:
             minor = row['ref']
             es = row[es_field + '_alt']
 
-        if row['orientation'] == '-':
+        if row['motif_orient'] == '-':
             major = comp[major]
             minor = comp[minor]
 
@@ -117,7 +117,7 @@ for name in top10_names:
         plt.text(x=(k + 0.5) / motive_length, y=motive_pos_h, s=str(k+1), color=text_color, ha='center', va='center')
         for i in range(4):
             plt.axvline(x=(k + (i + 1) / 5) / motive_length, linewidth=1, linestyle='--', color='grey')
-            plt.text(x=(k + (i + 1) / 5) / motive_length, y=text_h, s=nucs[i], color=get_color[nucs[i]],
+            plt.text(x=(k + (i + 1) / 5) / motive_length, y=text_h, s=nucs[i], color=text_color,
                      ha='center', va='center', fontdict={'size': 18})
     plt.text(x=0.5 / motive_length, y=0.5 * text_h, s='minor', color=text_color,
              ha='center', va='center', fontdict={'size': 18})
@@ -127,5 +127,5 @@ for name in top10_names:
 
     ax.text(x=0.99, y=2.95, s=name.replace('_HUMAN.tsv', ''), color=text_color, va='top', ha='right')
 
-    plt.savefig(os.path.expanduser('~/AC_6/AS_Figure_6_stave_{}_05022020.png'.format(name.replace('_HUMAN.tsv', ''))))
+    plt.savefig(os.path.expanduser('~/AC_6/AS_Figure_6_stave_{}_05022020.svg'.format(name.replace('_HUMAN.tsv', ''))))
     plt.close(fig)

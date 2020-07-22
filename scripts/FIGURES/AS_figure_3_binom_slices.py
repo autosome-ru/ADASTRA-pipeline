@@ -45,7 +45,8 @@ for max_c, cells, covs, BAD, p, suffix in [
     [150, 'K562', [30, 60], 0, 1/3, '_big'],
     [100, 'diploid', [15, 30], 0, 1/2, '_small'],
     [50, 'HCT116', [15, 30], 0, 1/2, '_small'],
-] + [[150, 'all', [30, 60], B, 0, '_big'] for B in states] + [[50, 'all', [15, 30], B, 0, '_small'] for B in states]:
+] + [[150, 'all', [30, 60], B, 0, '_big'] for B in states] + [[50, 'all', [15, 30], B, 0, '_small'] for B in states + [0]] + \
+        [[50, 'all', [15, 30], 0, 1/2, '_small'], [150, 'all', [30, 60], 0, 1/2, '_big']]:
     if BAD != 0:
         p = 1/(BAD + 1)
     t = pd.read_table(os.path.expanduser(

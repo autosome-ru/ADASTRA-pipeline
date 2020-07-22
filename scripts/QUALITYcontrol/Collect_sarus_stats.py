@@ -53,7 +53,7 @@ if __name__ == '__main__':
     agr_dir = os.path.expanduser('~/SARUS/')
     perf_tr = 0.0005
     fc_tr = 4
-    fdr_tr = 0.005
+    fdr_tr = 0.05
     field = 'fdrp_bh'
 
     blue_color = '#005AB5'  # 1B7837'
