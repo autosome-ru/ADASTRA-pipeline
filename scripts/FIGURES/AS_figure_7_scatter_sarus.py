@@ -7,7 +7,7 @@ import seaborn as sns
 
 
 def get_color(row):
-    if abs(row['log_fc']) < 2 or abs(row['log_pv']) < -np.log10(fdr_tr):
+    if abs(row['log_fc']) < fc_tr or abs(row['log_pv']) < -np.log10(fdr_tr):
         return grey_color
     # if row[field + '_ref'] < fdr_tr and row[field + '_alt'] < fdr_tr:
     #     return 'purple'
@@ -19,21 +19,17 @@ def get_color(row):
 
 if __name__ == '__main__':
 
-    top10_names = ['BHE40_HUMAN.tsv',
-                   'EGR1_HUMAN.tsv',
-                   'CEBPB_HUMAN.tsv',
-                   # 'RFX1_HUMAN.tsv',
-                   # 'ESR1_HUMAN.tsv',
-                   'MAFK_HUMAN.tsv',
-                   # 'JUND_HUMAN.tsv',
-                   # 'ATF2_HUMAN.tsv',
-                   'CREB1_HUMAN.tsv',
-                   # 'NRF1_HUMAN.tsv',
-                   'ANDR_HUMAN.tsv',
-                   'FOXA1_HUMAN.tsv',
-                   'SPI1_HUMAN.tsv',
-                   'DUX4_HUMAN.tsv',
-                   'CTCF_HUMAN.tsv', 'CTCF_Mathelier.tsv']
+    top10_names = [
+       'CEBPB_HUMAN.tsv',
+       'ESR1_HUMAN.tsv',
+       'SNAI2_HUMAN.tsv',
+       'CREB1_HUMAN.tsv',
+       'ANDR_HUMAN.tsv',
+       'FOXA1_HUMAN.tsv',
+       'SPI1_HUMAN.tsv',
+       'DUX4_HUMAN.tsv',
+       'NRF1_HUMAN.tsv',
+       'CTCF_HUMAN.tsv', 'CTCF_Mathelier.tsv']
 
     sns.set(font_scale=1.4, style="ticks", font="lato", palette=('#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2',
                                                                  '#D55E00', '#CC79A7'))
@@ -42,7 +38,7 @@ if __name__ == '__main__':
     plt.rcParams['axes.labelweight'] = 'medium'
     plt.rcParams['figure.titleweight'] = 'medium'
     plt.rcParams['axes.titleweight'] = 'medium'
-    plt.rcParams['figure.figsize'] = 6, 5*2/3
+    plt.rcParams['figure.figsize'] = 6, 5
     plt.rcParams["legend.framealpha"] = 1
     plt.rcParams['axes.xmargin'] = 0
     plt.rcParams['axes.ymargin'] = 0
@@ -51,8 +47,8 @@ if __name__ == '__main__':
     field = 'fdrp_bh'
 
     perf_tr = 0.0005
-    fc_tr = 4
-    fdr_tr_mat = 0.000000000000000003
+    fc_tr = 2
+    fdr_tr_mat = 0.0000000000000000023
     fdr_tr = 0.05
 
     # blue_color = '#1B7837'
@@ -72,13 +68,13 @@ if __name__ == '__main__':
     point_size = 10
 
     # # Barplot
-    # df = pd.read_table(os.path.expanduser("~/PARAMETERS/blue_red_stats.tsv"))
+    # df = pd.read_table(os.path.expanduser("~/DataForFigures/blue_red_stats.tsv"))
     # # df = pd.read_table(os.path.expanduser("~/DataForFigures/blue_red_stats.tsv"))
-    # fig, ax = plt.subplots()
+    # fig, ax = plt.subplots(figsize=(6, 5*2/3))
     # plt.tight_layout(rect=(0.025, 0, 1, 1))
     # df['sum'] = df["red"] + df["blue"]
     # df['part'] = df["blue"] / df['sum']
-    # df = df[df['sum'] >= 100].sort_values("sum")
+    # df = df[(df['sum'] >= 230)].sort_values("sum")
     # print(df['name'])
     # x, blue, red, blue_n, ticks = range(len(df.index)), \
     #                               df["part"].tolist(), (df["red"] / df['sum']).tolist(), df["blue"].tolist(), \
@@ -97,14 +93,15 @@ if __name__ == '__main__':
     # plt.close(fig)
 
     # Scatters
-    for name in ['All_TFs.tsv']:  # + top10_names + ['CTCF_for_comparison.tsv']:
+    # for name in ['All_TFs.tsv'] + top10_names + ['CTCF_for_comparison.tsv']:
+    for name in os.listdir(os.path.expanduser('~/Releases/TF_P-values/TF_P-values/')):
         mat = False
         if name == 'CTCF_for_comparison.tsv':
             mat = True
-        pt = pd.read_table(os.path.expanduser("~/DataForFigures/scatter/{}".format('CTCF_HUMAN.tsv' if mat else name)))
-        # pt = pd.read_table(os.path.expanduser("~/Releases/TF_P-values/TF_P-values/{}".format('CTCF_HUMAN.tsv' if mat else name)))
+        #pt = pd.read_table(os.path.expanduser("~/DataForFigures/scatter/{}".format('CTCF_HUMAN.tsv' if mat else name)))
+        pt = pd.read_table(os.path.expanduser("~/Releases/TF_P-values/TF_P-values/{}".format('CTCF_HUMAN.tsv' if mat else name)))
 
-        pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) & (pt['motif_log_palt'] >= -np.log10(perf_tr))]
+        pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) | (pt['motif_log_palt'] >= -np.log10(perf_tr))]
         if 'Mathelier' not in name:
             pt = pt[~(pt[field + '_alt'].isnull() | pt[field + '_ref'].isnull())]
             pt = pt[~(pt['motif_fc'].isnull())]
@@ -118,11 +115,17 @@ if __name__ == '__main__':
         if mat:
             fdr_tr, fdr_tr_mat = fdr_tr_mat, fdr_tr
 
+        if pt.empty:
+            continue
+        print(pt.head())
         pt['col'] = pt.apply(lambda x: get_color(x), axis=1)
 
         blue = len(pt[pt['col'] == blue_color].index)
         red = len(pt[pt['col'] == red_color].index)
         grey = len(pt[pt['col'] == grey_color].index)
+
+        if blue + red == 0:
+            continue
 
         pt_grey = pt[pt['col'] == grey_color]
         pt_red = pt[pt['col'] == red_color]

@@ -66,7 +66,7 @@ if __name__ == '__main__':
         unit_width = 300
         unit_height = 450
 
-        visible_cut_tr = 0.05
+        visible_cut_tr = 0.00
 
         revcomp = False
 
@@ -84,7 +84,7 @@ if __name__ == '__main__':
             'G': 'C',
         }
 
-        m, heights = get_heights(pcm_path, mode='KDIC')
+        m, heights = get_heights(pcm_path, mode='freq')
         fig = transform.SVGFigure("{}px".format(m * unit_width), "{}px".format(unit_height))
 
         for pos, pack in enumerate(heights[::-1] if revcomp else heights):
