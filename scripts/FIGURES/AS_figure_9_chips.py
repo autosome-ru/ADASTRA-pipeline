@@ -168,6 +168,7 @@ sns.scatterplot(y=df_mcf7["cor_by_snp_CAIC"], x=df_mcf7[field], zorder=10,
 sns.scatterplot(y=df_other["cor_by_snp_CAIC"], x=df_other[field], zorder=10,
                 linewidth=0, alpha=0.7, color='C0', label='Other')
 sns.lineplot(x=[-1, 1], y=[-1, 1], color='#505050')
+print(len(df_k562.index) + len(df_mcf7.index) + len(df_other.index))
 ax.axvline(x=0, color='#505050', linestyle='--')
 ax.axhline(y=0, color='#505050', linestyle='--')
 ax.legend(loc='lower right', handletextpad=0.3, handlelength=1)
