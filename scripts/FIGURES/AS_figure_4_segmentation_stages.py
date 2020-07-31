@@ -49,7 +49,7 @@ snps['log_cov'] = np.log10(snps['cov'])
 ploidy = pd.read_table(ploidy_name)
 
 # chrs = ('chr10', 'chr17')
-chrs = ('chr2', 'chr6')
+chrs = ('chr12', 'chr6')
 BAD_color = '#0072B266'
 BAD_color_1 = '#0072B2CC'
 COSMIC_color = '#D55E00'
