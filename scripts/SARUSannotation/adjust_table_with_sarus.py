@@ -1,8 +1,6 @@
 import os
 import sys
 import numpy as np
-
-sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import pack
 
 
@@ -21,7 +19,7 @@ def get_color(p_val_ref, p_val_alt, motif_fc, motif_pval_ref, motif_pval_alt):
         return "No Hit"
 
 
-#read sarus file and choose best
+# read sarus file and choose best
 dict_of_snps = {}
 if os.path.isfile(sys.argv[2]):
     motif_length = int(sys.argv[4])

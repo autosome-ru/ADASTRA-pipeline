@@ -1,8 +1,6 @@
 import io
 import sys
 import zipfile
-
-sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import ChromPos
 
 file = sys.argv[1]

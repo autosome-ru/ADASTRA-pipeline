@@ -1,8 +1,6 @@
 import sys
 import numpy as np
 from collections import deque
-
-sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import ChromPos
 
 fasta = open(sys.argv[2], 'r')

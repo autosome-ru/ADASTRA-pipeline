@@ -1,9 +1,9 @@
 #!/bin/bash
 
-AlignmentsPath="/home/abramov/Alignments/"
-ScriptsPath="/home/abramov/ASB-Project/scripts/"
-SNPcallingScriptsPath=${ScriptsPath}"SNPcalling/"
-HelpersScriptsPath=${ScriptsPath}"HELPERS/"
+source ../HELPERS/paths_for_components.py
+source ../HELPERS/Config.cfg
+SNPcallingScriptsPath=${scripts_path}"SNPcalling/"
+HelpersScriptsPath=${scripts_path}"HELPERS/"
 
 LINE=$2
 to_download=$1
@@ -23,35 +23,35 @@ fi
 
 echo "Making dirs"
 if [ "$TF" != "None" ]; then
-  if ! [ -d ${AlignmentsPath}"EXP/$TF" ]; then
-    if ! mkdir ${AlignmentsPath}"EXP/$TF"
+  if ! [ -d ${alignments_path}"EXP/$TF" ]; then
+    if ! mkdir ${alignments_path}"EXP/$TF"
     then
       echo "Failed to make dir $TF"
       exit 1
     fi
   fi
 
-  if ! [ -d ${AlignmentsPath}"EXP/$TF/$ExpName" ]; then
-    if ! mkdir ${AlignmentsPath}"EXP/$TF/$ExpName"
+  if ! [ -d ${alignments_path}"EXP/$TF/$ExpName" ]; then
+    if ! mkdir ${alignments_path}"EXP/$TF/$ExpName"
     then
       echo "Failed to make dir $ExpName"
       exit 1
     fi
   fi
 
-  OutPath=${AlignmentsPath}"EXP/$TF/$ExpName/"
-  AlignmentFullPath=${AlignmentsPath}"EXP/$TF/$ExpName/$AlignName.bam"
+  OutPath=${alignments_path}"EXP/$TF/$ExpName/"
+  AlignmentFullPath=${alignments_path}"EXP/$TF/$ExpName/$AlignName.bam"
 else
-  if ! [ -d ${AlignmentsPath}"CTRL/$ExpName" ]; then
-    if ! mkdir ${AlignmentsPath}"CTRL/$ExpName"
+  if ! [ -d ${alignments_path}"CTRL/$ExpName" ]; then
+    if ! mkdir ${alignments_path}"CTRL/$ExpName"
     then
       echo "Failed to make dir $ExpName"
       exit 1
     fi
   fi
 
-  OutPath=${AlignmentsPath}"CTRL/$ExpName/"
-  AlignmentFullPath=${AlignmentsPath}"CTRL/$ExpName/$AlignName.bam"
+  OutPath=${alignments_path}"CTRL/$ExpName/"
+  AlignmentFullPath=${alignments_path}"CTRL/$ExpName/$AlignName.bam"
 fi
 
 echo "Downloading $ExpName"

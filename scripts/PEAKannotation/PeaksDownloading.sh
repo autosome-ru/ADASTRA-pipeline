@@ -1,1 +1,0 @@
-#TODO: download macs2 peaks with DownloadFile.sh script to interval_path/macs2

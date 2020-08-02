@@ -1,9 +1,10 @@
 #!/bin/bash
+source ../HELPERS/paths_for_components.py
 source ../HELPERS/Config.cfg
 
-VCF="/home/abramov/REFERENCE/00-common_all.vcf.gz"
-REFERENCE="/home/abramov/REFERENCE/"
-FA=${REFERENCE}"genome-norm.fasta"
+reference_path="/home/abramov/reference_path/"
+VCF=${reference_path}"00-common_all.vcf.gz"
+FA=${reference_path}"genome-norm.fasta"
 
 while [ "$(echo "$1" | cut -c1)" = "-" ]
 do

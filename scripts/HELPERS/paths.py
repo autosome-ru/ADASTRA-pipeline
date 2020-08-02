@@ -1,6 +1,3 @@
-import sys
-
-sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths_for_components import alignments_path, ploidy_path, blacklisted_exps_path, tf_dict_path, \
     cl_dict_path
 

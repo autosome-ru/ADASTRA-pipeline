@@ -1,8 +1,6 @@
 import sys
 import json
 import os.path
-
-sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.paths import open_aggregation_dict
 from scripts.HELPERS.paths_for_components import parallel_parameters_path
 from scripts.HELPERS.helpers import check_if_in_expected_args

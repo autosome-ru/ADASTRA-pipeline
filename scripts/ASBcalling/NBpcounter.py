@@ -2,9 +2,6 @@ import sys
 import numpy as np
 import pandas as pd
 from scipy import stats as st
-
-sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths_for_components import parameters_path
 from scripts.HELPERS.helpers import read_weights
 
 

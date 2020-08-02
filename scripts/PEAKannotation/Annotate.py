@@ -1,8 +1,6 @@
 import sys
 import gzip
 import os.path
-
-sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import pack, make_dict_from_vcf, Intersection, callers_names
 
 
