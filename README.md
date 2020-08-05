@@ -30,11 +30,11 @@ statsmodels>=0.11.1 <br>
 ### Directories
 alignments_path="/home/user/Alignments/" <br>
 parameters_path="/home/user/PARAMETERS/" <br>
-ploidy_path="/home/user/BAD/" <br>
+badmaps_path="/home/user/BADMAPS/" <br>
 results_path="/home/user/DATA/" <br>
 reference_path="/home/user/REFERENCE/" <br>
 ### Files
-data_slice_path="/home/user/PARAMETERS/Master-lines.tsv" <br>
+MASTER_LIST="/home/user/PARAMETERS/Master-lines.tsv" <br>
 GENOME="/home/user/REFERENCE/genome.fasta" <br>
 DBSNP_VCF="/home/user/REFERENCE/dbsnp_common.vcf.gz" <br>
 
