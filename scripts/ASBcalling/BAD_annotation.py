@@ -1,7 +1,7 @@
 import json
 import sys
-from scripts.HELPERS.paths import create_ploidy_path_function
-from scripts.HELPERS.paths_for_components import ploidy_dict_path
+from scripts.HELPERS.paths import create_badmaps_path_function
+from scripts.HELPERS.paths_for_components import badmaps_dict_path
 from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, unpackBADSegments, states
 
 
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     table_annotated = full_path + "_table_annotated.txt"
     output = full_path + "_table_BADs.txt"
 
-    with open(ploidy_dict_path, "r") as read_file:
+    with open(badmaps_dict_path, "r") as read_file:
         d = json.loads(read_file.readline())
         rev_d = make_reverse_dict(d)
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     print('Now doing {} \n with ploidy file {}'.format(table_annotated, ploidy_file_name))
 
     model = 'CAIC'
-    ploidy = create_ploidy_path_function(ploidy_file_name, model)
+    ploidy = create_badmaps_path_function(ploidy_file_name, model)
 
     with open(ploidy, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts',

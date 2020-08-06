@@ -2,9 +2,7 @@ import gzip
 import os
 import sys
 import json
-
-sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.paths_for_components import ploidy_path, ploidy_dict_path
+from scripts.HELPERS.paths_for_components import badmaps_path, badmaps_dict_path
 from scripts.HELPERS.helpers import make_dict_from_vcf, make_list_from_vcf
 
 
@@ -39,7 +37,7 @@ def merge_vcfs_independent_snps(out_file_name, in_files):
 
 
 if __name__ == '__main__':
-    with open(ploidy_dict_path, 'r') as read_file:
+    with open(badmaps_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     key = sys.argv[1]
     mode = 'independent'
@@ -49,12 +47,12 @@ if __name__ == '__main__':
     for path in d[key]:
         if os.path.isfile(path):
             arr.append(path)
-    if not os.path.isdir(ploidy_path + 'merged_vcfs/'):
+    if not os.path.isdir(os.path.join(badmaps_path, 'merged_vcfs')):
         try:
-            os.mkdir(ploidy_path + 'merged_vcfs/')
+            os.mkdir(badmaps_path + 'merged_vcfs/')
         except:
             pass
-    out_file = ploidy_path + 'merged_vcfs/' + key + ".tsv"
+    out_file = os.path.join(badmaps_path, 'merged_vcfs', key + ".tsv")
 
     if mode == 'independent':
         merge_vcfs_independent_snps(out_file, arr)

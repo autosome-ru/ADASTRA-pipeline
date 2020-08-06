@@ -1,11 +1,11 @@
 import requests
 import json
-from scripts.HELPERS.paths import create_path_from_GTRD_function
-from scripts.HELPERS.paths_for_components import ploidy_dict_path, GTRD_slice_path
+from scripts.HELPERS.paths import create_path_from_master_list
+from scripts.HELPERS.paths_for_components import badmaps_dict_path, master_list_path
 from scripts.HELPERS.helpers import remove_punctuation
 
 
-def findLAB(enc):
+def find_lab(enc):
     if enc.find(";") != -1:
         enc = enc.split(";")[0]
     if enc.find("wgEncode") == -1:
@@ -32,7 +32,7 @@ def add_record(d, line, ctrl=False):
     else:
         idcs = (4, 8, 9)
     is_lovo = False
-    path = create_path_from_GTRD_function(line, for_what="vcf", ctrl=ctrl)
+    path = create_path_from_master_list(line, for_what="vcf", ctrl=ctrl)
     if line[idcs[0]] == "LoVo (colorectal adenocarcinoma)":
         is_lovo = True
     line[idcs[0]] = remove_punctuation(line[idcs[0]])
@@ -40,7 +40,7 @@ def add_record(d, line, ctrl=False):
         add_to_dict(d, line[idcs[0]] + '!None', path)
         return
     if line[idcs[2]] != "None":
-        Lab = findLAB(line[idcs[2]])
+        Lab = find_lab(line[idcs[2]])
         if Lab:
             key = line[idcs[0]] + '!' + Lab
             add_to_dict(d, key, path)
@@ -49,7 +49,7 @@ def add_record(d, line, ctrl=False):
         add_to_dict(d, key, path)
 
 
-def MakeDict(masterList):
+def make_dict(masterList):
     master = open(masterList, "r")
     d = dict()
     count = 0
@@ -69,9 +69,9 @@ def MakeDict(masterList):
         value = d[key]
         sorted_value = sorted(list(value))
         d[key] = sorted_value
-    with open(ploidy_dict_path, "w") as write_file:
+    with open(badmaps_dict_path, "w") as write_file:
         json.dump(d, write_file)
     print("Dictionary Saved")
 
 
-MakeDict(GTRD_slice_path)
+make_dict(master_list_path)

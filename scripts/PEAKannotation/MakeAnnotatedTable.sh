@@ -1,8 +1,8 @@
 #!/bin/bash
-source ../HELPERS/Config.cfg
+source ../Config/CONFIG.cfg
+source ../HELPERS/paths_for_components.py
 
-ScriptsPath="/home/abramov/ASB-Project/scripts/"
-PEAKannotationScriptsPath=${ScriptsPath}PEAKannotation/
+PEAKannotationScriptsPath=${scripts_path}/PEAKannotation/
 
 GETNAME(){
 	local var=$1
@@ -56,9 +56,9 @@ do
 done
 
 if [ $withgem != false ]; then
-	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$gem" "$OUT${EXPNAME}_gem.bed" 'gem'
+	python3 ${PEAKannotationScriptsPath}/CheckPositive.py "$gem" "$OUT/${EXPNAME}_gem.bed" 'gem'
 	# shellcheck disable=SC2154
-	if ! bedtools sort -i "$OUT${EXPNAME}_gem.bed" > "$OUT${EXPNAME}_gem.bed.sorted"
+	if ! bedtools sort -i "$OUT/${EXPNAME}_gem.bed" > "$OUT/${EXPNAME}_gem.bed.sorted"
 	then
 		echo "Failed to sort gem peaks"
 		exit 1
@@ -67,39 +67,39 @@ if [ $withgem != false ]; then
 fi
 
 if [ $withmacs != false ]; then
-	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$macs" "$OUT${EXPNAME}_macs.bed" 'macs'
+	python3 ${PEAKannotationScriptsPath}/CheckPositive.py "$macs" "$OUT/${EXPNAME}_macs.bed" 'macs'
 
-	if ! bedtools sort -i "$OUT${EXPNAME}_macs.bed" > "$OUT${EXPNAME}_macs.bed.sorted"
+	if ! bedtools sort -i "$OUT/${EXPNAME}_macs.bed" > "$OUT/${EXPNAME}_macs.bed.sorted"
 	then
 		echo "Failed to sort macs peaks"
 		exit 1
 	fi
-  rm "$OUT${EXPNAME}_macs.bed"
+  rm "$OUT/${EXPNAME}_macs.bed"
 fi
 
 if [ $withsissrs != false ]; then
-	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$sissrs" "$OUT${EXPNAME}_sissrs.bed" 'sissrs'
+	python3 ${PEAKannotationScriptsPath}/CheckPositive.py "$sissrs" "$OUT/${EXPNAME}_sissrs.bed" 'sissrs'
 
-	if ! bedtools sort -i "$OUT${EXPNAME}_sissrs.bed" > "$OUT${EXPNAME}_sissrs.bed.sorted"
+	if ! bedtools sort -i "$OUT/${EXPNAME}_sissrs.bed" > "$OUT/${EXPNAME}_sissrs.bed.sorted"
 	then
 		echo "Failed to sort sissrs peaks"
 		exit 1
 	fi
-  rm "$OUT${EXPNAME}_sissrs.bed"
+  rm "$OUT/${EXPNAME}_sissrs.bed"
 fi
 
 if [ $withcpics != false ]; then
-	python3 ${PEAKannotationScriptsPath}CheckPositive.py "$cpics" "$OUT${EXPNAME}_cpics.bed" 'cpics'
+	python3 ${PEAKannotationScriptsPath}/CheckPositive.py "$cpics" "$OUT/${EXPNAME}_cpics.bed" 'cpics'
 
-	if ! bedtools sort -i "$OUT${EXPNAME}_cpics.bed" > "$OUT${EXPNAME}_cpics.bed.sorted"
+	if ! bedtools sort -i "$OUT/${EXPNAME}_cpics.bed" > "$OUT/${EXPNAME}_cpics.bed.sorted"
 	then
 		echo "Failed to sort cpics peaks"
 		exit 1
 	fi
-  rm "$OUT${EXPNAME}_cpics.bed"
+  rm "$OUT/${EXPNAME}_cpics.bed"
 fi
 
-python3 ${PEAKannotationScriptsPath}Annotate.py "$VCF" "$OUT${EXPNAME}_table_annotated.txt" "$RepFile"
+python3 ${PEAKannotationScriptsPath}/Annotate.py "$VCF" "$OUT/${EXPNAME}_table_annotated.txt" "$RepFile"
 
 
 if [ "$withgem" != false ]; then

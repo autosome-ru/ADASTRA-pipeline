@@ -1,8 +1,8 @@
 import json
 import os.path
-from scripts.HELPERS.paths_for_components import parallel_parameters_path, ploidy_dict_path
+from scripts.HELPERS.paths_for_components import parallel_parameters_path, badmaps_dict_path
 
-out_path = parallel_parameters_path + 'PvC_parameters.cfg'
+out_path = os.path.join(parallel_parameters_path, 'PvC_parameters.cfg')
 
 
 def make_reverse_dict(dictionary):
@@ -16,7 +16,7 @@ def make_reverse_dict(dictionary):
 
 
 if __name__ == "__main__":
-    with open(ploidy_dict_path, 'r') as read_file:
+    with open(badmaps_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
         rev_d = make_reverse_dict(d)
     keys = sorted(rev_d.keys())

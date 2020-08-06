@@ -1,12 +1,12 @@
 import json
 import os.path
-from scripts.HELPERS.paths_for_components import parallel_parameters_path, ploidy_dict_path
+from scripts.HELPERS.paths_for_components import parallel_parameters_path, badmaps_dict_path
 
-out_path = parallel_parameters_path + 'PE_parameters.cfg'
+out_path = os.path.join(parallel_parameters_path, 'PE_parameters.cfg')
 
 
 if __name__ == "__main__":
-    with open(ploidy_dict_path, 'r') as read_file:
+    with open(badmaps_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     keys = sorted(d.keys())
     with open(out_path, 'w') as file:

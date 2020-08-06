@@ -1,10 +1,9 @@
 #!/bin/bash
 
-AlignmentsPath="/home/abramov/Alignments/"
-IntervalsPath="/home/abramov/intervals/"
-RepPath="/home/abramov/Repeats/repeats_regions.filtered.tsv"
-ScriptsPath="/home/abramov/ASB-Project/scripts/"
-PEAKannotationScriptsPath=${ScriptsPath}"PEAKannotation/"
+source ../Config/CONFIG.cfg
+source ../HELPERS/paths_for_components.py
+
+PEAKannotationScriptsPath=${scripts_path}"/PEAKannotation/"
 
 LINE=$1
 IFS=$'\t'
@@ -16,7 +15,7 @@ read -ra ADDR <<< "$LINE"
 if [ "$ExpName" == "#*" ]; then
   exit 1
 fi
-VCFPath="${AlignmentsPath}EXP/$TF/$ExpName/$AlignName.vcf.gz"
+VCFPath="${alignments_path}/EXP/$TF/$ExpName/$AlignName.vcf.gz"
 echo "$VCFPath"
 
 echo "Making $ExpName"
@@ -26,47 +25,47 @@ if ! [ -f "$VCFPath" ]; then
   exit 1
 fi
 
-if  [ -f "${AlignmentsPath}EXP/$TF/$ExpName/${AlignName}_table_annotated.txt" ]; then
+if  [ -f "${alignments_path}/EXP/$TF/$ExpName/${AlignName}_table_annotated.txt" ]; then
 	echo "Remaking $ExpName"
 else
 	echo "Making $ExpName first time"
 fi
 
-if [ -f "$IntervalsPath/macs/${PeaksName}.interval.zip" ];then
+if [ -f "$intervals_path/macs/${PeaksName}.interval.zip" ];then
 	PeakM="-macs"
-	PEAKM="$IntervalsPath/macs/${PeaksName}.interval.zip"
+	PEAKM="$intervals_path/macs/${PeaksName}.interval.zip"
 else
   PeakM=""
   PEAKM=""
 fi
 
-if [ -f "$IntervalsPath/gem/${PeaksName}.interval.zip" ];then
+if [ -f "$intervals_path/gem/${PeaksName}.interval.zip" ];then
   PeakG="-gem"
-  PEAKG="$IntervalsPath/gem/${PeaksName}.interval.zip"
+  PEAKG="$intervals_path/gem/${PeaksName}.interval.zip"
 else
   PeakG=""
   PEAKG=""
 fi
 
-if [ -f "$IntervalsPath/cpics/${PeaksName}.interval.zip" ];then
+if [ -f "$intervals_path/cpics/${PeaksName}.interval.zip" ];then
   PeakC="-cpics"
-  PEAKC="$IntervalsPath/cpics/${PeaksName}.interval.zip"
+  PEAKC="$intervals_path/cpics/${PeaksName}.interval.zip"
 else
   PeakC=""
   PEAKC=""
 fi
 
-if [ -f "$IntervalsPath/sissrs/${PeaksName}.interval.zip" ];then
+if [ -f "$intervals_path/sissrs/${PeaksName}.interval.zip" ];then
   PeakS="-sissrs"
-  PEAKS="$IntervalsPath/sissrs/${PeaksName}.interval.zip"
+  PEAKS="$intervals_path/sissrs/${PeaksName}.interval.zip"
 else
   PeakS=""
   PEAKS=""
 fi
 
 
-if ! bash ${PEAKannotationScriptsPath}MakeAnnotatedTable.sh -Out $AlignmentsPath/EXP/"$TF/$ExpName" \
-		-Rep "$RepPath" \
+if ! bash ${PEAKannotationScriptsPath}/MakeAnnotatedTable.sh -Out $alignments_path/EXP/"$TF/$ExpName" \
+		-Rep "$repeats_path" \
 		$PeakM $PEAKM $PeakS $PEAKS $PeakG $PEAKG $PeakC $PEAKC\
 		-VCF "$VCFPath"
 then

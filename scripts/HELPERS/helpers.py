@@ -1,7 +1,8 @@
 import string
 import numpy as np
-from scripts.HELPERS.paths import make_black_list, create_path_from_GTRD_function
-from scripts.HELPERS.paths_for_components import GTRD_slice_path, synonims_path, parameters_path, cl_dict_path
+import os
+from scripts.HELPERS.paths import create_path_from_master_list
+from scripts.HELPERS.paths_for_components import master_list_path, configs_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
@@ -283,25 +284,24 @@ def pack(values):
 
 def make_list_for_VCFs(out_path=None, condition_function=lambda x: True):
     # condition function takes path and return boolean
-    black_list = make_black_list()
     counted_controls = set()
     condition_to_file_dict = {}
-    with open(GTRD_slice_path, "r") as master_list:
+    with open(master_list_path, "r") as master_list:
         if out_path is not None:
             out = open(out_path, "w")
         for line in master_list:
             if line[0] == "#":
                 continue
             split_line = line.strip().split("\t")
-            if split_line[0] not in black_list:
-                vcf_path = create_path_from_GTRD_function(split_line, for_what="vcf")
-                if out_path is not None:
-                    if condition_function(vcf_path):
-                        out.write(create_line_for_snp_calling(split_line))
-                else:
-                    condition_to_file_dict[vcf_path] = condition_function(vcf_path)
-            if len(split_line) > 10 and split_line[10] not in black_list:
-                vcf_path = create_path_from_GTRD_function(split_line, for_what="vcf", ctrl=True)
+
+            vcf_path = create_path_from_master_list(split_line, for_what="vcf")
+            if out_path is not None:
+                if condition_function(vcf_path):
+                    out.write(create_line_for_snp_calling(split_line))
+            else:
+                condition_to_file_dict[vcf_path] = condition_function(vcf_path)
+            if len(split_line) > 10:
+                vcf_path = create_path_from_master_list(split_line, for_what="vcf", ctrl=True)
                 if vcf_path in counted_controls:
                     continue
                 counted_controls.add(vcf_path)
@@ -319,18 +319,6 @@ def make_list_for_VCFs(out_path=None, condition_function=lambda x: True):
 def check_if_in_expected_args(what_for):
     if what_for not in expected_args:
         raise ValueError('{} not in CL, TF'.format(what_for))
-
-
-def read_synonims():
-    cosmic_names = dict()
-    cgh_names = dict()
-    with open(synonims_path, 'r') as file:
-        for line in file:
-            line = line.strip('\n').split('\t')
-            name = remove_punctuation(line[0])
-            cosmic_names[name] = line[1]
-            cgh_names[name] = line[2]
-    return cosmic_names, cgh_names
 
 
 def remove_punctuation(x):
@@ -458,7 +446,7 @@ def read_weights():
         w[fixed_allele] = {}
         gof[fixed_allele] = {}
         for BAD in states:
-            precalc_params_path = parameters_path + 'NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD)
+            precalc_params_path = os.path.join(configs_path, 'NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD))
             coefs_array = np.load(precalc_params_path)
             r[fixed_allele][BAD] = coefs_array[:, 0]
             w[fixed_allele][BAD] = coefs_array[:, 1]
@@ -482,9 +470,9 @@ def unpackBADSegments(line):
 if __name__ == "__main__":
     import pandas as pd
     import json
-    with open(parameters_path + 'CONVERT_CL_NAMES.json', 'w') as o:
+    with open(os.path.join(configs_path, 'CONVERT_CL_NAMES.json'), 'w') as o:
         d_to_write = {}
-        d = pd.read_table(GTRD_slice_path)
+        d = pd.read_table(master_list_path)
         for key in d["cell_title"].tolist():
             d_to_write[key] = remove_punctuation(key)
         json.dump(d_to_write, o)

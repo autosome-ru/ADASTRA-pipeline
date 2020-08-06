@@ -1,7 +1,7 @@
 import os.path
 import json
 import pandas as pd
-from scripts.HELPERS.paths_for_components import parameters_path, cl_dict_path
+from scripts.HELPERS.paths_for_components import configs_path, cl_dict_path
 from scripts.HELPERS.helpers import remove_punctuation
 
 
@@ -45,11 +45,11 @@ def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
                 out_t = out_t.append(tmp_df).groupby(['alt_counts', 'ref_counts'], as_index=False).sum()
     if out_t is None:
         return
-    with open(parameters_path + 'fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD if BAD else 0, suffix), 'w') as out:
+    with open(os.path.join(configs_path, 'fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(
+            BAD if BAD else 0, suffix)), 'w') as out:
         out_t.to_csv(out, sep="\t", index=False)
 
 
 if __name__ == "__main__":
     for BAD in [None, 1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
         collect_fixed_alt_statistics(BAD=BAD, key_name=None, suffix='')
-

@@ -1,10 +1,6 @@
 #!/bin/bash
 source ../HELPERS/paths_for_components.py
-source ../HELPERS/Config.cfg
-
-reference_path="/home/abramov/reference_path/"
-VCF=${reference_path}"00-common_all.vcf.gz"
-FA=${reference_path}"genome-norm.fasta"
+source ../configs/CONFIG.cfg
 
 while [ "$(echo "$1" | cut -c1)" = "-" ]
 do
@@ -24,12 +20,12 @@ done
 
 bam_size=0
 
-if [ ! -f "$VCF.tbi" ]; then
-	echo "Index file for VCF not found, indexing.."
+if [ ! -f "${dbsnp_vcf_path}.tbi" ]; then
+	echo "Index file for dbsnp_vcf_path not found, indexing.."
 	# shellcheck disable=SC2154
 	$Java $JavaParameters  -jar "$GATK" \
 		IndexFeatureFile \
-       		"-F $VCF"
+       		"-F $dbsnp_vcf_path"
 fi
 
 if [  -f "$BamPath/$BamName.bam.bai" ]; then
@@ -88,7 +84,7 @@ if ! $Java $JavaParameters -jar "$GATK" \
 	BaseRecalibrator \
 	-R "$FA" \
 	-I "$OutPath/${BamName}_ready.bam" \
-	-known-sites "$VCF" \
+	-known-sites "$dbsnp_vcf_path" \
 	-O "$OutPath/${BamName}.table"
 then
     echo "Failed to make base recalibration"
@@ -117,7 +113,7 @@ if ! $Java $JavaParameters -jar "$GATK" \
 	HaplotypeCaller \
 	-R "$FA" \
 	-I "$OutPath/${BamName}_final.bam" \
-	--dbsnp "$VCF" \
+	--dbsnp "$dbsnp_vcf_path" \
 	-O "$OutPath/${BamName}.vcf"
 then
     echo "Failed gatk.HaplotypeCaller"

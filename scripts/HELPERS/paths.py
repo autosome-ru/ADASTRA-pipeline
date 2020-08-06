@@ -1,8 +1,9 @@
-from scripts.HELPERS.paths_for_components import alignments_path, ploidy_path, blacklisted_exps_path, tf_dict_path, \
+import os
+from scripts.HELPERS.paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
     cl_dict_path
 
 
-def create_path_from_GTRD_function(line, for_what, ctrl=False):
+def create_path_from_master_list(line, for_what, ctrl=False):
     end = ""
     if for_what == "vcf":
         end = ".vcf.gz"
@@ -16,17 +17,8 @@ def create_path_from_GTRD_function(line, for_what, ctrl=False):
         return alignments_path + "EXP/" + line[1] + "/" + line[0] + "/" + line[6] + end
 
 
-def create_ploidy_path_function(string, model):
-    return ploidy_path + model + "/" + string + "_ploidy.tsv"
-
-
-def make_black_list():
-    with open(blacklisted_exps_path) as bl:
-        black_list = set()
-        for line in bl:
-            exp_name = line.split(";")[0]
-            black_list.add(exp_name)
-    return black_list
+def create_badmaps_path_function(string, model):
+    return os.path.join(badmaps_path, model, string + ".badmap.tsv")
 
 
 def open_aggregation_dict(what_for):

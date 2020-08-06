@@ -1,9 +1,10 @@
 #!/bin/bash
 
 source ../HELPERS/paths_for_components.py
-source ../HELPERS/Config.cfg
-SNPcallingScriptsPath=${scripts_path}"SNPcalling/"
-HelpersScriptsPath=${scripts_path}"HELPERS/"
+source ../Configs/CONFIG.cfg
+
+snp_calling_scripts_path=${scripts_path}"/SNPcalling/"
+helpers_scripts_path=${scripts_path}"/HELPERS/"
 
 LINE=$2
 to_download=$1
@@ -56,7 +57,7 @@ fi
 
 echo "Downloading $ExpName"
 if [ "$to_download" == "-d" ]; then
-  if ! bash ${HelpersScriptsPath}DownloadFile.sh "$AlignmentDownloadPath" "$AlignmentFullPath"
+  if ! bash ${helpers_scripts_path}DownloadFile.sh "$AlignmentDownloadPath" "$AlignmentFullPath"
   then
     echo "Download failed for $ExpName"
     exit 1
@@ -64,14 +65,14 @@ if [ "$to_download" == "-d" ]; then
 fi
 
 echo "Adding ReadGroups for $ExpName"
-if ! bash ${SNPcallingScriptsPath}AddReadGroups.sh "$AlignmentFullPath" "$ReadGroups"
+if ! bash ${snp_calling_scripts_path}AddReadGroups.sh "$AlignmentFullPath" "$ReadGroups"
 then
   echo "Failed AddReadGroups $ExpName"
   exit 1
 fi
 
 echo "Doing SNPcalling for $TF $ExpName"
-if ! bash ${SNPcallingScriptsPath}SNPcalling.sh -Exp "$AlignmentFullPath" -Out "$OutPath"
+if ! bash ${snp_calling_scripts_path}SNPcalling.sh -Exp "$AlignmentFullPath" -Out "$OutPath"
 then
   echo "Failed SNPcalling $ExpName"
   exit 1

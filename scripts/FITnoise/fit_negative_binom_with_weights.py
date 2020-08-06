@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy import optimize
 from scipy import stats as st
-from scripts.HELPERS.paths_for_components import parameters_path
+from scripts.HELPERS.paths_for_components import configs_path
 from scripts.HELPERS.helpers import states
 
 pd.set_option('display.max_columns', 7)
@@ -32,7 +32,7 @@ def make_negative_binom_density(r, p, w, size_of_counts, for_plot=False):
 def make_scaled_counts(stats_pandas_dataframe):
     try:
         max_cover_in_stats = max(stats_pandas_dataframe['{}_counts'.format(main_allele)])
-    except ValueError as e:
+    except ValueError:
         return [], set()
     counts_array = np.zeros(max_cover_in_stats + 1, dtype=np.int64)
     nonzero_set = set()
@@ -52,9 +52,7 @@ def fit_negative_binom(n, counts_array):
     except ValueError:
         return 'NaN', 10
     r, w = x.x
-    gof = calculate_gof(counts_array, w, r)
-    print(q_left, gof)
-    return x, gof
+    return x, calculate_gof(counts_array, w, r)
 
 
 def make_log_likelihood(n, counts_array):
@@ -100,7 +98,7 @@ if __name__ == '__main__':
 
         for BAD in states:
             save_array = np.zeros((max(fix_c_array) + 1, 4), dtype=np.float_)
-            filename = parameters_path + 'fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD)
+            filename = configs_path + 'fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD)
             stats = pd.read_table(filename)
             for allele in alleles:
                 stats['{}_counts'.format(allele)] = stats['{}_counts'.format(allele)].astype(int)
@@ -125,4 +123,4 @@ if __name__ == '__main__':
                     save_array[fix_c, 2] = weights.success
                     save_array[fix_c, 3] = gof
 
-            np.save(os.path.expanduser(parameters_path + 'NBweights_{}_BAD={:.1f}'.format(fixed_allele, BAD)), save_array)
+            np.save(os.path.expanduser(configs_path + 'NBweights_{}_BAD={:.1f}'.format(fixed_allele, BAD)), save_array)
