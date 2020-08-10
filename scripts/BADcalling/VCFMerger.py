@@ -48,6 +48,7 @@ if __name__ == '__main__':
         if os.path.isfile(path):
             arr.append(path)
     if not os.path.isdir(os.path.join(badmaps_path, 'merged_vcfs')):
+        # With parallel usage
         try:
             os.mkdir(badmaps_path + 'merged_vcfs/')
         except:

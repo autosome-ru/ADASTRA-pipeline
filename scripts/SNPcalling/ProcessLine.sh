@@ -40,8 +40,8 @@ if [ "$TF" != "None" ]; then
     fi
   fi
 
-  OutPath=${alignments_path}"EXP/$TF/$ExpName/"
-  AlignmentFullPath=${alignments_path}"EXP/$TF/$ExpName/$AlignName.bam"
+  OutPath=${alignments_path}"/EXP/$TF/$ExpName/"
+  AlignmentFullPath=${alignments_path}"/EXP/$TF/$ExpName/$AlignName.bam"
 else
   if ! [ -d ${alignments_path}"CTRL/$ExpName" ]; then
     if ! mkdir ${alignments_path}"CTRL/$ExpName"
@@ -51,8 +51,8 @@ else
     fi
   fi
 
-  OutPath=${alignments_path}"CTRL/$ExpName/"
-  AlignmentFullPath=${alignments_path}"CTRL/$ExpName/$AlignName.bam"
+  OutPath=${alignments_path}"/CTRL/$ExpName/"
+  AlignmentFullPath=${alignments_path}"/CTRL/$ExpName/$AlignName.bam"
 fi
 
 echo "Downloading $ExpName"

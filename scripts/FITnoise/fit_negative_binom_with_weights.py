@@ -6,8 +6,6 @@ from scipy import stats as st
 from scripts.HELPERS.paths_for_components import configs_path
 from scripts.HELPERS.helpers import states
 
-pd.set_option('display.max_columns', 7)
-
 
 def make_negative_binom_density(r, p, w, size_of_counts, for_plot=False):
     negative_binom_density_array = np.zeros(size_of_counts + 1, dtype=np.float128)
@@ -108,8 +106,7 @@ if __name__ == '__main__':
                 counts, set_of_nonzero_n = make_scaled_counts(stats_filtered)
                 if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n) - 5:
                     continue
-                print('made counts')
-                print('Fix {}={}'.format(fixed_allele, fix_c))
+                print('Made counts', 'Fix {}={}'.format(fixed_allele, fix_c))
                 number = len(counts) - 1
 
                 left_most = 5

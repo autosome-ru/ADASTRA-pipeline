@@ -212,8 +212,8 @@ if __name__ == '__main__':
             if ref_effect_size_array:
                 weights = [-1 * np.log10(x) for x in pref_array if x != 1]
                 es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
-                es_mostsig_ref = ref_effect_size_array[np.argmax(weights)]
-                idx = np.argmax([-x for x in pref_array])
+                es_mostsig_ref = ref_effect_size_array[int(np.argmax(weights))]
+                idx = int(np.argmax([-x for x in pref_array]))
                 ref_c_mostsig_ref = ref_counts_array[idx]
                 alt_c_mostsig_ref = alt_counts_array[idx]
                 BAD_mostsig_ref = BAD_array[idx]
@@ -227,8 +227,8 @@ if __name__ == '__main__':
             if alt_effect_size_array:
                 weights = [-1 * np.log10(x) for x in palt_array if x != 1]
                 es_mean_alt = np.round(np.average(alt_effect_size_array, weights=weights), 3)
-                es_mostsig_alt = alt_effect_size_array[np.argmax(weights)]
-                idx = np.argmax([-x for x in palt_array])
+                es_mostsig_alt = alt_effect_size_array[int(np.argmax(weights))]
+                idx = int(np.argmax([-x for x in palt_array]))
                 ref_c_mostsig_alt = ref_counts_array[idx]
                 alt_c_mostsig_alt = alt_counts_array[idx]
                 BAD_mostsig_alt = BAD_array[idx]
