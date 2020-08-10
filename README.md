@@ -19,7 +19,7 @@ Performing one-tailed tests and aggregating the resulting P-values on TF and cel
 ```
 git clone https://github.com/autosome-ru/ADASTRA-pipeline/
 ```
-2. Fill the paths to the required files (listed below) in CONFIGS/config.cfg file.
+2. Fill the paths to the required files (listed below) in Configs/config.cfg file.
 3. From /scripts/ execute pipline_start.sh <stage>
 stage is a flag, corresponding to a part of pipeline you wish to start with (listed in order):
 - --create_reference create normalized genome and index
@@ -43,8 +43,8 @@ pandas>=1.1.0 <br>
 scipy>=1.5.1 <br>
 statsmodels>=0.11.1 <br>
 
-## Reqired files
-To run the pipeline successfully one must ensure that following files and directories are created in advance and fill absolute path for each file in the CONFIGS/config.cfg file.
+## Required files
+To run the pipeline successfully one must ensure that following files and directories are created in advance and fill absolute path for each file in the scripts/Configs/config.cfg file.
 ### Directories
 - alignments_path = "/home/user/Alignments/"
 The directory with .bam files of experiment and control alignments. Should contain 2 subfolders: CTRL/ and EXP/, EXP/ dir should additionaly contain a subfolder for every TF (e.g. EXP/CTCF_HUMAN). Each TF directory and the CTRL/ directory should contain a subdir for every experiment with this TF (e.g. EXP/CTCF_HUMAN/EXP002547/), every one of which should contain exactly one .bam file.
