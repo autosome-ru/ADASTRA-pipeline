@@ -1,7 +1,6 @@
 import string
 import numpy as np
 import os
-from scripts.HELPERS.paths import create_path_from_master_list
 from scripts.HELPERS.paths_for_components import master_list_path, configs_path
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
@@ -282,40 +281,6 @@ def pack(values):
     return '\t'.join(map(str, values)) + '\n'
 
 
-def make_list_for_VCFs(out_path=None, condition_function=lambda x: True):
-    # condition function takes path and return boolean
-    counted_controls = set()
-    condition_to_file_dict = {}
-    with open(master_list_path, "r") as master_list:
-        if out_path is not None:
-            out = open(out_path, "w")
-        for line in master_list:
-            if line[0] == "#":
-                continue
-            split_line = line.strip().split("\t")
-
-            vcf_path = create_path_from_master_list(split_line, for_what="vcf")
-            if out_path is not None:
-                if condition_function(vcf_path):
-                    out.write(create_line_for_snp_calling(split_line))
-            else:
-                condition_to_file_dict[vcf_path] = condition_function(vcf_path)
-            if len(split_line) > 10:
-                vcf_path = create_path_from_master_list(split_line, for_what="vcf", ctrl=True)
-                if vcf_path in counted_controls:
-                    continue
-                counted_controls.add(vcf_path)
-                if out_path is not None:
-                    if condition_function(vcf_path):
-                        out.write(create_line_for_snp_calling(split_line, is_ctrl=True))
-                else:
-                    condition_to_file_dict[vcf_path] = condition_function(vcf_path)
-        if out_path is not None:
-            out.close()
-        else:
-            return condition_to_file_dict
-
-
 def check_if_in_expected_args(what_for):
     if what_for not in expected_args:
         raise ValueError('{} not in CL, TF'.format(what_for))
@@ -324,14 +289,6 @@ def check_if_in_expected_args(what_for):
 def remove_punctuation(x):
     table = str.maketrans({key: "_" for key in string.punctuation if key not in {'-', '+'}})
     return x.translate(table).replace(" ", "_")
-
-
-def create_line_for_snp_calling(split_line, is_ctrl=False):
-    if is_ctrl:
-        result = [split_line[10]] + ["None", "Homo sapiens"] + split_line[11:15]
-        return pack(result)
-    else:
-        return pack(split_line[:7])
 
 
 def read_weights():
@@ -373,4 +330,3 @@ if __name__ == "__main__":
         for key in d["cell_title"].tolist():
             d_to_write[key] = remove_punctuation(key)
         json.dump(d_to_write, o)
-

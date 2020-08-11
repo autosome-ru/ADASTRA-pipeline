@@ -1,0 +1,65 @@
+import requests
+import json
+import pandas as pd
+from scripts.HELPERS.paths import create_path_from_master_list_df
+from scripts.HELPERS.paths_for_components import badmaps_dict_path, master_list_path
+from scripts.HELPERS.helpers import remove_punctuation
+
+# EXP ALIGNS ENC_ID GEO_GSE CELLS UNIPROT_ID
+
+def find_lab(enc):
+    r = requests.get('https://www.encodeproject.org/experiments/' + enc + '/?format=json')
+    lab = json.loads(r.text)['lab']['@id']
+    biosample = json.loads(r.text)['replicates'][0]['library']['biosample']['@id']
+    ret = lab + "_" + biosample
+    return remove_punctuation(ret)
+
+
+def add_to_dict(d, key, value):
+    el = d.get(key, None)
+    if el:
+        d[key] = el | {value}
+    else:
+        d[key] = {value}
+
+
+def add_record(d, row):
+    is_lovo = False
+    path = create_path_from_master_list_df(row, for_what="base")
+    if row['cells'] == "LoVo (colorectal adenocarcinoma)":
+        is_lovo = True
+    row['cells'] = remove_punctuation(row['cells'])
+    if is_lovo:
+        add_to_dict(d, row['CELLS'] + '!GSE51290', path)
+        return
+    if row['ENC_id'] != "None":
+        Lab = find_lab(row['ENC_ID'])
+        if Lab:
+            key = row['CELLS'] + '!' + Lab
+            add_to_dict(d, key, path)
+    elif row['GEO_GSE'] != "None":
+        key = row['CELLS'] + '!' + row['GEO_GSE']
+        add_to_dict(d, key, path)
+    raise AssertionError('HAS no ENCODE or GEO id')
+
+
+def make_dict(master_list):
+    master = pd.read_table(master_list)
+    d = dict()
+    df_len = len(master.index)
+    for index, row in master.iterrows():
+        if index % (df_len // 10) == 0:
+            print("Made {} Experiments out of {}".format(index, df_len))
+        add_record(d, row)
+    print("Saving Dictionary")
+    for key in d:
+        value = d[key]
+        sorted_value = sorted(list(value))
+        d[key] = sorted_value
+    with open(badmaps_dict_path, "w") as write_file:
+        json.dump(d, write_file)
+    print("Dictionary Saved")
+
+
+if __name__ == '__main__':
+    make_dict(master_list_path)

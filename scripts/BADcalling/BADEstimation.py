@@ -667,15 +667,9 @@ class GenomeSegmentator:  # seg
 if __name__ == '__main__':
     key = sys.argv[1]
     print(key)
-
     mode = 'corrected'
-    states = [1.5, 6]
-    b_penalty = sys.argv[2]
-
-    if b_penalty == 'MIX_release':
-        states = [1.5, 6]
-    else:
-        states = [4 / 3, 1.5, 2.5, 6]
+    b_penalty = 'CAIC'
+    states = [4 / 3, 1.5, 2.5, 6]
 
     merged_vcfs_path = os.path.join(badmaps_path, 'merged_vcfs', key + ".tsv")
 

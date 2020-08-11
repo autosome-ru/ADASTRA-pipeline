@@ -1,6 +1,6 @@
 import json
 import sys
-from scripts.HELPERS.paths import create_badmaps_path_function
+from scripts.HELPERS.paths import create_badmaps_path_function, get_ending
 from scripts.HELPERS.paths_for_components import badmaps_dict_path
 from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, unpackBADSegments, states
 
@@ -16,11 +16,9 @@ def make_reverse_dict(dictionary):
 
 
 if __name__ == '__main__':
-    full_path = sys.argv[1]
-
-    key = full_path + ".vcf.gz"
-    table_annotated = full_path + "_table_annotated.txt"
-    output = full_path + "_table_BADs.txt"
+    key = sys.argv[1]
+    table_annotated = key + get_ending("annotated")
+    output = key + get_ending("BAD")
 
     with open(badmaps_dict_path, "r") as read_file:
         d = json.loads(read_file.readline())
@@ -31,9 +29,9 @@ if __name__ == '__main__':
     print('Now doing {} \n with ploidy file {}'.format(table_annotated, badmap_file_name))
 
     model = 'CAIC'
-    ploidy = create_badmaps_path_function(badmap_file_name, model)
+    badmap_file_path = create_badmaps_path_function(badmap_file_name, model)
 
-    with open(ploidy, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
+    with open(badmap_file_path, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts',
                         'repeat_type'] + callers_names + ['BAD'] + ["Q{:.2f}".format(x) for x in states] +
                        ['SNP_count', 'sum_cover']))

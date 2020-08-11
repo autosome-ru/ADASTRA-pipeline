@@ -12,48 +12,29 @@ IFS=$'\t'
 read -ra ADDR <<< "$LINE"
 
 ExpName=${ADDR[0]}
-TF=${ADDR[1]}
 ReadGroups=${ADDR[5]}
 AlignName=${ADDR[6]}
 AlignmentDownloadPath=${ADDR[7]}
 
-if [ "$AlignmentDownloadPath" = "None" ];then
-    echo "There is no Path for exp $ExpName"
-    exit 1
+if [ "$to_download" == "-d" ]; then
+  if [ "$AlignmentDownloadPath" = "None" ];then
+      echo "There is no Path for exp $ExpName"
+      exit 1
+  fi
 fi
 
 echo "Making dirs"
-if [ "$TF" != "None" ]; then
-  if ! [ -d ${alignments_path}"EXP/$TF" ]; then
-    if ! mkdir ${alignments_path}"EXP/$TF"
-    then
-      echo "Failed to make dir $TF"
-      exit 1
-    fi
+if ! [ -d ${alignments_path}"$ExpName" ]; then
+  if ! mkdir ${alignments_path}"$ExpName"
+  then
+    echo "Failed to make dir $ExpName"
+    exit 1
   fi
-
-  if ! [ -d ${alignments_path}"EXP/$TF/$ExpName" ]; then
-    if ! mkdir ${alignments_path}"EXP/$TF/$ExpName"
-    then
-      echo "Failed to make dir $ExpName"
-      exit 1
-    fi
-  fi
-
-  OutPath=${alignments_path}"/EXP/$TF/$ExpName/"
-  AlignmentFullPath=${alignments_path}"/EXP/$TF/$ExpName/$AlignName.bam"
-else
-  if ! [ -d ${alignments_path}"CTRL/$ExpName" ]; then
-    if ! mkdir ${alignments_path}"CTRL/$ExpName"
-    then
-      echo "Failed to make dir $ExpName"
-      exit 1
-    fi
-  fi
-
-  OutPath=${alignments_path}"/CTRL/$ExpName/"
-  AlignmentFullPath=${alignments_path}"/CTRL/$ExpName/$AlignName.bam"
 fi
+
+OutPath=${alignments_path}"$ExpName/"
+AlignmentFullPath=${alignments_path}"/$ExpName/$AlignName.bam"
+
 
 echo "Downloading $ExpName"
 if [ "$to_download" == "-d" ]; then

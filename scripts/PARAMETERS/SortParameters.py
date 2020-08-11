@@ -2,12 +2,12 @@ import os
 from scripts.HELPERS.paths_for_components import parallel_parameters_path, badmaps_path
 
 file_dirs = {
-    'PE_parameters.cfg': badmaps_path,
+    'BE_parameters.cfg': badmaps_path,
 }
 
 
 def refactor_filename(line, param_file):
-    if param_file == 'PE_parameters.cfg':
+    if param_file == 'BE_parameters.cfg':
         return line + '.tsv'
     return line
 
@@ -20,7 +20,7 @@ for file_name in os.listdir(parallel_parameters_path):
             lines = []
             for line in file:
                 lines.append(line.strip())
-            f = lambda x: refactor_filename(file_dirs[file_name] + x,
+            f = lambda x: refactor_filename(os.path.join(badmaps_path, x),
                                             param_file=file_name)
             lines = sorted(lines,
                            key=lambda x: os.path.getsize(f(x)) if os.path.isfile(f(x)) else -1,

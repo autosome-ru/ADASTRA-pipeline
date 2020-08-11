@@ -2,6 +2,8 @@ import gzip
 import os
 import sys
 import json
+
+from scripts.HELPERS.paths import get_ending
 from scripts.HELPERS.paths_for_components import badmaps_path, badmaps_dict_path
 from scripts.HELPERS.helpers import make_dict_from_vcf, make_list_from_vcf
 
@@ -22,7 +24,7 @@ def merge_vcfs_add_counts(out_file_name, in_files):
             out.write('\t'.join(map(str, [chr, pos, ID, REF, ALT, R, A])) + '\n')
 
 
-def merge_vcfs_independent_snps(out_file_name, in_files):
+def merge_vcfs_as_independent_snps(out_file_name, in_files):
     vcf_list = []
     for file in in_files:
         with gzip.open(file, 'rt') as vcf:
@@ -43,21 +45,21 @@ if __name__ == '__main__':
     mode = 'independent'
     print(key)
 
-    arr = []
+    paths_list = []
     for path in d[key]:
         if os.path.isfile(path):
-            arr.append(path)
+            paths_list.append(path + + get_ending("vcf"))
     if not os.path.isdir(os.path.join(badmaps_path, 'merged_vcfs')):
         # With parallel usage
         try:
-            os.mkdir(badmaps_path + 'merged_vcfs/')
+            os.mkdir(os.path.join(badmaps_path, 'merged_vcfs/'))
         except:
             pass
     out_file = os.path.join(badmaps_path, 'merged_vcfs', key + ".tsv")
 
     if mode == 'independent':
-        merge_vcfs_independent_snps(out_file, arr)
+        merge_vcfs_as_independent_snps(out_file, paths_list)
     elif mode == 'add':
-        merge_vcfs_add_counts(out_file, arr)
+        merge_vcfs_add_counts(out_file, paths_list)
     else:
         raise ValueError(mode)

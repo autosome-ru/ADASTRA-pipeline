@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats as st
 from scripts.HELPERS.helpers import read_weights
+from scripts.HELPERS.paths import get_ending
 
 
 def count_p(ref_c, alt_c, BADs):
@@ -70,8 +71,8 @@ def count_p(ref_c, alt_c, BADs):
 
 if __name__ == '__main__':
     full_path = sys.argv[1]
-    table_BAD = full_path + "_table_BADs.txt"
-    output = full_path + "_table_p.txt"
+    table_BAD = full_path + get_ending("BAD")
+    output = full_path + get_ending("p-value")
     print('Now counting P-value for {}'.format(table_BAD))
 
     r_dict, w_dict, gof_dict = read_weights()

@@ -5,27 +5,19 @@ source ../HELPERS/paths_for_components.py
 
 PEAKannotationScriptsPath=${scripts_path}"/PEAKannotation/"
 
-LINE=$1
-IFS=$'\t'
-read -ra ADDR <<< "$LINE"
-	ExpName=${ADDR[0]}
-	TF=${ADDR[1]}
-	AlignName=${ADDR[6]}
-	PeaksName=${ADDR[7]}
-if [ "$ExpName" == "#*" ]; then
-  exit 1
-fi
-VCFPath="${alignments_path}/EXP/$TF/$ExpName/$AlignName.vcf.gz"
-echo "$VCFPath"
+base_path=$1
 
-echo "Making $ExpName"
+vcf_path="${base_path}.vcf.gz"
+echo "$vcf_path"
+
+echo "Making ${base_path}"
 echo "Checking exp VCF"
-if ! [ -f "$VCFPath" ]; then
+if ! [ -f "$vcf_path" ]; then
   echo "There is no VCF for exp $ExpName ($TF)"
   exit 1
 fi
 
-if  [ -f "${alignments_path}/EXP/$TF/$ExpName/${AlignName}_table_annotated.txt" ]; then
+if  [ -f "${base_path}_table_annotated.tsv" ]; then
 	echo "Remaking $ExpName"
 else
 	echo "Making $ExpName first time"
@@ -64,10 +56,10 @@ else
 fi
 
 
-if ! bash ${PEAKannotationScriptsPath}/MakeAnnotatedTable.sh -Out $alignments_path/EXP/"$TF/$ExpName" \
+if ! bash ${PEAKannotationScriptsPath}/MakeAnnotatedTable.sh -Out ${base_path} \
 		-Rep "$repeats_path" \
 		$PeakM $PEAKM $PeakS $PEAKS $PeakG $PEAKG $PeakC $PEAKC\
-		-VCF "$VCFPath"
+		-VCF "$vcf_path"
 then
   echo "Failed to make tables"
 
