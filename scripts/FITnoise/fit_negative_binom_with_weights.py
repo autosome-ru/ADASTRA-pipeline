@@ -69,6 +69,7 @@ def get_p():
 
 
 def calculate_gof(counts_array, w, r):
+    # FIXME for BAD==1
     observed = counts_array.copy()
     observed[:q_left] = 0
     norm = observed.sum()
