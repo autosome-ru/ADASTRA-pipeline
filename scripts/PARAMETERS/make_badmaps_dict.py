@@ -37,10 +37,6 @@ def add_record(d, row):
         key = '{}@{}'.format(row['CELLS'], row['GEO_GSE'])
         add_to_dict(d, key, path)
         return
-    elif row['cells'] == "LoVo (colorectal adenocarcinoma)":
-        row['cells'] = remove_punctuation(row['cells'])
-        add_to_dict(d, row['CELLS'] + '@GSE51290', path)
-        return
     raise AssertionError('HAS no ENCODE or GEO id')
 
 
