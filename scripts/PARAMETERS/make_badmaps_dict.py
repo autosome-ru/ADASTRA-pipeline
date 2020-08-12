@@ -37,6 +37,10 @@ def add_record(d, row):
         key = '{}@{}'.format(row['CELLS'], row['GEO_GSE'])
         add_to_dict(d, key, path)
         return
+    elif row['wgEncode'] != "None":
+        key = '{}@{}'.format(row['CELLS'], row['GEO_GSE'])
+        add_to_dict(d, key, path)
+        return
     raise AssertionError('HAS no ENCODE or GEO id')
 
 
