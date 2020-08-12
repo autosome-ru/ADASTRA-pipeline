@@ -11,68 +11,68 @@ to_download=$1
 IFS=$'\t'
 read -ra ADDR <<< "$LINE"
 
-ExpName=${ADDR[0]}
-ReadGroups=${ADDR[5]}
-AlignName=${ADDR[6]}
-AlignmentDownloadPath=${ADDR[7]}
+exp_name=${ADDR[0]}
+align_name=${ADDR[1]}
+read_groups=${ADDR[2]}
+AlignmentDownloadPath=${ADDR[3]}
 
 if [ "$to_download" == "-d" ]; then
   if [ "$AlignmentDownloadPath" = "None" ];then
-      echo "There is no Path for exp $ExpName"
+      echo "There is no Path for exp $exp_name"
       exit 1
   fi
 fi
 
 echo "Making dirs"
-if ! [ -d ${alignments_path}"$ExpName" ]; then
-  if ! mkdir ${alignments_path}"$ExpName"
+if ! [ -d ${alignments_path}"$exp_name" ]; then
+  if ! mkdir ${alignments_path}"$exp_name"
   then
-    echo "Failed to make dir $ExpName"
+    echo "Failed to make dir $exp_name"
     exit 1
   fi
 fi
 
-OutPath=${alignments_path}"$ExpName/"
-AlignmentFullPath=${alignments_path}"/$ExpName/$AlignName.bam"
+OutPath=${alignments_path}"$exp_name/"
+AlignmentFullPath=${alignments_path}"/$exp_name/${align_name}.bam"
 
 
-echo "Downloading $ExpName"
+echo "Downloading $exp_name"
 if [ "$to_download" == "-d" ]; then
   if ! bash ${helpers_scripts_path}DownloadFile.sh "$AlignmentDownloadPath" "$AlignmentFullPath"
   then
-    echo "Download failed for $ExpName"
+    echo "Download failed for $exp_name"
     exit 1
   fi
 fi
 
-echo "Adding ReadGroups for $ExpName"
-if ! bash ${snp_calling_scripts_path}AddReadGroups.sh "$AlignmentFullPath" "$ReadGroups"
+echo "Adding read_groups for $exp_name"
+if ! bash ${snp_calling_scripts_path}AddReadGroups.sh "$AlignmentFullPath" "$read_groups"
 then
-  echo "Failed AddReadGroups $ExpName"
+  echo "Failed AddReadGroups $exp_name"
   exit 1
 fi
 
-echo "Doing SNPcalling for $TF $ExpName"
+echo "Doing SNPcalling for $TF $exp_name"
 if ! bash ${snp_calling_scripts_path}SNPcalling.sh -Exp "$AlignmentFullPath" -Out "$OutPath"
 then
-  echo "Failed SNPcalling $ExpName"
+  echo "Failed SNPcalling $exp_name"
   exit 1
 fi
 
 rm "$AlignmentFullPath"
 rm "$AlignmentFullPath.bai"
 
-if [ -f ${OutPath}"$AlignName.vcf.idx" ];then
-  rm ${OutPath}"$AlignName.vcf.idx"
+if [ -f ${OutPath}"$align_name.vcf.idx" ];then
+  rm ${OutPath}"$align_name.vcf.idx"
 fi
 
-if [ -f ${OutPath}"$AlignName.vcf.gz" ];then
-  rm ${OutPath}"$AlignName.vcf.gz"
+if [ -f ${OutPath}"$align_name.vcf.gz" ];then
+  rm ${OutPath}"$align_name.vcf.gz"
 fi
 
-if ! gzip "$OutPath$AlignName.vcf"
+if ! gzip "$OutPath$align_name.vcf"
 then
-	echo "Failed gzip vcf $ExpName"
+	echo "Failed gzip vcf $exp_name"
 	exit 1
 fi
 

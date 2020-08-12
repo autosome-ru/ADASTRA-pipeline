@@ -5,7 +5,6 @@ from scripts.HELPERS.paths import create_path_from_master_list_df
 from scripts.HELPERS.paths_for_components import badmaps_dict_path, master_list_path
 from scripts.HELPERS.helpers import remove_punctuation
 
-# EXP ALIGNS ENC_ID GEO_GSE CELLS UNIPROT_ID
 
 def find_lab(enc):
     r = requests.get('https://www.encodeproject.org/experiments/' + enc + '/?format=json')
@@ -30,15 +29,15 @@ def add_record(d, row):
         is_lovo = True
     row['cells'] = remove_punctuation(row['cells'])
     if is_lovo:
-        add_to_dict(d, row['CELLS'] + '!GSE51290', path)
+        add_to_dict(d, row['CELLS'] + '@GSE51290', path)
         return
     if row['ENC_id'] != "None":
         Lab = find_lab(row['ENC_ID'])
         if Lab:
-            key = row['CELLS'] + '!' + Lab
+            key = '{}@{}'.format(row['CELLS'], Lab)
             add_to_dict(d, key, path)
     elif row['GEO_GSE'] != "None":
-        key = row['CELLS'] + '!' + row['GEO_GSE']
+        key = '{}@{}'.format(row['CELLS'], row['GEO_GSE'])
         add_to_dict(d, key, path)
     raise AssertionError('HAS no ENCODE or GEO id')
 
