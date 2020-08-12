@@ -1,10 +1,12 @@
 import json
-import sys
 import os
+import sys
+
 import pandas as pd
+
+from scripts.HELPERS.helpers import check_if_in_expected_args, remove_punctuation
 from scripts.HELPERS.paths import create_path_from_master_list_df
 from scripts.HELPERS.paths_for_components import configs_path, master_list_path
-from scripts.HELPERS.helpers import check_if_in_expected_args, remove_punctuation
 
 
 def makedict(what_for):
@@ -16,9 +18,9 @@ def makedict(what_for):
     for index, row in master_df.iterrows():
         if what_for == "TF":
             try:
-                d[row['UNIPROT_ID']].append(row['path'])
+                d[row['TF_UNIPROT_ID']].append(row['path'])
             except KeyError:
-                d[row['UNIPROT_ID']] = [row['path']]
+                d[row['TF_UNIPROT_ID']] = [row['path']]
         if what_for == "CL":
             cell_line = remove_punctuation(row['CELLS'])
             try:

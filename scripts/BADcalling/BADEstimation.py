@@ -4,6 +4,8 @@ import os.path
 import sys
 import time
 from abc import ABC, abstractmethod
+
+from scripts.HELPERS.paths import create_badmaps_path_function
 from scripts.HELPERS.paths_for_components import configs_path, badmaps_path
 from scripts.HELPERS.helpers import unpack, ChromPos, pack
 
@@ -672,23 +674,21 @@ if __name__ == '__main__':
     states = [4 / 3, 1.5, 2.5, 6]
 
     merged_vcfs_path = os.path.join(badmaps_path, 'merged_vcfs', key + ".tsv")
-
-    model = b_penalty
-    log_filename = configs_path + 'segmentation_stats_' + model + '.tsv'
+    log_filename = os.path.join(configs_path, 'segmentation_stats_CAIC.tsv')
 
     t = time.clock()
 
-    if not os.path.isdir(badmaps_path + model):
+    if not os.path.isdir(os.path.join(badmaps_path, 'CAIC')):
         if not os.path.isdir(badmaps_path):
             try:
                 os.mkdir(badmaps_path)
             except:
                 pass
         try:
-            os.mkdir(os.path.join(badmaps_path, model))
+            os.mkdir(os.path.join(badmaps_path, 'CAIC'))
         except:
             pass
-    GS = GenomeSegmentator(merged_vcfs_path, os.path.join(badmaps_path, model, key + "_ploidy.tsv"), mode,
+    GS = GenomeSegmentator(merged_vcfs_path, create_badmaps_path_function(key), mode,
                            states, b_penalty)
     try:
         GS.estimate_ploidy()

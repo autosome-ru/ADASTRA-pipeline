@@ -6,7 +6,7 @@ from scripts.HELPERS.paths_for_components import alignments_path, badmaps_path, 
 def get_ending(for_what):
     if for_what == "vcf":
         return ".vcf.gz"
-    if for_what == "annotated":
+    if for_what == "annotation":
         return "_table_annotated.tsv"
     if for_what == "p-value":
         return "_table_p.tsv"
@@ -18,11 +18,11 @@ def get_ending(for_what):
 
 
 def create_path_from_master_list_df(line, for_what='base'):
-    return os.path.join(alignments_path, line['EXP'], line['ALIGNS'] + get_ending(for_what))
+    return os.path.join(alignments_path, line['#EXP'], line['ALIGNS'] + get_ending(for_what))
 
 
-def create_badmaps_path_function(name, model):
-    return os.path.join(badmaps_path, model, name + ".badmap.tsv")
+def create_badmaps_path_function(name):
+    return os.path.join(badmaps_path, 'CAIC', name + ".badmap.tsv")
 
 
 def open_aggregation_dict(what_for):
@@ -34,4 +34,3 @@ def open_aggregation_dict(what_for):
     if aggregation_dict_path is None:
         raise ValueError("Incorrect usage of open_aggregation_dict function")
     return aggregation_dict_path
-

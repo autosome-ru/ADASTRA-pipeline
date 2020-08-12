@@ -10,14 +10,13 @@ def make_reverse_dict(dictionary):
     for key in dictionary:
         paths = dictionary[key]
         for path in paths:
-            if path.split("/")[-3] != "CTRL":
-                new_dict[path] = key
+            new_dict[path] = key
     return new_dict
 
 
 if __name__ == '__main__':
     key = sys.argv[1]
-    table_annotated = key + get_ending("annotated")
+    table_annotated = key + get_ending("annotation")
     output = key + get_ending("BAD")
 
     with open(badmaps_dict_path, "r") as read_file:
@@ -26,19 +25,17 @@ if __name__ == '__main__':
 
     badmap_file_name = rev_d[key]
 
-    print('Now doing {} \n with ploidy file {}'.format(table_annotated, badmap_file_name))
+    print('Now doing {} \n with BAD map file {}'.format(table_annotated, badmap_file_name))
+    badmap_file_path = create_badmaps_path_function(badmap_file_name)
 
-    model = 'CAIC'
-    badmap_file_path = create_badmaps_path_function(badmap_file_name, model)
-
-    with open(badmap_file_path, 'r') as ploidy_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
+    with open(badmap_file_path, 'r') as badmap_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts',
                         'repeat_type'] + callers_names + ['BAD'] + ["Q{:.2f}".format(x) for x in states] +
                        ['SNP_count', 'sum_cover']))
 
         for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, \
             in_intersection, BAD, Quals, seg_c, sum_cov in \
-                Intersection(table_file, ploidy_file, write_segment_args=True, write_intersect=True,
+                Intersection(table_file, badmap_file, write_segment_args=True, write_intersect=True,
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter'),
                              unpack_segments_function=unpackBADSegments):
             if in_intersection and ID.startswith('rs'):

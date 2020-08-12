@@ -26,19 +26,19 @@ def add_record(d, row):
     path = create_path_from_master_list_df(row, for_what="base")
 
     if row['ENC_id'] != "None":
-        Lab = find_lab(row['ENC_ID'])
+        Lab = find_lab(row['ENCODE'])
         if Lab:
             key = '{}@{}'.format(row['CELLS'], Lab)
             add_to_dict(d, key, path)
             return
         else:
             raise AssertionError('Lab not found')
-    elif row['GEO_GSE'] != "None":
-        key = '{}@{}'.format(row['CELLS'], row['GEO_GSE'])
+    elif row['GEO'] != "None":
+        key = '{}@{}'.format(row['CELLS'], row['GEO'])
         add_to_dict(d, key, path)
         return
-    elif row['wgEncode'] != "None":
-        key = '{}@{}'.format(row['CELLS'], row['GEO_GSE'])
+    elif row['WG_ENCODE'] != "None":
+        key = '{}@{}'.format(row['CELLS'], row['GEO'])
         add_to_dict(d, key, path)
         return
     raise AssertionError('HAS no ENCODE or GEO id')

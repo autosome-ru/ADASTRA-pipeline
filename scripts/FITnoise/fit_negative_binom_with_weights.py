@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
         for BAD in states:
             save_array = np.zeros((max(fix_c_array) + 1, 4), dtype=np.float_)
-            filename = os.path.join(configs_path, 'fixed_alt_bias_statistics_BAD={:.1f}.tsv'.format(BAD))
+            filename = os.path.join(configs_path, 'bias_statistics_BAD={:.1f}.tsv'.format(BAD))
             stats = pd.read_table(filename)
             for allele in alleles:
                 stats['{}_counts'.format(allele)] = stats['{}_counts'.format(allele)].astype(int)

@@ -42,7 +42,6 @@ if [ "$flag" -le 2 ]; then
 fi
 
 if [ "$flag" -le 3 ]; then
-  python3 "$scripts_path/"PARAMETERS/make_exp_paths_from_master_list.py
   bash "$scripts_path/"annotation.sh "$njobs"
 fi
 
