@@ -48,7 +48,7 @@ if __name__ == '__main__':
     paths_list = []
     for path in d[key]:
         if os.path.isfile(path):
-            paths_list.append(path + + get_ending("vcf"))
+            paths_list.append(path + get_ending("vcf"))
     if not os.path.isdir(os.path.join(badmaps_path, 'merged_vcfs')):
         # With parallel usage
         try:
