@@ -23,22 +23,24 @@ def add_to_dict(d, key, value):
 
 
 def add_record(d, row):
-    is_lovo = False
     path = create_path_from_master_list_df(row, for_what="base")
-    if row['cells'] == "LoVo (colorectal adenocarcinoma)":
-        is_lovo = True
-    row['cells'] = remove_punctuation(row['cells'])
-    if is_lovo:
-        add_to_dict(d, row['CELLS'] + '@GSE51290', path)
-        return
+
     if row['ENC_id'] != "None":
         Lab = find_lab(row['ENC_ID'])
         if Lab:
             key = '{}@{}'.format(row['CELLS'], Lab)
             add_to_dict(d, key, path)
+            return
+        else:
+            raise AssertionError('Lab not found')
     elif row['GEO_GSE'] != "None":
         key = '{}@{}'.format(row['CELLS'], row['GEO_GSE'])
         add_to_dict(d, key, path)
+        return
+    elif row['cells'] == "LoVo (colorectal adenocarcinoma)":
+        row['cells'] = remove_punctuation(row['cells'])
+        add_to_dict(d, row['CELLS'] + '@GSE51290', path)
+        return
     raise AssertionError('HAS no ENCODE or GEO id')
 
 
