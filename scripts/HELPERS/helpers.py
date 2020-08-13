@@ -27,37 +27,37 @@ class ChromPos:
         self.pos = int(pos)
 
     def __lt__(self, other):
-        if self.chr == other.chr:
+        if self.chr == other.chromosome:
             return self.pos < other.pos
         else:
-            return self.chr < other.chr
+            return self.chr < other.chromosome
 
     def __gt__(self, other):
-        if self.chr == other.chr:
+        if self.chr == other.chromosome:
             return self.pos > other.pos
         else:
-            return self.chr > other.chr
+            return self.chr > other.chromosome
 
     def __le__(self, other):
-        if self.chr == other.chr:
+        if self.chr == other.chromosome:
             return self.pos <= other.pos
         else:
-            return self.chr <= other.chr
+            return self.chr <= other.chromosome
 
     def __ge__(self, other):
-        if self.chr == other.chr:
+        if self.chr == other.chromosome:
             return self.pos >= other.pos
         else:
-            return self.chr >= other.chr
+            return self.chr >= other.chromosome
 
     def __eq__(self, other):
-        return (self.chr, self.pos) == (other.chr, other.pos)
+        return (self.chr, self.pos) == (other.chromosome, other.pos)
 
     def __ne__(self, other):
-        return (self.chr, self.pos) != (other.chr, other.pos)
+        return (self.chr, self.pos) != (other.chromosome, other.pos)
 
     def distance(self, other):
-        if self.chr != other.chr:
+        if self.chr != other.chromosome:
             return float('inf')
         return abs(self.pos - other.pos)
 
@@ -91,7 +91,7 @@ class Intersection:
         return self
 
     def return_snp(self, intersect):
-        return [self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
+        return [self.snp_coordinate.chromosome, self.snp_coordinate.pos] + self.snp_args \
                + [int(intersect)] * self.write_intersect \
                + [((arg if intersect else {}) if isinstance(arg, dict) else arg * intersect)
                   for arg in self.seg_args] * self.write_segment_args

@@ -5,6 +5,6 @@ BamPath=$2
 
 if ! scp :"$DownloadPath" "$BamPath"
 then
-  echo "Failed to download ALIGNEXP $EXP"
+  echo "Failed to download $DownloadPath in $BamPath"
   exit 1
 fi

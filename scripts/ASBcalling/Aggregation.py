@@ -96,7 +96,7 @@ if __name__ == '__main__':
             with open(table, 'r') as file:
                 for line in file:
                     try:
-                        (chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
+                        (chromosome, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers,
                          BAD, Quals, seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt) = unpack(line, use_in="Aggregation")
                     except ValueError:
                         if line.startswith('#'):
@@ -108,13 +108,13 @@ if __name__ == '__main__':
                     cov = ref_c + alt_c
 
                     try:
-                        common_snps[(chr, pos, ID, ref, alt, repeat)].append(
+                        common_snps[(chromosome, pos, ID, ref, alt, repeat)].append(
                             (cov, ref_c, alt_c, in_callers, BAD, Quals,
                              seg_c, sum_cov,
                              p_ref, p_alt, es_ref, es_alt,
                              table_name, another_agr))
                     except KeyError:
-                        common_snps[(chr, pos, ID, ref, alt, repeat)] = [
+                        common_snps[(chromosome, pos, ID, ref, alt, repeat)] = [
                             (cov, ref_c, alt_c, in_callers, BAD, Quals,
                              seg_c, sum_cov,
                              p_ref, p_alt, es_ref, es_alt,
@@ -155,17 +155,17 @@ if __name__ == '__main__':
         keys = sorted(keys, key=lambda chr_pos: chr_pos[1])
         keys = sorted(keys, key=lambda chr_pos: chr_pos[0])
         for key in keys:
-            chr, pos, ID, ref, alt, repeat = key
+            chromosome, pos, ID, ref, alt, repeat = key
             value = filtered_snps[key]
             SNP_counter += 1
             if SNP_counter % 10000 == 0:
                 print('done {}'.format(SNP_counter))
-            uniq_callers_counter = dict(zip(callers_names, [False] * len(callers_names)))
+            unique_callers_counter = dict(zip(callers_names, [False] * len(callers_names)))
             total_callers_counter = 0
             BAD_array = []
             SNPs_per_segment_array = []
-            pref_array = []
-            palt_array = []
+            p_ref_array = []
+            p_alt_array = []
             cover_array = []
             ref_effect_size_array = []
             alt_effect_size_array = []
@@ -181,16 +181,16 @@ if __name__ == '__main__':
                 table_names_array.append(table_name)
                 another_agr_name.append(another_agr)
                 for caller in callers_names:
-                    uniq_callers_counter[caller] = uniq_callers_counter[caller] or in_callers[caller]
+                    unique_callers_counter[caller] = unique_callers_counter[caller] or in_callers[caller]
                     total_callers_counter += in_callers[caller]
                 BAD_array.append(BAD)
                 SNPs_per_segment_array.append(seg_c)
-                pref_array.append(p_ref)
-                palt_array.append(p_alt)
+                p_ref_array.append(p_ref)
+                p_alt_array.append(p_alt)
                 if es_ref is not None:
-                    ref_effect_size_array.append(es_ref/np.log(2))
+                    ref_effect_size_array.append(es_ref / np.log(2))
                 if es_alt is not None:
-                    alt_effect_size_array.append(es_alt/np.log(2))
+                    alt_effect_size_array.append(es_alt / np.log(2))
                 cover_array.append(cov)
 
                 ref_counts_array.append(ref_c)
@@ -201,19 +201,19 @@ if __name__ == '__main__':
             max_cover = max(cover_array)
             med_cover = median_grouped(cover_array)
             total_cover = sum(cover_array)
-            unique_callers = sum(uniq_callers_counter[caller] for caller in callers_names)
+            unique_callers = sum(unique_callers_counter[caller] for caller in callers_names)
             mean_BAD = np.round(np.mean(BAD_array), 2)
             mean_SNPs_per_segment = np.round(np.mean(SNPs_per_segment_array), 1)
             n_aggregated = len(value)
 
-            logitp_ref = logit_combine_p_values(pref_array)
-            logitp_palt = logit_combine_p_values(palt_array)
+            logitp_ref = logit_combine_p_values(p_ref_array)
+            logitp_palt = logit_combine_p_values(p_alt_array)
 
             if ref_effect_size_array:
-                weights = [-1 * np.log10(x) for x in pref_array if x != 1]
+                weights = [-1 * np.log10(x) for x in p_ref_array if x != 1]
                 es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
                 es_mostsig_ref = ref_effect_size_array[int(np.argmax(weights))]
-                idx = int(np.argmax([-x for x in pref_array]))
+                idx = int(np.argmax([-x for x in p_ref_array]))
                 ref_c_mostsig_ref = ref_counts_array[idx]
                 alt_c_mostsig_ref = alt_counts_array[idx]
                 BAD_mostsig_ref = BAD_array[idx]
@@ -225,10 +225,10 @@ if __name__ == '__main__':
                 BAD_mostsig_ref = 'NaN'
 
             if alt_effect_size_array:
-                weights = [-1 * np.log10(x) for x in palt_array if x != 1]
+                weights = [-1 * np.log10(x) for x in p_alt_array if x != 1]
                 es_mean_alt = np.round(np.average(alt_effect_size_array, weights=weights), 3)
                 es_mostsig_alt = alt_effect_size_array[int(np.argmax(weights))]
-                idx = int(np.argmax([-x for x in palt_array]))
+                idx = int(np.argmax([-x for x in p_alt_array]))
                 ref_c_mostsig_alt = ref_counts_array[idx]
                 alt_c_mostsig_alt = alt_counts_array[idx]
                 BAD_mostsig_alt = BAD_array[idx]
@@ -240,7 +240,7 @@ if __name__ == '__main__':
                 BAD_mostsig_alt = 'NaN'
 
             out.write(pack(
-                [chr, pos, ID, ref, alt, repeat, total_callers_counter, unique_callers,
+                [chromosome, pos, ID, ref, alt, repeat, total_callers_counter, unique_callers,
                  mean_BAD, mean_SNPs_per_segment, n_aggregated,
                  ref_c_mostsig_ref, alt_c_mostsig_ref, BAD_mostsig_ref, es_mostsig_ref,
                  ref_c_mostsig_alt, alt_c_mostsig_alt, BAD_mostsig_alt, es_mostsig_alt,
@@ -254,8 +254,8 @@ if __name__ == '__main__':
                                                             'ref_ef': ref_effect_size_array,
                                                             'alt_ef': alt_effect_size_array,
                                                             'BAD': BAD_array,
-                                                            'ref_pvalues': pref_array,
-                                                            'alt_pvalues': palt_array,
+                                                            'ref_pvalues': p_ref_array,
+                                                            'alt_pvalues': p_alt_array,
                                                             }
 
     print("Counting FDR")

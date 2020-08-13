@@ -22,7 +22,6 @@ bam_size=0
 
 if [ ! -f "${dbsnp_vcf_path}.tbi" ]; then
 	echo "Index file for dbsnp_vcf_path not found, indexing.."
-	# shellcheck disable=SC2154
 	$Java $JavaParameters  -jar "$GATK" \
 		IndexFeatureFile \
        		"-F $dbsnp_vcf_path"
@@ -116,7 +115,7 @@ if ! $Java $JavaParameters -jar "$GATK" \
 	--dbsnp "$dbsnp_vcf_path" \
 	-O "$OutPath/${BamName}.vcf"
 then
-    echo "Failed gatk.HaplotypeCaller"
+    echo "Failed GATK.HaplotypeCaller"
     exit 1
 fi
 

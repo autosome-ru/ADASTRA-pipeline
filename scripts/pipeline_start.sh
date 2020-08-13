@@ -32,9 +32,10 @@ source HELPERS/paths_for_components.py
 stage_index = $( get_stage_index $2 )
 
 if [ "$flag" -le 1 ]; then
-  snp_calling_path="$scripts_path"/SNPcalling/
-  bash "$snp_calling_path"CreateReference.sh --RefFolder "$reference_path" --RefGenome "$genome_path"
-  python3 "$scripts_path/"PARAMETERS/make_badmaps_dict.py
+  bash "$scripts_path/SNPcalling/CreateReference.sh" --RefFolder "$reference_path" --RefGenome "$genome_path"
+  python3 "$scripts_path/PARAMETERS/make_badmaps_dict.py"
+  python3 "$scripts_path/PARAMETERS/make_aggregation_dict.py" TF
+  python3 "$scripts_path/PARAMETERS/make_aggregation_dict.py" CL
 fi
 
 if [ "$flag" -le 2 ]; then
@@ -51,8 +52,6 @@ if [ "$flag" -le 4 ]; then
 fi
 
 if [ "$flag" -le 5 ]; then
-  python3 "$scripts_path"/PARAMETERS/make_aggregation_dict.py TF
-  python3 "$scripts_path"/PARAMETERS/make_aggregation_dict.py CL
   python3 "$scripts_path"/FITnoise/collect_ref_bias_statistics.py
   python3 "$scripts_path"/FITnoise/fit_negative_binom_with_weights.py
 fi
