@@ -57,7 +57,7 @@ A directory with peak calling data. Should contain a subdir for every caller (e.
 
 ### Files
 - master_list_path = "/home/user/PARAMETERS/Master-lines.tsv" <br>
-A .tsv file with the following required columns(columns with other names are ignored), each row corresponding to a single experiment:
+A .tsv file with the following required columns(columns with other names are ignored), each row corresponding to a single experiment: <br>
 '#EXP' - Unique experiment identifier. <br>
 TF_UNIPROT_ID - TF uniprot name, e.g. Q9GZV8 (or arbitrary TF identifier). Must correspond to the name of the corresponding TF directory <br>
 CELLS - Name or identifier of cell type. Used in BADmaps groupping. <br>
