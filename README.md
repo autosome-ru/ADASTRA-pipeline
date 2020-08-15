@@ -52,31 +52,23 @@ The directory with .bam files of experiment and control alignments. Should conta
 A directory to save badmaps in.
 - results_path = "/home/user/DATA/"
 A directory to save final ASB calls into.
-- reference_path = "/home/user/REFERENCE/"
-A directory to put normalized genome into. 
 - intervals_path = "/home/user/interval/"
 A directory with peak calling data. Should contain a subdir for every caller (e.g. MACS), in each of which should be zipped bed-like files with peak calls (names are arbitrary, ending with .interval.zip). However, peaks from different callers, but for the same experiment must have the same name.
 
 ### Files
 - master_list_path = "/home/user/PARAMETERS/Master-lines.tsv" <br>
-A .tsv file with the following columns, each row corresponding to a single experiment:
-id - Unique experiment identifier. Must correspond to the experiment folder in alignments_path/EXP/<TF_NAME>/ or alignments_path/CTRL/ if is input.
-tf_uniprot_id - TF uniprot name, e.g. CTCF_HUMAN (or arbitrary TF identifier). Must correspond to the name of the corresponding TF directory in alignment_path/EXP/ <br>
-species - unused <br>
-cell_id - unused <br>
-cell_title - Name or identifier of cell type. Used in BADmaps groupping. <br>
-READS - unused <br>
+A .tsv file with the following required columns(columns with other names are ignored), each row corresponding to a single experiment:
+'#EXP' - Unique experiment identifier. <br>
+TF_UNIPROT_ID - TF uniprot name, e.g. Q9GZV8 (or arbitrary TF identifier). Must correspond to the name of the corresponding TF directory <br>
+CELLS - Name or identifier of cell type. Used in BADmaps groupping. <br>
+READS - Used <br>
 ALIGNS - name of corresponding .bam file without extention ('.bam'). <br>
 PEAKS - name of corresponding peak call files (without .interval.zip) or 'None' <br>
-GEO_GSE - GSE of the study or 'None' <br>
+GEO - GSE of the study or 'None' <br>
 ENCODE - encode id of the experiment or 'None' <br>
-control_id - same for corresponding control experiment or nothing if the experiment is control itself (for all below) <br>
-control_cell_id <br>
-control_cell_title <br>
-control_READS <br>
-control_ALIGNS <br>
-control_GEO_GSE <br>
-control_ENCODE <br>
+WG_ENCODE - wgEncode id of the experiment or 'None <br>
+READS_ALIGNED - Number of the reads aligned (or '' if no info available) <br>
+
 - genome_path = "/home/user/REFERENCE/genome.fasta"
 Path to the reference genome file.
 - dbsnp_vcf_path = "/home/user/REFERENCE/dbsnp_common.vcf.gz"
