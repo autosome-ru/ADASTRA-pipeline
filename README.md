@@ -7,7 +7,7 @@ The result is vcf file of SNV calls in [GATK vcf format](https://gatk.broadinsti
 ### B. Peak annotation and filtering
 Homozygous SNVs, SNVs with less than 5 reads on each allele and not present in dbSNP common colection are filtered out from the vcf files obtained on the previous step. The resulting variants are annotated with ChIP-seq peaks from 4 different peak callers (if available in _bed_ format).
 ### C. BAD calling
-Background Allelic Dosag (BAD) estimation and full-genome BAD maps construction.
+Background Allelic Dosage (BAD) estimation and full-genome BAD maps construction.
 See [BABACHI](https://github.com/autosome-ru/BABACHI).
 ### D. Negative Binomial Mixture fit
 Fitting read count distributions separately for reference and alternative alleles and each BAD with Negative Binomial Mixtures.
@@ -44,14 +44,12 @@ scipy>=1.5.1 <br>
 statsmodels>=0.11.1 <br>
 
 ## Required files
-To run the pipeline successfully one must ensure that following files and directories are created in advance and fill absolute path for each file in the scripts/Configs/config.cfg file.
+To run the pipeline successfully one must fill absolute path for each file in the scripts/Configs/config.cfg file.
 ### Directories
 - alignments_path = "/home/user/Alignments/"
-The directory with .bam files of experiment and control alignments. Should contain 2 subfolders: CTRL/ and EXP/, EXP/ dir should additionaly contain a subfolder for every TF (e.g. EXP/CTCF_HUMAN). Each TF directory and the CTRL/ directory should contain a subdir for every experiment with this TF (e.g. EXP/CTCF_HUMAN/EXP002547/), every one of which should contain exactly one .bam file.
+The directory with .bam files of experiment and control alignments. Should contains directories with experiment name with corresponding .bam files in them.  
 - badmaps_path = "/home/user/BADMAPS/"
 A directory to save badmaps in.
-- parallel_parameters_path = "/home/user/parallel/"
-A directory to save temporary parameters files
 - results_path = "/home/user/DATA/"
 A directory to save final ASB calls into.
 - reference_path = "/home/user/REFERENCE/"
