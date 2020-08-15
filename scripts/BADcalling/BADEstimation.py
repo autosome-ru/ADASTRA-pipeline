@@ -677,17 +677,6 @@ if __name__ == '__main__':
     log_filename = os.path.join(configs_path, 'segmentation_stats_CAIC.tsv')
 
     t = time.clock()
-
-    if not os.path.isdir(os.path.join(badmaps_path, 'CAIC')):
-        if not os.path.isdir(badmaps_path):
-            try:
-                os.mkdir(badmaps_path)
-            except:
-                pass
-        try:
-            os.mkdir(os.path.join(badmaps_path, 'CAIC'))
-        except:
-            pass
     GS = GenomeSegmentator(merged_vcfs_path, create_badmaps_path_function(key), mode,
                            states, b_penalty)
     try:

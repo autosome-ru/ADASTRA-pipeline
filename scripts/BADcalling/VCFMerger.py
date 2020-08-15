@@ -49,12 +49,6 @@ if __name__ == '__main__':
     for path in d[key]:
         if os.path.isfile(path):
             paths_list.append(path + get_ending("vcf"))
-    if not os.path.isdir(os.path.join(badmaps_path, 'merged_vcfs')):
-        # With parallel usage
-        try:
-            os.mkdir(os.path.join(badmaps_path, 'merged_vcfs/'))
-        except:
-            pass
     out_file = os.path.join(badmaps_path, 'merged_vcfs', key + ".tsv")
 
     if mode == 'independent':

@@ -66,15 +66,9 @@ def get_noise(k, n, weight):
 
 
 if __name__ == '__main__':
-
     what_for = sys.argv[1]  # "TF" or "CL" arguments are expected
     check_if_in_expected_args(what_for)
     key_name = sys.argv[2]
-
-    if not os.path.isdir(results_path + what_for + '_DICTS/'):
-        os.mkdir(results_path + what_for + '_DICTS/')
-    if not os.path.isdir(results_path + what_for + "_P-values/"):
-        os.mkdir(results_path + what_for + "_P-values/")
 
     table_path = results_path + what_for + '_P-values/{}.tsv'.format(key_name)
     with open(cl_dict_path, "r") as read_file:
