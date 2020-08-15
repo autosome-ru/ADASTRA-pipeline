@@ -125,32 +125,20 @@ if __name__ == '__main__':
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
                         'es_mean_ref', 'es_mean_alt',
                         'logitp_ref', 'logitp_alt']))
-        filtered_snps = dict()
-        for key in common_snps:
-            values = []
-            accept = False
-            for value in common_snps[key]:
-                # filtering part is now redundant
-                if value[0] >= 10:
-                    values.append(value)
-                if value[0] >= 10:
-                    accept = True
-            if accept or sum(value[0] for value in values) >= 10:
-                filtered_snps[key] = values
 
         SNP_counter = 0
-        print('{} snps'.format(len(filtered_snps)))
+        print('{} snps'.format(len(common_snps)))
 
-        if len(filtered_snps) == 0:
+        if len(common_snps) == 0:
             os.remove(table_path)
             sys.exit(0)
         origin_of_snp_dict = OrderedDict()
-        keys = list(filtered_snps.keys())
+        keys = list(common_snps.keys())
         keys = sorted(keys, key=lambda chr_pos: chr_pos[1])
         keys = sorted(keys, key=lambda chr_pos: chr_pos[0])
         for key in keys:
             chromosome, pos, ID, ref, alt, repeat = key
-            value = filtered_snps[key]
+            value = common_snps[key]
             SNP_counter += 1
             if SNP_counter % 10000 == 0:
                 print('done {}'.format(SNP_counter))
