@@ -27,7 +27,7 @@ njobs=$1
 flag=$2
 python3 construct_parameters_python.py
 
-source HELPERS/paths_for_components.py
+source scripts/HELPERS/paths_for_components.py
 
 stage_index = $( get_stage_index $2 )
 
