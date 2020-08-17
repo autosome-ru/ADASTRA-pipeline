@@ -25,7 +25,7 @@ def add_to_dict(d, key, value):
 def add_record(d, row):
     path = create_path_from_master_list_df(row, for_what="base")
 
-    if row['ENC_id'] != "None":
+    if row['ENCODE'] != "None":
         Lab = find_lab(row['ENCODE'])
         if Lab:
             key = '{}@{}'.format(row['CELLS'], Lab)
@@ -38,10 +38,10 @@ def add_record(d, row):
         add_to_dict(d, key, path)
         return
     elif row['WG_ENCODE'] != "None":
-        key = '{}@{}'.format(row['CELLS'], row['GEO'])
+        key = '{}@{}'.format(row['CELLS'], row['WG_ENCODE'])
         add_to_dict(d, key, path)
         return
-    raise AssertionError('HAS no ENCODE or GEO id')
+    raise AssertionError('HAS no ENCODE ID, GEO GSE and wgEncode id')
 
 
 def make_dict(master_list):
