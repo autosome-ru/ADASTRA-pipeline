@@ -20,8 +20,8 @@ done
 
 if ! $Java $JavaParameters -jar "$PICARD" \
 	NormalizeFasta \
-	-I "$REF" \
-	-O "$OUT/genome-norm.fasta"
+	I="$REF" \
+	O="$OUT/genome-norm.fasta"
 then
     echo "Failed to normalize fasta"
     exit 1
