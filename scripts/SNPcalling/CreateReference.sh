@@ -1,7 +1,6 @@
 #!/bin/bash
 
-echo ../../CONFIG.cfg
-source ../../CONFIG.cfg
+source CONFIG.cfg
 
 
 while [ "$(echo "$1" | cut -c1)" = "-" ]
