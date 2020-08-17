@@ -95,18 +95,14 @@ def pack_line(config_dict, component_name):
 
 def read_cfg_file(cfg_file):
     config_dict = {}
-    iteration = ''
 
     with open(cfg_file) as cfg_buffer:
         for line in cfg_buffer:
             if line.strip():
                 if not line.startswith('#'):
-                    if iteration == 'soft' or iteration == 'parameters':
-                        continue
                     config, value = parse_line(line)
                     config_dict[config] = value
-                else:
-                    iteration = line.strip()[1:]
+
     config_dict['scripts_path'] = os.path.join(pathlib.Path(__file__).parent.absolute(), '..')
     with open(os.path.join(config_dict['scripts_path'],
                            'HELPERS', 'paths_for_components.py'), 'w') as out:
