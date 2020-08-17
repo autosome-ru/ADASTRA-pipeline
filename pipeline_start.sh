@@ -34,39 +34,39 @@ esac
 
 if [ "$stage_index" -le 1 ]; then
 
-  bash "create_reference.sh" -RefFolder "$reference_path" -RefGenome "$genome_path"
-  python3 "PARAMETERS/make_badmaps_dict.py"
-  python3 "SNPcalling/"sort_columns.py
-  python3 "PARAMETERS/create_initial_dirs.py"
-  python3 "PARAMETERS/make_aggregation_dict.py" TF
-  python3 "PARAMETERS/make_aggregation_dict.py" CL
+  bash "$scripts_path/create_reference.sh" -RefFolder "$reference_path" -RefGenome "$genome_path"
+  python3 "$scripts_path/PARAMETERS/make_badmaps_dict.py"
+  python3 "$scripts_path/SNPcalling/"sort_columns.py
+  python3 "$scripts_path/PARAMETERS/create_initial_dirs.py"
+  python3 "$scripts_path/PARAMETERS/make_aggregation_dict.py" TF
+  python3 "$scripts_path/PARAMETERS/make_aggregation_dict.py" CL
 fi
 
 if [ "$stage_index" -le 2 ]; then
-  bash snp_calling.sh "$njobs"
+  bash "$scripts_path/"snp_calling.sh "$njobs"
 fi
 
 if [ "$stage_index" -le 3 ]; then
-  bash annotation.sh "$njobs"
+  bash "$scripts_path/"annotation.sh "$njobs"
 fi
 
 if [ "$stage_index" -le 4 ]; then
-  bash bad_map_est.sh "$njobs" --merge
-  bash BAD_annotation.sh "$njobs"
+  bash "$scripts_path"/bad_map_est.sh "$njobs" --merge
+  bash "$scripts_path"/BAD_annotation.sh "$njobs"
 fi
 
 if [ "$stage_index" -le 5 ]; then
-  python3 FITnoise/collect_ref_bias_statistics.py
-  python3 FITnoise/fit_negative_binom_with_weights.py
+  python3 "$scripts_path"/FITnoise/collect_ref_bias_statistics.py
+  python3 "$scripts_path"/FITnoise/fit_negative_binom_with_weights.py
 fi
 
 if [ "$stage_index" -le 6 ]; then
-  bash p_value_count.sh "$njobs"
+  bash "$scripts_path"/p_value_count.sh "$njobs"
 fi
 
 if [ "$stage_index" -le 7 ]; then
-  bash aggregation.sh "$njobs" --forTF
-  bash aggregation.sh "$njobs" --forCL
+  bash "$scripts_path"/aggregation.sh "$njobs" --forTF
+  bash "$scripts_path"/aggregation.sh "$njobs" --forCL
 fi
 
 cd $previous_pwd
