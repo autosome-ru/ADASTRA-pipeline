@@ -27,7 +27,7 @@ case "$2" in
     ;;
 esac
 
-if [ "$flag" -le 1 ]; then
+if [ "$stage_index" -le 1 ]; then
   bash "$scripts_path/SNPcalling/CreateReference.sh" --RefFolder "$reference_path" --RefGenome "$genome_path"
   python3 "$scripts_path/PARAMETERS/make_badmaps_dict.py"
   python3 "$scripts_path/SNPcalling/"sort_columns.py
@@ -36,29 +36,29 @@ if [ "$flag" -le 1 ]; then
   python3 "$scripts_path/PARAMETERS/make_aggregation_dict.py" CL
 fi
 
-if [ "$flag" -le 2 ]; then
+if [ "$stage_index" -le 2 ]; then
   bash "$scripts_path/"snp_calling.sh "$njobs"
 fi
 
-if [ "$flag" -le 3 ]; then
+if [ "$stage_index" -le 3 ]; then
   bash "$scripts_path/"annotation.sh "$njobs"
 fi
 
-if [ "$flag" -le 4 ]; then
+if [ "$stage_index" -le 4 ]; then
   bash "$scripts_path"/bad_map_est.sh "$njobs" --merge
   bash "$scripts_path"/BAD_annotation.sh "$njobs"
 fi
 
-if [ "$flag" -le 5 ]; then
+if [ "$stage_index" -le 5 ]; then
   python3 "$scripts_path"/FITnoise/collect_ref_bias_statistics.py
   python3 "$scripts_path"/FITnoise/fit_negative_binom_with_weights.py
 fi
 
-if [ "$flag" -le 6 ]; then
+if [ "$stage_index" -le 6 ]; then
   bash "$scripts_path"/p_value_count.sh "$njobs"
 fi
 
-if [ "$flag" -le 7 ]; then
+if [ "$stage_index" -le 7 ]; then
   bash "$scripts_path"/aggregation.sh "$njobs" --forTF
   bash "$scripts_path"/aggregation.sh "$njobs" --forCL
 fi
