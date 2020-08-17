@@ -2,9 +2,11 @@
 
 njobs=$1
 flag=$2
-python3 scripts/HELPERS/construct_parameters_python.py
+start_script_path="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
-source scripts/HELPERS/paths_for_components.py
+python3 $start_script_path/scripts/HELPERS/construct_parameters_python.py
+
+source $start_script_path/scripts/HELPERS/paths_for_components.py
 
 case "$2" in
   --create_reference) stage_index=1

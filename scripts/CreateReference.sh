@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source CONFIG.cfg
+source scripts/HELPERS/soft_configs.cfg
 
 
 while [ "$(echo "$1" | cut -c1)" = "-" ]
