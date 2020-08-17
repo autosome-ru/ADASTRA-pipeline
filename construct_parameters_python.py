@@ -107,4 +107,4 @@ def read_cfg_file(cfg_file):
 
 
 if __name__ == '__main__':
-    read_cfg_file(os.path.join(pathlib.Path(__file__).parent.absolute(), 'scripts/Configs', 'CONFIG.cfg'))
+    read_cfg_file(os.path.join(pathlib.Path(__file__).parent.absolute(), 'CONFIG.cfg'))
