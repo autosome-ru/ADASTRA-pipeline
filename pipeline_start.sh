@@ -2,7 +2,7 @@
 
 njobs=$1
 flag=$2
-python3 construct_parameters_python.py
+python3 scripts/HELPERS/construct_parameters_python.py
 
 source scripts/HELPERS/paths_for_components.py
 

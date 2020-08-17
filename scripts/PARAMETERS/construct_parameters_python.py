@@ -1,6 +1,6 @@
 import os
 import pathlib
-component_dict = [
+used_vars_list = [
     'alignments_path',
     'scripts_path',
     'configs_path',
@@ -19,6 +19,16 @@ component_dict = [
     'dbsnp_vcf_path',
 ]
 
+used_soft_list = [
+    'Java',
+    'python',
+    'python3',
+    'Bedtools',
+    'PICARD',
+    'GATK',
+    'JavaParameters'
+]
+
 
 def remove_around_punctuation(string, with_quotes=False):
     string = string.strip()
@@ -35,9 +45,7 @@ def remove_around_punctuation(string, with_quotes=False):
 
 
 def parse_line(line):
-    line = line.split('=')
-    if len(line) != 2:
-        raise AssertionError('Wrong format cfg file!', line)
+    line = line.split('=', 1)
     return remove_around_punctuation(line[0]), remove_around_punctuation(line[1], True)
 
 
@@ -99,12 +107,17 @@ def read_cfg_file(cfg_file):
                     config_dict[config] = value
                 else:
                     iteration = line.strip()[1:]
-    config_dict['scripts_path'] = os.path.join(pathlib.Path(__file__).parent.absolute(), 'scripts')
+    config_dict['scripts_path'] = os.path.join(pathlib.Path(__file__).parent.absolute(), '..')
     with open(os.path.join(config_dict['scripts_path'],
                            'HELPERS', 'paths_for_components.py'), 'w') as out:
-        for component_name in component_dict:
+        for component_name in used_vars_list:
             out.write(pack_line(config_dict, component_name))
+
+    with open(os.path.join(config_dict['scripts_path'],
+                           'HELPERS', 'soft_configs.cfg'), 'w') as out:
+        for component_name in used_soft_list:
+            out.write(construct_line(component_name, config_dict[component_name]))
 
 
 if __name__ == '__main__':
-    read_cfg_file(os.path.join(pathlib.Path(__file__).parent.absolute(), 'CONFIG.cfg'))
+    read_cfg_file(os.path.join(pathlib.Path(__file__).parent.absolute(), '../../CONFIG.cfg'))
