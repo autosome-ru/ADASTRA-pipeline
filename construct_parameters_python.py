@@ -82,7 +82,7 @@ def pack_line(config_dict, component_name):
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'genome_path':
         return construct_line(component_name, config_dict[component_name])
-    raise AssertionError(component_name, ' Not in valid arguments, check Config.cfg file')
+    raise AssertionError(component_name, 'is not in valid arguments, check Config.cfg file')
 
 
 def read_cfg_file(cfg_file):
@@ -99,7 +99,7 @@ def read_cfg_file(cfg_file):
                     config_dict[config] = value
                 else:
                     iteration = line.strip()[1:]
-    config_dict['scripts_path'] = pathlib.Path(__file__).parent.absolute()
+    config_dict['scripts_path'] = os.path.join(pathlib.Path(__file__).parent.absolute(), 'scripts')
     with open(os.path.join(config_dict['scripts_path'],
                            'HELPERS', 'paths_for_components.py'), 'w') as out:
         for component_name in component_dict:
@@ -107,4 +107,4 @@ def read_cfg_file(cfg_file):
 
 
 if __name__ == '__main__':
-    read_cfg_file(os.path.join(pathlib.Path(__file__).parent.absolute(), 'Configs', 'CONFIG.cfg'))
+    read_cfg_file(os.path.join(pathlib.Path(__file__).parent.absolute(), 'scripts/Configs', 'CONFIG.cfg'))
