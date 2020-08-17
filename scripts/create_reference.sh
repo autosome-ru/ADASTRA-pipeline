@@ -6,10 +6,10 @@ source scripts/HELPERS/soft_configs.cfg
 while [ "$(echo "$1" | cut -c1)" = "-" ]
 do
   case "$1" in
-    RefFolder) OUT=$2
+    -RefFolder) OUT=$2
       shift 2;;
 
-	  RefGenome) REF=$2
+	  -RefGenome) REF=$2
       shift 2;;
     *)
       echo "There is no option $1"
