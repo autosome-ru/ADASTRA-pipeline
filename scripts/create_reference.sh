@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source scripts/HELPERS/soft_configs.cfg
+script_path="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+source $script_path/HELPERS/soft_configs.cfg
 
 
 while [ "$(echo "$1" | cut -c1)" = "-" ]
