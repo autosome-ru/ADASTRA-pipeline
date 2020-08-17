@@ -32,7 +32,6 @@ case "$2" in
     ;;
 esac
 
-cd $scripts_path
 if [ "$stage_index" -le 1 ]; then
 
   bash "create_reference.sh" -RefFolder "$reference_path" -RefGenome "$genome_path"
