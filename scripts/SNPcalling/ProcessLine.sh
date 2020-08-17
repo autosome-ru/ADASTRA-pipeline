@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source ../HELPERS/paths_for_components.py
-source ../Configs/CONFIG.cfg
+source ../../CONFIG.cfg
 
 snp_calling_scripts_path=${scripts_path}"/SNPcalling/"
 helpers_scripts_path=${scripts_path}"/HELPERS/"
