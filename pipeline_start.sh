@@ -33,7 +33,6 @@ case "$2" in
 esac
 
 if [ "$stage_index" -le 1 ]; then
-
   bash "$scripts_path/create_reference.sh" -RefFolder "$reference_path" -RefGenome "$genome_path"
   python3 "$scripts_path/PARAMETERS/make_badmaps_dict.py"
   python3 "$scripts_path/SNPcalling/"sort_columns.py
