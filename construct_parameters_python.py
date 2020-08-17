@@ -103,7 +103,7 @@ def read_cfg_file(cfg_file):
                     config, value = parse_line(line)
                     config_dict[config] = value
 
-    config_dict['scripts_path'] = os.path.join(pathlib.Path(__file__).parent.absolute(), '..')
+    config_dict['scripts_path'] = os.path.join(pathlib.Path(__file__).parent.absolute(), 'scripts')
     with open(os.path.join(config_dict['scripts_path'],
                            'HELPERS', 'paths_for_components.py'), 'w') as out:
         for component_name in used_vars_list:
@@ -116,4 +116,4 @@ def read_cfg_file(cfg_file):
 
 
 if __name__ == '__main__':
-    read_cfg_file(os.path.join(pathlib.Path(__file__).parent.absolute(), '../../CONFIG.cfg'))
+    read_cfg_file(os.path.join(pathlib.Path(__file__).parent.absolute(), 'CONFIG.cfg'))

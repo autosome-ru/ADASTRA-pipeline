@@ -4,7 +4,7 @@ njobs=$1
 flag=$2
 start_script_path="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
-python3 "$start_script_path/scripts/PARAMETERS/construct_parameters_python.py"
+python3 "$start_script_path/construct_parameters_python.py"
 
 source "$start_script_path/scripts/HELPERS/paths_for_components.py"
 
