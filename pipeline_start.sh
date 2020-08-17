@@ -1,35 +1,31 @@
 #!/bin/bash
 
-get_stage_index() {
-  case "$1" in
-    --create_reference) return 1
-      break;;
-    --snp_call) return 2
-      break;;
-    --peak_call) return 3
-      break;;
-    --bad_call) return 4
-      break;;
-    --nb_fit) return 5
-      break;;
-    --p_value_count) return 6
-      break;;
-    --aggregate_p_values) return 7
-      break;;
-    *)
-      echo "There is no option $1"
-      return 0
-	    break;;
-	esac
-}
-
 njobs=$1
 flag=$2
 python3 construct_parameters_python.py
 
 source scripts/HELPERS/paths_for_components.py
 
-stage_index = $( get_stage_index $2 )
+case "$2" in
+  --create_reference) stage_index=1
+    ;;
+  --snp_call) stage_index=2
+    ;;
+  --peak_call) stage_index=3
+    ;;
+  --bad_call) stage_index=4
+    ;;
+  --nb_fit) stage_index=5
+    ;;
+  --p_value_count) stage_index=6
+    ;;
+  --aggregate_p_values) stage_index=7
+    ;;
+  *)
+    echo "There is no option $1"
+    stage_index=0
+    ;;
+esac
 
 if [ "$flag" -le 1 ]; then
   bash "$scripts_path/SNPcalling/CreateReference.sh" --RefFolder "$reference_path" --RefGenome "$genome_path"
