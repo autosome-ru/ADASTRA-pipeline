@@ -3,8 +3,8 @@ import os
 import sys
 import json
 
-from scripts.HELPERS.paths import get_ending
-from scripts.HELPERS.paths_for_components import badmaps_path, badmaps_dict_path
+from scripts.HELPERS.paths import get_ending, create_merged_vcf_path_function
+from scripts.HELPERS.paths_for_components import badmaps_dict_path
 from scripts.HELPERS.helpers import make_dict_from_vcf, make_list_from_vcf
 
 
@@ -42,13 +42,12 @@ def main(key):
     with open(badmaps_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     mode = 'independent'
-    print(key)
 
     paths_list = []
     for path in d[key]:
         if os.path.isfile(path):
             paths_list.append(path + get_ending("vcf"))
-    out_file = os.path.join(badmaps_path, 'merged_vcfs', key + ".tsv")
+    out_file = create_merged_vcf_path_function(key)
 
     if mode == 'independent':
         merge_vcfs_as_independent_snps(out_file, paths_list)

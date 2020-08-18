@@ -5,11 +5,12 @@ import sys
 import time
 from abc import ABC, abstractmethod
 
-from scripts.HELPERS.paths import create_badmaps_path_function
-from scripts.HELPERS.paths_for_components import configs_path, badmaps_path
+from scripts.HELPERS.paths import create_badmaps_path_function, create_merged_vcf_path_function
+from scripts.HELPERS.paths_for_components import configs_path
 from scripts.HELPERS.helpers import unpack, ChromPos, pack
 
 log_filename = os.path.join(configs_path, 'segmentation_stats_CAIC.tsv')
+
 
 class Segmentation(ABC):
     def __init__(self):
@@ -673,10 +674,8 @@ def main(key):
     mode = 'corrected'
     b_penalty = 'CAIC'
     additional_states = [4 / 3, 1.5, 2.5, 6]
-
-    merged_vcfs_path = os.path.join(badmaps_path, 'merged_vcfs', key + ".tsv")
     t = time.clock()
-    GS = GenomeSegmentator(merged_vcfs_path, create_badmaps_path_function(key), mode,
+    GS = GenomeSegmentator(create_merged_vcf_path_function(key), create_badmaps_path_function(key), mode,
                            additional_states, b_penalty)
     try:
         GS.estimate_ploidy()

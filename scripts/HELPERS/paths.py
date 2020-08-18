@@ -25,6 +25,10 @@ def create_badmaps_path_function(name):
     return os.path.join(badmaps_path, 'CAIC', name + ".badmap.tsv")
 
 
+def create_merged_vcf_path_function(name):
+    return os.path.join(badmaps_path, 'merged_vcfs', name + ".tsv")
+
+
 def open_aggregation_dict(what_for):
     aggregation_dict_path = None
     if what_for == "TF":
