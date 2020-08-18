@@ -31,7 +31,9 @@ setup(
         'pandas>=1.0.4',
         'matplotlib>=3.2.1',
         'seaborn>=0.10.1',
-        'docopt>=0.6.2'
+        'docopt>=0.6.2',
+        'requests>=2.24.0',
+        'statsmodels>=0.11.1'
     ],
     python_requires='>=3.6',
 )
