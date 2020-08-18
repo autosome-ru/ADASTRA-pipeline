@@ -1,24 +1,24 @@
 """
 Usage:
-            ADASTRA badmaps_dict
-            ADASTRA sort_cols
-            ADASTRA init_dirs
-            ADASTRA aggregation_dict
-            ADASTRA make_paths
-            ADASTRA badmaps_params
-            ADASTRA aggregation_params
-            ADASTRA sort_params
-            ADASTRA check_pos_peaks
-            ADASTRA annotate_peaks
+            adastra badmaps_dict
+            adastra sort_cols
+            adastra init_dirs
+            adastra aggregation_dict
+            adastra make_paths
+            adastra badmaps_params
+            adastra aggregation_params
+            adastra sort_params
+            adastra check_pos_peaks
+            adastra annotate_peaks
 
-            ADASTRA vcf_merge
-            ADASTRA bad_call
-            ADASTRA bad_annotation
-            ADASTRA collect_ref_bias
-            ADASTRA fit_neg_bin
-            ADASTRA neg_bin_p
-            ADASTRA aggregation
-            ADASTRA -h | --help
+            adastra vcf_merge
+            adastra bad_call
+            adastra bad_annotation
+            adastra collect_ref_bias
+            adastra fit_neg_bin
+            adastra neg_bin_p
+            adastra aggregation
+            adastra -h | --help
 
 Options:
     -h, --help                  Show help.
