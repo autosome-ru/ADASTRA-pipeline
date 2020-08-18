@@ -28,7 +28,6 @@ def makedict(what_for):
                 d[cell_line] = [row['path']]
     with open(os.path.join(configs_path, what_for + "_DICT.json"), "w") as write_file:
         json.dump(d, write_file)
-    print("Dictionary Saved")
 
 
 def main():

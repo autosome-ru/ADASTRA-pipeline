@@ -34,7 +34,7 @@ def main():
         from scripts.SNPcalling.sort_columns import main
         main()
     elif args['init_dirs']:
-        from scripts.PARAMETERS.make_badmaps_dict import main
+        from scripts.PARAMETERS.create_initial_dirs import main
         main()
     elif args['aggregation_dict']:
         from scripts.PARAMETERS.make_aggregation_dict import main
