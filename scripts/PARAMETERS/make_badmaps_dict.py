@@ -49,7 +49,7 @@ def make_dict(master_list):
     d = dict()
     df_len = len(master.index)
     for index, row in master.iterrows():
-        if index % (df_len // 10) == 0:
+        if df_len > 10 and index % (df_len // 10) == 0:
             print("Made {} Experiments out of {}".format(index, df_len))
         add_record(d, row)
     print("Saving Dictionary")
