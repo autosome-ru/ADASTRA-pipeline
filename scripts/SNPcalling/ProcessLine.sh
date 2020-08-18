@@ -24,7 +24,7 @@ if [ "$alignment_download_path" == "" ]; then
       echo "No data found for ${exp_name}"
       exit 1
     fi
-else:
+else
   if ! [ -d ${alignments_path}"$exp_name" ]; then
     if ! mkdir ${alignments_path}"$exp_name"; then
       echo "Failed to make dir $exp_name"
