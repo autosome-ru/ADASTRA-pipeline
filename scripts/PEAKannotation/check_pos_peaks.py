@@ -1,22 +1,18 @@
 import io
 import sys
 import zipfile
-from scripts.HELPERS.helpers import ChromPos
-
-file = sys.argv[1]
-out = sys.argv[2]
-peak_type = sys.argv[3]
-
-name = ".".join(file.split(".")[-3:-1]).split("/")[-1]
+import os
+from scripts.HELPERS.helpers import ChromPos, pack
 
 
-def main():
-    with zipfile.ZipFile(file, "r") as archive:
+def main(peak_path, out_path, p_type):
+    name = os.path.splitext(os.path.splitext(os.path.basename(peak_path))[0])[0]
+    with zipfile.ZipFile(peak_path, "r") as archive:
         f = archive.open(name, "r")
         f = io.TextIOWrapper(f)
         lines = f.readlines()
 
-    with open(out, 'w') as o:
+    with open(out_path, 'w') as o:
         for line in lines:
             if line[0] == "#":
                 continue
@@ -29,8 +25,12 @@ def main():
             if peak_type == "gem":
                 split_line[1] = str(max(int(split_line[1]) - 150, 1))
                 split_line[2] = str(min(int(split_line[2]) + 150, ChromPos.chrs[split_line[0]]))
-            o.write('\t'.join(split_line[:3]) + '\n')
+            o.write(pack(split_line[:3]))
 
 
 if __name__ == '__main__':
-    main()
+    file = sys.argv[1]
+    out = sys.argv[2]
+    peak_type = sys.argv[3]
+    main(file, out, peak_type)
+

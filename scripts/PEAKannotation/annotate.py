@@ -2,25 +2,24 @@ import sys
 import gzip
 import os.path
 from scripts.HELPERS.helpers import pack, make_dict_from_vcf, Intersection, callers_names
+from scripts.HELPERS.paths_for_components import repeats_path
 
 
 def make_sorted_caller_path(path, name):
     return path.strip().split("table_annotated.txt")[0] + name + ".bed.sorted"
 
 
-def main():
+def main(vcf_path, table_annotated_path):
     exp = dict()
-    with gzip.open(sys.argv[1], 'rt') as f:
+    with gzip.open(vcf_path, 'rt') as f:
         make_dict_from_vcf(f, exp)
-    table_annotated_path = sys.argv[2]
-
     sorted_lines = [[chr, pos, ID, REF, ALT, R, A] for ((chr, pos, ID, REF, ALT), (R, A)) in exp.items()]
     sorted_lines = sorted(sorted_lines, key=lambda x: x[1])
     sorted_lines = sorted(sorted_lines, key=lambda x: x[0])
-    with open(sys.argv[3], "r") as repeats_file:
+    with open(repeats_path, "r") as repeats_buffer:
         new_arr = []
         for chr, pos, ID, REF, ALT, R, A, in_repeats, repeat_type \
-                in Intersection(sorted_lines, repeats_file, write_intersect=True, write_segment_args=True):
+                in Intersection(sorted_lines, repeats_buffer, write_intersect=True, write_segment_args=True):
             if in_repeats and ID == ".":
                 continue
             new_arr.append([chr, pos, ID, REF, ALT, R, A, repeat_type])
@@ -46,4 +45,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1], sys.argv[2])

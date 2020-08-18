@@ -8,8 +8,8 @@ Usage:
             adastra badmaps_params
             adastra aggregation_params --name <name>
             adastra sort_params
-            adastra check_pos_peaks
-            adastra annotate_peaks
+            adastra check_pos_peaks --peak <path> --out <path> --type <type>
+            adastra annotate_peaks --vcf <path> --out <path>
             adastra vcf_merge
             adastra bad_call
             adastra bad_annotation
@@ -21,12 +21,18 @@ Usage:
 
 Arguments:
     <mode>     Name of the mode [default: badmaps]
-    <name>     Name of params
+    <name>     Name of params(TF or CL)
+    <type>     Peak type (gem, sissrs, peaks, cpics)
+    <path>     Path to file
 
 Options:
     -h, --help                  Show help.
     --mode=<mode>               Mode for make_paths
     --name=<name>               Name TF or CL
+    --peak=<path>               Path to peak file
+    --out=<path>                Path to out file
+    --type=<type>               Peak type
+    --vcf=<vcf>                 Path to vcf to annotate
 
 """
 from docopt import docopt
@@ -60,10 +66,10 @@ def main():
         main()
     elif args['check_pos_peaks']:
         from scripts.PEAKannotation.check_pos_peaks import main
-        main()
+        main(args['--peak'], args['--out'], args['--type'])
     elif args['annotate_peaks']:
         from scripts.PEAKannotation.annotate import main
-        main()
+        main(args['vcf'], args['--out'])
     elif args['vcf_merge']:
         from scripts.BADcalling.VCFMerger import main
         main()

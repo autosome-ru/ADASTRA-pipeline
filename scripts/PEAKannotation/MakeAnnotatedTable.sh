@@ -40,9 +40,6 @@ do
 		  gem=$2
 		  shift 2;;
 
-    -Rep) RepFile=$2
-      shift 2;;
-
 	  -VCF) VCF=$2
 		  tmp=$( GETNAME "$VCF" )
 		  EXPNAME=${tmp%.*}
@@ -56,18 +53,18 @@ do
 done
 
 if [ $withgem != false ]; then
-	adastra check_pos_peaks "$gem" "$OUT/${EXPNAME}_gem.bed" 'gem'
+	adastra check_pos_peaks --peak "$gem" --out "$OUT/${EXPNAME}_gem.bed" --type 'gem'
 	# shellcheck disable=SC2154
 	if ! bedtools sort -i "$OUT/${EXPNAME}_gem.bed" > "$OUT/${EXPNAME}_gem.bed.sorted"
 	then
 		echo "Failed to sort gem peaks"
 		exit 1
 	fi
-	rm "$OUT${EXPNAME}_gem.bed"
+	rm "$OUT/${EXPNAME}_gem.bed"
 fi
 
 if [ $withmacs != false ]; then
-	adastra check_pos_peaks "$macs" "$OUT/${EXPNAME}_macs.bed" 'macs'
+	adastra check_pos_peaks --peak "$macs" --out "$OUT/${EXPNAME}_macs.bed" --type 'macs'
 
 	if ! bedtools sort -i "$OUT/${EXPNAME}_macs.bed" > "$OUT/${EXPNAME}_macs.bed.sorted"
 	then
@@ -78,7 +75,7 @@ if [ $withmacs != false ]; then
 fi
 
 if [ $withsissrs != false ]; then
-	adastra check_pos_peaks "$sissrs" "$OUT/${EXPNAME}_sissrs.bed" 'sissrs'
+	adastra check_pos_peaks --peak "$sissrs" --out "$OUT/${EXPNAME}_sissrs.bed" --type 'sissrs'
 
 	if ! bedtools sort -i "$OUT/${EXPNAME}_sissrs.bed" > "$OUT/${EXPNAME}_sissrs.bed.sorted"
 	then
@@ -89,7 +86,7 @@ if [ $withsissrs != false ]; then
 fi
 
 if [ $withcpics != false ]; then
-	adastra check_pos_peaks "$cpics" "$OUT/${EXPNAME}_cpics.bed" 'cpics'
+	adastra check_pos_peaks --peak "$cpics" --out "$OUT/${EXPNAME}_cpics.bed" --type 'cpics'
 
 	if ! bedtools sort -i "$OUT/${EXPNAME}_cpics.bed" > "$OUT/${EXPNAME}_cpics.bed.sorted"
 	then
@@ -99,21 +96,21 @@ if [ $withcpics != false ]; then
   rm "$OUT/${EXPNAME}_cpics.bed"
 fi
 
-adastra annotate_peaks "$VCF" "$OUT/${EXPNAME}_table_annotated.txt" "$RepFile"
+adastra annotate_peaks --vcf "$VCF" --out "$OUT/${EXPNAME}_table_annotated.txt"
 
 
 if [ "$withgem" != false ]; then
-	rm "$OUT${EXPNAME}_gem.bed.sorted"
+	rm "$OUT/${EXPNAME}_gem.bed.sorted"
 fi
 
 if [ "$withcpics" != false ]; then
-	rm "$OUT${EXPNAME}_cpics.bed.sorted"
+	rm "$OUT/${EXPNAME}_cpics.bed.sorted"
 fi
 
 if [ "$withmacs" != false ]; then
-  rm "$OUT${EXPNAME}_macs.bed.sorted"
+  rm "$OUT/${EXPNAME}_macs.bed.sorted"
 fi
 
 if [ "$withsissrs" != false ]; then
-  rm "$OUT${EXPNAME}_sissrs.bed.sorted"
+  rm "$OUT/${EXPNAME}_sissrs.bed.sorted"
 fi
