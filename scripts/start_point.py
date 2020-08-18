@@ -10,8 +10,8 @@ Usage:
             adastra sort_params
             adastra check_pos_peaks --peak <path> --out <path> --type <type>
             adastra annotate_peaks --vcf <path>
-            adastra vcf_merge
-            adastra bad_call
+            adastra vcf_merge --group <group>
+            adastra bad_call -group <group>
             adastra bad_annotation
             adastra collect_ref_bias
             adastra fit_neg_bin
@@ -33,6 +33,7 @@ Options:
     --out=<path>                Path to out file
     --type=<type>               Peak type
     --vcf=<vcf>                 Path to vcf to annotate
+    --group=<group>             Name of badmap group
 
 """
 from docopt import docopt
