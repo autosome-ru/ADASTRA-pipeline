@@ -21,47 +21,47 @@ dtype_dict = {name: str if name != 'READS_ALIGNED' else np.int_ for name in mast
 
 
 class ChromPos:
-    chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], chr_l))
+    chromosomes = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], chr_l))
     genome_length = sum(chr_l)
 
-    def __init__(self, chr, pos):
-        if chr not in self.chrs:
-            raise ValueError("Not in valid chromosomes {}".format(chr))
-        self.chr = chr
+    def __init__(self, chromosome, pos):
+        if chromosome not in self.chromosomes:
+            raise ValueError("Not in valid chromosomes {}".format(chromosome))
+        self.chromosome = chromosome
         self.pos = int(pos)
 
     def __lt__(self, other):
-        if self.chr == other.chromosome:
+        if self.chromosome == other.chromosome:
             return self.pos < other.pos
         else:
-            return self.chr < other.chromosome
+            return self.chromosome < other.chromosome
 
     def __gt__(self, other):
-        if self.chr == other.chromosome:
+        if self.chromosome == other.chromosome:
             return self.pos > other.pos
         else:
-            return self.chr > other.chromosome
+            return self.chromosome > other.chromosome
 
     def __le__(self, other):
-        if self.chr == other.chromosome:
+        if self.chromosome == other.chromosome:
             return self.pos <= other.pos
         else:
-            return self.chr <= other.chromosome
+            return self.chromosome <= other.chromosome
 
     def __ge__(self, other):
-        if self.chr == other.chromosome:
+        if self.chromosome == other.chromosome:
             return self.pos >= other.pos
         else:
-            return self.chr >= other.chromosome
+            return self.chromosome >= other.chromosome
 
     def __eq__(self, other):
-        return (self.chr, self.pos) == (other.chromosome, other.pos)
+        return (self.chromosome, self.pos) == (other.chromosome, other.pos)
 
     def __ne__(self, other):
-        return (self.chr, self.pos) != (other.chromosome, other.pos)
+        return (self.chromosome, self.pos) != (other.chromosome, other.pos)
 
     def distance(self, other):
-        if self.chr != other.chromosome:
+        if self.chromosome != other.chromosome:
             return float('inf')
         return abs(self.pos - other.pos)
 
@@ -148,7 +148,7 @@ def make_dict_from_vcf(vcf, vcf_dict):
             continue
         line = line.split()
         chr = line[0]
-        if chr not in ChromPos.chrs:
+        if chr not in ChromPos.chromosomes:
             continue
         pos = int(line[1])
         if not len(line[3]) == 1 or not len(line[4]) == 1:
@@ -183,7 +183,7 @@ def make_list_from_vcf(vcf, filter_no_rs=False):
             continue
         line = line.split()
         chr = line[0]
-        if chr not in ChromPos.chrs:
+        if chr not in ChromPos.chromosomes:
             continue
         pos = int(line[1])
         if not len(line[3]) == 1 or not len(line[4]) == 1:
@@ -217,7 +217,7 @@ def make_list_from_vcf_without_filter(vcf):
             continue
         line = line.split()
         chr = line[0]
-        if chr not in ChromPos.chrs:
+        if chr not in ChromPos.chromosomes:
             continue
         pos = int(line[1])
         if not len(line[3]) == 1 or not len(line[4]) == 1:

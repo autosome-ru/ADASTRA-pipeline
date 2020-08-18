@@ -18,13 +18,13 @@ def main(peak_path, out_path, p_type):
                 continue
             split_line = line.split()
             split_line[0] = 'chr' + split_line[0]
-            if split_line[0] not in ChromPos.chrs:
+            if split_line[0] not in ChromPos.chromosomes:
                 continue
             if int(split_line[1]) < 0 or int(split_line[2]) < 0:
                 continue
             if p_type == "gem":
                 split_line[1] = str(max(int(split_line[1]) - 150, 1))
-                split_line[2] = str(min(int(split_line[2]) + 150, ChromPos.chrs[split_line[0]]))
+                split_line[2] = str(min(int(split_line[2]) + 150, ChromPos.chromosomes[split_line[0]]))
             o.write(pack(split_line[:3]))
 
 

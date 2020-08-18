@@ -552,7 +552,7 @@ class ChromosomeSegmentation:  # chrom
 class GenomeSegmentator:  # seg
     def __init__(self, file, out, segm_mode, extra_states=None, b_penalty='CAIC', prior=None):
 
-        self.chrs = sorted(list(ChromPos.chrs.keys()))
+        self.chrs = sorted(list(ChromPos.chromosomes.keys()))
 
         self.mode = segm_mode
         if extra_states:
@@ -580,7 +580,7 @@ class GenomeSegmentator:  # seg
             self.prior = prior
 
         for CHR in self.chrs:
-            chrom = ChromosomeSegmentation(self, CHR, ChromPos.chrs[CHR])
+            chrom = ChromosomeSegmentation(self, CHR, ChromPos.chromosomes[CHR])
             print('{} total SNP count: {}'.format(CHR, chrom.LINES))
             self.TOTAL_SNPS += chrom.LINES
             self.chr_segmentations.append(chrom)
