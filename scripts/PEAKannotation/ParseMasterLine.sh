@@ -14,7 +14,7 @@ peaks_name=${ADDR[1]}
 vcf_path="${base_path}.vcf.gz"
 echo "$vcf_path"
 
-echo "Making ${base_path}"
+echo "Making ${vcf_path}"
 echo "Checking exp VCF"
 if ! [ -f "$vcf_path" ]; then
   echo "There is no VCF for exp $vcf_path"
@@ -61,7 +61,6 @@ fi
 
 
 if ! bash ${PEAKannotationScriptsPath}/MakeAnnotatedTable.sh -Out ${base_path} \
-		-Rep "$repeats_path" \
 		$PeakM $PEAKM $PeakS $PEAKS $PeakG $PEAKG $PeakC $PEAKC\
 		-VCF "$vcf_path"
 then
