@@ -38,7 +38,7 @@ def merge_vcfs_as_independent_snps(out_file_name, in_files):
             out.write('\t'.join(map(str, [chr, pos, ID, REF, ALT, R, A])) + '\n')
 
 
-if __name__ == '__main__':
+def main():
     with open(badmaps_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     key = sys.argv[1]
@@ -57,3 +57,7 @@ if __name__ == '__main__':
         merge_vcfs_add_counts(out_file, paths_list)
     else:
         raise ValueError(mode)
+
+
+if __name__ == '__main__':
+    main()

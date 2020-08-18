@@ -9,7 +9,7 @@ def check_and_create_dir(dir_name):
         os.mkdir(dir_name)
 
 
-if __name__ == '__main__':
+def main():
     check_and_create_dir(alignments_path)
     # Dirs for BADcalling
     check_and_create_dir(badmaps_path)
@@ -20,3 +20,7 @@ if __name__ == '__main__':
     for what_for in 'TF', 'CL':
         check_and_create_dir(os.path.join(results_path, what_for + '_DICTS'))
         check_and_create_dir(os.path.join(results_path, what_for + '_P-values'))
+
+
+if __name__ == '__main__':
+    main()

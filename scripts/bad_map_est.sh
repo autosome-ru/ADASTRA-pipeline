@@ -5,10 +5,10 @@ source HELPERS/paths_for_components.py
 njobs=$1
 flag=$2
 
-python3 "$scripts_path"PARAMETERS/MakeParametersForPE.py
+python3 -m ADASTRA badmaps_params
 if [ "$flag" == --merge ]; then
-  parallel --jobs "$njobs" python3 "$scripts_path"/BADcalling/VCFMerger.py :::: "$parallel_parameters_path"BE_parameters.cfg
+  parallel --jobs "$njobs" python3 -m ADASTRA vcf_merge :::: "$parallel_parameters_path"BE_parameters.cfg
 fi
 
-python3 "$scripts_path"PARAMETERS/SortParameters.py
-parallel --jobs "$njobs" python3 "$scripts_path"/BADcalling/BADEstimation.py :::: "$parallel_parameters_path"BE_parameters.cfg
+python3 -m ADASTRA sort_params
+parallel --jobs "$njobs" python3 -m ADASTRA bad_call :::: "$parallel_parameters_path"BE_parameters.cfg

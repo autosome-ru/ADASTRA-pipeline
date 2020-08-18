@@ -3,5 +3,5 @@
 source HELPERS/paths_for_components.py
 
 njobs=$1
-python3 "$scripts_path/"PARAMETERS/make_exp_paths_from_master_list.py 'badmaps'
-parallel --jobs "$njobs" python3 "$scripts_path"/ASBcalling/BAD_annotation.py :::: "$parallel_parameters_path"/exp_paths.cfg
+python3 -m ADASTRA make_paths --mode badmaps
+parallel --jobs "$njobs" python3 -m ADASTRA bad_annotation :::: "$parallel_parameters_path"/exp_paths.cfg

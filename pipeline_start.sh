@@ -34,11 +34,10 @@ esac
 
 if [ "$stage_index" -le 1 ]; then
   bash "$scripts_path/create_reference.sh" -RefFolder "$reference_path" -RefGenome "$genome_path"
-  python3 "$scripts_path/PARAMETERS/make_badmaps_dict.py"
-  python3 "$scripts_path/SNPcalling/"sort_columns.py
-  python3 "$scripts_path/PARAMETERS/create_initial_dirs.py"
-  python3 "$scripts_path/PARAMETERS/make_aggregation_dict.py" TF
-  python3 "$scripts_path/PARAMETERS/make_aggregation_dict.py" CL
+  python3 -m ADASTRA badmaps_dict
+  python3 -m ADASTRA sort_cols
+  python3 -m ADASTRA init_dirs
+  python3 -m ADASTRA aggregation_dict
 fi
 
 if [ "$stage_index" -le 2 ]; then
@@ -55,8 +54,8 @@ if [ "$stage_index" -le 4 ]; then
 fi
 
 if [ "$stage_index" -le 5 ]; then
-  python3 "$scripts_path"/FITnoise/collect_ref_bias_statistics.py
-  python3 "$scripts_path"/FITnoise/fit_negative_binom_with_weights.py
+  python3 -m ADASTRA collect_ref_bias
+  python3 -m ADASTRA fit_neg_bin
 fi
 
 if [ "$stage_index" -le 6 ]; then

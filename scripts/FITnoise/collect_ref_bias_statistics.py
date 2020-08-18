@@ -45,6 +45,11 @@ def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
         out_t.to_csv(out, sep="\t", index=False)
 
 
+def main():
+    for bad in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
+        collect_fixed_alt_statistics(BAD=bad, key_name=None, suffix='')
+
+
 if __name__ == "__main__":
     for BAD in [None, 1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
         collect_fixed_alt_statistics(BAD=BAD, key_name=None, suffix='')

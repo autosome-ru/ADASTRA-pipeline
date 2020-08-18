@@ -9,6 +9,7 @@ from scripts.HELPERS.paths import create_badmaps_path_function
 from scripts.HELPERS.paths_for_components import configs_path, badmaps_path
 from scripts.HELPERS.helpers import unpack, ChromPos, pack
 
+log_filename = os.path.join(configs_path, 'segmentation_stats_CAIC.tsv')
 
 class Segmentation(ABC):
     def __init__(self):
@@ -666,21 +667,24 @@ class GenomeSegmentator:  # seg
         return segments
 
 
-if __name__ == '__main__':
+# FIXME use BABACHI
+def main():
     key = sys.argv[1]
     print(key)
     mode = 'corrected'
     b_penalty = 'CAIC'
-    states = [4 / 3, 1.5, 2.5, 6]
+    additional_states = [4 / 3, 1.5, 2.5, 6]
 
     merged_vcfs_path = os.path.join(badmaps_path, 'merged_vcfs', key + ".tsv")
-    log_filename = os.path.join(configs_path, 'segmentation_stats_CAIC.tsv')
-
     t = time.clock()
     GS = GenomeSegmentator(merged_vcfs_path, create_badmaps_path_function(key), mode,
-                           states, b_penalty)
+                           additional_states, b_penalty)
     try:
         GS.estimate_ploidy()
     except Exception as e:
         raise e
     print('Total time: {} s'.format(time.clock() - t))
+
+
+if __name__ == '__main__':
+    main()

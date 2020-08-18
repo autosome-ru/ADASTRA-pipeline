@@ -1,4 +1,11 @@
-import sys
+"""
+Usage:
+    agr_params --name <name>
+
+Arguments:
+    <name>     Name of the mode
+"""
+from docopt import docopt
 import json
 import os.path
 from scripts.HELPERS.paths import open_aggregation_dict
@@ -7,15 +14,16 @@ from scripts.HELPERS.helpers import check_if_in_expected_args
 
 out_path = os.path.join(parallel_parameters_path, 'Agr_parameters.cfg')
 
-if __name__ == "__main__":
-    what_for = sys.argv[1]
+
+def main():
+    args = docopt(__doc__)
+    what_for = args['--name']
     check_if_in_expected_args(what_for)
     aggregation_dict_path = open_aggregation_dict(what_for)
     with open(aggregation_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
-    keys = sorted(d.keys())
     with open(out_path, 'w') as file:
-        for key in keys:
+        for key in sorted(d.keys()):
             is_empty = True
             for value in d[key]:
                 if os.path.isfile(value):
@@ -23,3 +31,7 @@ if __name__ == "__main__":
             if is_empty:
                 continue
             file.write(key + '\n')
+
+
+if __name__ == '__main__':
+    main()

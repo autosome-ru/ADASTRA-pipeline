@@ -11,6 +11,11 @@ from scripts.HELPERS.paths_for_components import results_path, tf_dict_path, cl_
 from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, \
     expected_args
 
+with open(cl_dict_path, "r") as read_file:
+    cell_lines_dict = json.loads(read_file.readline())
+with open(tf_dict_path, "r") as read_file:
+    tf_dict = json.loads(read_file.readline())
+
 
 def logit_combine_p_values(pvalues):
     pvalues = np.array([pvalue for pvalue in pvalues if 1 > pvalue > 0])
@@ -65,16 +70,13 @@ def get_noise(k, n, weight):
     return weight * max(k - n / 2, 0) / (1 / 2 * (n - 5 - n // 2) * (n // 2 - 4))
 
 
-if __name__ == '__main__':
+def main():
     what_for = sys.argv[1]  # "TF" or "CL" arguments are expected
     check_if_in_expected_args(what_for)
     key_name = sys.argv[2]
 
     table_path = results_path + what_for + '_P-values/{}.tsv'.format(key_name)
-    with open(cl_dict_path, "r") as read_file:
-        cell_lines_dict = json.loads(read_file.readline())
-    with open(tf_dict_path, "r") as read_file:
-        tf_dict = json.loads(read_file.readline())
+
     tables = []
     if what_for == "CL":
         tables = cell_lines_dict[key_name]
@@ -272,5 +274,9 @@ if __name__ == '__main__':
     bool_ar = np.array([False] * len(table.index), dtype=np.bool)
     bool_ar[mc_filter_array] = bool_ar_alt + bool_ar_ref
 
-    with open(results_path + what_for + '_DICTS/{}_DICT.json'.format(key_name), 'w') as out:
+    with open(os.path.join(results_path, what_for + '_DICTS/{}_DICT.json'.format(key_name)), 'w') as out:
         json.dump(origin_of_snp_dict, out)
+
+
+if __name__ == '__main__':
+    main()

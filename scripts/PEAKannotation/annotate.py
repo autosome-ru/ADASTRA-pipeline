@@ -8,7 +8,7 @@ def make_sorted_caller_path(path, name):
     return path.strip().split("table_annotated.txt")[0] + name + ".bed.sorted"
 
 
-if __name__ == "__main__":
+def main():
     exp = dict()
     with gzip.open(sys.argv[1], 'rt') as f:
         make_dict_from_vcf(f, exp)
@@ -43,3 +43,7 @@ if __name__ == "__main__":
                        callers_names))
         for split_line in sorted_lines:
             out.write(pack(split_line))
+
+
+if __name__ == '__main__':
+    main()

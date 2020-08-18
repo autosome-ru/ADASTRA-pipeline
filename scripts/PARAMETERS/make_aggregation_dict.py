@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 
 import pandas as pd
 
@@ -32,5 +31,10 @@ def makedict(what_for):
     print("Dictionary Saved")
 
 
-indicator = sys.argv[1]
-makedict(indicator)
+def main():
+    for ind in 'TF', 'CL':
+        makedict(ind)
+
+
+if __name__ == '__main__':
+    main()

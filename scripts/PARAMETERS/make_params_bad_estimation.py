@@ -7,7 +7,7 @@ from scripts.HELPERS.paths_for_components import parallel_parameters_path, badma
 out_path = os.path.join(parallel_parameters_path, 'BE_parameters.cfg')
 
 
-if __name__ == "__main__":
+def main():
     with open(badmaps_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     keys = sorted(d.keys())
@@ -20,3 +20,7 @@ if __name__ == "__main__":
             if is_empty:
                 continue
             file.write(key + '\n')
+
+
+if __name__ == '__main__':
+    main()

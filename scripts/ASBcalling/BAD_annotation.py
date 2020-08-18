@@ -14,7 +14,7 @@ def make_reverse_dict(dictionary):
     return new_dict
 
 
-if __name__ == '__main__':
+def main():
     key = sys.argv[1]
     table_annotated = key + get_ending("annotation")
     output = key + get_ending("BAD")
@@ -42,3 +42,7 @@ if __name__ == '__main__':
                 out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type] +
                                [in_callers[name] for name in callers_names] +
                                [BAD] + [Quals[x] for x in Quals] + [seg_c, sum_cov]))
+
+
+if __name__ == '__main__':
+    main()

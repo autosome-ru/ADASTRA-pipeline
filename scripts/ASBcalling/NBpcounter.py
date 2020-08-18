@@ -5,6 +5,8 @@ from scipy import stats as st
 from scripts.HELPERS.helpers import read_weights
 from scripts.HELPERS.paths import get_ending
 
+r_dict, w_dict, gof_dict = read_weights()
+
 
 def count_p(ref_c, alt_c, BADs):
     N = len(ref_c)
@@ -69,20 +71,21 @@ def count_p(ref_c, alt_c, BADs):
     return p_ref, p_alt, es_ref, es_alt
 
 
-if __name__ == '__main__':
+def main():
     full_path = sys.argv[1]
     table_BAD = full_path + get_ending("BAD")
     output = full_path + get_ending("p-value")
     print('Now counting P-value for {}'.format(table_BAD))
-
-    r_dict, w_dict, gof_dict = read_weights()
-
     df_with_BAD = pd.read_table(table_BAD)
     p_ref, p_alt, es_ref, es_alt = count_p(np.array(df_with_BAD["ref_read_counts"], dtype=np.int_),
-                           np.array(df_with_BAD["alt_read_counts"], dtype=np.int_),
-                           np.array(df_with_BAD["BAD"], dtype=np.float_))
+                                           np.array(df_with_BAD["alt_read_counts"], dtype=np.int_),
+                                           np.array(df_with_BAD["BAD"], dtype=np.float_))
     df_with_BAD['p_value_ref'] = p_ref
     df_with_BAD['p_value_alt'] = p_alt
     df_with_BAD['es_ref'] = es_ref
     df_with_BAD['es_alt'] = es_alt
     df_with_BAD.to_csv(output, sep="\t", index=False)
+
+
+if __name__ == '__main__':
+    main()

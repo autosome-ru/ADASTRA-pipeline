@@ -88,7 +88,7 @@ def calculate_gof(counts_array, w, r):
     return score
 
 
-if __name__ == '__main__':
+def main():
     for main_allele in ("alt", "ref"):
         fixed_allele = "ref" if main_allele == "alt" else "alt"
         alleles = ('ref', 'alt')
@@ -122,3 +122,7 @@ if __name__ == '__main__':
                     save_array[fix_c, 3] = gof
 
             np.save(os.path.join(configs_path, 'NBweights_{}_BAD={:.1f}'.format(fixed_allele, BAD)), save_array)
+
+
+if __name__ == '__main__':
+    main()
