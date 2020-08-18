@@ -6,7 +6,7 @@ setup(
     version='1.0.0',
     entry_points={
         'console_scripts': [
-            'adastra = start_point:main'
+            'adastra = scripts.start_point:main'
         ],
     },
     author="Sergey Abramov, Alexandr Boytsov",
