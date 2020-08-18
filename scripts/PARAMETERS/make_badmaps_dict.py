@@ -7,7 +7,7 @@ from scripts.HELPERS.helpers import remove_punctuation
 
 
 def find_lab(enc):
-    r = requests.get('https://www.encodeproject.org/experiments/' + enc + '/?format=json')
+    r = requests.get('https://www.encodeproject.org/experiments/{}/?format=json'.format(enc))
     lab = json.loads(r.text)['lab']['@id']
     biosample = json.loads(r.text)['replicates'][0]['library']['biosample']['@id']
     ret = lab + "_" + biosample
@@ -25,7 +25,7 @@ def add_to_dict(d, key, value):
 def add_record(d, row):
     path = create_path_from_master_list_df(row, for_what="base")
 
-    if row['ENCODE'] != "None":
+    if row['ENCODE']:
         Lab = find_lab(row['ENCODE'])
         if Lab:
             key = '{}@{}'.format(row['CELLS'], Lab)
@@ -33,11 +33,11 @@ def add_record(d, row):
             return
         else:
             raise AssertionError('Lab not found')
-    elif row['GEO'] != "None":
+    elif row['GEO']:
         key = '{}@{}'.format(row['CELLS'], row['GEO'])
         add_to_dict(d, key, path)
         return
-    elif row['WG_ENCODE'] != "None":
+    elif row['WG_ENCODE']:
         key = '{}@{}'.format(row['CELLS'], row['WG_ENCODE'])
         add_to_dict(d, key, path)
         return
