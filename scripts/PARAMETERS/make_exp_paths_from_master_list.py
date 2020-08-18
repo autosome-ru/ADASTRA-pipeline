@@ -11,6 +11,7 @@ out_path = os.path.join(parallel_parameters_path, 'exp_paths.cfg')
 
 def main(for_what):
     master_df = pd.read_table(master_list_path, dtype=dtype_dict)
+    print(master_df)
     master_df = master_df[master_df['EXP_TYPE'] != 'chip_control']
     master_df['path'] = master_df.apply(create_path_from_master_list_df)
     master_df = master_df[master_df['path'].apply(
