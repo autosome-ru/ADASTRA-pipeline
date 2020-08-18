@@ -9,6 +9,7 @@ def main():
     master_df = pd.read_table(master_list_path, dtype=dtype_dict)
     if 'DOWNLOAD_PATH' not in master_df.columns:
         master_df['DOWNLOAD_PATH'] = ['' for x in range(len(master_df.index))]
+    print(master_df.columns)
     master_df = master_df.sort_values(
         by=['READS_ALIGNED'],
         axis=1,
