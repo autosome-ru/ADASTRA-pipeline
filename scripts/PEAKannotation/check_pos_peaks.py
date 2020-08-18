@@ -6,7 +6,7 @@ from scripts.HELPERS.helpers import ChromPos, pack
 
 
 def main(peak_path, out_path, p_type):
-    name = os.path.splitext(os.path.splitext(os.path.basename(peak_path))[0])[0]
+    name = os.path.splitext(os.path.basename(peak_path))[0]
     with zipfile.ZipFile(peak_path, "r") as archive:
         f = archive.open(name, "r")
         f = io.TextIOWrapper(f)
@@ -22,7 +22,7 @@ def main(peak_path, out_path, p_type):
                 continue
             if int(split_line[1]) < 0 or int(split_line[2]) < 0:
                 continue
-            if peak_type == "gem":
+            if p_type == "gem":
                 split_line[1] = str(max(int(split_line[1]) - 150, 1))
                 split_line[2] = str(min(int(split_line[2]) + 150, ChromPos.chrs[split_line[0]]))
             o.write(pack(split_line[:3]))
