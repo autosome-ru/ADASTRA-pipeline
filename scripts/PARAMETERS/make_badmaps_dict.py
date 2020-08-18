@@ -24,6 +24,7 @@ def add_to_dict(d, key, value):
 
 def add_record(d, row):
     path = create_path_from_master_list_df(row, for_what="base")
+    print(row)
     if not row['ENCODE'].isna():
         Lab = find_lab(row['ENCODE'])
         if Lab:
