@@ -18,26 +18,28 @@ do
 	esac
 done
 
-if ! $Java $JavaParameters -jar "$PICARD" \
-	NormalizeFasta \
-	I="$REF" \
-	O="$OUT/genome-norm.fasta"
-then
-    echo "Failed to normalize fasta"
-    exit 1
-fi
+if ! [ -f $OUT/genome-norm.fasta ]; then
+  if ! $Java $JavaParameters -jar "$PICARD" \
+    NormalizeFasta \
+    I="$REF" \
+    O="$OUT/genome-norm.fasta"
+  then
+      echo "Failed to normalize fasta"
+      exit 1
+  fi
 
-if ! samtools faidx "$OUT/genome-norm.fasta"
-then
-    echo "Failed to index fasta"
-    exit 1
-fi
+  if ! samtools faidx "$OUT/genome-norm.fasta"
+  then
+      echo "Failed to index fasta"
+      exit 1
+  fi
 
-if ! $Java $JavaParameters -jar "$PICARD" \
-	CreateSequenceDictionary \
-	R="$OUT/genome-norm.fasta"\
-	O="$OUT/genome-norm.dict"
-then
-    echo "Failed to create sequence dictionary"
-    exit 1
+  if ! $Java $JavaParameters -jar "$PICARD" \
+    CreateSequenceDictionary \
+    R="$OUT/genome-norm.fasta"\
+    O="$OUT/genome-norm.dict"
+  then
+      echo "Failed to create sequence dictionary"
+      exit 1
+  fi
 fi

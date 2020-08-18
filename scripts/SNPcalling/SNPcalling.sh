@@ -1,6 +1,6 @@
 #!/bin/bash
-source ../HELPERS/paths_for_components.py
-source ../../CONFIG.cfg
+source scripts/HELPERS/paths_for_components.py
+source scripts/HELPERS/soft_configs.cfg
 
 while [ "$(echo "$1" | cut -c1)" = "-" ]
 do

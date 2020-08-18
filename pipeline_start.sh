@@ -11,6 +11,8 @@ python3 "construct_parameters_python.py"
 
 source "scripts/HELPERS/paths_for_components.py"
 
+python3 scripts/setup.py install
+
 case "$2" in
   --create_reference) stage_index=1
     ;;
