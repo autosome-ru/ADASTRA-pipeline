@@ -15,6 +15,10 @@ expected_args = {"CL": "TF", "TF": "CL"}
 
 states = [1, 4/3, 3/2, 2, 5/2, 3, 4, 5, 6]
 
+master_list_header = '#EXP	TF_UNIPROT_ID	ANTIBODY	TREATMENT	SPECIE	CELL_ID	CELLS	EXP_TYPE	CONTROL	READS	ALIGNS	PEAKS	GEO	ENCODE	WG_ENCODE	READS_ALIGNED'
+
+dtype_dict = {name: str if name != 'READS_ALIGNED' else np.int_ for name in master_list_header.split('\t')}
+
 
 class ChromPos:
     chrs = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], chr_l))
@@ -326,7 +330,7 @@ if __name__ == "__main__":
     import json
     with open(os.path.join(configs_path, 'CONVERT_CL_NAMES.json'), 'w') as o:
         d_to_write = {}
-        d = pd.read_table(master_list_path)
-        for key in d["cell_title"].tolist():
+        d = pd.read_table(master_list_path, dtype=dtype_dict)
+        for key in d["CELLS"].tolist():
             d_to_write[key] = remove_punctuation(key)
         json.dump(d_to_write, o)

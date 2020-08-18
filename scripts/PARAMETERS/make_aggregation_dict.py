@@ -3,7 +3,7 @@ import os
 
 import pandas as pd
 
-from scripts.HELPERS.helpers import check_if_in_expected_args, remove_punctuation
+from scripts.HELPERS.helpers import check_if_in_expected_args, remove_punctuation, dtype_dict
 from scripts.HELPERS.paths import create_path_from_master_list_df
 from scripts.HELPERS.paths_for_components import configs_path, master_list_path
 
@@ -11,7 +11,7 @@ from scripts.HELPERS.paths_for_components import configs_path, master_list_path
 def makedict(what_for):
     d = dict()
     check_if_in_expected_args(what_for)
-    master_df = pd.read_table(master_list_path)
+    master_df = pd.read_table(master_list_path, dtype=dtype_dict)
     master_df['path'] = master_df.apply(lambda x: create_path_from_master_list_df(x, for_what='p-value'))
 
     for index, row in master_df.iterrows():

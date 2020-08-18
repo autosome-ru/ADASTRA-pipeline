@@ -3,7 +3,7 @@ import json
 import pandas as pd
 from scripts.HELPERS.paths import create_path_from_master_list_df
 from scripts.HELPERS.paths_for_components import badmaps_dict_path, master_list_path
-from scripts.HELPERS.helpers import remove_punctuation
+from scripts.HELPERS.helpers import remove_punctuation, dtype_dict
 
 
 def find_lab(enc):
@@ -24,7 +24,6 @@ def add_to_dict(d, key, value):
 
 def add_record(d, row):
     path = create_path_from_master_list_df(row, for_what="base")
-    print(row, row['ENCODE'])
     if not row['ENCODE'].isna():
         Lab = find_lab(row['ENCODE'])
         if Lab:
@@ -45,7 +44,7 @@ def add_record(d, row):
 
 
 def make_dict(master_list):
-    master = pd.read_table(master_list)
+    master = pd.read_table(master_list, dtype=dtype_dict)
     d = dict()
     df_len = len(master.index)
     for index, row in master.iterrows():

@@ -1,13 +1,14 @@
 import os.path
 import pandas as pd
 
+from scripts.HELPERS.helpers import dtype_dict
 from scripts.HELPERS.paths import create_path_from_master_list_df
 from scripts.HELPERS.paths_for_components import configs_path, master_list_path
 
 
 def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
     out_t = None
-    master_df = pd.read_table(master_list_path)
+    master_df = pd.read_table(master_list_path, dtype=dtype_dict)
     master_df = master_df[master_df['EXP_TYPE'] != 'chip_control']
     for index, row in master_df.iterrows():
         if key_name is not None:
