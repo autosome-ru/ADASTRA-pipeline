@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='ADASTRA',
     packages=find_packages(),
+    version='1.0.0',
     entry_points={
         'console_scripts': [
             'ADASTRA badmaps_dict = PARAMETERS.make_badmaps_dict:main',
