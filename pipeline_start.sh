@@ -11,8 +11,6 @@ python3 "construct_parameters_python.py"
 
 source "scripts/HELPERS/paths_for_components.py"
 
-python3 scripts/setup.py install
-
 case "$2" in
   --create_reference) stage_index=1
     ;;
@@ -36,10 +34,10 @@ esac
 
 if [ "$stage_index" -le 1 ]; then
   bash "$scripts_path/create_reference.sh" -RefFolder "$reference_path" -RefGenome "$genome_path"
-  python3 -m adastra badmaps_dict
-  python3 -m adastra sort_cols
-  python3 -m adastra init_dirs
-  python3 -m adastra aggregation_dict
+  adastra badmaps_dict
+  adastra sort_cols
+  adastra init_dirs
+  adastra aggregation_dict
 fi
 
 if [ "$stage_index" -le 2 ]; then
@@ -56,8 +54,8 @@ if [ "$stage_index" -le 4 ]; then
 fi
 
 if [ "$stage_index" -le 5 ]; then
-  python3 -m adastra collect_ref_bias
-  python3 -m adastra fit_neg_bin
+  adastra collect_ref_bias
+  adastra fit_neg_bin
 fi
 
 if [ "$stage_index" -le 6 ]; then

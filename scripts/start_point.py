@@ -10,7 +10,6 @@ Usage:
             adastra sort_params
             adastra check_pos_peaks
             adastra annotate_peaks
-
             adastra vcf_merge
             adastra bad_call
             adastra bad_annotation

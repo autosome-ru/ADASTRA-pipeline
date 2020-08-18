@@ -56,7 +56,7 @@ do
 done
 
 if [ $withgem != false ]; then
-	python3 -m adastra check_pos_peaks "$gem" "$OUT/${EXPNAME}_gem.bed" 'gem'
+	adastra check_pos_peaks "$gem" "$OUT/${EXPNAME}_gem.bed" 'gem'
 	# shellcheck disable=SC2154
 	if ! bedtools sort -i "$OUT/${EXPNAME}_gem.bed" > "$OUT/${EXPNAME}_gem.bed.sorted"
 	then
@@ -67,7 +67,7 @@ if [ $withgem != false ]; then
 fi
 
 if [ $withmacs != false ]; then
-	python3 -m adastra check_pos_peaks "$macs" "$OUT/${EXPNAME}_macs.bed" 'macs'
+	adastra check_pos_peaks "$macs" "$OUT/${EXPNAME}_macs.bed" 'macs'
 
 	if ! bedtools sort -i "$OUT/${EXPNAME}_macs.bed" > "$OUT/${EXPNAME}_macs.bed.sorted"
 	then
@@ -78,7 +78,7 @@ if [ $withmacs != false ]; then
 fi
 
 if [ $withsissrs != false ]; then
-	python3 -m adastra check_pos_peaks "$sissrs" "$OUT/${EXPNAME}_sissrs.bed" 'sissrs'
+	adastra check_pos_peaks "$sissrs" "$OUT/${EXPNAME}_sissrs.bed" 'sissrs'
 
 	if ! bedtools sort -i "$OUT/${EXPNAME}_sissrs.bed" > "$OUT/${EXPNAME}_sissrs.bed.sorted"
 	then
@@ -89,7 +89,7 @@ if [ $withsissrs != false ]; then
 fi
 
 if [ $withcpics != false ]; then
-	python3 -m adastra check_pos_peaks "$cpics" "$OUT/${EXPNAME}_cpics.bed" 'cpics'
+	adastra check_pos_peaks "$cpics" "$OUT/${EXPNAME}_cpics.bed" 'cpics'
 
 	if ! bedtools sort -i "$OUT/${EXPNAME}_cpics.bed" > "$OUT/${EXPNAME}_cpics.bed.sorted"
 	then
@@ -99,7 +99,7 @@ if [ $withcpics != false ]; then
   rm "$OUT/${EXPNAME}_cpics.bed"
 fi
 
-python3 -m adastra annotate_peaks "$VCF" "$OUT/${EXPNAME}_table_annotated.txt" "$RepFile"
+adastra annotate_peaks "$VCF" "$OUT/${EXPNAME}_table_annotated.txt" "$RepFile"
 
 
 if [ "$withgem" != false ]; then
