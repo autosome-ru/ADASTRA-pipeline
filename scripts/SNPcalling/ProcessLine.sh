@@ -20,7 +20,7 @@ alignment_full_path=${alignments_path}"/$exp_name/${align_name}.bam"
 
 if [ "$alignment_download_path" == "" ]; then
     echo "There is no Path for exp ${exp_name}. Checking ${alignments_path}/$exp_name"
-    if ! [ -f "$alignment_full_path"]; then
+    if ! [ -f "$alignment_full_path" ]; then
       echo "No data found for ${exp_name}"
       exit 1
     fi
