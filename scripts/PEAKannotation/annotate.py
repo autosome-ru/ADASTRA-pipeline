@@ -11,6 +11,7 @@ def make_sorted_caller_path(path, name):
 
 def main(vcf_path, table_annotated_path):
     exp = dict()
+    print(vcf_path)
     with gzip.open(vcf_path, 'rt') as f:
         make_dict_from_vcf(f, exp)
     sorted_lines = [[chr, pos, ID, REF, ALT, R, A] for ((chr, pos, ID, REF, ALT), (R, A)) in exp.items()]
