@@ -6,4 +6,4 @@ njobs=$1
 
 adastra make_paths --mode annotation
 
-parallel --jobs "$njobs" bash "$scripts_path"PEAKannotation/ParseMasterLine.sh :::: "$parallel_parameters_path"/exp_paths.cfg
+parallel --jobs "$njobs" bash "$scripts_path"/PEAKannotation/ParseMasterLine.sh :::: "$parallel_parameters_path"/exp_paths.cfg
