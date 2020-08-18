@@ -76,6 +76,7 @@ def main():
         main(args['--group'])
     elif args['bad_call']:
         from scripts.BADcalling.BADEstimation import main
+        print(args['--group'])
         main(args['--group'])
     elif args['bad_annotation']:
         from scripts.ASBcalling.BAD_annotation import main
