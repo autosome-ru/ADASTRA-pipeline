@@ -11,7 +11,7 @@ Usage:
             adastra check_pos_peaks --peak <path> --out <path> --type <type>
             adastra annotate_peaks --vcf <path>
             adastra vcf_merge --group <group>
-            adastra bad_call -group <group>
+            adastra bad_call --group <group>
             adastra bad_annotation
             adastra collect_ref_bias
             adastra fit_neg_bin
