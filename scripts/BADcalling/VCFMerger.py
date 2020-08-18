@@ -38,10 +38,9 @@ def merge_vcfs_as_independent_snps(out_file_name, in_files):
             out.write('\t'.join(map(str, [chr, pos, ID, REF, ALT, R, A])) + '\n')
 
 
-def main():
+def main(key):
     with open(badmaps_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
-    key = sys.argv[1]
     mode = 'independent'
     print(key)
 
@@ -60,4 +59,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1])

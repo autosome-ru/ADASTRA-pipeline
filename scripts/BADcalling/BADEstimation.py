@@ -668,8 +668,7 @@ class GenomeSegmentator:  # seg
 
 
 # FIXME use BABACHI
-def main():
-    key = sys.argv[1]
+def main(key):
     print(key)
     mode = 'corrected'
     b_penalty = 'CAIC'
@@ -687,4 +686,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1])

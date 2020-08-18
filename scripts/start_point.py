@@ -73,10 +73,10 @@ def main():
         main(args['--vcf'])
     elif args['vcf_merge']:
         from scripts.BADcalling.VCFMerger import main
-        main()
+        main(args['--group'])
     elif args['bad_call']:
         from scripts.BADcalling.BADEstimation import main
-        main()
+        main(args['--group'])
     elif args['bad_annotation']:
         from scripts.ASBcalling.BAD_annotation import main
         main()
