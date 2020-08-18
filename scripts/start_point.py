@@ -4,9 +4,9 @@ Usage:
             adastra sort_cols
             adastra init_dirs
             adastra aggregation_dict
-            adastra make_paths
+            adastra make_paths --mode <mode>
             adastra badmaps_params
-            adastra aggregation_params
+            adastra aggregation_params --name <name>
             adastra sort_params
             adastra check_pos_peaks
             adastra annotate_peaks
@@ -19,8 +19,13 @@ Usage:
             adastra aggregation
             adastra -h | --help
 
+Arguments:
+    <mode>     Name of the mode [default: badmaps]
+    <name>     Name of params
+
 Options:
     -h, --help                  Show help.
+
 """
 from docopt import docopt
 
@@ -41,13 +46,13 @@ def main():
         main()
     elif args['make_paths']:
         from scripts.PARAMETERS.make_exp_paths_from_master_list import main
-        main()
+        main(args['--mode'])
     elif args['badmaps_params']:
         from scripts.PARAMETERS.make_params_bad_estimation import main
         main()
     elif args['aggregation_params']:
         from scripts.PARAMETERS.make_params_aggregation import main
-        main()
+        main(args['--name'])
     elif args['sort_params']:
         from scripts.PARAMETERS.sort_params import main
         main()

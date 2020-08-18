@@ -1,11 +1,3 @@
-"""
-Usage:
-    agr_params --name <name>
-
-Arguments:
-    <name>     Name of the mode
-"""
-from docopt import docopt
 import json
 import os.path
 from scripts.HELPERS.paths import open_aggregation_dict
@@ -15,9 +7,7 @@ from scripts.HELPERS.helpers import check_if_in_expected_args
 out_path = os.path.join(parallel_parameters_path, 'Agr_parameters.cfg')
 
 
-def main():
-    args = docopt(__doc__)
-    what_for = args['--name']
+def main(what_for):
     check_if_in_expected_args(what_for)
     aggregation_dict_path = open_aggregation_dict(what_for)
     with open(aggregation_dict_path, 'r') as read_file:
