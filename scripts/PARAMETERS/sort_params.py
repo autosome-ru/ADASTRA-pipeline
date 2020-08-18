@@ -15,7 +15,7 @@ def refactor_filename(line, param_file):
 def main():
     for file_name in os.listdir(parallel_parameters_path):
         if file_name in file_dirs:
-            with open(os.path.join(parallel_parameters_path + file_name), 'r') as file, open(
+            with open(os.path.join(parallel_parameters_path, file_name), 'r') as file, open(
                     os.path.join(parallel_parameters_path, 'tmp.cfg'), 'w') as tmp:
                 assert file_name != 'tmp.cfg'
                 lines = []
@@ -30,7 +30,7 @@ def main():
                     tmp.write(line + '\n')
             os.remove(os.path.join(parallel_parameters_path, file_name))
             print("Made parameters {}".format(file_name))
-            os.rename(os.path.join(parallel_parameters_path + 'tmp.cfg'), os.path.join(parallel_parameters_path, file_name))
+            os.rename(os.path.join(parallel_parameters_path, 'tmp.cfg'), os.path.join(parallel_parameters_path, file_name))
 
 
 if __name__ == '__main__':

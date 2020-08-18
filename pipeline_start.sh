@@ -47,7 +47,7 @@ fi
 if [ "$stage_index" -le 3 ]; then
   bash "$scripts_path/"annotation.sh "$njobs"
 fi
-
+echo 'Annotated successfully'
 if [ "$stage_index" -le 4 ]; then
   bash "$scripts_path"/bad_map_est.sh "$njobs" --merge
   bash "$scripts_path"/BAD_annotation.sh "$njobs"
