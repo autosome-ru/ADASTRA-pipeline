@@ -12,7 +12,7 @@ def makedict(what_for):
     d = dict()
     check_if_in_expected_args(what_for)
     master_df = pd.read_table(master_list_path, dtype=dtype_dict)
-    master_df['path'] = master_df.apply(lambda x: create_path_from_master_list_df(x, for_what='p-value'))
+    master_df['path'] = master_df.apply(lambda x: create_path_from_master_list_df(x, for_what='p-value'), axis=1)
 
     for index, row in master_df.iterrows():
         if what_for == "TF":

@@ -17,8 +17,8 @@ def get_ending(for_what):
     raise AssertionError('Incorrect input parameter')
 
 
-def create_path_from_master_list_df(line, for_what='base'):
-    return os.path.join(alignments_path, line['#EXP'], line['ALIGNS'] + get_ending(for_what))
+def create_path_from_master_list_df(row, for_what='base'):
+    return os.path.join(alignments_path, row['#EXP'], row['ALIGNS'] + get_ending(for_what))
 
 
 def create_badmaps_path_function(name):
