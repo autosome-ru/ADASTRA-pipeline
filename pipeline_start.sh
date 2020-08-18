@@ -36,10 +36,10 @@ esac
 
 if [ "$stage_index" -le 1 ]; then
   bash "$scripts_path/create_reference.sh" -RefFolder "$reference_path" -RefGenome "$genome_path"
-  python3 -m ADASTRA badmaps_dict
-  python3 -m ADASTRA sort_cols
-  python3 -m ADASTRA init_dirs
-  python3 -m ADASTRA aggregation_dict
+  python3 -m adastra badmaps_dict
+  python3 -m adastra sort_cols
+  python3 -m adastra init_dirs
+  python3 -m adastra aggregation_dict
 fi
 
 if [ "$stage_index" -le 2 ]; then
@@ -56,8 +56,8 @@ if [ "$stage_index" -le 4 ]; then
 fi
 
 if [ "$stage_index" -le 5 ]; then
-  python3 -m ADASTRA collect_ref_bias
-  python3 -m ADASTRA fit_neg_bin
+  python3 -m adastra collect_ref_bias
+  python3 -m adastra fit_neg_bin
 fi
 
 if [ "$stage_index" -le 6 ]; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source ../../CONFIG.cfg
-source ../HELPERS/paths_for_components.py
+source scripts/HELPERS/soft_configs.cfg
+source scripts/HELPERS/paths_for_components.py
 
 PEAKannotationScriptsPath=${scripts_path}"/PEAKannotation/"
 
