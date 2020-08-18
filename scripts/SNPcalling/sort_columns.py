@@ -15,7 +15,7 @@ def main():
         ascending=False,
         na_position='first')
     master_df = master_df[['#EXP', 'ALIGNS', 'READS', 'DOWNLOAD_PATH']]
-    master_df.to_csv(os.path.join(parallel_parameters_path, 'sorted_maser_list.tsv'), sep='\t', index=False, header=False)
+    master_df.to_csv(os.path.join(parallel_parameters_path, 'sorted_master_list.tsv'), sep='\t', index=False, header=False)
 
 
 if __name__ == '__main__':
