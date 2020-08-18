@@ -46,6 +46,7 @@ def main():
         main()
     elif args['make_paths']:
         from scripts.PARAMETERS.make_exp_paths_from_master_list import main
+        print(args['--mode'])
         main(args['--mode'])
     elif args['badmaps_params']:
         from scripts.PARAMETERS.make_params_bad_estimation import main
