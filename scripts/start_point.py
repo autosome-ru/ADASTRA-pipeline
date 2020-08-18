@@ -9,7 +9,7 @@ Usage:
             adastra aggregation_params --name <name>
             adastra sort_params
             adastra check_pos_peaks --peak <path> --out <path> --type <type>
-            adastra annotate_peaks --vcf <path> --out <path>
+            adastra annotate_peaks --vcf <path>
             adastra vcf_merge
             adastra bad_call
             adastra bad_annotation
@@ -69,7 +69,7 @@ def main():
         main(args['--peak'], args['--out'], args['--type'])
     elif args['annotate_peaks']:
         from scripts.PEAKannotation.annotate import main
-        main(args['--vcf'], args['--out'])
+        main(args['--vcf'])
     elif args['vcf_merge']:
         from scripts.BADcalling.VCFMerger import main
         main()

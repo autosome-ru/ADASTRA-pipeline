@@ -21,7 +21,7 @@ if ! [ -f "$vcf_path" ]; then
   exit 1
 fi
 
-if  [ -f "${base_path}_table_annotated.tsv" ]; then
+if  [ -f "${base_path}.table_annotated.tsv" ]; then
 	echo "Remaking annotation for $vcf_path"
 else
 	echo "Making annotation for $vcf_path first time"
@@ -60,9 +60,9 @@ else
 fi
 
 
-if ! bash ${PEAKannotationScriptsPath}/MakeAnnotatedTable.sh -Out ${base_path} \
+if ! bash ${PEAKannotationScriptsPath}/MakeAnnotatedTable.sh \
 		$PeakM $PEAKM $PeakS $PEAKS $PeakG $PEAKG $PeakC $PEAKC\
-		-VCF "$vcf_path"
+		-I "$base_path"
 then
   echo "Failed to make annotation table for ${vcf_path}"
 

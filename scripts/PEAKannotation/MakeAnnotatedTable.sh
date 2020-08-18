@@ -20,10 +20,6 @@ withgem=false
 while [ "$(echo "$1" | cut -c1)" = "-" ]
 do
   case "$1" in
-
-	  -Out) OUT=$2
-		  shift 2;;
-
 	  -macs) withmacs=true
 		  macs=$2
 		  shift 2;;
@@ -40,7 +36,7 @@ do
 		  gem=$2
 		  shift 2;;
 
-	  -VCF) VCF=$2
+	  -I) base_path=$2
 		  shift 2;;
 
 	  *)
@@ -51,64 +47,64 @@ do
 done
 
 if [ $withgem != false ]; then
-	adastra check_pos_peaks --peak "$gem" --out "${OUT}_gem.bed" --type 'gem'
+	adastra check_pos_peaks --peak "$gem" --out "${base_path}.gem.bed" --type 'gem'
 	# shellcheck disable=SC2154
-	if ! bedtools sort -i "${OUT}_gem.bed" > "${OUT}_gem.bed.sorted"
+	if ! bedtools sort -i "${base_path}.gem.bed" > "${base_path}.gem.bed.sorted"
 	then
 		echo "Failed to sort gem peaks"
 		exit 1
 	fi
-	rm "${OUT}_gem.bed"
+	rm "${base_path}.gem.bed"
 fi
 
 if [ $withmacs != false ]; then
-	adastra check_pos_peaks --peak "$macs" --out "${OUT}_macs.bed" --type 'macs'
+	adastra check_pos_peaks --peak "$macs" --out "${base_path}.macs.bed" --type 'macs'
 
-	if ! bedtools sort -i "${OUT}_macs.bed" > "${OUT}_macs.bed.sorted"
+	if ! bedtools sort -i "${base_path}.macs.bed" > "${base_path}.macs.bed.sorted"
 	then
 		echo "Failed to sort macs peaks"
 		exit 1
 	fi
-  rm "${OUT}_macs.bed"
+  rm "${base_path}.macs.bed"
 fi
 
 if [ $withsissrs != false ]; then
-	adastra check_pos_peaks --peak "$sissrs" --out "${OUT}_sissrs.bed" --type 'sissrs'
+	adastra check_pos_peaks --peak "$sissrs" --out "${base_path}.sissrs.bed" --type 'sissrs'
 
-	if ! bedtools sort -i "${OUT}_sissrs.bed" > "${OUT}_sissrs.bed.sorted"
+	if ! bedtools sort -i "${base_path}.sissrs.bed" > "${base_path}.sissrs.bed.sorted"
 	then
 		echo "Failed to sort sissrs peaks"
 		exit 1
 	fi
-  rm "${OUT}_sissrs.bed"
+  rm "${base_path}.sissrs.bed"
 fi
 
 if [ $withcpics != false ]; then
-	adastra check_pos_peaks --peak "$cpics" --out "${OUT}_cpics.bed" --type 'cpics'
+	adastra check_pos_peaks --peak "$cpics" --out "${base_path}.cpics.bed" --type 'cpics'
 
-	if ! bedtools sort -i "${OUT}_cpics.bed" > "${OUT}_cpics.bed.sorted"
+	if ! bedtools sort -i "${base_path}.cpics.bed" > "${base_path}.cpics.bed.sorted"
 	then
 		echo "Failed to sort cpics peaks"
 		exit 1
 	fi
-  rm "${OUT}_cpics.bed"
+  rm "${base_path}.cpics.bed"
 fi
 
-adastra annotate_peaks --vcf "$VCF" --out "${OUT}_table_annotated.txt"
+adastra annotate_peaks --vcf "$base_path"
 
 
 if [ "$withgem" != false ]; then
-	rm "${OUT}_gem.bed.sorted"
+	rm "${base_path}.gem.bed.sorted"
 fi
 
 if [ "$withcpics" != false ]; then
-	rm "${OUT}_cpics.bed.sorted"
+	rm "${base_path}.cpics.bed.sorted"
 fi
 
 if [ "$withmacs" != false ]; then
-  rm "${OUT}_macs.bed.sorted"
+  rm "${base_path}.macs.bed.sorted"
 fi
 
 if [ "$withsissrs" != false ]; then
-  rm "${OUT}_sissrs.bed.sorted"
+  rm "${base_path}.sissrs.bed.sorted"
 fi
