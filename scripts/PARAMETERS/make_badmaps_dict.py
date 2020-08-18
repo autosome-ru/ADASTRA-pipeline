@@ -45,6 +45,7 @@ def add_record(d, row):
 
 def make_dict(master_list):
     master = pd.read_table(master_list, dtype=dtype_dict)
+    master['CELLS'] = master['CELLS'].apply(remove_punctuation)
     d = dict()
     df_len = len(master.index)
     for index, row in master.iterrows():
