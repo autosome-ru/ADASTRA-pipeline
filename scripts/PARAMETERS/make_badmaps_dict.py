@@ -44,7 +44,7 @@ def add_record(d, row):
     raise AssertionError('HAS no ENCODE ID, GEO GSE and wgEncode id')
 
 
-def main(master_list):
+def make_dict(master_list):
     master = pd.read_table(master_list)
     d = dict()
     df_len = len(master.index)
@@ -62,5 +62,9 @@ def main(master_list):
     print("Dictionary Saved")
 
 
+def main():
+    make_dict(master_list_path)
+
+
 if __name__ == '__main__':
-    main(master_list_path)
+    main()
