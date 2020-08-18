@@ -41,8 +41,6 @@ do
 		  shift 2;;
 
 	  -VCF) VCF=$2
-		  tmp=$( GETNAME "$VCF" )
-		  EXPNAME=${tmp%.*}
 		  shift 2;;
 
 	  *)
@@ -53,64 +51,64 @@ do
 done
 
 if [ $withgem != false ]; then
-	adastra check_pos_peaks --peak "$gem" --out "$OUT/${EXPNAME}_gem.bed" --type 'gem'
+	adastra check_pos_peaks --peak "$gem" --out "${OUT}_gem.bed" --type 'gem'
 	# shellcheck disable=SC2154
-	if ! bedtools sort -i "$OUT/${EXPNAME}_gem.bed" > "$OUT/${EXPNAME}_gem.bed.sorted"
+	if ! bedtools sort -i "${OUT}_gem.bed" > "${OUT}_gem.bed.sorted"
 	then
 		echo "Failed to sort gem peaks"
 		exit 1
 	fi
-	rm "$OUT/${EXPNAME}_gem.bed"
+	rm "${OUT}_gem.bed"
 fi
 
 if [ $withmacs != false ]; then
-	adastra check_pos_peaks --peak "$macs" --out "$OUT/${EXPNAME}_macs.bed" --type 'macs'
+	adastra check_pos_peaks --peak "$macs" --out "${OUT}_macs.bed" --type 'macs'
 
-	if ! bedtools sort -i "$OUT/${EXPNAME}_macs.bed" > "$OUT/${EXPNAME}_macs.bed.sorted"
+	if ! bedtools sort -i "${OUT}_macs.bed" > "${OUT}_macs.bed.sorted"
 	then
 		echo "Failed to sort macs peaks"
 		exit 1
 	fi
-  rm "$OUT/${EXPNAME}_macs.bed"
+  rm "${OUT}_macs.bed"
 fi
 
 if [ $withsissrs != false ]; then
-	adastra check_pos_peaks --peak "$sissrs" --out "$OUT/${EXPNAME}_sissrs.bed" --type 'sissrs'
+	adastra check_pos_peaks --peak "$sissrs" --out "${OUT}_sissrs.bed" --type 'sissrs'
 
-	if ! bedtools sort -i "$OUT/${EXPNAME}_sissrs.bed" > "$OUT/${EXPNAME}_sissrs.bed.sorted"
+	if ! bedtools sort -i "${OUT}_sissrs.bed" > "${OUT}_sissrs.bed.sorted"
 	then
 		echo "Failed to sort sissrs peaks"
 		exit 1
 	fi
-  rm "$OUT/${EXPNAME}_sissrs.bed"
+  rm "${OUT}_sissrs.bed"
 fi
 
 if [ $withcpics != false ]; then
-	adastra check_pos_peaks --peak "$cpics" --out "$OUT/${EXPNAME}_cpics.bed" --type 'cpics'
+	adastra check_pos_peaks --peak "$cpics" --out "${OUT}_cpics.bed" --type 'cpics'
 
-	if ! bedtools sort -i "$OUT/${EXPNAME}_cpics.bed" > "$OUT/${EXPNAME}_cpics.bed.sorted"
+	if ! bedtools sort -i "${OUT}_cpics.bed" > "${OUT}_cpics.bed.sorted"
 	then
 		echo "Failed to sort cpics peaks"
 		exit 1
 	fi
-  rm "$OUT/${EXPNAME}_cpics.bed"
+  rm "${OUT}_cpics.bed"
 fi
 
-adastra annotate_peaks --vcf "$VCF" --out "$OUT/${EXPNAME}_table_annotated.txt"
+adastra annotate_peaks --vcf "$VCF" --out "${OUT}_table_annotated.txt"
 
 
 if [ "$withgem" != false ]; then
-	rm "$OUT/${EXPNAME}_gem.bed.sorted"
+	rm "${OUT}_gem.bed.sorted"
 fi
 
 if [ "$withcpics" != false ]; then
-	rm "$OUT/${EXPNAME}_cpics.bed.sorted"
+	rm "${OUT}_cpics.bed.sorted"
 fi
 
 if [ "$withmacs" != false ]; then
-  rm "$OUT/${EXPNAME}_macs.bed.sorted"
+  rm "${OUT}_macs.bed.sorted"
 fi
 
 if [ "$withsissrs" != false ]; then
-  rm "$OUT/${EXPNAME}_sissrs.bed.sorted"
+  rm "${OUT}_sissrs.bed.sorted"
 fi
