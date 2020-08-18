@@ -26,7 +26,7 @@ def add_record(d, row):
     path = create_path_from_master_list_df(row, for_what="base")
     print(row, row['ENCODE'])
     print(dtype_dict)
-    if not row['ENCODE'].isna():
+    if not pd.isna(row['ENCODE']):
         Lab = find_lab(row['ENCODE'])
         if Lab:
             key = '{}@{}'.format(row['CELLS'], Lab)
@@ -34,11 +34,11 @@ def add_record(d, row):
             return
         else:
             raise AssertionError('Lab not found')
-    elif not row['GEO'].isna():
+    elif not pd.isna(row['GEO']):
         key = '{}@{}'.format(row['CELLS'], row['GEO'])
         add_to_dict(d, key, path)
         return
-    elif not row['WG_ENCODE'].isna():
+    elif not pd.isna(row['WG_ENCODE']):
         key = '{}@{}'.format(row['CELLS'], row['WG_ENCODE'])
         add_to_dict(d, key, path)
         return
