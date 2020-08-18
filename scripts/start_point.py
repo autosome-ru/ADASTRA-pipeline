@@ -25,6 +25,8 @@ Arguments:
 
 Options:
     -h, --help                  Show help.
+    --mode=<mode>               Mode for make_paths
+    --name=<name>               Name TF or CL
 
 """
 from docopt import docopt
