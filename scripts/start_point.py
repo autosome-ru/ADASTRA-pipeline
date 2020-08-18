@@ -69,7 +69,7 @@ def main():
         main(args['--peak'], args['--out'], args['--type'])
     elif args['annotate_peaks']:
         from scripts.PEAKannotation.annotate import main
-        main(args['vcf'], args['--out'])
+        main(args['--vcf'], args['--out'])
     elif args['vcf_merge']:
         from scripts.BADcalling.VCFMerger import main
         main()
