@@ -21,7 +21,6 @@ used_vars_list = [
 
 used_soft_list = [
     'Java',
-    'python',
     'python3',
     'Bedtools',
     'PICARD',
