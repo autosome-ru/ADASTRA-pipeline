@@ -43,8 +43,8 @@ def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return par
             del dictionary[key]
 
 
-def get_name(path):  # path format */ALIGNS000000_table_p.txt
-    return path.split("/")[-1].split("_")[0]
+def get_name(path):
+    return os.path.splitext(os.path.basename(path))
 
 
 def invert(dictionary):
@@ -85,8 +85,7 @@ def main(what_for, key_name):
     for table in tables:
         if os.path.isfile(table):
             table_name = get_name(table)
-            another_agr = get_another_agr(table,
-                                          what_for)  # returns name of cell-line for aggregation on TF and vice versa
+            another_agr = get_another_agr(table, what_for)
             with open(table, 'r') as file:
                 for line in file:
                     try:

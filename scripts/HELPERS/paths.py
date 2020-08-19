@@ -7,11 +7,11 @@ def get_ending(for_what):
     if for_what == "vcf":
         return ".vcf.gz"
     if for_what == "annotation":
-        return ".table_annotated.tsv"
+        return ".table_annotated"
     if for_what == "p-value":
-        return ".table_p.tsv"
+        return ".table_p"
     if for_what == "BAD":
-        return ".table_BAD.tsv"
+        return ".table_BAD"
     if for_what == 'base':
         return ''
     raise AssertionError('Incorrect input parameter')
