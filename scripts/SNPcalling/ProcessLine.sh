@@ -30,17 +30,17 @@ else
       echo "Failed to make dir $exp_name"
       exit 1
     fi
-
-    echo "Downloading $exp_name"
-
-    if ! bash ${helpers_scripts_path}/DownloadFile.sh "$alignment_download_path" "$alignment_full_path"
-    then
-      echo "Download failed for $exp_name"
-      exit 1
-    else
-      echo 'Downloaded successfully'
-    fi
   fi
+  echo "Downloading $exp_name"
+
+  if ! bash ${helpers_scripts_path}/DownloadFile.sh "$alignment_download_path" "$alignment_full_path"
+  then
+    echo "Download failed for $exp_name"
+    exit 1
+  else
+    echo 'Downloaded successfully'
+  fi
+
 fi
 
 echo "Adding read_groups for $exp_name"
