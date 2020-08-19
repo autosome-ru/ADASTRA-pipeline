@@ -27,7 +27,7 @@ case "$2" in
   --aggregate-pvalues) stage_index=7
     ;;
   *)
-    echo "There is no option $1"
+    echo "There is no option $2"
     stage_index=0
     ;;
 esac
