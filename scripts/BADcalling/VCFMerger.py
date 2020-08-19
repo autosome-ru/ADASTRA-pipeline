@@ -45,7 +45,7 @@ def main(key):
 
     paths_list = []
     for path in d[key]:
-        if os.path.isfile(path):
+        if os.path.isfile(path + get_ending("vcf")):
             paths_list.append(path + get_ending("vcf"))
     out_file = create_merged_vcf_path_function(key)
 
