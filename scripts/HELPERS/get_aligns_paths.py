@@ -3,37 +3,42 @@ import glob
 from pathlib import Path
 from sys import argv
 
-REGEX_PEAKS = r"PEAKS\d{4,}"
-REGEX_ALIGNS = r"D?ALIGNS\d{4,}"
 
+REGEX_ALIGNS = r"D?ALIGNS\d{4,}"
 BASE_PATH_ALIGNS = "/srv/*/egrid/aligns-sorted/*.bam"
 
 
-def extract_aligns(aligns):
-    paths = {x: "None" for x in aligns}
+def pack(values):
+    return '\t'.join(map(str, values)) + '\n'
+
+
+def find_aligns_paths(aligns):
+    paths = {x: None for x in aligns}
     for file in glob.glob(BASE_PATH_ALIGNS):
         if Path(file).is_file():                # If indexed
-            id = re.search(REGEX_ALIGNS, file)  # and named in db
-            if id is None:
+            align_id = re.search(REGEX_ALIGNS, file)  # and named in db
+            if align_id is None:
                 continue
-            id = id.group()
-            if id in paths:
-                paths[id] = file
+            align_id = align_id.group()
+            if align_id in aligns:
+                paths[align_id] = file
     return paths
 
 
-def get_files(lines):
-    aligns = {}
-    for line in lines:
-        if line[0] == "#":
-            continue
-        line = line.strip().split("\t")
-        aligns[line[6]] = line
-    aligns_paths = extract_aligns(aligns)
-
-    for align_name in aligns:
-        print("\t".join(aligns[align_name] + [aligns_paths[align_name]]))
+def get_files(data):
+    aligns_paths = find_aligns_paths([x for x in data['ALIGNS']])
+    data['DOWNLOAD_PATH'] = [aligns_paths[x] for x in data['ALIGNS']]
+    return data
 
 
-with open(argv[1], "r") as infile:
-    get_files(infile.readlines())
+if __name__ == '__main__':
+    with open(argv[1], "r") as infile:
+        header = infile.readline().strip('\n').split('\t')
+        lines_list = [line.strip('\n').split('\t') for line in infile]
+    data_list = dict(zip(header, lines_list))
+    data_with_paths = get_files(data_list)
+    print('\t'.join(data_with_paths.keys()))
+    for i in range(len(data_list['ALIGNS'])):
+        print('\t'.join([data_list[x][i] for x in data_list]))
+
+
