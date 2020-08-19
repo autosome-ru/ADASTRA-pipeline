@@ -6,17 +6,17 @@ Usage:
             adastra aggregation_dict
             adastra make_paths --mode <mode>
             adastra badmaps_params
-            adastra aggregation_params --name <name>
+            adastra aggregation_params --for <for>
             adastra sort_params
             adastra check_pos_peaks --peak <path> --out <path> --type <type>
-            adastra annotate_peaks --vcf <path>
+            adastra annotate_peaks --base <path>
             adastra vcf_merge --group <group>
             adastra bad_call --group <group>
-            adastra bad_annotation
+            adastra bad_annotation --base <path>
             adastra collect_ref_bias
             adastra fit_neg_bin
-            adastra neg_bin_p
-            adastra aggregation
+            adastra neg_bin_p --base <path>
+            adastra aggregation --for <for> --name <name>
             adastra -h | --help
 
 Arguments:
@@ -28,11 +28,12 @@ Arguments:
 Options:
     -h, --help                  Show help.
     --mode=<mode>               Mode for make_paths
-    --name=<name>               Name TF or CL
+    --name=<name>               Name of TF or CL
+    --for=<for>                 TF or CL
     --peak=<path>               Path to peak file
     --out=<path>                Path to out file
     --type=<type>               Peak type
-    --vcf=<vcf>                 Path to vcf to annotate
+    --base=<path>               Path to file to annotate
     --group=<group>             Name of badmap group
 
 """
@@ -61,7 +62,7 @@ def main():
         main()
     elif args['aggregation_params']:
         from scripts.PARAMETERS.make_params_aggregation import main
-        main(args['--name'])
+        main(args['--for'])
     elif args['sort_params']:
         from scripts.PARAMETERS.sort_params import main
         main()
@@ -70,7 +71,7 @@ def main():
         main(args['--peak'], args['--out'], args['--type'])
     elif args['annotate_peaks']:
         from scripts.PEAKannotation.annotate import main
-        main(args['--vcf'])
+        main(args['--base'])
     elif args['vcf_merge']:
         from scripts.BADcalling.VCFMerger import main
         main(args['--group'])
@@ -79,7 +80,7 @@ def main():
         main(args['--group'])
     elif args['bad_annotation']:
         from scripts.ASBcalling.BAD_annotation import main
-        main()
+        main(args['--base'])
     elif args['collect_ref_bias']:
         from scripts.FITnoise.collect_ref_bias_statistics import main
         main()
@@ -88,8 +89,8 @@ def main():
         main()
     elif args['neg_bin_p']:
         from scripts.ASBcalling.NBpcounter import main
-        main()
+        main(args['--base'])
     elif args['aggregation']:
         from scripts.ASBcalling.Aggregation import main
-        main()
+        main(args['--for'], args['--name'])
 

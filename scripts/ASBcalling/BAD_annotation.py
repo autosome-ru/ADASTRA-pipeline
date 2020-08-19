@@ -14,8 +14,7 @@ def make_reverse_dict(dictionary):
     return new_dict
 
 
-def main():
-    key = sys.argv[1]
+def main(key):
     table_annotated = key + get_ending("annotation")
     output = key + get_ending("BAD")
 
@@ -45,4 +44,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1])

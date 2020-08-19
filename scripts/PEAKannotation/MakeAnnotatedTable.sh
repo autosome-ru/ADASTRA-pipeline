@@ -90,7 +90,7 @@ if [ $withcpics != false ]; then
   rm "${base_path}.cpics.bed"
 fi
 
-adastra annotate_peaks --vcf "$base_path"
+adastra annotate_peaks --base "$base_path"
 
 
 if [ "$withgem" != false ]; then

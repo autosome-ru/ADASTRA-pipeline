@@ -11,5 +11,4 @@ if [ "$flag" == --merge ]; then
 fi
 
 adastra sort_params
-echo 'Wrong'
 parallel --jobs "$njobs" adastra bad_call --group :::: "$parallel_parameters_path"/BE_parameters.cfg

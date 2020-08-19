@@ -1,4 +1,5 @@
 import json
+import sys
 import os.path
 from scripts.HELPERS.paths import open_aggregation_dict
 from scripts.HELPERS.paths_for_components import parallel_parameters_path
@@ -24,4 +25,4 @@ def main(what_for):
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1])

@@ -71,10 +71,9 @@ def count_p(ref_c, alt_c, BADs):
     return p_ref, p_alt, es_ref, es_alt
 
 
-def main():
-    full_path = sys.argv[1]
-    table_BAD = full_path + get_ending("BAD")
-    output = full_path + get_ending("p-value")
+def main(base_path):
+    table_BAD = base_path + get_ending("BAD")
+    output = base_path + get_ending("p-value")
     print('Now counting P-value for {}'.format(table_BAD))
     df_with_BAD = pd.read_table(table_BAD)
     p_ref, p_alt, es_ref, es_alt = count_p(np.array(df_with_BAD["ref_read_counts"], dtype=np.int_),
@@ -88,4 +87,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1])

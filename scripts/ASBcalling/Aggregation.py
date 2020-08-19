@@ -70,12 +70,10 @@ def get_noise(k, n, weight):
     return weight * max(k - n / 2, 0) / (1 / 2 * (n - 5 - n // 2) * (n // 2 - 4))
 
 
-def main():
-    what_for = sys.argv[1]  # "TF" or "CL" arguments are expected
+def main(what_for, key_name):
     check_if_in_expected_args(what_for)
-    key_name = sys.argv[2]
 
-    table_path = results_path + what_for + '_P-values/{}.tsv'.format(key_name)
+    table_path = os.path.join(results_path, what_for + '_P-values/{}.tsv'.format(key_name))
 
     tables = []
     if what_for == "CL":
@@ -279,4 +277,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1], sys.argv[2])
