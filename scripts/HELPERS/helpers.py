@@ -311,7 +311,11 @@ def read_weights():
             r[fixed_allele][BAD] = coefs_array[:, 0]
             w[fixed_allele][BAD] = coefs_array[:, 1]
             gof[fixed_allele][BAD] = coefs_array[:, 3]
-            first_bad_gof = min(x for x in range(len(gof[fixed_allele][BAD])) if gof[fixed_allele][BAD][x] > 0.05)
+            good_gof_list = [x for x in range(len(gof[fixed_allele][BAD])) if gof[fixed_allele][BAD][x] > 0.05]
+            if len(good_gof_list) > 0:
+                first_bad_gof = min(x for x in range(len(gof[fixed_allele][BAD])) if gof[fixed_allele][BAD][x] > 0.05)
+            else:
+                first_bad_gof = 0
             gof[fixed_allele][BAD][first_bad_gof:] = 1
             r[fixed_allele][BAD][first_bad_gof:] = 0
             w[fixed_allele][BAD][first_bad_gof:] = 1
