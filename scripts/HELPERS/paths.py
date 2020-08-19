@@ -1,6 +1,6 @@
 import os
 from scripts.HELPERS.paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
-    cl_dict_path
+    cl_dict_path, configs_path
 
 
 def get_ending(for_what):
@@ -27,6 +27,15 @@ def create_badmaps_path_function(name):
 
 def create_merged_vcf_path_function(name):
     return os.path.join(badmaps_path, 'merged_vcfs', name + ".tsv")
+
+
+def create_neg_bin_stats_path_function(BAD, suffix=''):
+    return os.path.join(configs_path, 'bias_statistics_BAD={:.1f}{}.tsv'.format(
+            BAD if BAD else 0, suffix))
+
+
+def create_neg_bin_weights_path_function(fixed_allele, BAD):
+    return os.path.join(configs_path, 'NBweights_{}_BAD={:.1f}'.format(fixed_allele, BAD))
 
 
 def open_aggregation_dict(what_for):

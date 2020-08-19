@@ -2,8 +2,8 @@ import os.path
 import pandas as pd
 
 from scripts.HELPERS.helpers import dtype_dict
-from scripts.HELPERS.paths import create_path_from_master_list_df
-from scripts.HELPERS.paths_for_components import configs_path, master_list_path
+from scripts.HELPERS.paths import create_path_from_master_list_df, create_neg_bin_stats_path_function
+from scripts.HELPERS.paths_for_components import master_list_path
 
 
 def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
@@ -40,8 +40,7 @@ def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
             out_t = out_t.append(tmp_df).groupby(['alt_counts', 'ref_counts'], as_index=False).sum()
     if out_t is None:
         return
-    with open(os.path.join(configs_path, 'bias_statistics_BAD={:.1f}{}.tsv'.format(
-            BAD if BAD else 0, suffix)), 'w') as out:
+    with open(create_neg_bin_stats_path_function(BAD, suffix), 'w') as out:
         out_t.to_csv(out, sep="\t", index=False)
 
 

@@ -3,6 +3,8 @@ import numpy as np
 import os
 from scripts.HELPERS.paths_for_components import master_list_path, configs_path
 
+from scripts.HELPERS.paths import create_neg_bin_weights_path_function
+
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
 chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
@@ -304,7 +306,7 @@ def read_weights():
         w[fixed_allele] = {}
         gof[fixed_allele] = {}
         for BAD in states:
-            precalc_params_path = os.path.join(configs_path, 'NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD))
+            precalc_params_path = create_neg_bin_weights_path_function(fixed_allele, BAD)
             coefs_array = np.load(precalc_params_path)
             r[fixed_allele][BAD] = coefs_array[:, 0]
             w[fixed_allele][BAD] = coefs_array[:, 1]

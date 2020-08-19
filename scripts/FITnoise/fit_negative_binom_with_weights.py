@@ -1,10 +1,9 @@
-import os
 import numpy as np
 import pandas as pd
 from scipy import optimize
 from scipy import stats as st
-from scripts.HELPERS.paths_for_components import configs_path
 from scripts.HELPERS.helpers import states
+from scripts.HELPERS.paths import create_neg_bin_stats_path_function, create_neg_bin_weights_path_function
 
 
 def make_negative_binom_density(r, p, w, size_of_counts, left_most, for_plot=False):
@@ -97,7 +96,7 @@ def main():
 
         for BAD in states:
             save_array = np.zeros((max(fix_c_array) + 1, 4), dtype=np.float_)
-            filename = os.path.join(configs_path, 'bias_statistics_BAD={:.1f}.tsv'.format(BAD))
+            filename = create_neg_bin_stats_path_function(BAD)
             stats = pd.read_table(filename)
             for allele in alleles:
                 stats['{}_counts'.format(allele)] = stats['{}_counts'.format(allele)].astype(int)
@@ -119,7 +118,7 @@ def main():
                     save_array[fix_c, 2] = weights.success
                     save_array[fix_c, 3] = gof
 
-            np.save(os.path.join(configs_path, 'NBweights_{}_BAD={:.1f}'.format(fixed_allele, BAD)), save_array)
+            np.save(create_neg_bin_weights_path_function(fixed_allele, BAD), save_array)
 
 
 if __name__ == '__main__':
