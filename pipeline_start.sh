@@ -33,11 +33,31 @@ case "$2" in
 esac
 
 if [ "$stage_index" -le 1 ]; then
-  bash "$scripts_path/create_reference.sh" -RefFolder "$reference_path" -RefGenome "$genome_path"
-  adastra badmaps_dict
-  adastra sort_cols
-  adastra init_dirs
-  adastra aggregation_dict
+  if !  bash "$scripts_path/create_reference.sh" -RefFolder "$reference_path" -RefGenome "$genome_path"
+  then
+    echo 'Create reference failed'
+    exit 1
+  fi
+  if ! adastra badmaps_dict
+  then
+    echo 'BADmaps dict failed'
+    exit 1
+  fi
+  if ! adastra sort_cols
+  then
+    echo 'Sort columns failed'
+    exit 1
+  fi
+  if ! adastra init_dirs
+  then
+    echo 'Create directories failed'
+    exit 1
+  fi
+  if ! adastra aggregation_dict
+  then
+    echo 'Aggregation dict failed'
+    exit 1
+  fi
 fi
 
 if [ "$stage_index" -le 2 ]; then
@@ -57,22 +77,50 @@ if [ "$stage_index" -le 3 ]; then
 fi
 
 if [ "$stage_index" -le 4 ]; then
-  bash "$scripts_path"/bad_map_est.sh "$njobs" --merge
-  bash "$scripts_path"/BAD_annotation.sh "$njobs"
+  if ! bash "$scripts_path"/bad_map_est.sh "$njobs" --merge
+  then
+    echo 'BAD estimation failed'
+    exit 1
+  fi
+  if ! bash "$scripts_path"/BAD_annotation.sh "$njobs"
+  then
+    echo 'BAD annotation failed'
+    exit 1
+  fi
 fi
 
 if [ "$stage_index" -le 5 ]; then
-  adastra collect_ref_bias
-  adastra fit_neg_bin
+  if ! adastra collect_ref_bias
+  then
+    echo 'Collect statistics failed'
+    exit 1
+  fi
+  if ! adastra fit_neg_bin
+  then
+    echo 'Fit negative binom failed'
+    exit 1
+  fi
 fi
 
 if [ "$stage_index" -le 6 ]; then
-  bash "$scripts_path"/p_value_count.sh "$njobs"
+  if ! bash "$scripts_path"/p_value_count.sh "$njobs"
+  then
+    echo 'P-value computation failed'
+    exit 1
+  fi
 fi
 
 if [ "$stage_index" -le 7 ]; then
-  bash "$scripts_path"/aggregation.sh "$njobs" --forTF
-  bash "$scripts_path"/aggregation.sh "$njobs" --forCL
+  if ! bash "$scripts_path"/aggregation.sh "$njobs" --forTF
+  then
+    echo 'TF aggregation failed'
+    exit 1
+  fi
+  if ! bash "$scripts_path"/aggregation.sh "$njobs" --forCL
+  then
+    echo 'CL aggregation failed'
+    exit 1
+  fi
 fi
 
 cd $previous_pwd
