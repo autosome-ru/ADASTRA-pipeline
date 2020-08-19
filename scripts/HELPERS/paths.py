@@ -35,7 +35,7 @@ def create_neg_bin_stats_path_function(BAD, suffix=''):
 
 
 def create_neg_bin_weights_path_function(fixed_allele, BAD):
-    return os.path.join(configs_path, 'NBweights_{}_BAD={:.1f}'.format(fixed_allele, BAD))
+    return os.path.join(configs_path, 'NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD))
 
 
 def open_aggregation_dict(what_for):
