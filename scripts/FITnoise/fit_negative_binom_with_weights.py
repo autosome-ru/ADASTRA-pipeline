@@ -107,8 +107,6 @@ def main():
                 counts, set_of_nonzero_n = make_scaled_counts(stats_filtered, main_allele)
                 if len(set_of_nonzero_n) == 0 or counts.sum() < max(set_of_nonzero_n) - 5:
                     continue
-                print('Made counts', 'Fix {}={}'.format(fixed_allele, fix_c))
-                number = len(counts) - 1
 
                 left_most = 5
                 q_left = 5
