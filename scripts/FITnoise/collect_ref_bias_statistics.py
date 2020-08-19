@@ -17,7 +17,6 @@ def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
         bad_table_path = create_path_from_master_list_df(row, 'BAD')
         if not os.path.isfile(bad_table_path):
             continue
-        print(bad_table_path)
         df = pd.read_table(bad_table_path)
         if df.empty:
             continue
