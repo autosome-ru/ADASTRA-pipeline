@@ -12,19 +12,19 @@ python3 "construct_parameters_python.py"
 source "scripts/HELPERS/paths_for_components.py"
 
 case "$2" in
-  --create_reference) stage_index=1
+  --create-reference) stage_index=1
     ;;
-  --snp_call) stage_index=2
+  --snp-call) stage_index=2
     ;;
-  --peak_call) stage_index=3
+  --peak-call) stage_index=3
     ;;
-  --bad_call) stage_index=4
+  --bad-call) stage_index=4
     ;;
-  --nb_fit) stage_index=5
+  --nb-fit) stage_index=5
     ;;
-  --p_value_count) stage_index=6
+  --pvalue-count) stage_index=6
     ;;
-  --aggregate_p_values) stage_index=7
+  --aggregate-pvalues) stage_index=7
     ;;
   *)
     echo "There is no option $1"

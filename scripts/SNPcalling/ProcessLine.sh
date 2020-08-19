@@ -25,8 +25,8 @@ if [ "$alignment_download_path" == "" ]; then
       exit 1
     fi
 else
-  if ! [ -d ${alignments_path}"$exp_name" ]; then
-    if ! mkdir ${alignments_path}"$exp_name"; then
+  if ! [ -d ${alignments_path}/"$exp_name" ]; then
+    if ! mkdir ${alignments_path}/"$exp_name"; then
       echo "Failed to make dir $exp_name"
       exit 1
     fi
@@ -37,6 +37,8 @@ else
     then
       echo "Download failed for $exp_name"
       exit 1
+    else
+      echo 'Downloaded successfully'
     fi
   fi
 fi
