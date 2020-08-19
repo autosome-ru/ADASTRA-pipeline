@@ -6,4 +6,3 @@
 # 3) Rename files with "_"
 # 4) Create "models_file" for ploidy model and integrate it with corstats
 # 5) move bash files from PARAMETERS dir
-# some changes2
