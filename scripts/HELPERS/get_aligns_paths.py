@@ -32,13 +32,15 @@ def get_files(data):
 
 
 if __name__ == '__main__':
+    data_list = {}
     with open(argv[1], "r") as infile:
         header = infile.readline().strip('\n').split('\t')
-        lines_list = [line.strip('\n').split('\t') for line in infile]
-    data_list = dict(zip(header, lines_list))
-    data_with_paths = get_files(data_list)
-    print('\t'.join(data_with_paths.keys()))
+        lines_list = [line.strip('\n').split('\t') for line in infile if line.strip()]
+    for index, item in enumerate(header):
+        data_list[item] = [x[index] for x in lines_list]
+    data_list = get_files(data_list)
+    print('\t'.join(header))
     for i in range(len(data_list['ALIGNS'])):
-        print('\t'.join([data_list[x][i] for x in data_list]))
+        print('\t'.join([data_list[x][i] for x in header]))
 
 
