@@ -20,13 +20,6 @@ done
 
 bam_size=0
 
-if [ ! -f "${dbsnp_vcf_path}.tbi" ]; then
-	echo "Index file for dbsnp_vcf_path not found, indexing.."
-	$Java $JavaParameters  -jar "$GATK" \
-		IndexFeatureFile \
-       		"-F $dbsnp_vcf_path"
-fi
-
 if [  -f "$BamPath/$BamName.bam.bai" ]; then
 	rm "$BamPath/$BamName.bam.bai"
 fi	

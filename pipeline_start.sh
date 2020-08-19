@@ -41,11 +41,19 @@ if [ "$stage_index" -le 1 ]; then
 fi
 
 if [ "$stage_index" -le 2 ]; then
-  bash "$scripts_path/"snp_calling.sh "$njobs"
+  if ! bash "$scripts_path/"snp_calling.sh "$njobs"
+  then
+    echo 'SNPcalling failed'
+    exit 1
+  fi
 fi
 
 if [ "$stage_index" -le 3 ]; then
-  bash "$scripts_path/"annotation.sh "$njobs"
+  if ! bash "$scripts_path/"annotation.sh "$njobs"
+  then
+    echo 'Peak annotation failed'
+    exit 1
+  fi
 fi
 
 if [ "$stage_index" -le 4 ]; then
