@@ -4,8 +4,8 @@ import os
 import pandas as pd
 
 from scripts.HELPERS.helpers import check_if_in_expected_args, remove_punctuation, dtype_dict
-from scripts.HELPERS.paths import create_path_from_master_list_df
-from scripts.HELPERS.paths_for_components import configs_path, master_list_path
+from scripts.HELPERS.paths import create_path_from_master_list_df, get_aggregation_dict
+from scripts.HELPERS.paths_for_components import master_list_path
 
 
 def makedict(what_for):
@@ -26,7 +26,7 @@ def makedict(what_for):
                 d[cell_line].append(row['path'])
             except KeyError:
                 d[cell_line] = [row['path']]
-    with open(os.path.join(configs_path, what_for + "_DICT.json"), "w") as write_file:
+    with open(get_aggregation_dict(what_for), "w") as write_file:
         json.dump(d, write_file)
 
 

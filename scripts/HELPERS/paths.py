@@ -38,7 +38,7 @@ def create_neg_bin_weights_path_function(fixed_allele, BAD):
     return os.path.join(configs_path, 'NBweights_{}_BAD={:.1f}.npy'.format(fixed_allele, BAD))
 
 
-def open_aggregation_dict(what_for):
+def get_aggregation_dict(what_for):
     aggregation_dict_path = None
     if what_for == "TF":
         aggregation_dict_path = tf_dict_path
