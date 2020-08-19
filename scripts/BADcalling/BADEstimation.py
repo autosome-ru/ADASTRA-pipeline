@@ -54,10 +54,10 @@ class Segmentation(ABC):
         """
         p = 1.0 / (1.0 + i)
         log_norm = np.log1p(self.get_norm(p, N, 5) + self.get_norm(1 - p, N, 5))
-        if (self.sub_chrom.chromosome.mode == 'corrected' and N == 2 * X) or self.sub_chrom.chromosome.mode == 'binomial':
-            return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.sub_chrom.chromosome.prior[i]) - log_norm
-        elif self.sub_chrom.chromosome.mode == 'corrected':
-            return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.sub_chrom.chromosome.prior[i]) \
+        if (self.sub_chrom.chrom.mode == 'corrected' and N == 2 * X) or self.sub_chrom.chrom.mode == 'binomial':
+            return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.sub_chrom.chrom.prior[i]) - log_norm
+        elif self.sub_chrom.chrom.mode == 'corrected':
+            return X * np.log(p) + (N - X) * np.log(1 - p) + np.log(self.sub_chrom.chrom.prior[i]) \
                    + np.log1p(i ** (2 * X - N)) - log_norm
 
     def get_P(self, first, last):
@@ -67,9 +67,9 @@ class Segmentation(ABC):
             return np.sum(self.sub_chrom.P_init[:, first + 1:last + 1], axis=1)
 
     def construct_probs(self):
-        P = np.zeros((len(self.sub_chrom.chromosome.i_list), self.candidates_count + 1, self.candidates_count + 1),
+        P = np.zeros((len(self.sub_chrom.chrom.i_list), self.candidates_count + 1, self.candidates_count + 1),
                      dtype=self.dtype)
-        S = np.zeros((len(self.sub_chrom.chromosome.i_list), self.candidates_count + 1), dtype=self.dtype)
+        S = np.zeros((len(self.sub_chrom.chrom.i_list), self.candidates_count + 1), dtype=self.dtype)
         self.L = np.zeros((self.candidates_count + 1, self.candidates_count + 1),
                           dtype=self.dtype)  # if in init -> -memory
         for j in range(0, self.candidates_count + 1):
@@ -104,11 +104,11 @@ class Segmentation(ABC):
 
     def get_parameter_penalty(self, borders, alphabet):
         k = borders * alphabet
-        C = self.SUM_COV / self.LENGTH * self.sub_chrom.chromosome.RESOLUTION
+        C = self.SUM_COV / self.LENGTH * self.sub_chrom.chrom.RESOLUTION
         if isinstance(self, PieceSegmentation):
             N = self.LINES
         else:
-            N = self.sub_chrom.chromosome.UNIQUE_LINES
+            N = self.sub_chrom.chrom.UNIQUE_LINES
 
         # if self.sub_chrom.chrom.LINES < 1000:
         #     return -1 * float('inf')
@@ -214,7 +214,7 @@ class PieceSegmentation(Segmentation):
             current_optimal = self.sc[i]
 
             for k in range(i):
-                parameter_penalty = self.get_parameter_penalty(self.bnum[k] + 1, len(self.sub_chrom.chromosome.i_list))
+                parameter_penalty = self.get_parameter_penalty(self.bnum[k] + 1, len(self.sub_chrom.chrom.i_list))
 
                 likelyhood = self.sc[k] + self.L[k + 1, i]
                 candidate = likelyhood + parameter_penalty
