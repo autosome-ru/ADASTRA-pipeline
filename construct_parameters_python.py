@@ -49,7 +49,7 @@ def parse_line(line):
 
 
 def construct_line(component_name, component_value):
-    return "{}='{}'\n".format(component_name, component_value)
+    return "{}='{}'\n".format(component_name, os.path.expanduser(component_value))
 
 
 def pack_line(config_dict, component_name):
