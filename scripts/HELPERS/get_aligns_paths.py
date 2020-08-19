@@ -38,6 +38,7 @@ if __name__ == '__main__':
         lines_list = [line.strip('\n').split('\t') for line in infile if line.strip()]
     for index, item in enumerate(header):
         data_list[item] = [x[index] for x in lines_list]
+    header.append('DOWNLOAD_PATH')
     data_list = get_files(data_list)
     print('\t'.join(header))
     for i in range(len(data_list['ALIGNS'])):
