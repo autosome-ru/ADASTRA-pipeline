@@ -19,7 +19,7 @@ states = [1, 4/3, 3/2, 2, 5/2, 3, 4, 5, 6]
 
 master_list_header = '#EXP	TF_UNIPROT_ID	ANTIBODY	TREATMENT	SPECIE	CELL_ID	CELLS	EXP_TYPE	CONTROL	READS	ALIGNS	PEAKS	GEO	ENCODE	WG_ENCODE	READS_ALIGNED'
 
-dtype_dict = {name: str if name != 'READS_ALIGNED' else np.int_ for name in master_list_header.split('\t')}
+dtype_dict = {name: str if name != 'READS_ALIGNED' else np.float_ for name in master_list_header.split('\t')}
 
 
 class ChromPos:

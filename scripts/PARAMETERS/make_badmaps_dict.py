@@ -46,7 +46,7 @@ def add_record(d, row):
 def make_dict(master_list):
     master = pd.read_table(master_list, dtype=dtype_dict)
     master['CELLS'] = master['CELLS'].apply(remove_punctuation)
-    d = dict()
+    d = {}
     df_len = len(master.index)
     for index, row in master.iterrows():
         if df_len > 10 and index % (df_len // 10) == 0:
