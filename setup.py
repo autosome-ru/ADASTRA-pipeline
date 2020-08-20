@@ -17,7 +17,8 @@ setup(
         'seaborn>=0.10.1',
         'docopt>=0.6.2',
         'requests>=2.24.0',
-        'statsmodels>=0.11.1'
+        'statsmodels>=0.11.1',
+        'babachi>=1.1.0'
     ],
     python_requires='>=3.6',
 )
