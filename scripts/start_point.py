@@ -38,6 +38,10 @@ Options:
 
 """
 from docopt import docopt
+import babachi
+from babachi import BADEstimation
+
+from scripts.HELPERS.paths import create_merged_vcf_path_function, create_badmaps_path_function
 
 
 def main():
@@ -76,8 +80,19 @@ def main():
         from scripts.BADcalling.VCFMerger import main
         main(args['--group'])
     elif args['bad_call']:
-        from scripts.BADcalling.BADEstimation import main
-        main(args['--group'])
+        bad_group = args['--group']
+        with open(create_merged_vcf_path_function(bad_group)) as m_vcf:
+            snps_collection, chromosomes_order, _ = babachi.BADEstimation.parse_input_file(m_vcf, allele_reads_tr=5)
+            babachi.BADEstimation.GenomeSegmentator(
+                snps_collection=snps_collection,
+                chromosomes_order=chromosomes_order,
+                out=create_badmaps_path_function(bad_group),
+                extra_states=[4 / 3, 1.5, 2.5, 6],
+                b_penalty='CAIC',
+                verbose=True,
+                allele_reads_tr=5,
+                segmentation_mode='corrected'
+            )
     elif args['bad_annotation']:
         from scripts.ASBcalling.BAD_annotation import main
         main(args['--base'])

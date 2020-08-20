@@ -18,7 +18,7 @@ setup(
         'docopt>=0.6.2',
         'requests>=2.24.0',
         'statsmodels>=0.11.1',
-        'babachi>=1.1.0'
+        'babachi>=1.3.0'
     ],
     python_requires='>=3.6',
 )
