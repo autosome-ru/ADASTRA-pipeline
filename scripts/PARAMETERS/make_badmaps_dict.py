@@ -40,7 +40,7 @@ def add_record(d, row):
         key = '{}@{}'.format(row['CELLS'], row['WG_ENCODE'])
         add_to_dict(d, key, path)
         return
-    raise AssertionError('HAS no ENCODE ID, GEO GSE and wgEncode id')
+    raise AssertionError('{} has no ENCODE ID, GEO GSE and wgEncode id'.format(row['#EXP']))
 
 
 def make_dict(master_list):
