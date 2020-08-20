@@ -37,6 +37,8 @@ Options:
     --group=<group>             Name of badmap group
 
 """
+import time
+
 from docopt import docopt
 from babachi import BADEstimation
 
@@ -80,9 +82,10 @@ def main():
         main(args['--group'])
     elif args['bad_call']:
         bad_group = args['--group']
+        t = time.clock()
         with open(create_merged_vcf_path_function(bad_group)) as m_vcf:
             snps_collection, chromosomes_order, _ = BADEstimation.parse_input_file(m_vcf, allele_reads_tr=5)
-            BADEstimation.GenomeSegmentator(
+            GS = BADEstimation.GenomeSegmentator(
                 snps_collection=snps_collection,
                 chromosomes_order=chromosomes_order,
                 out=create_badmaps_path_function(bad_group),
@@ -92,6 +95,12 @@ def main():
                 allele_reads_tr=5,
                 segmentation_mode='corrected'
             )
+            try:
+                GS.estimate_BAD()
+            except Exception as e:
+                raise e
+        print('Total time: {} s'.format(time.clock() - t))
+
     elif args['bad_annotation']:
         from scripts.ASBcalling.BAD_annotation import main
         main(args['--base'])
