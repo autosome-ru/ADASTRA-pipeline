@@ -9,5 +9,5 @@ if [ ! -f "${dbsnp_vcf_path}.tbi" ]; then
 	$Java $JavaParameters  -jar "$GATK" IndexFeatureFile -F ${dbsnp_vcf_path}
 fi
 
-parallel --delay 0.5 --jobs "$njobs" \
+parallel --delay 600 --jobs "$njobs" \
 bash "$scripts_path/SNPcalling/ProcessLine.sh" :::: "${parallel_parameters_path}/sorted_master_list.tsv"
