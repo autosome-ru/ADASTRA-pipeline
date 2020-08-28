@@ -9,7 +9,7 @@ def main():
     master_df = pd.read_table(master_list_path, dtype=dtype_dict)
     if 'DOWNLOAD_PATH' not in master_df.columns:
         master_df['DOWNLOAD_PATH'] = [''] * (len(master_df.index))
-    master_df = master_df[master_df['DOWNLOAD_PATH'].notna()]
+    master_df = master_df[master_df['DOWNLOAD_PATH'].notnull()]
     master_df = master_df.sort_values(
         by=['READS_ALIGNED'],
         axis=0,

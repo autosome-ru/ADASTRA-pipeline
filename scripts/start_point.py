@@ -95,10 +95,7 @@ def main():
                 allele_reads_tr=5,
                 segmentation_mode='corrected'
             )
-            try:
-                GS.estimate_BAD()
-            except Exception as e:
-                raise e
+            GS.estimate_BAD()
         print('Total time: {} s'.format(time.clock() - t))
 
     elif args['bad_annotation']:
