@@ -10,7 +10,8 @@ def main():
     print(master_df)
     if 'DOWNLOAD_PATH' not in master_df.columns:
         master_df['DOWNLOAD_PATH'] = [''] * (len(master_df.index))
-    master_df = master_df[master_df['DOWNLOAD_PATH'].notnull()]
+    else:
+        master_df = master_df[(master_df['DOWNLOAD_PATH'] != 'None') & (master_df['DOWNLOAD_PATH'].notna())]
     print(master_df['DOWNLOAD_PATH'].notnull())
     master_df = master_df.sort_values(
         by=['READS_ALIGNED'],
