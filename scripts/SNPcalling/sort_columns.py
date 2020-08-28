@@ -11,8 +11,6 @@ def main():
         master_df['DOWNLOAD_PATH'] = [''] * (len(master_df.index))
     else:
         master_df = master_df[(master_df['DOWNLOAD_PATH'] != 'None') & (master_df['DOWNLOAD_PATH'].notna())]
-    print(master_df['DOWNLOAD_PATH'].notna())
-    print(master_df)
     master_df = master_df.sort_values(
         by=['READS_ALIGNED'],
         axis=0,
