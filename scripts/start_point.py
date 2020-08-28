@@ -52,6 +52,7 @@ def main():
         main()
     elif args['sort_cols']:
         from scripts.SNPcalling.sort_columns import main
+        print('fasafasfsk')
         main()
     elif args['init_dirs']:
         from scripts.PARAMETERS.create_initial_dirs import main
