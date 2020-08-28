@@ -6,6 +6,7 @@ from scripts.HELPERS.helpers import dtype_dict
 
 
 def main():
+    print(master_list_path)
     master_df = pd.read_table(master_list_path, dtype=dtype_dict)
     if 'DOWNLOAD_PATH' not in master_df.columns:
         master_df['DOWNLOAD_PATH'] = [''] * (len(master_df.index))
