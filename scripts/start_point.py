@@ -42,43 +42,43 @@ import time
 from docopt import docopt
 from babachi import BADEstimation
 
-from scripts.HELPERS.paths import create_merged_vcf_path_function, create_badmaps_path_function
+from .HELPERS.paths import create_merged_vcf_path_function, create_badmaps_path_function
 
 
 def main():
     args = docopt(__doc__)
     if args['badmaps_dict']:
-        from scripts.PARAMETERS.make_badmaps_dict import main
+        from .PARAMETERS.make_badmaps_dict import main
         main()
     elif args['sort_cols']:
-        from scripts.SNPcalling.sort_columns import main
+        from .SNPcalling.sort_columns import main
         main()
     elif args['init_dirs']:
-        from scripts.PARAMETERS.create_initial_dirs import main
+        from .PARAMETERS.create_initial_dirs import main
         main()
     elif args['aggregation_dict']:
-        from scripts.PARAMETERS.make_aggregation_dict import main
+        from .PARAMETERS.make_aggregation_dict import main
         main()
     elif args['make_paths']:
-        from scripts.PARAMETERS.make_exp_paths_from_master_list import main
+        from .PARAMETERS.make_exp_paths_from_master_list import main
         main(args['--mode'])
     elif args['badmaps_params']:
-        from scripts.PARAMETERS.make_params_bad_estimation import main
+        from .PARAMETERS.make_params_bad_estimation import main
         main()
     elif args['aggregation_params']:
-        from scripts.PARAMETERS.make_params_aggregation import main
+        from .PARAMETERS.make_params_aggregation import main
         main(args['--for'])
     elif args['sort_params']:
-        from scripts.PARAMETERS.sort_params import main
+        from .PARAMETERS.sort_params import main
         main()
     elif args['check_pos_peaks']:
-        from scripts.PEAKannotation.check_pos_peaks import main
+        from .PEAKannotation.check_pos_peaks import main
         main(args['--peak'], args['--out'], args['--type'])
     elif args['annotate_peaks']:
-        from scripts.PEAKannotation.annotate import main
+        from .PEAKannotation.annotate import main
         main(args['--base'])
     elif args['vcf_merge']:
-        from scripts.BADcalling.VCFMerger import main
+        from .BADcalling.VCFMerger import main
         main(args['--group'])
     elif args['bad_call']:
         bad_group = args['--group']
@@ -99,18 +99,18 @@ def main():
         print('Total time: {} s'.format(time.clock() - t))
 
     elif args['bad_annotation']:
-        from scripts.ASBcalling.BAD_annotation import main
+        from .ASBcalling.BAD_annotation import main
         main(args['--base'])
     elif args['collect_ref_bias']:
-        from scripts.FITnoise.collect_ref_bias_statistics import main
+        from .FITnoise.collect_ref_bias_statistics import main
         main()
     elif args['fit_neg_bin']:
-        from scripts.FITnoise.fit_negative_binom_with_weights import main
+        from .FITnoise.fit_negative_binom_with_weights import main
         main()
     elif args['neg_bin_p']:
-        from scripts.ASBcalling.NBpcounter import main
+        from .ASBcalling.NBpcounter import main
         main(args['--base'])
     elif args['aggregation']:
-        from scripts.ASBcalling.Aggregation import main
+        from .ASBcalling.Aggregation import main
         main(args['--for'], args['--name'])
 
