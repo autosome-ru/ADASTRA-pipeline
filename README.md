@@ -1,4 +1,5 @@
-# ADASTra pipeline release Soos 2020-07-14
+# ADASTra pipeline release Soos 22.06.2020
+[![DOI](https://zenodo.org/badge/212853786.svg)](https://zenodo.org/badge/latestdoi/212853786) <br>
 A pipeline for processing ChIP-seq read allignments in _bam_ format to find allele-specific TF binding (ASB) events.
 It consists of 5 main parts:
 ### A. SNP calling
