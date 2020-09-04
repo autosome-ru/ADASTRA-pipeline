@@ -1,9 +1,9 @@
 import string
 import numpy as np
 import os
-from scripts.HELPERS.paths_for_components import master_list_path, configs_path
+from .paths_for_components import master_list_path, configs_path
 
-from scripts.HELPERS.paths import create_neg_bin_weights_path_function
+from .paths import create_neg_bin_weights_path_function
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem']
 
