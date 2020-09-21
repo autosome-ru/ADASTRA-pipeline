@@ -5,7 +5,7 @@ import sys
 import time
 from abc import ABC, abstractmethod
 
-sys.path.insert(1, "/home/abramov/ASB-Project")
+sys.path.insert(1, "/home/abramov/segmentationValidation/ADASTRA-pipeline")
 from scripts.HELPERS.paths_for_components import parameters_path, ploidy_path
 from scripts.HELPERS.helpers import unpack, ChromPos, pack
 
