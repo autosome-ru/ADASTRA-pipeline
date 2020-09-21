@@ -101,7 +101,7 @@ class Segmentation(ABC):
         self.L[:, :] = Q[-1, :, :] + np.log1p(np.sum(np.exp(Q[:-2, :, :] - Q[-1, :, :]), axis=0))
 
     def get_parameter_penalty(self, borders, alphabet):
-        k = borders * alphabet
+        k = borders * multiplier
         C = self.SUM_COV / self.LENGTH * self.sub_chrom.chrom.RESOLUTION
         if isinstance(self, PieceSegmentation):
             N = self.LINES
@@ -555,7 +555,7 @@ class GenomeSegmentator:  # seg
 
         self.mode = segm_mode
         if extra_states:
-            self.i_list = sorted([1, 2, 3, 4, 5] + extra_states)
+            self.i_list = sorted(extra_states)
         else:
             self.i_list = [1, 2, 3, 4, 5]
 
@@ -672,16 +672,31 @@ if __name__ == '__main__':
 
     mode = 'corrected'
     states = [1.5, 6]
-    b_penalty = sys.argv[2]
+    params = sys.argv[2].strip().split(' ')
+    b_penalty = 'CAIC'
+    multiplier = float(params[0])
+    states_sign = params[1]
 
-    if b_penalty == 'MIX_release':
-        states = [1.5, 6]
+    if states_sign == '1236':
+        states = [1, 2, 3, 6]
+    elif states_sign == '12345':
+        states = [1, 2, 3, 4, 5]
+    elif states_sign == '12345_1.5':
+        states = [1, 2, 3, 4, 5, 1.5]
+    elif states_sign == '123456':
+        states = [1, 2, 3, 4, 5, 6]
+    elif states_sign == 'all_but_1.33':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
+    elif states_sign == 'all_but_2.5':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3]
+    elif states_sign == 'all':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3, 2.5]
     else:
-        states = [4 / 3, 1.5, 2.5, 6]
+        raise ValueError
 
     merged_vcfs_path = ploidy_path + 'merged_vcfs/' + key + ".tsv"
 
-    model = b_penalty
+    model = '@'.join([b_penalty, states_sign, str(multiplier)])
     log_filename = parameters_path + 'segmentation_stats_' + model + '.tsv'
 
     t = time.clock()
