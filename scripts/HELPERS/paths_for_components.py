@@ -1,6 +1,6 @@
-project_path="/home/abramov/ASB-Project/"
+project_path="/home/abramov/segmentationValidation/ADASTRA-pipeline/"
 alignments_path="/home/abramov/Alignments/"
-scripts_path="/home/abramov/ASB-Project/scripts/"
+scripts_path="segmentationValidation/ADASTRA-pipeline/scripts/"
 parameters_path="/home/abramov/PARAMETERS/"
 parallel_parameters_path='/home/abramov/ParallelParametersVal/'
 ploidy_path="/home/abramov/PloidyForValidation/"
