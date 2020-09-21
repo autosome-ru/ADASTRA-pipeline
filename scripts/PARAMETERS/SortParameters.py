@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.path.insert(1, "/home/abramov/ASB-Project")
+sys.path.insert(1, "/home/abramov/segmentationValidation/ADASTRA-pipeline")
 from scripts.HELPERS.paths_for_components import parallel_parameters_path, ploidy_path
 
 file_dirs = {
