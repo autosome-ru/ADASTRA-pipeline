@@ -674,8 +674,8 @@ if __name__ == '__main__':
     states = [1.5, 6]
     params = sys.argv[2].strip().split(' ')
     b_penalty = 'CAIC'
-    multiplier = float(params[0])
-    states_sign = params[1]
+    multiplier = float(params[1])
+    states_sign = params[0]
 
     if states_sign == '1236':
         states = [1, 2, 3, 6]
