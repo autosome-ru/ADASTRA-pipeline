@@ -88,7 +88,7 @@ if __name__ == '__main__':
             out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list) + '\n')
             for chr, pos, ref, alt, in_intersection, segment_ploidy, Qual, segn, sumcov \
                     in Intersection(table, ploidy,
-                                    unpack_segments_function=lambda x: unpackBADSegments(x, [1, 2, 3]), unpack_snp_function=unpack_snps,
+                                    unpack_segments_function=lambda x: unpackBADSegments(x, states), unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
                 if not in_intersection:
                     continue
