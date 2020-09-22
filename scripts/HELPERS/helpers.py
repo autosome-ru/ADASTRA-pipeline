@@ -344,6 +344,7 @@ def remove_punctuation(x):
 class CorrelationReader:
     CGH_path = ''
     SNP_path = ''
+    states = []
 
     def read_SNPs(self, method='normal'):
         with open(self.SNP_path, 'r') as file:
@@ -366,10 +367,10 @@ class CorrelationReader:
                 line = line.split("\t")
                 if line[0] not in ChromPos.chrs:
                     continue
-                current_segment = [float(line[4]), dict(zip(states, list(map(float, line[5:5 + len(states)]))))]
+                current_segment = [float(line[4]), dict(zip(self.states, list(map(float, line[5:5 + len(self.states)]))))]
                 if previous_segment != current_segment:
                     uniq_segments_count += 1
-                    sum_cov += int(line[6 + len(states)])
+                    sum_cov += int(line[6 + len(self.states)])
                     previous_segment = current_segment
                 if method == 'normal':
                     if line[4] == 0:
@@ -385,7 +386,7 @@ class CorrelationReader:
                     if min(ref, alt) == 0:
                         continue
                     result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1,
-                                   dict(zip(states, [10000] * len(states)))])
+                                   dict(zip(self.states, [10000] * len(self.states)))])
                 else:
                     raise KeyError(method)
 
