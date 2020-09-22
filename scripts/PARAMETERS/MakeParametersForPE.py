@@ -16,7 +16,7 @@ if __name__ == "__main__":
     keys = sorted(d.keys())
     with open(out_path, 'w') as file:
         for key in keys:
-            if not cosmic_names[key.split('!')[0]]:
+            if not cosmic_names.get(key.split('!')[0]):
                 continue
             is_empty = True
             for value in d[key]:

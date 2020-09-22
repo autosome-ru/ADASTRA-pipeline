@@ -160,14 +160,14 @@ if __name__ == '__main__':
             number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(method='cover')
 
             segment_numbers[model] = segments_number
-            if cosmic_names[cell_line_name]:
+            if cosmic_names.get(cell_line_name):
                 corr_to_objects[model] = correlation_with_cosmic(SNP_objects, mode='normal', method='cover',
                                                                  heatmap_data_file=heatmap_data_file)
             else:
                 corr_to_objects[model] = 'NaN'
 
         for naive_mode in naive_modes:
-            if cosmic_names[cell_line_name]:
+            if cosmic_names.get(cell_line_name):
                 number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(
                     method=naive_mode)
 
@@ -179,7 +179,7 @@ if __name__ == '__main__':
         CGH_objects = reader.read_CGH(cgh_names[cell_line_name])
         nearest_cgh_objects = find_nearest_probe_to_SNP(SNP_objects, CGH_objects)
 
-        if cosmic_names[cell_line_name]:
+        if cosmic_names.get(cell_line_name):
             corr_to_objects_chip = correlation_with_cosmic(CGH_objects, mode='total')
             corr_to_objects_chip_nearest = correlation_with_cosmic(nearest_cgh_objects, mode='total')
         else:
