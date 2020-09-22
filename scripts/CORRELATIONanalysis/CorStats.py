@@ -3,31 +3,11 @@ import sys
 from scipy.stats import kendalltau
 
 sys.path.insert(1, "/home/abramov/segmentationValidation/ADASTRA-pipeline")
-from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos
+from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos, get_states
 from scripts.HELPERS.paths_for_components import parameters_path, correlation_path, heatmap_data_path
 
 CGH_path = parameters_path + 'CHIP_hg38.sorted.bed'
 cosmic_path = parameters_path + 'COSMIC_copy_number.sorted.tsv'
-
-
-def get_states(states_sign):
-    if states_sign == '1236':
-        states = [1, 2, 3, 6]
-    elif states_sign == '12345':
-        states = [1, 2, 3, 4, 5]
-    elif states_sign == '12345_1.5':
-        states = [1, 2, 3, 4, 5, 1.5]
-    elif states_sign == '123456':
-        states = [1, 2, 3, 4, 5, 6]
-    elif states_sign == 'all_but_1.33':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
-    elif states_sign == 'all_but_2.5':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3]
-    elif states_sign == 'all':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3, 2.5]
-    else:
-        raise ValueError
-    return states
 
 
 def get_name_by_dir(dir_name):
