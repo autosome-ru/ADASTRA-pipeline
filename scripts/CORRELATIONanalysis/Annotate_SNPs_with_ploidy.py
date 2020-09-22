@@ -7,6 +7,26 @@ from scripts.HELPERS.paths_for_components import ploidy_path, ploidy_dict_path, 
 from scripts.HELPERS.helpers import Intersection, pack, unpackBADSegments
 
 
+def get_states(states_sign):
+    if states_sign == '1236':
+        states = [1, 2, 3, 6]
+    elif states_sign == '12345':
+        states = [1, 2, 3, 4, 5]
+    elif states_sign == '12345_1.5':
+        states = [1, 2, 3, 4, 5, 1.5]
+    elif states_sign == '123456':
+        states = [1, 2, 3, 4, 5, 6]
+    elif states_sign == 'all_but_1.33':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
+    elif states_sign == 'all_but_2.5':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3]
+    elif states_sign == 'all':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3, 2.5]
+    else:
+        raise ValueError
+    return states
+
+
 def unpack_ploidy_segments(line):
     if line[0] == '#':
         return [''] * 9
@@ -54,6 +74,7 @@ if __name__ == '__main__':
 
     table_path = ploidy_path + 'merged_vcfs/' + file_name
     for mode in modes:
+        states = get_states(mode.split('@')[1])
         if not os.path.isdir(correlation_path + mode + '_tables/'):
             try:
                 os.mkdir(correlation_path + mode + '_tables')
@@ -67,7 +88,7 @@ if __name__ == '__main__':
             out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list) + '\n')
             for chr, pos, ref, alt, in_intersection, segment_ploidy, Qual, segn, sumcov \
                     in Intersection(table, ploidy,
-                                    unpack_segments_function=unpackBADSegments, unpack_snp_function=unpack_snps,
+                                    unpack_segments_function=lambda x: unpackBADSegments(x, [1, 2, 3]), unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
                 if not in_intersection:
                     continue

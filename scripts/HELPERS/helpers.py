@@ -473,12 +473,10 @@ def read_weights():
     return r, w, gof
 
 
-def unpackBADSegments(line):
+def unpackBADSegments(line, states):
     if line[0] == '#':
         return [''] * (len(line.strip().split('\t')) - len(states) + 1)
     line = line.strip().split('\t')
-
-    print(line)
 
     return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
            [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
