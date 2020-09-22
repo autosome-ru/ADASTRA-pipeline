@@ -71,4 +71,4 @@ if __name__ == '__main__':
                                     write_intersect=True, write_segment_args=True):
                 if not in_intersection:
                     continue
-                out.write(pack([chr, pos, ref, alt, segment_ploidy] + [Qual[x] for x in Qual]+ [segn, sumcov]))
+                out.write(pack([chr, pos, ref, alt, segment_ploidy] + [Qual[x] for x in Qual] + [segn, sumcov]))
