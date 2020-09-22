@@ -1,6 +1,6 @@
 import os
 
-Correlation_path = '/home/abramov/Correlation/'
+Correlation_path = '/home/abramov/Correlation_val/'
 out_path = Correlation_path + 'cor_stats_test.tsv'
 
 
