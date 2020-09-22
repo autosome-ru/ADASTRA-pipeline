@@ -120,7 +120,7 @@ if __name__ == '__main__':
     snp_dirs = []
     naive_modes = ['naive']
 
-    for f_name in os.listdir(correlation_path):
+    for f_name in sorted(os.listdir(correlation_path)):
         if f_name.endswith('_tables') and os.path.isdir(correlation_path + f_name):
             snp_dirs.append(correlation_path + f_name + '/')
 

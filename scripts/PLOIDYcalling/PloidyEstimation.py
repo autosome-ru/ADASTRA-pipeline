@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 
 sys.path.insert(1, "/home/abramov/segmentationValidation/ADASTRA-pipeline")
 from scripts.HELPERS.paths_for_components import parameters_path, ploidy_path
-from scripts.HELPERS.helpers import unpack, ChromPos, pack
+from scripts.HELPERS.helpers import unpack, ChromPos, pack, get_states
 
 
 class Segmentation(ABC):
@@ -677,22 +677,7 @@ if __name__ == '__main__':
     multiplier = float(params[1])
     states_sign = params[0]
 
-    if states_sign == '1236':
-        states = [1, 2, 3, 6]
-    elif states_sign == '12345':
-        states = [1, 2, 3, 4, 5]
-    elif states_sign == '12345_1.5':
-        states = [1, 2, 3, 4, 5, 1.5]
-    elif states_sign == '123456':
-        states = [1, 2, 3, 4, 5, 6]
-    elif states_sign == 'all_but_1.33':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
-    elif states_sign == 'all_but_2.5':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3]
-    elif states_sign == 'all':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3, 2.5]
-    else:
-        raise ValueError
+    states = get_states(states_sign)
 
     merged_vcfs_path = ploidy_path + 'merged_vcfs/' + key + ".tsv"
 

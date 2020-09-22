@@ -9,7 +9,7 @@ def get_name_by_dir(dir_name):
 
 
 snp_dirs = []
-for file_name in os.listdir(Correlation_path):
+for file_name in sorted(os.listdir(Correlation_path)):
     if file_name.endswith('_tables') and os.path.isdir(Correlation_path + file_name):
         snp_dirs.append(Correlation_path + file_name + '/')
 
