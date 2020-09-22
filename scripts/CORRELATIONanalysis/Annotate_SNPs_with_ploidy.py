@@ -2,7 +2,7 @@ import os
 import sys
 import json
 
-sys.path.insert(1, "/home/abramov/ASB-Project")
+sys.path.insert(1, "/home/abramov/segmentationValidation/ADASTRA-pipeline")
 from scripts.HELPERS.paths_for_components import ploidy_path, ploidy_dict_path, correlation_path
 from scripts.HELPERS.helpers import Intersection, pack, unpackBADSegments
 

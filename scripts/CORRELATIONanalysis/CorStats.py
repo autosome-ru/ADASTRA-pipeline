@@ -2,7 +2,7 @@ import os
 import sys
 from scipy.stats import kendalltau
 
-sys.path.insert(1, '/home/abramov/ASB-Project')
+sys.path.insert(1, "/home/abramov/segmentationValidation/ADASTRA-pipeline")
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos
 from scripts.HELPERS.paths_for_components import parameters_path, correlation_path, heatmap_data_path
 
