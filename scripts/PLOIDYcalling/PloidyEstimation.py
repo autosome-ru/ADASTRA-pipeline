@@ -671,7 +671,6 @@ if __name__ == '__main__':
     print(key)
 
     mode = 'corrected'
-    states = [1.5, 6]
     params = sys.argv[2].strip().split(' ')
     b_penalty = 'CAIC'
     multiplier = float(params[1])
