@@ -30,6 +30,8 @@ def get_states(states_sign):
         states = [1, 2, 3, 4, 5, 1.5, 6, 4/3]
     elif states_sign == 'all':
         states = [1, 2, 3, 4, 5, 1.5, 6, 4/3, 2.5]
+    elif states_sign == 'all_5':
+        states = [1, 2, 3, 4, 5, 1.5]
     else:
         raise ValueError
     return sorted(states)
