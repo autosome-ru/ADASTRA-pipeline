@@ -10,7 +10,7 @@ from scripts.HELPERS.paths_for_components import parameters_path
 for model in os.listdir(os.path.expanduser('~/HeatmapData_val/')):
     states = get_states(model.split('@')[1])
     for BAD in states:
-        df = pd.read_table(os.path.expanduser(os.path.join(parameters_path, 'unionSNPs.tsv')))
+        df = pd.read_table(os.path.expanduser(os.path.join(parameters_path, '{}.tsv'.format(model))))
         print('iread')
         df.columns = ['chr', 'pos', 'cov', 'BAD', 'COSMIC'] + ['Q{:.2f}'.format(state) for state in states]
         df['BAD'] = BAD
