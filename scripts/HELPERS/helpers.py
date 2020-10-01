@@ -509,11 +509,11 @@ class UnpackBadSegments:
             return [''] * (len(line.strip().split('\t')) - len(states) + 1)
         line = line.strip().split('\t')
 
-        if UnpackBadSegments.counter is None:
-            return [line[0], int(line[1]), int(line[2]), float(line[3]), UnpackBadSegments.counter] + \
-                   [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
-        else:
+        if UnpackBadSegments.counter is not None:
             UnpackBadSegments.counter += 1
+            return [line[0], int(line[1]), int(line[2]), float(line[3]), UnpackBadSegments.counter] + \
+                   [dict(zip(states, line[5: 5 + len(states)]))] + line[(5 + len(states)):]
+        else:
             return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
                    [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
 
