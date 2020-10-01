@@ -452,7 +452,7 @@ class ChromosomeSegmentation:  # chrom
 
     def unpack_line_or_false(self, line):
         try:
-            chr, pos, ID, ref, alt, ref_c, alt_c = unpack(line, use_in="PloidyEstimation")
+            chr, pos, ID, ref, alt, ref_c, alt_c, filename = unpack(line, use_in="PloidyEstimation")
         except ValueError:
             return False
         if chr != self.CHR or ID == '.':

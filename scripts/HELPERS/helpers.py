@@ -195,7 +195,7 @@ def make_dict_from_vcf(vcf, vcf_dict):
             vcf_dict[(chr, pos, ID, REF, ALT)] = (R, A)
 
 
-def make_list_from_vcf(vcf, filter_no_rs=False):
+def make_list_from_vcf(vcf, file_name=None, filter_no_rs=False):
     vcf_list = []
     for line in vcf:
         if line[0] == '#':
@@ -225,7 +225,10 @@ def make_list_from_vcf(vcf, filter_no_rs=False):
             continue
         REF = line[3]
         ALT = line[4]
-        vcf_list.append((chr, pos, ID, REF, ALT, R, A))
+        if file_name is not None:
+            vcf_list.append((chr, pos, ID, REF, ALT, R, A, file_name))
+        else:
+            vcf_list.append((chr, pos, ID, REF, ALT, R, A, file_name))
     return vcf_list
 
 
@@ -270,7 +273,8 @@ def unpack(line, use_in):
     alt = line_split[4]
     ref_c, alt_c = map(int, line_split[5:7])
     if use_in == "PloidyEstimation":
-        return chr, pos, ID, ref, alt, ref_c, alt_c
+        filename = line[7]
+        return chr, pos, ID, ref, alt, ref_c, alt_c, filename
     repeat = line_split[7]
     difference = len(callers_names)
     peaks = list(map(int, line_split[8:8 + difference]))
@@ -495,12 +499,18 @@ def read_weights():
 
 
 def unpackBADSegments(line, states):
+    nonlocal counter
     if line[0] == '#':
         return [''] * (len(line.strip().split('\t')) - len(states) + 1)
     line = line.strip().split('\t')
 
-    return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
-           [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
+    if counter is not None:
+        return [line[0], int(line[1]), int(line[2]), float(line[3]), counter] + \
+               [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
+    else:
+        counter += 1
+        return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
+               [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
 
 
 if __name__ == "__main__":

@@ -40,6 +40,7 @@ if __name__ == '__main__':
                         'repeat_type'] + callers_names + ['BAD'] + ["Q{:.2f}".format(x) for x in states] +
                        ['SNP_count', 'sum_cover']))
 
+        counter = None
         for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, \
             in_intersection, BAD, Quals, seg_c, sum_cov in \
                 Intersection(table_file, ploidy_file, write_segment_args=True, write_intersect=True,

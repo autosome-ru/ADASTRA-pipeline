@@ -18,7 +18,7 @@ def unpack_ploidy_segments(line):
 
 def unpack_snps(line):
     line = line.strip().split('\t')
-    return [line[0], int(line[1]), int(line[5]), int(line[6])]
+    return [line[0], int(line[1]), int(line[5]), int(line[6]), line[7]]
 
 
 if __name__ == '__main__':
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     try:
         aligns = aligns_by_cell_type[file_name[:-4]]  # .tsv
-        al_list = [align[29:-7] for align in aligns if os.path.isfile(align)]
+        al_list = [os.path.basename(align) for align in aligns if os.path.isfile(align)]
         datasetsn = len(al_list)
     except KeyError:
         datasetsn = 'nan'
@@ -65,11 +65,12 @@ if __name__ == '__main__':
         print(out_path)
 
         with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
-            out.write('#' + str(datasetsn) + '!' + lab + '!' + '>'.join(al_list) + '\n')
-            for chr, pos, ref, alt, in_intersection, segment_ploidy, Qual, segn, sumcov \
+            out.write('#' + str(datasetsn) + '@' + lab + '@' + ','.join(al_list) + '\n')
+            counter = 0
+            for chr, pos, ref, alt, filename, in_intersection, segment_ploidy, segment_id, Qual, segn, sumcov \
                     in Intersection(table, ploidy,
                                     unpack_segments_function=lambda x: unpackBADSegments(x, states), unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
                 if not in_intersection:
                     continue
-                out.write(pack([chr, pos, ref, alt, segment_ploidy] + [Qual[x] for x in Qual] + [segn, sumcov]))
+                out.write(pack([chr, pos, ref, alt, segment_ploidy] + [Qual[x] for x in Qual] + [segn, sumcov] + [filename, segment_id]))
