@@ -379,12 +379,12 @@ class CorrelationReader:
             for line in file:
                 line = line.strip()
                 if line[0] == '#':
-                    split_header = line[1:].split('!')
+                    split_header = line[1:].strip().split('@')
                     datasets_number = split_header[0]
                     lab = split_header[1]
                     aligns = split_header[2]
                     if aligns:
-                        aligns = ','.join(aligns.split('>'))
+                        aligns = ','.join(aligns.split(','))
                     else:
                         aligns = ''
                     continue
