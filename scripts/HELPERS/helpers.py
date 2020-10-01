@@ -498,19 +498,24 @@ def read_weights():
     return r, w, gof
 
 
-def unpackBADSegments(line, states):
-    nonlocal counter
-    if line[0] == '#':
-        return [''] * (len(line.strip().split('\t')) - len(states) + 1)
-    line = line.strip().split('\t')
+class UnpackBadSegments:
+    counter = None
 
-    if counter is not None:
-        return [line[0], int(line[1]), int(line[2]), float(line[3]), counter] + \
-               [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
-    else:
-        counter += 1
-        return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
-               [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
+    def __init__(self, counter):
+        UnpackBadSegments.counter = counter
+
+    def unpackBADSegments(self, line, states):
+        if line[0] == '#':
+            return [''] * (len(line.strip().split('\t')) - len(states) + 1)
+        line = line.strip().split('\t')
+
+        if UnpackBadSegments is not None:
+            return [line[0], int(line[1]), int(line[2]), float(line[3]), UnpackBadSegments.counter] + \
+                   [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
+        else:
+            UnpackBadSegments.counter += 1
+            return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
+                   [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
 
 
 if __name__ == "__main__":

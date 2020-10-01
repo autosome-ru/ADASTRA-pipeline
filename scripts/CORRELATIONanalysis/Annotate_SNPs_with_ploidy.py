@@ -4,7 +4,7 @@ import json
 
 sys.path.insert(1, "/home/abramov/segmentationValidation/ADASTRA-pipeline")
 from scripts.HELPERS.paths_for_components import ploidy_path, ploidy_dict_path, correlation_path
-from scripts.HELPERS.helpers import Intersection, pack, unpackBADSegments, get_states
+from scripts.HELPERS.helpers import Intersection, pack, UnpackBadSegments, get_states
 
 
 def unpack_ploidy_segments(line):
@@ -64,12 +64,14 @@ if __name__ == '__main__':
         out_path = correlation_path + mode + '_tables/' + name + '_' + lab.replace('_', '-') + '.tsv'
         print(out_path)
 
+        u = UnpackBadSegments(0)
+
         with open(table_path, 'r') as table, open(ploidy_file_path, 'r') as ploidy, open(out_path, 'w') as out:
             out.write('#' + str(datasetsn) + '@' + lab + '@' + ','.join(al_list) + '\n')
             counter = 0
             for chr, pos, ref, alt, filename, in_intersection, segment_ploidy, segment_id, Qual, segn, sumcov \
                     in Intersection(table, ploidy,
-                                    unpack_segments_function=lambda x: unpackBADSegments(x, states), unpack_snp_function=unpack_snps,
+                                    unpack_segments_function=lambda x: u.unpackBADSegments(x, states), unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
                 if not in_intersection:
                     continue
