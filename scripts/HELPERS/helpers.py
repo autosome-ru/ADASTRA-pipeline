@@ -513,7 +513,7 @@ class UnpackBadSegments:
             print(UnpackBadSegments.counter)
             UnpackBadSegments.counter += 1
             return [line[0], int(line[1]), int(line[2]), float(line[3]), UnpackBadSegments.counter] + \
-                   [dict(zip(states, line[5: 5 + len(states)]))] + line[(5 + len(states)):]
+                   [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
         else:
             return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
                    [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
