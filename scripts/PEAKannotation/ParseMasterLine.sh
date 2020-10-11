@@ -27,33 +27,33 @@ else
 	echo "Making annotation for $vcf_path first time"
 fi
 
-if [ -f "$intervals_path/macs/${peaks_name}.interval.zip" ];then
+if [ -f "$intervals_path/macs/${peaks_name}.interval" ];then
 	PeakM="-macs"
-	PEAKM="$intervals_path/macs/${peaks_name}.interval.zip"
+	PEAKM="$intervals_path/macs/${peaks_name}.interval"
 else
   PeakM=""
   PEAKM=""
 fi
 
-if [ -f "$intervals_path/gem/${peaks_name}.interval.zip" ];then
+if [ -f "$intervals_path/gem/${peaks_name}.interval" ];then
   PeakG="-gem"
-  PEAKG="$intervals_path/gem/${peaks_name}.interval.zip"
+  PEAKG="$intervals_path/gem/${peaks_name}.interval"
 else
   PeakG=""
   PEAKG=""
 fi
 
-if [ -f "$intervals_path/cpics/${peaks_name}.interval.zip" ];then
+if [ -f "$intervals_path/cpics/${peaks_name}.interval" ];then
   PeakC="-cpics"
-  PEAKC="$intervals_path/cpics/${peaks_name}.interval.zip"
+  PEAKC="$intervals_path/cpics/${peaks_name}.interval"
 else
   PeakC=""
   PEAKC=""
 fi
 
-if [ -f "$intervals_path/sissrs/${peaks_name}.interval.zip" ];then
+if [ -f "$intervals_path/sissrs/${peaks_name}.interval" ];then
   PeakS="-sissrs"
-  PEAKS="$intervals_path/sissrs/${peaks_name}.interval.zip"
+  PEAKS="$intervals_path/sissrs/${peaks_name}.interval"
 else
   PeakS=""
   PEAKS=""

@@ -1,22 +1,20 @@
-import io
 import sys
-import zipfile
 import os
 from scripts.HELPERS.helpers import ChromPos, pack
 
 
 def main(peak_path, out_path, p_type):
     name = os.path.splitext(os.path.basename(peak_path))[0]
-    with zipfile.ZipFile(peak_path, "r") as archive:
-        f = archive.open(name, "r")
-        f = io.TextIOWrapper(f)
-        lines = f.readlines()
+    # with zipfile.ZipFile(peak_path, "r") as archive:
+    #     f = archive.open(name, "r")
+    #     f = io.TextIOWrapper(f)
+    #     lines = f.readlines()
 
-    with open(out_path, 'w') as o:
+    with open(out_path, 'w') as o, open(peak_path) as lines:
         for line in lines:
             if line[0] == "#":
                 continue
-            split_line = line.split()
+            split_line = line.strip('\n').split('\t')
             split_line[0] = 'chr' + split_line[0]
             if split_line[0] not in ChromPos.chromosomes:
                 continue
