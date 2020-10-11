@@ -26,45 +26,31 @@ if  [ -f "${base_path}.table_annotated.tsv" ]; then
 else
 	echo "Making annotation for $vcf_path first time"
 fi
+for peak in $intervals_path/*; do
+  peak_type="$(basename "$(dirname "$peak")")"
+  peak_path="$peak/$peaks_name.interval"
+  if [ -f "$peak_path" ]; then
+    if ! adastra check_pos_peaks --peak "$peak_path" --out "${base_path}.${peak_type}.bed" --type $peak_type; then
+      echo  "Failed check pos peaks"
+      exit 1
+    fi
 
-if [ -f "$intervals_path/macs/${peaks_name}.interval" ];then
-	PeakM="-macs"
-	PEAKM="$intervals_path/macs/${peaks_name}.interval"
-else
-  PeakM=""
-  PEAKM=""
+    if ! bedtools sort -i "${base_path}.$peak_type.bed" > "${base_path}.${peak_type}.bed.sorted"
+      then
+        echo "Failed to sort $peak_type peaks"
+        exit 1
+    fi
+    rm "${base_path}.$peak_type.bed"
+  fi
+done
+if ! adastra annotate_peaks --base "$base_path"; then
+  echo "Failed to annotate $base_path with $peaks_name"
+  exit 1
 fi
 
-if [ -f "$intervals_path/gem/${peaks_name}.interval" ];then
-  PeakG="-gem"
-  PEAKG="$intervals_path/gem/${peaks_name}.interval"
-else
-  PeakG=""
-  PEAKG=""
-fi
-
-if [ -f "$intervals_path/cpics/${peaks_name}.interval" ];then
-  PeakC="-cpics"
-  PEAKC="$intervals_path/cpics/${peaks_name}.interval"
-else
-  PeakC=""
-  PEAKC=""
-fi
-
-if [ -f "$intervals_path/sissrs/${peaks_name}.interval" ];then
-  PeakS="-sissrs"
-  PEAKS="$intervals_path/sissrs/${peaks_name}.interval"
-else
-  PeakS=""
-  PEAKS=""
-fi
-
-
-if ! bash ${PEAKannotationScriptsPath}/MakeAnnotatedTable.sh \
-		$PeakM $PEAKM $PeakS $PEAKS $PeakG $PEAKG $PeakC $PEAKC\
-		-I "$base_path"
-then
-  echo "Failed to make annotation table for ${vcf_path}"
-
-fi
-
+for peak in $intervals_path; do
+  peak_type="$(basename "$(dirname "$peak")")"
+  if [ -f "${base_path}.$peak_type.bed.sorted" ]; then
+    rm "${base_path}.$peak_type.bed.sorted"
+  fi
+done

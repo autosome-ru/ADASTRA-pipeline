@@ -4,12 +4,6 @@ from scripts.HELPERS.helpers import ChromPos, pack
 
 
 def main(peak_path, out_path, p_type):
-    name = os.path.splitext(os.path.basename(peak_path))[0]
-    # with zipfile.ZipFile(peak_path, "r") as archive:
-    #     f = archive.open(name, "r")
-    #     f = io.TextIOWrapper(f)
-    #     lines = f.readlines()
-
     with open(out_path, 'w') as o, open(peak_path) as lines:
         for line in lines:
             if line[0] == "#":

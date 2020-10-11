@@ -5,7 +5,7 @@ from .paths_for_components import master_list_path, configs_path
 
 from .paths import create_neg_bin_weights_path_function
 
-callers_names = ['macs', 'sissrs', 'cpics', 'gem']
+callers_names = ['macs', 'sissrs', 'cpics', 'gem', 'macs2', 'macs2-nomodel']
 
 chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
          145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
