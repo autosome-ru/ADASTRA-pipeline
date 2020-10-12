@@ -42,6 +42,7 @@ import time
 from docopt import docopt
 from babachi import BADEstimation
 
+from .HELPERS.helpers import states
 from .HELPERS.paths import create_merged_vcf_path_function, create_badmaps_path_function
 
 
@@ -89,7 +90,7 @@ def main():
                 snps_collection=snps_collection,
                 chromosomes_order=chromosomes_order,
                 out=create_badmaps_path_function(bad_group),
-                states=[1, 1.5, 2, 3, 4, 5],
+                states=states,
                 b_penalty=4,
                 verbose=True,
                 allele_reads_tr=5,
