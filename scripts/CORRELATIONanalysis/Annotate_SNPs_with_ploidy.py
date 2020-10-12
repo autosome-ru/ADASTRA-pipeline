@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import json
 
@@ -42,7 +43,10 @@ def main(file_name):
 
     table_path = badmaps_path + 'merged_vcfs/' + file_name
     for mode in modes:
-        states = get_states(mode.split('@')[1])
+        if re.match(r'^CAIC@.+@.+$', mode) is not None:
+            states = get_states(mode.split('@')[1])
+        else:
+            states = get_states('')
         if not os.path.isdir(correlation_path + mode + '_tables/'):
             try:
                 os.mkdir(correlation_path + mode + '_tables')
