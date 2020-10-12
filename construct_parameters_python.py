@@ -17,6 +17,9 @@ used_vars_list = [
     'genome_path',
     'intervals_path',
     'dbsnp_vcf_path',
+    'heatmap_data_path',
+    'correlation_path',
+    'synonims_path',
 ]
 
 used_soft_list = [
@@ -88,6 +91,12 @@ def pack_line(config_dict, component_name):
     elif component_name == 'intervals_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'genome_path':
+        return construct_line(component_name, config_dict[component_name])
+    elif component_name == 'correlation_path':
+        return construct_line(component_name, config_dict[component_name])
+    elif component_name == 'heatmap_data_path':
+        return construct_line(component_name, config_dict[component_name])
+    elif component_name == 'synonims_path':
         return construct_line(component_name, config_dict[component_name])
     raise AssertionError(component_name, 'is not in valid arguments, check Config.cfg file')
 
