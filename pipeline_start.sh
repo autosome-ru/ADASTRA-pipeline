@@ -16,7 +16,7 @@ case "$2" in
     ;;
   --snp-call) stage_index=2
     ;;
-  --peak-call) stage_index=3
+  --peak-annotation) stage_index=3
     ;;
   --bad-call) stage_index=4
     ;;

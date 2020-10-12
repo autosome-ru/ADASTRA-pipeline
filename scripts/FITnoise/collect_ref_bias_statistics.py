@@ -40,8 +40,7 @@ def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
             out_t = out_t.append(tmp_df).groupby(['alt_counts', 'ref_counts'], as_index=False).sum()
     if out_t is None:
         return
-    with open(create_neg_bin_stats_path_function(BAD, suffix), 'w') as out:
-        out_t.to_csv(out, sep="\t", index=False)
+    out_t.to_csv(create_neg_bin_stats_path_function(BAD, suffix), sep="\t", index=False)
 
 
 def main():
