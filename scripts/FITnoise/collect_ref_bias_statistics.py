@@ -1,7 +1,7 @@
 import os.path
 import pandas as pd
 
-from scripts.HELPERS.helpers import dtype_dict
+from scripts.HELPERS.helpers import dtype_dict, states
 from scripts.HELPERS.paths import create_path_from_master_list_df, create_neg_bin_stats_path_function
 from scripts.HELPERS.paths_for_components import master_list_path
 
@@ -45,10 +45,10 @@ def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
 
 
 def main():
-    for bad in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
+    for bad in states:
         collect_fixed_alt_statistics(BAD=bad, key_name=None, suffix='')
 
 
 if __name__ == "__main__":
-    for BAD in [None, 1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
+    for BAD in [None] + states:
         collect_fixed_alt_statistics(BAD=BAD, key_name=None, suffix='')
