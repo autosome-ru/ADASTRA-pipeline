@@ -386,7 +386,7 @@ class CorrelationReader:
                         aligns = ''
                     continue
                 line = line.split("\t")
-                if line[0] not in ChromPos.chrs:
+                if line[0] not in ChromPos.chromosomes:
                     continue
                 current_segment = [float(line[4]),
                                    dict(zip(self.states, list(map(float, line[5:5 + len(self.states)]))))]
@@ -432,7 +432,7 @@ class CorrelationReader:
             for line in file:
                 line = line.strip().split('\t')
                 chr = line[0]
-                if chr not in ChromPos.chrs:
+                if chr not in ChromPos.chromosomes:
                     continue
                 pos = (int(line[1]) + int(line[2])) // 2
                 try:

@@ -3,12 +3,8 @@ import re
 import sys
 from scipy.stats import kendalltau
 
-sys.path.insert(1, "/home/abramov/segmentationValidation/ADASTRA-pipeline")
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos, get_states
-from scripts.HELPERS.paths_for_components import parameters_path, correlation_path, heatmap_data_path
-
-CGH_path = parameters_path + 'CHIP_hg38.sorted.bed'
-cosmic_path = parameters_path + 'COSMIC_copy_number.sorted.tsv'
+from scripts.HELPERS.paths_for_components import parameters_path, correlation_path, heatmap_data_path, cgh_path, cosmic_path
 
 
 def get_name_by_dir(dir_name, naive_modes):
@@ -125,7 +121,7 @@ def main(file_name):
             snp_dirs.append(correlation_path + f_name + '/')
 
     reader = CorrelationReader()
-    reader.CGH_path = CGH_path
+    reader.CGH_path = cgh_path
 
     cosmic_names, cgh_names = read_synonims()
 

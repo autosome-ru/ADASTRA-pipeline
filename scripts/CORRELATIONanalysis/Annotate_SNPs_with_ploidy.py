@@ -52,7 +52,7 @@ def main(file_name):
                 os.mkdir(correlation_path + mode + '_tables')
             except:
                 pass
-        badmaps_file_path = badmaps_path + mode + '/' + name + '@' + lab + '_ploidy.tsv'
+        badmaps_file_path = badmaps_path + mode + '/' + name + '@' + lab + '.badmap.tsv'
         out_path = correlation_path + mode + '_tables/' + name + '_' + lab.replace('_', '-') + '.tsv'
         print(out_path)
 

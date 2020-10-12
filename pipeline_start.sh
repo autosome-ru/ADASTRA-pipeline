@@ -11,7 +11,7 @@ python3 "construct_parameters_python.py"
 
 source "scripts/HELPERS/paths_for_components.py"
 
-case "$2" in
+case "$flag" in
   --create-reference) stage_index=1
     ;;
   --snp-call) stage_index=2
