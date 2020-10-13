@@ -131,6 +131,6 @@ def main():
     elif args['cosmic_correlation']:
         from .CORRELATIONanalysis.CorStats import main
         main(args['--base'])
-    elif args['join_correlation_treads']:
+    elif args['join_correlation_threads']:
         from .CORRELATIONanalysis.JoinThreads import main
         main()
