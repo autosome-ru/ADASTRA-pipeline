@@ -450,7 +450,7 @@ class CorrelationReader:
 def read_synonims():
     cosmic_names = dict()
     cgh_names = dict()
-    with open(synonims_path, 'r') as file:
+    with open(synonyms_path, 'r') as file:
         for line in file:
             line = line.strip('\n').split('\t')
             name = remove_punctuation(line[0])
