@@ -21,7 +21,7 @@ def create_path_from_master_list_df(row, for_what='base'):
     return os.path.join(alignments_path, row['#EXP'], row['ALIGNS'] + get_ending(for_what))
 
 
-def get_result_stats_path():
+def get_release_stats_path():
     return os.path.join(results_path, 'release_stats')
 
 
@@ -42,7 +42,7 @@ def create_merged_vcf_path_function(name):
 
 
 def create_neg_bin_stats_path_function(BAD, suffix=''):
-    return os.path.join(configs_path, 'bias_statistics_BAD={:.1f}{}.tsv'.format(
+    return os.path.join(get_release_stats_path(), 'bias_stats_BAD{:.1f}{}.tsv'.format(
             BAD if BAD else 0, suffix))
 
 
