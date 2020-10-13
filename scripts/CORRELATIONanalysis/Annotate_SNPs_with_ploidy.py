@@ -30,7 +30,7 @@ def main(file_name):
     try:
         assert os.path.isfile(os.path.join(badmaps_path, 'merged_vcfs', file_name))
     except AssertionError:
-        print(os.path.join(badmaps_path, 'merged_vcfs', file_name))
+        print(os.path.join(badmaps_path, 'merged_vcfs', file_name), file_name)
         exit(1)
 
     name = file_name.split('!')[0]
