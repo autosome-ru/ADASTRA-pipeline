@@ -30,8 +30,9 @@ def main():
         dict_overall_statistics["datasets"]["TF"][row['TF_UNIPROT_ID']] += 1
         made_experiment_vcfs += 1
         annotated_table_path = create_path_from_master_list_df(row, for_what="annotation")
-        if os.path.isfile(annotated_table_path):
-            made_annotated_tables += 1
+        if not os.path.isfile(annotated_table_path):
+            continue
+        made_annotated_tables += 1
         an_table = pd.read_table(annotated_table_path)
         if an_table.empty:
             continue
