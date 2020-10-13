@@ -178,7 +178,7 @@ def make_dict_from_vcf(vcf, vcf_dict):
             vcf_dict[(chr, pos, ID, REF, ALT)] = (R, A)
 
 
-def make_list_from_vcf(vcf, filter_no_rs=False):
+def make_list_from_vcf(vcf, file_name=None, filter_no_rs=False):
     vcf_list = []
     for line in vcf:
         if line[0] == '#':
@@ -208,7 +208,10 @@ def make_list_from_vcf(vcf, filter_no_rs=False):
             continue
         REF = line[3]
         ALT = line[4]
-        vcf_list.append((chr, pos, ID, REF, ALT, R, A))
+        if file_name is not None:
+            vcf_list.append((chr, pos, ID, REF, ALT, R, A, file_name))
+        else:
+            vcf_list.append((chr, pos, ID, REF, ALT, R, A, file_name))
     return vcf_list
 
 
