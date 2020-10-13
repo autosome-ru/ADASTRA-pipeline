@@ -6,10 +6,8 @@ from scripts.HELPERS.paths import create_path_from_master_list_df, create_neg_bi
 from scripts.HELPERS.paths_for_components import master_list_path
 
 
-def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
+def collect_fixed_alt_statistics(master_df, key_name=None, BAD=None, suffix=''):
     out_t = None
-    master_df = pd.read_table(master_list_path, dtype=dtype_dict)
-    master_df = master_df[master_df['EXP_TYPE'] != 'chip_control']
     for index, row in master_df.iterrows():
         if key_name is not None:
             if row['CELLS'] not in key_name:  # <------
@@ -44,10 +42,8 @@ def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
 
 
 def main():
+    master_df = pd.read_table(master_list_path, dtype=dtype_dict)
+    master_df = master_df[master_df['EXP_TYPE'] != 'chip_control']
     for bad in states:
-        collect_fixed_alt_statistics(BAD=bad, key_name=None, suffix='')
+        collect_fixed_alt_statistics(master_df, BAD=bad, key_name=None, suffix='')
 
-
-if __name__ == "__main__":
-    for BAD in [None] + states:
-        collect_fixed_alt_statistics(BAD=BAD, key_name=None, suffix='')
