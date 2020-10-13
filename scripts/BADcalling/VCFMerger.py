@@ -28,14 +28,14 @@ def merge_vcfs_as_independent_snps(out_file_name, in_files):
     vcf_list = []
     for file in in_files:
         with gzip.open(file, 'rt') as vcf:
-            vcf_list += make_list_from_vcf(vcf)
+            vcf_list += make_list_from_vcf(vcf, file_name=os.path.basename(file))
 
     vcf_list.sort(key=lambda cords: cords[1])
     vcf_list.sort(key=lambda cords: cords[0])
 
     with open(out_file_name, 'w') as out:
-        for (chr, pos, ID, REF, ALT, R, A) in vcf_list:
-            out.write('\t'.join(map(str, [chr, pos, ID, REF, ALT, R, A])) + '\n')
+        for (chr, pos, ID, REF, ALT, R, A, filename) in vcf_list:
+            out.write('\t'.join(map(str, [chr, pos, ID, REF, ALT, R, A, filename])) + '\n')
 
 
 def main(key):

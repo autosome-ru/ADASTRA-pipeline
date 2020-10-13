@@ -2,7 +2,7 @@ import json
 import sys
 from scripts.HELPERS.paths import create_badmaps_path_function, get_ending
 from scripts.HELPERS.paths_for_components import badmaps_dict_path
-from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, unpackBADSegments, states
+from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, UnpackBadSegments, states
 
 
 def make_reverse_dict(dictionary):
@@ -32,11 +32,12 @@ def main(key):
                         'repeat_type'] + callers_names + ['BAD'] + ["Q{:.2f}".format(x) for x in states] +
                        ['SNP_count', 'sum_cover']))
 
+        u = UnpackBadSegments(None)
         for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, \
             in_intersection, BAD, Quals, seg_c, sum_cov in \
                 Intersection(table_file, badmap_file, write_segment_args=True, write_intersect=True,
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter'),
-                             unpack_segments_function=unpackBADSegments):
+                             unpack_segments_function=lambda x: u.unpackBADSegments(x, states)):
             if in_intersection and ID.startswith('rs'):
                 out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type] +
                                [in_callers[name] for name in callers_names] +

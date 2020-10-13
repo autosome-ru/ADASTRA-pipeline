@@ -7,6 +7,8 @@ Usage:
             adastra make_paths --mode <mode>
             adastra badmaps_params
             adastra aggregation_params --for <for>
+            adastra annotation_params
+            adastra correlation_params
             adastra sort_params
             adastra check_pos_peaks --peak <path> --out <path> --type <type>
             adastra annotate_peaks --base <path>
@@ -17,6 +19,9 @@ Usage:
             adastra fit_neg_bin
             adastra neg_bin_p --base <path>
             adastra aggregation --for <for> --name <name>
+            adastra annotate_snps_for_correlation --base <path>
+            adastra cosmic_correlation --base <path>
+            adastra join_correlation_treads
             adastra -h | --help
 
 Arguments:
@@ -66,6 +71,12 @@ def main():
     elif args['badmaps_params']:
         from .PARAMETERS.make_params_bad_estimation import main
         main()
+    elif args['annotation_params']:
+        from .PARAMETERS.make_params_annotation import main
+        main()
+    elif args['correlation_params']:
+        from .PARAMETERS.make_params_correlation import main
+        main()
     elif args['aggregation_params']:
         from .PARAMETERS.make_params_aggregation import main
         main(args['--for'])
@@ -114,4 +125,12 @@ def main():
     elif args['aggregation']:
         from .ASBcalling.Aggregation import main
         main(args['--for'], args['--name'])
-
+    elif args['annotate_snps_for_correlation']:
+        from .CORRELATIONanalysis.Annotate_SNPs_with_ploidy import main
+        main(args['--base'])
+    elif args['cosmic_correlation']:
+        from .CORRELATIONanalysis.CorStats import main
+        main(args['--base'])
+    elif args['join_correlation_threads']:
+        from .CORRELATIONanalysis.JoinThreads import main
+        main()

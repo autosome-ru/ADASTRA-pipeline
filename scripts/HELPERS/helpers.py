@@ -1,7 +1,7 @@
 import string
 import numpy as np
 import os
-from .paths_for_components import master_list_path, configs_path
+from .paths_for_components import master_list_path, configs_path, synonyms_path
 
 from .paths import create_neg_bin_weights_path_function
 
@@ -178,7 +178,7 @@ def make_dict_from_vcf(vcf, vcf_dict):
             vcf_dict[(chr, pos, ID, REF, ALT)] = (R, A)
 
 
-def make_list_from_vcf(vcf, filter_no_rs=False):
+def make_list_from_vcf(vcf, file_name=None, filter_no_rs=False):
     vcf_list = []
     for line in vcf:
         if line[0] == '#':
@@ -208,7 +208,10 @@ def make_list_from_vcf(vcf, filter_no_rs=False):
             continue
         REF = line[3]
         ALT = line[4]
-        vcf_list.append((chr, pos, ID, REF, ALT, R, A))
+        if file_name is not None:
+            vcf_list.append((chr, pos, ID, REF, ALT, R, A, file_name))
+        else:
+            vcf_list.append((chr, pos, ID, REF, ALT, R, A, file_name))
     return vcf_list
 
 
@@ -322,13 +325,138 @@ def read_weights():
     return r, w, gof
 
 
-def unpackBADSegments(line):
-    if line[0] == '#':
-        return [''] * (len(line.strip().split('\t')) - len(states) + 1)
-    line = line.strip().split('\t')
+class UnpackBadSegments:
+    counter = None
 
-    return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
-           [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
+    def __init__(self, counter):
+        UnpackBadSegments.counter = counter
+
+    def unpackBADSegments(self, line, states):
+        if line[0] == '#':
+            return [''] * (len(line.strip().split('\t')) - len(states) + 1 + (1 if UnpackBadSegments.counter is not None else 0))
+        line = line.strip().split('\t')
+
+        if UnpackBadSegments.counter is not None:
+            UnpackBadSegments.counter += 1
+            return [line[0], int(line[1]), int(line[2]), float(line[3]), UnpackBadSegments.counter] + \
+                   [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
+        else:
+            return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
+                   [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
+
+
+def get_states(states_sign):
+    if states_sign == 'all_but_1.33_2.5':
+        states = [1, 2, 3, 4, 5, 6, 1.5]
+    elif states_sign == '123456':
+        states = [1, 2, 3, 4, 5, 6]
+    elif states_sign == '12345':
+        states = [1, 2, 3, 4, 5]
+    elif states_sign == 'all_but_1.33':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
+    elif states_sign == 'all_but_2.5':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3]
+    elif states_sign == 'all':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3, 2.5]
+    elif states_sign == 'all_5':
+        states = [1, 2, 3, 4, 5, 1.5]
+    else:
+        states = [1, 2, 3, 4, 5, 1.5]
+    return sorted(states)
+
+
+class CorrelationReader:
+    CGH_path = ''
+    SNP_path = ''
+    states = []
+
+    def read_SNPs(self, method='normal'):
+        with open(self.SNP_path, 'r') as file:
+            result = []
+            uniq_segments_count = 0
+            sum_cov = 0
+            previous_segment = []
+            for line in file:
+                line = line.strip()
+                if line[0] == '#':
+                    split_header = line[1:].strip().split('@')
+                    datasets_number = split_header[0]
+                    lab = split_header[1]
+                    aligns = split_header[2]
+                    if aligns:
+                        aligns = ','.join(aligns.split(','))
+                    else:
+                        aligns = ''
+                    continue
+                line = line.split("\t")
+                if line[0] not in ChromPos.chromosomes:
+                    continue
+                current_segment = [float(line[4]),
+                                   dict(zip(self.states, list(map(float, line[5:5 + len(self.states)]))))]
+                if previous_segment != current_segment:
+                    uniq_segments_count += 1
+                    sum_cov += int(line[6 + len(self.states)])
+                    previous_segment = current_segment
+                if method == 'normal':
+                    if line[4] == 0:
+                        continue
+                    result.append([line[0], int(line[1])] + current_segment)
+                elif method == 'cover':
+                    if line[4] == 0:
+                        continue
+                    result.append([line[0], int(line[1]), int(line[2]) + int(line[3])] + current_segment)
+                elif method == 'naive':
+                    ref = int(line[2])
+                    alt = int(line[3])
+                    if min(ref, alt) == 0:
+                        continue
+                    result.append([line[0], int(line[1]), max(ref, alt) / min(ref, alt) - 1,
+                                   dict(zip(self.states, [10000] * len(self.states)))])
+                else:
+                    raise KeyError(method)
+
+            return datasets_number, lab, result, aligns, uniq_segments_count, sum_cov
+
+    def read_CGH(self, cgh_name):
+        cgnames = ['BR:MCF7', 'BR:MDA-MB-231', 'BR:HS 578T', 'BR:BT-549', 'BR:T-47D', 'CNS:SF-268', 'CNS:SF-295',
+                   'CNS:SF-539', 'CNS:SNB-19', 'CNS:SNB-75', 'CNS:U251', 'CO:COLO 205', 'CO:HCC-2998', 'CO:HCT-116',
+                   'CO:HCT-15', 'CO:HT29', 'CO:KM12', 'CO:SW-620', 'LE:CCRF-CEM', 'LE:HL-60(TB)', 'LE:K-562',
+                   'LE:MOLT-4', 'LE:RPMI-8226', 'LE:SR', 'ME:LOX IMVI', 'ME:MALME-3M', 'ME:M14', 'ME:SK-MEL-2',
+                   'ME:SK-MEL-28', 'ME:SK-MEL-5', 'ME:UACC-257', 'ME:UACC-62', 'ME:MDA-MB-435', 'ME:MDA-N',
+                   'LC:A549/ATCC', 'LC:EKVX', 'LC:HOP-62', 'LC:HOP-92', 'LC:NCI-H226', 'LC:NCI-H23', 'LC:NCI-H322M',
+                   'LC:NCI-H460', 'LC:NCI-H522', 'OV:IGROV1', 'OV:OVCAR-3', 'OV:OVCAR-4', 'OV:OVCAR-5', 'OV:OVCAR-8',
+                   'OV:SK-OV-3', 'OV:NCI/ADR-RES', 'PR:PC-3', 'PR:DU-145', 'RE:786-0', 'RE:A498', 'RE:ACHN',
+                   'RE:CAKI-1', 'RE:RXF 393', 'RE:SN12C', 'RE:TK-10', 'RE:UO-31']
+        if cgh_name not in cgnames:
+            return []
+        idx = cgnames.index(cgh_name) + 3
+        with open(self.CGH_path, 'r') as file:
+            result = []
+            for line in file:
+                line = line.strip().split('\t')
+                chr = line[0]
+                if chr not in ChromPos.chromosomes:
+                    continue
+                pos = (int(line[1]) + int(line[2])) // 2
+                try:
+                    value = 2 ** (1 + float(line[idx]))
+                except ValueError:
+                    continue
+                result.append([chr, pos, value, dict(zip(states, [10000] * len(states)))])
+            # result.sort_items()
+            return result
+
+
+def read_synonims():
+    cosmic_names = dict()
+    cgh_names = dict()
+    with open(synonyms_path, 'r') as file:
+        for line in file:
+            line = line.strip('\n').split('\t')
+            name = remove_punctuation(line[0])
+            cosmic_names[name] = line[1]
+            cgh_names[name] = line[2]
+    return cosmic_names, cgh_names
 
 
 if __name__ == "__main__":
