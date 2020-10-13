@@ -23,9 +23,9 @@ def main(file_name):
         aligns_by_cell_type = json.loads(file.readline().strip())
 
     modes = []
-    for file_name in sorted(os.listdir(badmaps_path)):
-        if os.path.isdir(os.path.join(badmaps_path, file_name)) and file_name != 'merged_vcfs':
-            modes.append(file_name)
+    for dir_name in sorted(os.listdir(badmaps_path)):
+        if os.path.isdir(os.path.join(badmaps_path, dir_name)) and dir_name != 'merged_vcfs':
+            modes.append(dir_name)
 
     try:
         assert os.path.isfile(os.path.join(badmaps_path, 'merged_vcfs', file_name))
