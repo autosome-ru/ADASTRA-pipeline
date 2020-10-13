@@ -24,3 +24,4 @@ if [ "$flag" == --bad-call ] || [ "$flag" == --annotate ] || [ "$flag" == --corr
   parallel --jobs "$njobs" adastra cosmic_correlation --base :::: "$parallel_parameters_path"/CS_parameters.cfg
 
   adastra join_correlation_treads
+fi
