@@ -19,7 +19,7 @@ used_vars_list = [
     'dbsnp_vcf_path',
     'heatmap_data_path',
     'correlation_path',
-    'synonims_path',
+    'synonyms_path',
     'cgh_path,',
     'cosmic_path',
 ]
