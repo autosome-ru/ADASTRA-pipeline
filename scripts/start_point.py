@@ -21,7 +21,7 @@ Usage:
             adastra aggregation --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path>
             adastra cosmic_correlation --base <path>
-            adastra join_correlation_treads
+            adastra join_correlation_threads
             adastra check_made_files
             adastra -h | --help
 
@@ -127,7 +127,7 @@ def main():
         from .ASBcalling.Aggregation import main
         main(args['--for'], args['--name'])
     elif args['annotate_snps_for_correlation']:
-        from .CORRELATIONanalysis.Annotate_SNPs_with_ploidy import main
+        from .CORRELATIONanalysis.Annotate_SNPs_with_BADmaps import main
         main(args['--base'])
     elif args['cosmic_correlation']:
         from .CORRELATIONanalysis.CorStats import main
