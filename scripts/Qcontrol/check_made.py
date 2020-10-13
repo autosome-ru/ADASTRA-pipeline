@@ -58,7 +58,7 @@ def main():
     for what_for in ('TF', 'CL'):
         for obj in os.listdir(get_result_dir_path(what_for)):
             vcf_counter[what_for] += 1
-            obj_table = pd.read_table(get_result_table_path(obj, what_for))
+            obj_table = pd.read_table(get_result_table_path(what_for, obj))
             if obj_table.empty:
                 continue
             local_counter = len(obj_table.index)
