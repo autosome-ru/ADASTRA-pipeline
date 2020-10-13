@@ -20,6 +20,8 @@ used_vars_list = [
     'heatmap_data_path',
     'correlation_path',
     'synonims_path',
+    'cgh_path,',
+    'cosmic_path',
 ]
 
 used_soft_list = [
