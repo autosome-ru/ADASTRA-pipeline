@@ -24,10 +24,10 @@ def main(file_name):
 
     modes = []
     for file_name in sorted(os.listdir(badmaps_path)):
-        if os.path.isdir(badmaps_path + file_name) and file_name != 'merged_vcfs':
+        if os.path.isdir(os.path.join(badmaps_path, file_name)) and file_name != 'merged_vcfs':
             modes.append(file_name)
 
-    assert os.path.isfile(badmaps_path + 'merged_vcfs/' + file_name)
+    assert os.path.isfile(os.path.join(badmaps_path, 'merged_vcfs', file_name))
 
     name = file_name.split('!')[0]
     lab = file_name.split('!')[1][:-4]
@@ -52,7 +52,7 @@ def main(file_name):
                 os.mkdir(correlation_path + mode + '_tables')
             except:
                 pass
-        badmaps_file_path = badmaps_path + mode + '/' + name + '@' + lab + '.badmap.tsv'
+        badmaps_file_path = os.path.join(badmaps_path, mode, name + '@' + lab + '.badmap.tsv')
         out_path = correlation_path + mode + '_tables/' + name + '_' + lab.replace('_', '-') + '.tsv'
         print(out_path)
 
