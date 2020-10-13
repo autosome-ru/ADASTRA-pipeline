@@ -1,6 +1,6 @@
 import os
 from scripts.HELPERS.paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
-    cl_dict_path, configs_path
+    cl_dict_path, configs_path, results_path
 
 
 def get_ending(for_what):
@@ -19,6 +19,14 @@ def get_ending(for_what):
 
 def create_path_from_master_list_df(row, for_what='base'):
     return os.path.join(alignments_path, row['#EXP'], row['ALIGNS'] + get_ending(for_what))
+
+
+def get_result_dir_path(what_for):
+    return os.path.join(results_path, '{}_P-values'.format(what_for))
+
+
+def get_result_table_path(what_for, string):
+    return os.path.join(get_result_dir_path(what_for), '{}.tsv'.format(string))
 
 
 def create_badmaps_path_function(name):

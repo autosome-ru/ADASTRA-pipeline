@@ -10,6 +10,7 @@ from collections import OrderedDict
 from scripts.HELPERS.paths_for_components import results_path, tf_dict_path, cl_dict_path
 from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, \
     expected_args
+from scripts.HELPERS.paths import get_result_table_path
 
 with open(cl_dict_path, "r") as read_file:
     cell_lines_dict = json.loads(read_file.readline())
@@ -73,7 +74,7 @@ def get_noise(k, n, weight):
 def main(what_for, key_name):
     check_if_in_expected_args(what_for)
 
-    table_path = os.path.join(results_path, what_for + '_P-values/{}.tsv'.format(key_name))
+    table_path = get_result_table_path(what_for, key_name)
 
     tables = []
     if what_for == "CL":
