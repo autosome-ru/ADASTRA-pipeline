@@ -176,7 +176,7 @@ def main(file_name):
                 corr_to_objects[naive_mode] = 'NaN'
 
         # TODO: add 3-5 neighbours naive
-        CGH_objects = reader.read_CGH(cgh_names[cell_line_name])
+        CGH_objects = reader.read_CGH(cgh_names.get(cell_line_name, ''))
         nearest_cgh_objects = find_nearest_probe_to_SNP(SNP_objects, CGH_objects)
 
         if cosmic_names.get(cell_line_name):
