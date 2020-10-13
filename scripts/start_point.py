@@ -22,6 +22,7 @@ Usage:
             adastra annotate_snps_for_correlation --base <path>
             adastra cosmic_correlation --base <path>
             adastra join_correlation_treads
+            adastra check_made_files
             adastra -h | --help
 
 Arguments:
@@ -133,4 +134,7 @@ def main():
         main(args['--base'])
     elif args['join_correlation_threads']:
         from .CORRELATIONanalysis.JoinThreads import main
+        main()
+    elif args['check_made_files']:
+        from .Qcontrol.check_made import main
         main()
