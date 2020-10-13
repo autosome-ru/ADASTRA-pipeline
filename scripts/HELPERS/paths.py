@@ -21,6 +21,10 @@ def create_path_from_master_list_df(row, for_what='base'):
     return os.path.join(alignments_path, row['#EXP'], row['ALIGNS'] + get_ending(for_what))
 
 
+def get_result_stats_path():
+    return os.path.join(results_path, 'release_stats')
+
+
 def get_result_dir_path(what_for):
     return os.path.join(results_path, '{}_P-values'.format(what_for))
 

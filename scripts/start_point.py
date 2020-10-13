@@ -138,3 +138,5 @@ def main():
     elif args['check_made_files']:
         from .Qcontrol.check_made import main
         main()
+        from .Qcontrol.collect_ref_bias import main
+        main()
