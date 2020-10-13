@@ -1,7 +1,7 @@
 import os
 
 from scripts.HELPERS.paths_for_components import correlation_path
-out_path = correlation_path + 'cor_stats_test.tsv'
+out_path = os.path.join(correlation_path, 'cor_stats_test.tsv')
 
 
 def get_name_by_dir(dir_name):
