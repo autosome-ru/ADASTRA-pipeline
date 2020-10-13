@@ -141,7 +141,7 @@ def main():
     elif args['join_correlation_threads']:
         from .CORRELATIONanalysis.JoinThreads import main
         main()
-    elif args['weight_to_df']:
+    elif args['weights_to_df']:
         from .Qcontrol.neg_bin_weights_to_df import main
         main()
     elif args['collect_release_stats']:
