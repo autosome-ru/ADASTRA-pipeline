@@ -17,9 +17,9 @@ def main():
     for key in dict_overall_statistics:
         dict_overall_statistics[key] = {"TF": {}, "CL": {}}
     ml_df = pd.read_table(master_list_path, dtype=dtype_dict)
+    total_vcf_count = len(ml_df.index)
     ml_df['vcf_path'] = ml_df.apply(lambda x: create_path_from_master_list_df(x, 'vcf'), axis=1)
     ml_df = ml_df[ml_df['vcf_path'].apply(os.path.isfile)]
-
     for index, row in ml_df.iterrows():
         row['CELLS'] = remove_punctuation(row['CELLS'])
         if row['TF_UNIPROT_ID'] not in dict_overall_statistics["datasets"]["TF"]:
@@ -28,7 +28,10 @@ def main():
             dict_overall_statistics["datasets"]["CL"][row['CELLS']] = 0
         dict_overall_statistics["datasets"]["CL"][row['CELLS']] += 1
         dict_overall_statistics["datasets"]["TF"][row['TF_UNIPROT_ID']] += 1
-        made_experiment_vcfs += 1
+        if row['EXP_TYPE'] == 'chip_control':
+            made_control_vcfs += 1
+        else:
+            made_experiment_vcfs += 1
         annotated_table_path = create_path_from_master_list_df(row, for_what="annotation")
         if not os.path.isfile(annotated_table_path):
             continue
@@ -47,8 +50,8 @@ def main():
         dict_overall_statistics["SNP_calls"]["CL"][row['CELLS']] += local_counter
         dict_overall_statistics["SNP_calls"]["TF"][row['TF_UNIPROT_ID']] += local_counter
 
-    print("Made {} VCFS ({} experiment VCFs, {} control VCFs), {} annotated tables".format(
-        made_control_vcfs + made_experiment_vcfs,
+    print("Made {}/{} VCFs ({} experiment VCFs, {} control VCFs), {} annotated tables".format(
+        made_control_vcfs + made_experiment_vcfs, total_vcf_count,
         made_experiment_vcfs,
         made_control_vcfs,
         made_annotated_tables))
