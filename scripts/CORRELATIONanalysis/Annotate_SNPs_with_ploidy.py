@@ -27,7 +27,11 @@ def main(file_name):
         if os.path.isdir(os.path.join(badmaps_path, file_name)) and file_name != 'merged_vcfs':
             modes.append(file_name)
 
-    assert os.path.isfile(os.path.join(badmaps_path, 'merged_vcfs', file_name))
+    try:
+        assert os.path.isfile(os.path.join(badmaps_path, 'merged_vcfs', file_name))
+    except AssertionError:
+        print(os.path.join(badmaps_path, 'merged_vcfs', file_name))
+        exit(1)
 
     name = file_name.split('!')[0]
     lab = file_name.split('!')[1][:-4]
