@@ -4,7 +4,7 @@ import sys
 from scipy.stats import kendalltau
 
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos, get_states
-from scripts.HELPERS.paths_for_components import parameters_path, correlation_path, heatmap_data_path, cgh_path, cosmic_path
+from scripts.HELPERS.paths_for_components import correlation_path, heatmap_data_path, cgh_path, cosmic_path
 
 
 def get_name_by_dir(dir_name, naive_modes):
