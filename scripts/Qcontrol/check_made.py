@@ -4,7 +4,7 @@ import pandas as pd
 
 from scripts.HELPERS.helpers import remove_punctuation, dtype_dict
 from scripts.HELPERS.paths import create_path_from_master_list_df, get_result_table_path, get_result_dir_path
-from scripts.HELPERS.paths_for_components import results_path, parameters_path, badmaps_dict_path, master_list_path
+from scripts.HELPERS.paths_for_components import results_path, badmaps_dict_path, master_list_path
 
 
 def main():
@@ -81,7 +81,7 @@ def main():
         print("Made aggregation for {} {}s".format(vcf_counter[what_for], what_for))
         print('In {} aggregation total of {} ASB events'.format(what_for, total_fdrs))
 
-    with open(os.path.join(parameters_path, "overall_statistics.json"), "w") as json_file:
+    with open(os.path.join(results_path, "overall_statistics.json"), "w") as json_file:
         json.dump(dict_overall_statistics, json_file)
 
 
