@@ -7,6 +7,8 @@ Usage:
             adastra make_paths --mode <mode>
             adastra badmaps_params
             adastra aggregation_params --for <for>
+            adastra annotation_params
+            adastra correlation_params
             adastra sort_params
             adastra check_pos_peaks --peak <path> --out <path> --type <type>
             adastra annotate_peaks --base <path>
@@ -17,6 +19,9 @@ Usage:
             adastra fit_neg_bin
             adastra neg_bin_p --base <path>
             adastra aggregation --for <for> --name <name>
+            adastra annotate_snps_for_correlation --base <path>
+            adastra cosmic_correlation --base <path>
+            adastra join_correlation_treads
             adastra -h | --help
 
 Arguments:
