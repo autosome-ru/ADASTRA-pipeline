@@ -23,7 +23,7 @@ def unpack_cosmic_segments(line, mode='normal', cosmic_names='', cell_line_name=
         return [''] * len(line.strip().split('\t'))
     line = line.strip().split('\t')
 
-    if line[0] != cosmic_names[cell_line_name]:
+    if cell_line_name not in cosmic_names or line[0] != cosmic_names.get(cell_line_name):
         return []
     if int(line[4]) == 0:
         return []
