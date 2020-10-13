@@ -138,7 +138,5 @@ def main():
     elif args['collect_release_stats']:
         from .Qcontrol.check_made import main
         main()
-        from .FITnoise.collect_ref_bias_statistics import main
-        main()
         from .Qcontrol.neg_bin_weights_to_df import main
         main()
