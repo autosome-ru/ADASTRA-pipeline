@@ -1,7 +1,7 @@
 import string
 import numpy as np
 import os
-from .paths_for_components import master_list_path, configs_path, synonims_path
+from .paths_for_components import master_list_path, configs_path, synonyms_path
 
 from .paths import create_neg_bin_weights_path_function
 

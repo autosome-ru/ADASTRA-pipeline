@@ -96,7 +96,11 @@ def pack_line(config_dict, component_name):
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'heatmap_data_path':
         return construct_line(component_name, config_dict[component_name])
-    elif component_name == 'synonims_path':
+    elif component_name == 'synonyms_path':
+        return construct_line(component_name, config_dict[component_name])
+    elif component_name == 'cosmic_path':
+        return construct_line(component_name, config_dict[component_name])
+    elif component_name == 'cgh_path':
         return construct_line(component_name, config_dict[component_name])
     raise AssertionError(component_name, 'is not in valid arguments, check Config.cfg file')
 
