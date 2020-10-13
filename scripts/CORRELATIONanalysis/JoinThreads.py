@@ -27,11 +27,11 @@ def main():
                                 )) + '\n')
 
         for file_name in os.listdir(correlation_path):
-            snp_dir = os.path.join(correlation_path, file_name)
-            if file_name.endswith('.thread') and os.path.isfile(snp_dir):
-                with open(snp_dir) as file:
+            thread = os.path.join(correlation_path, file_name)
+            if file_name.endswith('.thread') and os.path.isfile(thread):
+                with open(thread) as file:
                     out.write(file.readline())
-                os.remove(correlation_path + file_name)
+                os.remove(thread)
 
 
 if __name__ == '__main__':
