@@ -19,6 +19,6 @@ def main():
             counts = []
             for fix_c in counts_df.index:
                 counts.append(counts_df[counts_df['{}_counts'.format(allele)] == fix_c]['counts'].sum())
-            counts_df['allele_reads'] = counts
-            counts_df.to_csv(os.path.join(get_release_stats_path(), 'NBweights_{}_BAD{:.1f}.tsv'.format(allele, BAD)),
-                             index=False, sep='\t')
+            df['allele_reads'] = counts
+            df.to_csv(os.path.join(get_release_stats_path(), 'NBweights_{}_BAD{:.1f}.tsv'.format(allele, BAD)),
+                      index=False, sep='\t')
