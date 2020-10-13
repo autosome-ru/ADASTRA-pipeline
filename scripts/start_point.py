@@ -23,6 +23,7 @@ Usage:
             adastra cosmic_correlation --base <path>
             adastra join_correlation_threads
             adastra collect_release_stats
+            adastra weights_to_df
             adastra -h | --help
 
 Arguments:
@@ -140,8 +141,10 @@ def main():
     elif args['join_correlation_threads']:
         from .CORRELATIONanalysis.JoinThreads import main
         main()
+    elif args['weight_to_df']:
+        from .Qcontrol.neg_bin_weights_to_df import main
+        main()
     elif args['collect_release_stats']:
         from .Qcontrol.check_made import main
         main()
-        from .Qcontrol.neg_bin_weights_to_df import main
-        main()
+

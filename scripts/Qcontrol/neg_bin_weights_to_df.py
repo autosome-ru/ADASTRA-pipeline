@@ -17,7 +17,7 @@ def main():
             for i in range(len(column_names)):
                 df[column_names[i]] = np_weights[:, i]
             counts = []
-            for fix_c in counts_df.index:
+            for fix_c in df.index:
                 counts.append(counts_df[counts_df['{}_counts'.format(allele)] == fix_c]['counts'].sum())
             df['allele_reads'] = counts
             df.to_csv(os.path.join(get_release_stats_path(), 'NBweights_{}_BAD{:.1f}.tsv'.format(allele, BAD)),
