@@ -41,9 +41,16 @@ def collect_fixed_alt_statistics(master_df, key_name=None, BAD=None, suffix=''):
     out_t.to_csv(create_neg_bin_stats_path_function(BAD, suffix), sep="\t", index=False)
 
 
-def main():
+def main(cell_line=None, suffix='', in_stats=False):
     master_df = pd.read_table(master_list_path, dtype=dtype_dict)
     master_df = master_df[master_df['EXP_TYPE'] != 'chip_control']
-    for bad in states:
-        collect_fixed_alt_statistics(master_df, BAD=bad, key_name=None, suffix='')
+    if in_stats:
+        if not cell_line:
+            collect_fixed_alt_statistics(master_df, BAD=None)
+        else:
+            for bad in [None] + states:
+                collect_fixed_alt_statistics(master_df, BAD=bad, key_name=cell_line, suffix=suffix)
+    else:
+        for bad in states:
+            collect_fixed_alt_statistics(master_df, BAD=bad)
 

@@ -15,7 +15,7 @@ Usage:
             adastra vcf_merge --group <group>
             adastra bad_call --group <group>
             adastra bad_annotation --base <path>
-            adastra collect_ref_bias
+            adastra collect_ref_bias [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin
             adastra neg_bin_p --base <path>
             adastra aggregation --for <for> --name <name>
@@ -30,6 +30,7 @@ Arguments:
     <name>     Name of params(TF or CL)
     <type>     Peak type (gem, sissrs, peaks, cpics)
     <path>     Path to file
+    <suffix>   Suffix for stats file
 
 Options:
     -h, --help                  Show help.
@@ -41,7 +42,8 @@ Options:
     --type=<type>               Peak type
     --base=<path>               Path to file to annotate
     --group=<group>             Name of badmap group
-
+    --suffix=<suffix>           Suffix for stats file
+    --cell-type=<name>          Cell type name
 """
 import time
 
@@ -116,7 +118,10 @@ def main():
         main(args['--base'])
     elif args['collect_ref_bias']:
         from .FITnoise.collect_ref_bias_statistics import main
-        main()
+        if not args['stats']:
+            main()
+        else:
+            main(args['--cell-type'], args['--suffix'], True)
     elif args['fit_neg_bin']:
         from .FITnoise.fit_negative_binom_with_weights import main
         main()
