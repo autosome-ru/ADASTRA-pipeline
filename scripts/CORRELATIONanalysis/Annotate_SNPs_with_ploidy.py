@@ -33,8 +33,8 @@ def main(file_name):
         print(os.path.join(badmaps_path, 'merged_vcfs', file_name), file_name)
         exit(1)
 
-    name = file_name.split('!')[0]
-    lab = file_name.split('!')[1][:-4]
+    name = file_name.split('@')[0]
+    lab = file_name.split('@')[1][:-4]  # .tsv
 
     try:
         aligns = aligns_by_cell_type[file_name[:-4]]  # .tsv
