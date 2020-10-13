@@ -111,14 +111,15 @@ def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
 def main(file_name):
     print(file_name)
 
-    out_path = correlation_path + file_name + '.thread'
+    out_path = os.path.join(correlation_path, file_name + '.thread')
 
     snp_dirs = []
     naive_modes = ['naive']
 
     for f_name in sorted(os.listdir(correlation_path)):
-        if f_name.endswith('_tables') and os.path.isdir(correlation_path + f_name):
-            snp_dirs.append(correlation_path + f_name + '/')
+        snp_dir = os.path.join(correlation_path, f_name)
+        if f_name.endswith('_tables') and os.path.isdir(snp_dir):
+            snp_dirs.append(snp_dir)
 
     reader = CorrelationReader()
     reader.CGH_path = cgh_path
@@ -145,15 +146,15 @@ def main(file_name):
                 states = get_states('')
             reader.states = states
 
-            reader.SNP_path = snp_dir + file_name
+            reader.SNP_path = os.path.join(snp_dir, file_name)
 
-            heatmap_data_dir = heatmap_data_path + model + '_tables/'
+            heatmap_data_dir = os.path.join(heatmap_data_path, model + '_tables/')
             if not os.path.isdir(heatmap_data_dir):
                 try:
                     os.mkdir(heatmap_data_dir)
                 except:
                     pass
-            heatmap_data_file = heatmap_data_dir + file_name
+            heatmap_data_file = os.path.join(heatmap_data_dir, file_name)
 
             # print('reading SNP ' + type)
             number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(method='cover')

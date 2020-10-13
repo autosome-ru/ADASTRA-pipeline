@@ -11,8 +11,9 @@ def get_name_by_dir(dir_name):
 def main():
     snp_dirs = []
     for file_name in sorted(os.listdir(correlation_path)):
-        if file_name.endswith('_tables') and os.path.isdir(correlation_path + file_name):
-            snp_dirs.append(correlation_path + file_name + '/')
+        snp_dir = os.path.join(correlation_path, file_name)
+        if file_name.endswith('_tables') and os.path.isdir(snp_dir):
+            snp_dirs.append(snp_dir)
 
     with open(out_path, 'w') as out:
         out.write('\t'.join(map(lambda x: '\t'.join(x),
@@ -26,8 +27,9 @@ def main():
                                 )) + '\n')
 
         for file_name in os.listdir(correlation_path):
-            if file_name.endswith('.thread') and os.path.isfile(correlation_path + file_name):
-                with open(correlation_path + file_name) as file:
+            snp_dir = os.path.join(correlation_path, file_name)
+            if file_name.endswith('.thread') and os.path.isfile(snp_dir):
+                with open(snp_dir) as file:
                     out.write(file.readline())
                 os.remove(correlation_path + file_name)
 
