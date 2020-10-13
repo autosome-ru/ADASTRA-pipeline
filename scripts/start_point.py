@@ -129,7 +129,7 @@ def main():
         from .CORRELATIONanalysis.Annotate_SNPs_with_ploidy import main
         main(args['--base'])
     elif args['cosmic_correlation']:
-        from .CORRELATIONanalysis.Annotate_SNPs_with_ploidy import main
+        from .CORRELATIONanalysis.CorStats import main
         main(args['--base'])
     elif args['join_correlation_treads']:
         from .CORRELATIONanalysis.JoinThreads import main
