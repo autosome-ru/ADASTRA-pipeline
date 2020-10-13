@@ -17,7 +17,7 @@ def main():
     for key in dict_overall_statistics:
         dict_overall_statistics[key] = {"TF": {}, "CL": {}}
     ml_df = pd.read_table(master_list_path, dtype=dtype_dict)
-    ml_df['vcf_path'] = ml_df.apply(create_path_from_master_list_df, axis=1)
+    ml_df['vcf_path'] = ml_df.apply(lambda x: create_path_from_master_list_df(x, 'vcf'), axis=1)
     ml_df = ml_df[ml_df['vcf_path'].apply(os.path.isfile)]
 
     for index, row in ml_df.iterrows():
