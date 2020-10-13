@@ -45,19 +45,19 @@ def main(file_name):
         al_list = []
         print(file_name)
 
-    table_path = badmaps_path + 'merged_vcfs/' + file_name
+    table_path = os.path.join(badmaps_path, 'merged_vcfs/', file_name)
     for mode in modes:
         if re.match(r'^CAIC@.+@.+$', mode) is not None:
             states = get_states(mode.split('@')[1])
         else:
             states = get_states('')
-        if not os.path.isdir(correlation_path + mode + '_tables/'):
+        if not os.path.isdir(os.path.join(correlation_path, mode, '_tables/')):
             try:
-                os.mkdir(correlation_path + mode + '_tables')
+                os.mkdir(os.path.join(correlation_path, mode, '_tables'))
             except:
                 pass
         badmaps_file_path = os.path.join(badmaps_path, mode, name + '@' + lab + '.badmap.tsv')
-        out_path = correlation_path + mode + '_tables/' + name + '_' + lab.replace('_', '-') + '.tsv'
+        out_path = os.path.join(correlation_path, mode + '_tables', name + '_' + lab.replace('_', '-') + '.tsv')
         print(out_path)
 
         u = UnpackBadSegments(0)
