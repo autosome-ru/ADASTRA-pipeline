@@ -81,17 +81,21 @@ def main(file_name):
                 p_value = get_p_value(ref + alt, 1 / (segment_BAD + 1), min(ref, alt))
                 out.write(pack([chr, pos, ref, alt, segment_BAD] + [Qual[x] for x in Qual] + [segn, sumcov] + [filename, segment_id, p_value]))
 
-        out_table = pd.read_table(out_path, header=None, comment='#')
-        out_table.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in states] + ['snps_n',
-                                                                                                       'sumcov',
-                                                                                                       'dataset',
-                                                                                                       'seg_id',
-                                                                                                       'p_value']
-        valid_segments = set(id for id in list(set(out_table['seg_id'])) if np.quantile(out_table[out_table['seg_id'] == id]['p_value'], 0.05) >= 0.05 or len(out_table[out_table['seg_id'] == id].index) < 10)
-        out_table = out_table[~out_table['seg_id'].isin(valid_segments)]
-        with open(out_path, 'w') as out:
-            out.write('#' + str(datasetsn) + '@' + lab + '@' + ','.join(al_list) + '\n')
-        out_table.to_csv(out_path, header=False, index=False, sep='\t', mode='a')
+        if os.stat(out_path).st_size == 0:
+            with open(out_path, 'w') as out:
+                out.write('#' + str(datasetsn) + '@' + lab + '@' + ','.join(al_list) + '\n')
+        else:
+            out_table = pd.read_table(out_path, header=None, comment='#')
+            out_table.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in states] + ['snps_n',
+                                                                                                           'sumcov',
+                                                                                                           'dataset',
+                                                                                                           'seg_id',
+                                                                                                           'p_value']
+            valid_segments = set(id for id in list(set(out_table['seg_id'])) if np.quantile(out_table[out_table['seg_id'] == id]['p_value'], 0.05) >= 0.05 or len(out_table[out_table['seg_id'] == id].index) < 10)
+            out_table = out_table[~out_table['seg_id'].isin(valid_segments)]
+            with open(out_path, 'w') as out:
+                out.write('#' + str(datasetsn) + '@' + lab + '@' + ','.join(al_list) + '\n')
+            out_table.to_csv(out_path, header=False, index=False, sep='\t', mode='a')
 
 
 if __name__ == '__main__':
