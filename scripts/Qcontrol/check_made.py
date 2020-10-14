@@ -21,8 +21,9 @@ def main():
     total_vcf_count = len(ml_df.index)
     ml_df['vcf_path'] = ml_df.apply(lambda x: create_path_from_master_list_df(x, 'vcf'), axis=1)
     not_downloaded_df = ml_df[~ml_df['vcf_path'].apply(os.path.isfile)]
-    not_downloaded_df.to_csv(os.path.join(get_release_stats_path(), 'not_downloaded.tsv'),
-                             index=False, sep='\t')
+    not_downloaded_df.loc[:, not_downloaded_df.columns != 'vcf_path'].to_csv(
+        os.path.join(get_release_stats_path(), 'not_downloaded.tsv'),
+        index=False, sep='\t')
     ml_df = ml_df[ml_df['vcf_path'].apply(os.path.isfile)]
     for index, row in ml_df.iterrows():
         row['CELLS'] = remove_punctuation(row['CELLS'])
