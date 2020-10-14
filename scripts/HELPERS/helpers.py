@@ -375,7 +375,7 @@ class CorrelationReader:
             result = []
             uniq_segments_count = 0
             sum_cov = 0
-            previous_segment = []
+            previous_segment_id = None
             for line in file:
                 line = line.strip()
                 if line[0] == '#':
@@ -393,10 +393,11 @@ class CorrelationReader:
                     continue
                 current_segment = [float(line[4]),
                                    dict(zip(self.states, list(map(float, line[5:5 + len(self.states)]))))]
-                if previous_segment != current_segment:
+                current_segment_id = line[8 + len(self.states)]
+                if previous_segment_id != current_segment_id:
                     uniq_segments_count += 1
                     sum_cov += int(line[6 + len(self.states)])
-                    previous_segment = current_segment
+                    previous_segment_id = current_segment_id
                 if method == 'normal':
                     if line[4] == 0:
                         continue
