@@ -92,7 +92,7 @@ def main(file_name):
                                                                                                            'seg_id',
                                                                                                            'p_value']
             valid_segments = set(id for id in list(set(out_table['seg_id'])) if np.quantile(out_table[out_table['seg_id'] == id]['p_value'], 0.05) >= 0.05 or len(out_table[out_table['seg_id'] == id].index) < 10)
-            out_table = out_table[~out_table['seg_id'].isin(valid_segments)]
+            out_table = out_table[out_table['seg_id'].isin(valid_segments)]
             with open(out_path, 'w') as out:
                 out.write('#' + str(datasetsn) + '@' + lab + '@' + ','.join(al_list) + '\n')
             out_table.to_csv(out_path, header=False, index=False, sep='\t', mode='a')
