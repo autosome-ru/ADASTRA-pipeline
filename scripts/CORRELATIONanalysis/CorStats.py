@@ -123,10 +123,10 @@ def filter_segments_or_datasets(snps_path, states, new_path):
                                                                                                            'dataset',
                                                                                                            'seg_id',
                                                                                                            'p_value']
-    valid_segments = set(dataset for dataset in list(set(out_table['dataset'])) if
+    valid_datasets = set(dataset for dataset in list(set(out_table['dataset'])) if
                          np.quantile(out_table[out_table['dataset'] == dataset]['p_value'], 0.05) >= 0.05 and len(
                              out_table[out_table['dataset'] == dataset].index) >= 10)
-    out_table = out_table[out_table['seg_id'].isin(valid_segments)]
+    out_table = out_table[out_table['dataset'].isin(valid_datasets)]
     with open(new_path, 'w') as out:
         out.write(header_comment)
     out_table.to_csv(new_path, header=False, index=False, sep='\t', mode='a')
