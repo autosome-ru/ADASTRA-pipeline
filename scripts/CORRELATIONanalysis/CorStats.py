@@ -172,8 +172,13 @@ def main(file_name):
 
             reader.SNP_path = os.path.join(snp_dir, file_name)
 
-            filter_segments_or_datasets(reader.SNP_path, states, reader.SNP_path + '.filtered')
-            reader.SNP_path += '.filtered'
+            new_dir = snp_dir[:-1] + '_filtered' if snp_dir.endswith('/') else snp_dir + '_filtered'
+            if not os.path.isdir(new_dir):
+                os.mkdir(new_dir)
+            new_path = os.path.join(new_dir, file_name)
+
+            filter_segments_or_datasets(reader.SNP_path, states, new_path)
+            reader.SNP_path = new_path
 
             heatmap_data_dir = os.path.join(heatmap_data_path, model + '_tables/')
             if not os.path.isdir(heatmap_data_dir):
