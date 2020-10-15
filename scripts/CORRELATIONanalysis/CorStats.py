@@ -127,7 +127,7 @@ def filter_segments_or_datasets(snps_path, states, new_path):
     out_table = out_table[out_table['seg_id'].isin(valid_segments)]
     with open(snps_path, 'w') as out:
         out.write(header_comment)
-    out_table.to_csv(snps_path, header=False, index=False, sep='\t', mode='a')
+    out_table.to_csv(new_path, header=False, index=False, sep='\t', mode='a')
 
 
 def main(file_name):
