@@ -114,6 +114,8 @@ def filter_segments_or_datasets(snps_path, states, new_path):
     with open(snps_path, 'r') as out:
         header_comment = out.readline()
         if not out.readline():
+            with open(new_path, 'w') as out2:
+                out2.write(header_comment)
             return
     out_table = pd.read_table(snps_path, header=None, comment='#')
     out_table.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in states] + ['snps_n',
