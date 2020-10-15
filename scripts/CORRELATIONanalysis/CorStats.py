@@ -110,7 +110,7 @@ def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
     return nearest_probes
 
 
-def filter_segments_or_datasets(snps_path, states):
+def filter_segments_or_datasets(snps_path, states, new_path):
     with open(snps_path, 'r') as out:
         header_comment = out.readline()
         if not out.readline():
@@ -170,7 +170,8 @@ def main(file_name):
 
             reader.SNP_path = os.path.join(snp_dir, file_name)
 
-            filter_segments_or_datasets(reader.SNP_path, states)
+            filter_segments_or_datasets(reader.SNP_path, states, reader.SNP_path + '.filtered')
+            reader.SNP_path += '.filtered'
 
             heatmap_data_dir = os.path.join(heatmap_data_path, model + '_tables/')
             if not os.path.isdir(heatmap_data_dir):
