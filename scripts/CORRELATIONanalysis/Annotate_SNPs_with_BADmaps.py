@@ -33,7 +33,7 @@ def main(file_name):
 
     modes = []
     for dir_name in sorted(os.listdir(badmaps_path)):
-        if os.path.isdir(os.path.join(badmaps_path, dir_name)) and dir_name != 'merged_vcfs':
+        if os.path.isdir(os.path.join(badmaps_path, dir_name)) and dir_name not in ('merged_vcfs', 'valid_BADmaps'):
             modes.append(dir_name)
 
     try:
@@ -66,7 +66,7 @@ def main(file_name):
             except:
                 pass
         badmaps_file_path = os.path.join(badmaps_path, mode, name + '@' + lab + '.badmap.tsv')
-        out_path = os.path.join(correlation_path, mode + '_tables', name + '_' + lab.replace('_', '-') + '.tsv')
+        out_path = os.path.join(correlation_path, mode + '_tables', name + '@' + lab + '.tsv')
         print(out_path)
 
         u = UnpackBadSegments(0)

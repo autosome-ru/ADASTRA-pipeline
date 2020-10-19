@@ -1,5 +1,6 @@
 import os
-from scripts.HELPERS.paths_for_components import badmaps_path, results_path, alignments_path
+from scripts.HELPERS.paths_for_components import badmaps_path, results_path, alignments_path, \
+    correlation_path, heatmap_data_path, valid_badmaps_path
 from scripts.HELPERS.paths import get_release_stats_path
 
 
@@ -14,8 +15,13 @@ def main():
     check_and_create_dir(alignments_path)
     # Dirs for BADcalling
     check_and_create_dir(badmaps_path)
+    check_and_create_dir(correlation_path)
+    check_and_create_dir(heatmap_data_path)
+    check_and_create_dir(valid_badmaps_path)
     check_and_create_dir(os.path.join(badmaps_path, 'merged_vcfs'))
     check_and_create_dir(os.path.join(badmaps_path, 'CAIC'))
+    check_and_create_dir(os.path.join(valid_badmaps_path, 'CAIC'))
+
     # Dirs for ASBcalling
     check_and_create_dir(results_path)
     check_and_create_dir(get_release_stats_path())

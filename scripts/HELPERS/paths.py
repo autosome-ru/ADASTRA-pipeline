@@ -1,6 +1,6 @@
 import os
 from scripts.HELPERS.paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
-    cl_dict_path, configs_path, results_path
+    cl_dict_path, configs_path, results_path, valid_badmaps_path
 
 
 def get_ending(for_what):
@@ -33,8 +33,11 @@ def get_result_table_path(what_for, string):
     return os.path.join(get_result_dir_path(what_for), '{}.tsv'.format(string))
 
 
-def create_badmaps_path_function(name):
-    return os.path.join(badmaps_path, 'CAIC', name + ".badmap.tsv")
+def create_badmaps_path_function(name, valid=False):
+    if not valid:
+        return os.path.join(badmaps_path, 'CAIC', name + ".badmap.tsv")
+    else:
+        return os.path.join(valid_badmaps_path, 'CAIC', name + ".badmap.tsv")
 
 
 def create_merged_vcf_path_function(name):

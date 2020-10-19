@@ -4,9 +4,10 @@ import sys
 from scipy.stats import kendalltau
 import numpy as np
 import pandas as pd
+from shutil import copy2
 
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos, get_states, proc_list
-from scripts.HELPERS.paths_for_components import correlation_path, heatmap_data_path, cgh_path, cosmic_path
+from scripts.HELPERS.paths_for_components import correlation_path, heatmap_data_path, cgh_path, cosmic_path, valid_badmaps_path, badmaps_path
 
 
 def get_name_by_dir(dir_name, naive_modes):
@@ -114,7 +115,7 @@ def get_quality_metrics(proc_list, df):
     return list(np.quantile(df['p_value'], [x/100 for x in proc_list]))
 
 
-def filter_segments_or_datasets(snps_path, states, new_path, proc_list):
+def filter_segments_or_datasets(snps_path, states, new_path, proc_list, file_name, model):
     with open(snps_path, 'r') as out:
         header_comment = out.readline()
         if not out.readline():
@@ -128,19 +129,29 @@ def filter_segments_or_datasets(snps_path, states, new_path, proc_list):
                                                                                                            'seg_id',
                                                                                                            'p_value']
     quals = get_quality_metrics(proc_list, out_table)
-    # valid_datasets = set(dataset for dataset in list(set(out_table['dataset'])) if
-    #                      np.quantile(out_table[out_table['dataset'] == dataset]['p_value'], 0.05) >= 0.05 and len(
-    #                          out_table[out_table['dataset'] == dataset].index) >= 10)
-    # out_table = out_table[out_table['dataset'].isin(valid_datasets)]
+    valid = np.quantile(out_table['p_value'], 0.05) >= 0.05
     with open(new_path, 'w') as out:
         out.write(header_comment)
-    out_table.to_csv(new_path, header=False, index=False, sep='\t', mode='a')
+
+    badmap_path = os.path.join(badmaps_path, model, file_name.replace('.tsv', '.badmap.tsv'))
+    new_badmap_path = os.path.join(valid_badmaps_path, model, file_name.replace('.tsv', '.badmap.tsv'))
+    if valid:
+        out_table.to_csv(new_path, header=False, index=False, sep='\t', mode='a')
+        assert os.path.isfile(badmap_path)
+        copy2(badmap_path, new_badmap_path)
+    else:
+        with open(badmap_path) as src, open(new_badmap_path, 'w') as dst:
+            header = src.readline()
+            dst.write(header)
 
     return quals
 
 
 def main(file_name):
     print(file_name)
+
+    if not os.path.isdir(valid_badmaps_path):
+        os.mkdir(valid_badmaps_path)
 
     out_path = os.path.join(correlation_path, file_name + '.thread')
 
@@ -165,8 +176,8 @@ def main(file_name):
         segment_numbers = {}
         quality_scores = {}
         # print('reading COSMIC')
-        cell_line_name = file_name[:file_name.rfind('_')]
-        index = file_name[file_name.rfind('_') + 1:file_name.rfind('.')]
+        cell_line_name = file_name[:file_name.rfind('@')]
+        index = file_name[file_name.rfind('@') + 1:file_name.rfind('.')]
 
         for snp_dir in snp_dirs:
             model = get_name_by_dir(snp_dir, naive_modes)
@@ -185,7 +196,10 @@ def main(file_name):
                 os.mkdir(new_dir)
             new_path = os.path.join(new_dir, file_name)
 
-            quality_scores[model] = filter_segments_or_datasets(reader.SNP_path, states, new_path, proc_list)
+            if not os.path.isdir(os.path.join(valid_badmaps_path, model)):
+                os.mkdir(os.path.join(valid_badmaps_path, model))
+
+            quality_scores[model] = filter_segments_or_datasets(reader.SNP_path, states, new_path, proc_list, file_name, model)
             reader.SNP_path = new_path
 
             heatmap_data_dir = os.path.join(heatmap_data_path, model + '_tables/')
