@@ -25,7 +25,8 @@ def main():
                                  for snp_dir in snp_dirs] +
                                 [['cor_by_snp_naive',
                                   'cor_by_probe_CGH', 'cor_by_snp_probe_CGH']] +
-                                [['Q{}'.format(proc) for proc in proc_list]]
+                                [['Q{}_{}'.format(proc, get_name_by_dir(snp_dir)) for proc in proc_list]
+                                 for snp_dir in snp_dirs]
                                 )) + '\n')
 
         for file_name in os.listdir(correlation_path):
