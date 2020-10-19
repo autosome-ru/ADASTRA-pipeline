@@ -1,6 +1,7 @@
 import os
 
 from scripts.HELPERS.paths_for_components import correlation_path
+from scripts.HELPERS.helpers import proc_list
 out_path = os.path.join(correlation_path, 'cor_stats_test.tsv')
 
 
@@ -23,7 +24,8 @@ def main():
                                   'cor_by_snp_' + get_name_by_dir(snp_dir)]
                                  for snp_dir in snp_dirs] +
                                 [['cor_by_snp_naive',
-                                  'cor_by_probe_CGH', 'cor_by_snp_probe_CGH']]
+                                  'cor_by_probe_CGH', 'cor_by_snp_probe_CGH']] +
+                                [['Q{}'.format(proc) for proc in proc_list]]
                                 )) + '\n')
 
         for file_name in os.listdir(correlation_path):

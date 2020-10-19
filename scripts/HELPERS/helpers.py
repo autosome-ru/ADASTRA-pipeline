@@ -21,6 +21,8 @@ master_list_header = '#EXP	TF_UNIPROT_ID	ANTIBODY	TREATMENT	SPECIE	CELL_ID	CELLS
 
 dtype_dict = {name: str if name != 'READS_ALIGNED' else np.float_ for name in master_list_header.split('\t')}
 
+proc_list = [1, 3, 5, 7, 10, 20]
+
 
 class ChromPos:
     chromosomes = dict(zip(['chr' + str(i) for i in range(1, 23)] + ['chrX', 'chrY'], chr_l))
