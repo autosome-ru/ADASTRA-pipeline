@@ -120,7 +120,7 @@ def filter_segments_or_datasets(snps_path, states, new_path, proc_list):
         if not out.readline():
             with open(new_path, 'w') as out2:
                 out2.write(header_comment)
-            return
+            return ['NaN' for x in proc_list]
     out_table = pd.read_table(snps_path, header=None, comment='#')
     out_table.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in states] + ['snps_n',
                                                                                                            'sumcov',
