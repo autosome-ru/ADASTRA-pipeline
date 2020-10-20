@@ -92,7 +92,7 @@ def correlation_with_cosmic(SNP_objects, mode, method='normal',
                                 write_segment_args=True):
             if not in_intersect:
                 continue
-            snp_BAD.append(snp_BAD)
+            snp_BAD_list.append(snp_BAD)
             cosmic_BAD_list.append(cosmic_BAD)
 
             if heatmap is not None:
