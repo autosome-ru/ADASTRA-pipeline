@@ -129,7 +129,7 @@ def get_quality_metrics(percentiles_list, df):
 
 
 def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, file_name, model):
-    badmap_path = os.path.join(badmaps_path, model, file_name.replace('.tsv', '.badmap.tsv'))
+    badmap_path = os.path.join(get_badmaps_path_by_validity(), model, file_name.replace('.tsv', '.badmap.tsv'))
     new_badmap_path = os.path.join(valid_badmaps_path, model, file_name.replace('.tsv', '.badmap.tsv'))
 
     with open(snps_path, 'r') as out:
