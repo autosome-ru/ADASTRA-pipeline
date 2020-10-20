@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source scripts/HELPERS/paths_for_components.py
+source ../scripts/HELPERS/paths_for_components.py
 
 njobs=$1
 
