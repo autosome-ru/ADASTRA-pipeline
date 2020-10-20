@@ -2,7 +2,7 @@ import json
 import sys
 from scripts.HELPERS.paths import create_badmaps_path_function, get_ending
 from scripts.HELPERS.paths_for_components import badmaps_dict_path
-from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, UnpackBadSegments, states
+from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, UnpackBadSegments, segmentation_states
 
 
 def make_reverse_dict(dictionary):
@@ -29,7 +29,7 @@ def main(key):
 
     with open(badmap_file_path, 'r') as badmap_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts',
-                        'repeat_type'] + callers_names + ['BAD'] + ["Q{:.2f}".format(x) for x in states] +
+                        'repeat_type'] + callers_names + ['BAD'] + ["Q{:.2f}".format(x) for x in segmentation_states] +
                        ['SNP_count', 'sum_cover']))
 
         u = UnpackBadSegments(None)
@@ -37,7 +37,7 @@ def main(key):
             in_intersection, BAD, Quals, seg_c, sum_cov in \
                 Intersection(table_file, badmap_file, write_segment_args=True, write_intersect=True,
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter'),
-                             unpack_segments_function=lambda x: u.unpackBADSegments(x, states)):
+                             unpack_segments_function=lambda x: u.unpack_bad_segments(x, segmentation_states)):
             if in_intersection and ID.startswith('rs'):
                 out.write(pack([chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type] +
                                [in_callers[name] for name in callers_names] +

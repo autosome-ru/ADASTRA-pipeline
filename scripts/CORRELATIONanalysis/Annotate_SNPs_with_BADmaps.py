@@ -3,11 +3,12 @@ import re
 import sys
 import json
 from scipy import stats as st
-import numpy as np
-import pandas as pd
+import errno
 
-from scripts.HELPERS.paths_for_components import badmaps_path, badmaps_dict_path, correlation_path
+
+from scripts.HELPERS.paths_for_components import badmaps_path, badmaps_dict_path
 from scripts.HELPERS.helpers import Intersection, pack, UnpackBadSegments, get_states
+from scripts.HELPERS.paths import get_badmaps_path_by_validity, get_correlation_path
 
 
 def unpack_snps(line):
@@ -22,18 +23,13 @@ def get_p_value(n, p, x):
 
 
 def main(file_name):
-    if not os.path.isdir(correlation_path):
-        try:
-            os.mkdir(correlation_path)
-        except:
-            pass
-
+    correlation_path = get_correlation_path()
     with open(badmaps_dict_path, 'r') as file:
         aligns_by_cell_type = json.loads(file.readline().strip())
 
     modes = []
-    for dir_name in sorted(os.listdir(badmaps_path)):
-        if os.path.isdir(os.path.join(badmaps_path, dir_name)) and dir_name not in ('merged_vcfs', 'valid_BADmaps'):
+    for dir_name in sorted(os.listdir(get_badmaps_path_by_validity())):
+        if os.path.isdir(os.path.join(get_badmaps_path_by_validity(), dir_name)):
             modes.append(dir_name)
 
     try:
@@ -43,7 +39,7 @@ def main(file_name):
         exit(1)
 
     name = file_name.split('@')[0]
-    lab = file_name.split('@')[1][:-4]  # .tsv
+    lab = os.path.splitext(file_name.split('@')[1])[0]
 
     try:
         aligns = aligns_by_cell_type[file_name[:-4]]  # .tsv
@@ -63,7 +59,9 @@ def main(file_name):
         if not os.path.isdir(os.path.join(correlation_path, mode + '_tables')):
             try:
                 os.mkdir(os.path.join(correlation_path, mode + '_tables'))
-            except:
+            except OSError as exc:
+                if exc.errno != errno.EEXIST:
+                    raise
                 pass
         badmaps_file_path = os.path.join(badmaps_path, mode, name + '@' + lab + '.badmap.tsv')
         out_path = os.path.join(correlation_path, mode + '_tables', name + '@' + lab + '.tsv')
@@ -73,14 +71,17 @@ def main(file_name):
 
         with open(table_path, 'r') as table, open(badmaps_file_path, 'r') as BADmap_file, open(out_path, 'w') as out:
             out.write('#' + str(datasetsn) + '@' + lab + '@' + ','.join(al_list) + '\n')
-            for chr, pos, ref, alt, filename, in_intersection, segment_BAD, segment_id, Qual, segn, sumcov \
+            for chrom, pos, ref, alt, filename, in_intersection, segment_BAD, segment_id, Qual, segn, sumcov \
                     in Intersection(table, BADmap_file,
-                                    unpack_segments_function=lambda x: u.unpackBADSegments(x, states), unpack_snp_function=unpack_snps,
+                                    unpack_segments_function=lambda x: u.unpack_bad_segments(x, states),
+                                    unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
                 if not in_intersection:
                     continue
                 p_value = get_p_value(ref + alt, 1 / (segment_BAD + 1), min(ref, alt))
-                out.write(pack([chr, pos, ref, alt, segment_BAD] + [Qual[x] for x in Qual] + [segn, sumcov] + [filename, segment_id, p_value]))
+                out.write(pack([chrom, pos, ref, alt, segment_BAD] +
+                               [Qual[x] for x in Qual] + [segn, sumcov] +
+                               [filename, segment_id, p_value]))
 
 
 if __name__ == '__main__':

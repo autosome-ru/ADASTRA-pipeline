@@ -5,9 +5,15 @@ from scipy.stats import kendalltau
 import numpy as np
 import pandas as pd
 from shutil import copy2
+import errno
+from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos, get_states, \
+    test_percentiles_list
+from scripts.HELPERS.paths_for_components import cgh_path, cosmic_path, badmaps_path
+from scripts.HELPERS.paths import get_correlation_path, get_heatmap_data_path, get_badmaps_path_by_validity
 
-from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos, get_states, proc_list
-from scripts.HELPERS.paths_for_components import correlation_path, heatmap_data_path, cgh_path, cosmic_path, valid_badmaps_path, badmaps_path
+correlation_path = get_correlation_path()
+heatmap_data_path = get_heatmap_data_path()
+valid_badmaps_path = get_badmaps_path_by_validity(True)
 
 
 def get_name_by_dir(dir_name, naive_modes):
@@ -18,14 +24,17 @@ def get_name_by_dir(dir_name, naive_modes):
 
 def count_cosmic_segments(cosmic_names, cell_line_name):
     with open(cosmic_path, 'r') as cosmic_file:
-        return sum(True for line in cosmic_file if unpack_cosmic_segments(line, cell_line_name=cell_line_name, cosmic_names=cosmic_names))
+        return sum(True for line in cosmic_file if unpack_cosmic_segments(line,
+                                                                          cell_line_name=cell_line_name,
+                                                                          cosmic_names=cosmic_names))
 
 
-def unpack_cosmic_segments(line, mode='normal', cosmic_names='', cell_line_name=''):
+def unpack_cosmic_segments(line, mode='normal', cosmic_names=None, cell_line_name=''):
+    if cosmic_names is None:
+        cosmic_names = {}
     if line[0] == '#':
         return [''] * len(line.strip().split('\t'))
     line = line.strip().split('\t')
-
     if cell_line_name not in cosmic_names or line[0] != cosmic_names.get(cell_line_name):
         return []
     if int(line[4]) == 0:
@@ -41,55 +50,59 @@ def unpack_cosmic_segments(line, mode='normal', cosmic_names='', cell_line_name=
     return [line[1], int(line[2]), int(line[3]), value]
 
 
-def correlation_with_cosmic(SNP_objects, mode, method='normal', heatmap_data_file=None, cell_line_name='', cosmic_names=''):
-    if heatmap_data_file is not None:
-        heatmap = open(heatmap_data_file, 'w')
+def correlation_with_cosmic(SNP_objects, mode, method='normal',
+                            heatmap_data_file=None, cell_line_name='',
+                            cosmic_names=None):
+    if cosmic_names is None:
+        cosmic_names = {}
+    heatmap = None if heatmap_data_file is None else open(heatmap_data_file, 'w')
     cosmic_segments = []
     with open(cosmic_path, 'r') as cosmic_file:
         for line in cosmic_file:
-            # TODO: change v name
-            v = unpack_cosmic_segments(line, mode=mode, cell_line_name=cell_line_name, cosmic_names=cosmic_names)
-            if v:
-                cosmic_segments.append(v)
-    snp_ploidy = []
-    cosm_ploidy = []
+            cosmic_cell_line_segments = unpack_cosmic_segments(line, mode=mode,
+                                                               cell_line_name=cell_line_name,
+                                                               cosmic_names=cosmic_names)
+            if cosmic_cell_line_segments:
+                cosmic_segments.append(cosmic_cell_line_segments)
+    snp_BAD_list = []
+    cosmic_BAD_list = []
     if method == 'normal':
-        for chr, pos, ploidy, quals, in_intersect, cosmic_ploidy \
+        for chromosome, pos, snp_BAD, quals, in_intersect, cosmic_BAD \
                 in Intersection(SNP_objects, cosmic_segments, write_intersect=True,
                                 write_segment_args=True):
             if not in_intersect:
                 continue
-            snp_ploidy.append(ploidy)
-            cosm_ploidy.append(cosmic_ploidy)
+            snp_BAD_list.append(snp_BAD)
+            cosmic_BAD_list.append(cosmic_BAD)
 
-            if heatmap_data_file is not None:
-                heatmap.write(pack([chr, pos, ploidy, cosmic_ploidy]))
-        if heatmap_data_file is not None:
+            if heatmap is not None:
+                heatmap.write(pack([chromosome, pos, snp_BAD, cosmic_BAD]))
+        if heatmap is not None:
             heatmap.close()
 
-        if len(snp_ploidy) != 0:
-            kt = kendalltau(snp_ploidy, cosm_ploidy)[0]
+        if len(snp_BAD_list) != 0:
+            kt = kendalltau(snp_BAD_list, cosmic_BAD_list)[0]
             if kt == 'nan':
                 return 'NaN'
             return kt
         return 'NaN'
     elif method == 'cover':
-
-        for chr, pos, cov, ploidy, quals, in_intersect, cosmic_ploidy \
+        for chromosome, pos, cov, snp_BAD, quals, in_intersect, cosmic_BAD \
                 in Intersection(SNP_objects, cosmic_segments, write_intersect=True,
                                 write_segment_args=True):
             if not in_intersect:
                 continue
-            snp_ploidy.append(ploidy)
-            cosm_ploidy.append(cosmic_ploidy)
+            snp_BAD.append(snp_BAD)
+            cosmic_BAD_list.append(cosmic_BAD)
 
-            if heatmap_data_file is not None:
-                heatmap.write(pack([chr, pos, cov, ploidy, cosmic_ploidy] + [quals[x] for x in quals]))
-        if heatmap_data_file is not None:
+            if heatmap is not None:
+                heatmap.write(pack([chromosome, pos, cov, snp_BAD, cosmic_BAD] +
+                                   [quals[x] for x in quals]))
+        if heatmap is not None:
             heatmap.close()
 
-        if len(snp_ploidy) != 0:
-            kt = kendalltau(snp_ploidy, cosm_ploidy)[0]
+        if len(snp_BAD_list) != 0:
+            kt = kendalltau(snp_BAD_list, cosmic_BAD_list)[0]
             if kt == 'nan':
                 return 'NaN'
             return kt
@@ -111,24 +124,24 @@ def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
     return nearest_probes
 
 
-def get_quality_metrics(proc_list, df):
-    return list(np.quantile(df['p_value'], [x/100 for x in proc_list]))
+def get_quality_metrics(percentiles_list, df):
+    return list(np.quantile(df['p_value'], [x / 100 for x in percentiles_list]))
 
 
-def filter_segments_or_datasets(snps_path, states, new_path, proc_list, file_name, model):
+def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, file_name, model):
     with open(snps_path, 'r') as out:
         header_comment = out.readline()
         if not out.readline():
             with open(new_path, 'w') as out2:
                 out2.write(header_comment)
-            return ['NaN' for x in proc_list]
+            return ['NaN'] * len(percentiles_list)
     out_table = pd.read_table(snps_path, header=None, comment='#')
     out_table.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in states] + ['snps_n',
                                                                                                            'sumcov',
                                                                                                            'dataset',
                                                                                                            'seg_id',
                                                                                                            'p_value']
-    quals = get_quality_metrics(proc_list, out_table)
+    quals = get_quality_metrics(test_percentiles_list, out_table)
     valid = np.quantile(out_table['p_value'], 0.05) >= 0.05
     with open(new_path, 'w') as out:
         out.write(header_comment)
@@ -177,7 +190,6 @@ def main(file_name):
         quality_scores = {}
         # print('reading COSMIC')
         cell_line_name = file_name[:file_name.rfind('@')]
-        index = file_name[file_name.rfind('@') + 1:file_name.rfind('.')]
 
         for snp_dir in snp_dirs:
             model = get_name_by_dir(snp_dir, naive_modes)
@@ -199,14 +211,17 @@ def main(file_name):
             if not os.path.isdir(os.path.join(valid_badmaps_path, model)):
                 os.mkdir(os.path.join(valid_badmaps_path, model))
 
-            quality_scores[model] = filter_segments_or_datasets(reader.SNP_path, states, new_path, proc_list, file_name, model)
+            quality_scores[model] = filter_segments_or_datasets(reader.SNP_path, states, new_path,
+                                                                test_percentiles_list, file_name, model)
             reader.SNP_path = new_path
 
             heatmap_data_dir = os.path.join(heatmap_data_path, model + '_tables/')
             if not os.path.isdir(heatmap_data_dir):
                 try:
                     os.mkdir(heatmap_data_dir)
-                except:
+                except OSError as exc:
+                    if exc.errno != errno.EEXIST:
+                        raise
                     pass
             heatmap_data_file = os.path.join(heatmap_data_dir, file_name)
 
@@ -216,7 +231,9 @@ def main(file_name):
             segment_numbers[model] = segments_number
             if cosmic_names.get(cell_line_name):
                 corr_to_objects[model] = correlation_with_cosmic(SNP_objects, mode='normal', method='cover',
-                                                                 heatmap_data_file=heatmap_data_file, cell_line_name=cell_line_name, cosmic_names=cosmic_names)
+                                                                 heatmap_data_file=heatmap_data_file,
+                                                                 cell_line_name=cell_line_name,
+                                                                 cosmic_names=cosmic_names)
             else:
                 corr_to_objects[model] = 'NaN'
 
@@ -225,7 +242,9 @@ def main(file_name):
                 number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(
                     method=naive_mode)
 
-                corr_to_objects[naive_mode] = correlation_with_cosmic(SNP_objects, mode='normal', cell_line_name=cell_line_name, cosmic_names=cosmic_names)
+                corr_to_objects[naive_mode] = correlation_with_cosmic(SNP_objects, mode='normal',
+                                                                      cell_line_name=cell_line_name,
+                                                                      cosmic_names=cosmic_names)
             else:
                 corr_to_objects[naive_mode] = 'NaN'
 
@@ -234,8 +253,11 @@ def main(file_name):
         nearest_cgh_objects = find_nearest_probe_to_SNP(SNP_objects, CGH_objects)
 
         if cosmic_names.get(cell_line_name):
-            corr_to_objects_chip = correlation_with_cosmic(CGH_objects, mode='total', cell_line_name=cell_line_name, cosmic_names=cosmic_names)
-            corr_to_objects_chip_nearest = correlation_with_cosmic(nearest_cgh_objects, mode='total', cell_line_name=cell_line_name, cosmic_names=cosmic_names)
+            corr_to_objects_chip = correlation_with_cosmic(CGH_objects, mode='total', cell_line_name=cell_line_name,
+                                                           cosmic_names=cosmic_names)
+            corr_to_objects_chip_nearest = correlation_with_cosmic(nearest_cgh_objects, mode='total',
+                                                                   cell_line_name=cell_line_name,
+                                                                   cosmic_names=cosmic_names)
         else:
             corr_to_objects_chip = 'NaN'
             corr_to_objects_chip_nearest = 'NaN'

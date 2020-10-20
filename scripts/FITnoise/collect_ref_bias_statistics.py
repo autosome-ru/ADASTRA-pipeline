@@ -1,7 +1,7 @@
 import os.path
 import pandas as pd
 
-from scripts.HELPERS.helpers import dtype_dict, states
+from scripts.HELPERS.helpers import dtype_dict, segmentation_states
 from scripts.HELPERS.paths import create_path_from_master_list_df, create_neg_bin_stats_path_function
 from scripts.HELPERS.paths_for_components import master_list_path
 
@@ -48,9 +48,9 @@ def main(cell_line=None, suffix='', in_stats=False):
         if not cell_line:
             collect_fixed_alt_statistics(master_df, BAD=None)
         else:
-            for bad in [None] + states:
+            for bad in [None] + segmentation_states:
                 collect_fixed_alt_statistics(master_df, BAD=bad, key_name=cell_line, suffix=suffix)
     else:
-        for bad in states:
+        for bad in segmentation_states:
             collect_fixed_alt_statistics(master_df, BAD=bad)
 

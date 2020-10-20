@@ -2,14 +2,14 @@ import os
 import numpy as np
 import pandas as pd
 
-from scripts.HELPERS.helpers import states
+from scripts.HELPERS.helpers import segmentation_states
 from scripts.HELPERS.paths import create_neg_bin_weights_path_function, create_neg_bin_stats_path_function, \
     get_release_stats_path
 
 
 def main():
     column_names = ['r', 'w', 'status', 'gof']
-    for BAD in states:
+    for BAD in segmentation_states:
         counts_df = pd.read_table(create_neg_bin_stats_path_function(BAD))
         for allele in ('ref', 'alt'):
             np_weights = np.load(create_neg_bin_weights_path_function(allele, BAD))

@@ -33,11 +33,20 @@ def get_result_table_path(what_for, string):
     return os.path.join(get_result_dir_path(what_for), '{}.tsv'.format(string))
 
 
+def get_correlation_path():
+    return os.path.join(badmaps_path, 'Correlation')
+
+
+def get_heatmap_data_path():
+    return os.path.join(badmaps_path, 'HeatmapData')
+
+
+def get_badmaps_path_by_validity(valid=False):
+    return os.path.join(badmaps_path, 'BADmaps', 'valid' if valid else 'raw')
+
+
 def create_badmaps_path_function(name, valid=False):
-    if not valid:
-        return os.path.join(badmaps_path, 'CAIC', name + ".badmap.tsv")
-    else:
-        return os.path.join(valid_badmaps_path, 'CAIC', name + ".badmap.tsv")
+    return os.path.join(get_badmaps_path_by_validity(valid), 'CAIC', name + ".badmap.tsv")
 
 
 def create_merged_vcf_path_function(name):

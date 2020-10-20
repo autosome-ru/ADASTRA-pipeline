@@ -17,12 +17,9 @@ used_vars_list = [
     'genome_path',
     'intervals_path',
     'dbsnp_vcf_path',
-    'heatmap_data_path',
-    'correlation_path',
     'synonyms_path',
     'cgh_path',
     'cosmic_path',
-    'valid_badmaps_path'
 ]
 
 used_soft_list = [
@@ -68,7 +65,8 @@ def pack_line(config_dict, component_name):
     elif component_name == 'badmaps_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'FA':
-        return construct_line(component_name, os.path.join(config_dict['scripts_path'], 'Configs', 'reference', 'genome-norm.fasta'))
+        return construct_line(component_name, os.path.join(config_dict['scripts_path'], 'Configs', 'reference',
+                                                           'genome-norm.fasta'))
     elif component_name == 'badmaps_dict_path':
         return construct_line(component_name,
                               os.path.join(config_dict['scripts_path'], 'Configs', 'badmaps_dict.json'))
@@ -78,8 +76,6 @@ def pack_line(config_dict, component_name):
     elif component_name == 'tf_dict_path':
         return construct_line(component_name,
                               os.path.join(config_dict['scripts_path'], 'Configs', 'tf_dict.json'))
-    elif component_name == 'valid_badmaps_path':
-        return construct_line(component_name, os.path.join(config_dict['badmaps_path'], 'valid_BADmaps'))
     elif component_name == 'master_list_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'dbsnp_vcf_path':
@@ -96,10 +92,6 @@ def pack_line(config_dict, component_name):
     elif component_name == 'intervals_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'genome_path':
-        return construct_line(component_name, config_dict[component_name])
-    elif component_name == 'correlation_path':
-        return construct_line(component_name, config_dict[component_name])
-    elif component_name == 'heatmap_data_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'synonyms_path':
         return construct_line(component_name, config_dict[component_name])

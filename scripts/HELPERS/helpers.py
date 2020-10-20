@@ -15,13 +15,15 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
 Nucleotides = {'A', 'T', 'G', 'C'}
 expected_args = {"CL": "TF", "TF": "CL"}
 
-states = [1, 3/2, 2, 3, 4, 5]
+segmentation_states = [1, 3 / 2, 2, 3, 4, 5]
 
-master_list_header = '#EXP	TF_UNIPROT_ID	ANTIBODY	TREATMENT	SPECIE	CELL_ID	CELLS	EXP_TYPE	CONTROL	READS	ALIGNS	PEAKS	GEO	ENCODE	WG_ENCODE	READS_ALIGNED   DOWNLOAD_PATH'
+master_list_header = '#EXP	TF_UNIPROT_ID	ANTIBODY	TREATMENT	SPECIE	CELL_ID	CELLS	EXP_TYPE	CONTROL	' \
+                     'READS	ALIGNS	PEAKS	GEO	ENCODE	WG_ENCODE	READS_ALIGNED   DOWNLOAD_PATH '
 
 dtype_dict = {name: str if name != 'READS_ALIGNED' else np.float_ for name in master_list_header.split('\t')}
 
-proc_list = [1, 3, 5, 7, 10, 20]
+test_percentiles_list = [1, 3, 5, 7, 10, 20]
+badmaps_dirs = ('merged_vcfs', 'BADmaps_correlations', 'valid_BADmaps')
 
 
 class ChromPos:
@@ -151,8 +153,8 @@ def make_dict_from_vcf(vcf, vcf_dict):
         if line[0] == '#':
             continue
         line = line.split()
-        chr = line[0]
-        if chr not in ChromPos.chromosomes:
+        chromosome = line[0]
+        if chromosome not in ChromPos.chromosomes:
             continue
         pos = int(line[1])
         if not len(line[3]) == 1 or not len(line[4]) == 1:
@@ -174,10 +176,10 @@ def make_dict_from_vcf(vcf, vcf_dict):
         REF = line[3]
         ALT = line[4]
         try:
-            prev_value = vcf_dict[(chr, pos, ID, REF, ALT)]
-            vcf_dict[(chr, pos, ID, REF, ALT)] = (R + prev_value[0], A + prev_value[1])
+            prev_value = vcf_dict[(chromosome, pos, ID, REF, ALT)]
+            vcf_dict[(chromosome, pos, ID, REF, ALT)] = (R + prev_value[0], A + prev_value[1])
         except KeyError:
-            vcf_dict[(chr, pos, ID, REF, ALT)] = (R, A)
+            vcf_dict[(chromosome, pos, ID, REF, ALT)] = (R, A)
 
 
 def make_list_from_vcf(vcf, file_name=None, filter_no_rs=False):
@@ -186,8 +188,8 @@ def make_list_from_vcf(vcf, file_name=None, filter_no_rs=False):
         if line[0] == '#':
             continue
         line = line.split()
-        chr = line[0]
-        if chr not in ChromPos.chromosomes:
+        chromosome = line[0]
+        if chromosome not in ChromPos.chromosomes:
             continue
         pos = int(line[1])
         if not len(line[3]) == 1 or not len(line[4]) == 1:
@@ -211,9 +213,9 @@ def make_list_from_vcf(vcf, file_name=None, filter_no_rs=False):
         REF = line[3]
         ALT = line[4]
         if file_name is not None:
-            vcf_list.append((chr, pos, ID, REF, ALT, R, A, file_name))
+            vcf_list.append((chromosome, pos, ID, REF, ALT, R, A, file_name))
         else:
-            vcf_list.append((chr, pos, ID, REF, ALT, R, A, file_name))
+            vcf_list.append((chromosome, pos, ID, REF, ALT, R, A, file_name))
     return vcf_list
 
 
@@ -223,8 +225,8 @@ def make_list_from_vcf_without_filter(vcf):
         if line[0] == '#':
             continue
         line = line.split()
-        chr = line[0]
-        if chr not in ChromPos.chromosomes:
+        chromosome = line[0]
+        if chromosome not in ChromPos.chromosomes:
             continue
         pos = int(line[1])
         if not len(line[3]) == 1 or not len(line[4]) == 1:
@@ -243,7 +245,7 @@ def make_list_from_vcf_without_filter(vcf):
         ID = line[2]
         REF = line[3]
         ALT = line[4]
-        vcf_list.append((chr, pos, ID, REF, ALT, R, A))
+        vcf_list.append((chromosome, pos, ID, REF, ALT, R, A))
     return vcf_list
 
 
@@ -251,24 +253,24 @@ def unpack(line, use_in):
     if line[0] == '#':
         return []
     line_split = line.strip('\n').split('\t')
-    chr = line_split[0]
+    chromosome = line_split[0]
     pos = int(line_split[1])
     ID = line_split[2]
     ref = line_split[3]
     alt = line_split[4]
     ref_c, alt_c = map(int, line_split[5:7])
     if use_in == "PloidyEstimation":
-        return chr, pos, ID, ref, alt, ref_c, alt_c
+        return chromosome, pos, ID, ref, alt, ref_c, alt_c
     repeat = line_split[7]
     difference = len(callers_names)
     peaks = list(map(int, line_split[8:8 + difference]))
     in_callers = dict(zip(callers_names, peaks))
     if use_in == "Pcounter":
-        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
+        return chromosome, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers
     ploidy = float(line_split[8 + difference])
-    quals = list(map(float, line_split[9 + difference:9 + difference + len(states)]))
-    quals_dict = dict(zip(states, quals))
-    difference += len(states)
+    quals = list(map(float, line_split[9 + difference:9 + difference + len(segmentation_states)]))
+    quals_dict = dict(zip(segmentation_states, quals))
+    difference += len(segmentation_states)
     seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
     p_ref, p_alt = map(float, line_split[11 + difference:13 + difference])
     es_ref = line_split[13 + difference]
@@ -282,7 +284,7 @@ def unpack(line, use_in):
     else:
         es_alt = None
     if use_in == "Aggregation":
-        return chr, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, quals_dict,\
+        return chromosome, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, quals_dict, \
                seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt
 
     raise ValueError('{} not in Aggregation, Pcounter, PloidyEstimation options for function usage'.format(use_in))
@@ -310,7 +312,7 @@ def read_weights():
         r[fixed_allele] = {}
         w[fixed_allele] = {}
         gof[fixed_allele] = {}
-        for BAD in states:
+        for BAD in segmentation_states:
             precalc_params_path = create_neg_bin_weights_path_function(fixed_allele, BAD)
             coefs_array = np.load(precalc_params_path)
             r[fixed_allele][BAD] = coefs_array[:, 0]
@@ -333,9 +335,11 @@ class UnpackBadSegments:
     def __init__(self, counter):
         UnpackBadSegments.counter = counter
 
-    def unpackBADSegments(self, line, states):
+    @staticmethod
+    def unpack_bad_segments(line, states):
         if line[0] == '#':
-            return [''] * (len(line.strip().split('\t')) - len(states) + 1 + (1 if UnpackBadSegments.counter is not None else 0))
+            return [''] * (len(line.strip().split('\t')) - len(states) + 1 +
+                           (1 if UnpackBadSegments.counter is not None else 0))
         line = line.strip().split('\t')
 
         if UnpackBadSegments.counter is not None:
@@ -357,9 +361,9 @@ def get_states(states_sign):
     elif states_sign == 'all_but_1.33':
         states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
     elif states_sign == 'all_but_2.5':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3]
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3]
     elif states_sign == 'all':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4/3, 2.5]
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3, 2.5]
     elif states_sign == 'all_5':
         states = [1, 2, 3, 4, 5, 1.5]
     else:
@@ -370,7 +374,7 @@ def get_states(states_sign):
 class CorrelationReader:
     CGH_path = ''
     SNP_path = ''
-    states = []
+    states = segmentation_states
 
     def read_SNPs(self, method='normal'):
         with open(self.SNP_path, 'r') as file:
@@ -403,11 +407,11 @@ class CorrelationReader:
                 if method == 'normal':
                     if line[4] == 0:
                         continue
-                    result.append([line[0], int(line[1])] + current_segment)
+                    result.append([line[0], int(line[1]), *current_segment])
                 elif method == 'cover':
                     if line[4] == 0:
                         continue
-                    result.append([line[0], int(line[1]), int(line[2]) + int(line[3])] + current_segment)
+                    result.append([line[0], int(line[1]), int(line[2]) + int(line[3]), *current_segment])
                 elif method == 'naive':
                     ref = int(line[2])
                     alt = int(line[3])
@@ -437,15 +441,16 @@ class CorrelationReader:
             result = []
             for line in file:
                 line = line.strip().split('\t')
-                chr = line[0]
-                if chr not in ChromPos.chromosomes:
+                chromosome = line[0]
+                if chromosome not in ChromPos.chromosomes:
                     continue
                 pos = (int(line[1]) + int(line[2])) // 2
                 try:
                     value = 2 ** (1 + float(line[idx]))
                 except ValueError:
                     continue
-                result.append([chr, pos, value, dict(zip(states, [10000] * len(states)))])
+                result.append([chromosome, pos, value, dict(zip(segmentation_states,
+                                                                [10000] * len(segmentation_states)))])
             # result.sort_items()
             return result
 
@@ -465,9 +470,10 @@ def read_synonims():
 if __name__ == "__main__":
     import pandas as pd
     import json
+
     with open(os.path.join(configs_path, 'CONVERT_CL_NAMES.json'), 'w') as o:
         d_to_write = {}
         d = pd.read_table(master_list_path, dtype=dtype_dict)
-        for key in d["CELLS"].tolist():
-            d_to_write[key] = remove_punctuation(key)
+        for dict_key in d["CELLS"].tolist():
+            d_to_write[dict_key] = remove_punctuation(dict_key)
         json.dump(d_to_write, o)

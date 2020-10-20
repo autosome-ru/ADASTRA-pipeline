@@ -1,7 +1,10 @@
 import os
 
-from scripts.HELPERS.paths_for_components import correlation_path
-from scripts.HELPERS.helpers import proc_list
+from scripts.HELPERS.helpers import test_percentiles_list
+from scripts.HELPERS.paths import get_correlation_path
+
+
+correlation_path = get_correlation_path()
 out_path = os.path.join(correlation_path, 'cor_stats_test.tsv')
 
 
@@ -25,7 +28,8 @@ def main():
                                  for snp_dir in snp_dirs] +
                                 [['cor_by_snp_naive',
                                   'cor_by_probe_CGH', 'cor_by_snp_probe_CGH']] +
-                                [['Q{}_{}'.format(proc, get_name_by_dir(snp_dir)) for proc in proc_list]
+                                [['Q{}_{}'.format(percentile, get_name_by_dir(snp_dir)) for
+                                  percentile in test_percentiles_list]
                                  for snp_dir in snp_dirs]
                                 )) + '\n')
 

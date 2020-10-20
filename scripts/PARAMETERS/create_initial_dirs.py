@@ -1,7 +1,9 @@
 import os
-from scripts.HELPERS.paths_for_components import badmaps_path, results_path, alignments_path, \
-    correlation_path, heatmap_data_path, valid_badmaps_path
-from scripts.HELPERS.paths import get_release_stats_path
+from scripts.HELPERS.paths_for_components import badmaps_path, results_path, alignments_path
+
+from scripts.HELPERS.helpers import badmaps_dirs
+from scripts.HELPERS.paths import get_release_stats_path, get_correlation_path, get_heatmap_data_path, \
+    get_badmaps_path_by_validity
 
 
 def check_and_create_dir(dir_name):
@@ -15,12 +17,12 @@ def main():
     check_and_create_dir(alignments_path)
     # Dirs for BADcalling
     check_and_create_dir(badmaps_path)
-    check_and_create_dir(correlation_path)
-    check_and_create_dir(heatmap_data_path)
-    check_and_create_dir(valid_badmaps_path)
-    check_and_create_dir(os.path.join(badmaps_path, 'merged_vcfs'))
-    check_and_create_dir(os.path.join(badmaps_path, 'CAIC'))
-    check_and_create_dir(os.path.join(valid_badmaps_path, 'CAIC'))
+    check_and_create_dir(badmaps_path)
+    check_and_create_dir(get_correlation_path())
+    check_and_create_dir(get_heatmap_data_path())
+    for validity in True, False:
+        check_and_create_dir(get_badmaps_path_by_validity(validity))
+        check_and_create_dir(os.path.join(get_badmaps_path_by_validity(validity), 'CAIC'))
 
     # Dirs for ASBcalling
     check_and_create_dir(results_path)
