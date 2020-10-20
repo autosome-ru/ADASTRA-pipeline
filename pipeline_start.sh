@@ -28,7 +28,7 @@ case "$flag" in
     ;;
   *)
     echo "There is no option $2"
-    stage_index=0
+    exit 0
     ;;
 esac
 

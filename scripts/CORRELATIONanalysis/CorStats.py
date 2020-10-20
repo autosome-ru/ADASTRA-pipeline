@@ -92,7 +92,7 @@ def correlation_with_cosmic(SNP_objects, mode, method='normal',
                                 write_segment_args=True):
             if not in_intersect:
                 continue
-            snp_BAD.append(snp_BAD)
+            snp_BAD_list.append(snp_BAD)
             cosmic_BAD_list.append(cosmic_BAD)
 
             if heatmap is not None:
@@ -129,11 +129,16 @@ def get_quality_metrics(percentiles_list, df):
 
 
 def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, file_name, model):
+    badmap_path = os.path.join(get_badmaps_path_by_validity(), model, file_name.replace('.tsv', '.badmap.tsv'))
+    new_badmap_path = os.path.join(valid_badmaps_path, model, file_name.replace('.tsv', '.badmap.tsv'))
+
     with open(snps_path, 'r') as out:
         header_comment = out.readline()
         if not out.readline():
             with open(new_path, 'w') as out2:
                 out2.write(header_comment)
+            assert os.path.isfile(badmap_path)
+            copy2(badmap_path, new_badmap_path)
             return ['NaN'] * len(percentiles_list)
     out_table = pd.read_table(snps_path, header=None, comment='#')
     out_table.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in states] + ['snps_n',
@@ -146,8 +151,6 @@ def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, f
     with open(new_path, 'w') as out:
         out.write(header_comment)
 
-    badmap_path = os.path.join(badmaps_path, model, file_name.replace('.tsv', '.badmap.tsv'))
-    new_badmap_path = os.path.join(valid_badmaps_path, model, file_name.replace('.tsv', '.badmap.tsv'))
     if valid:
         out_table.to_csv(new_path, header=False, index=False, sep='\t', mode='a')
         assert os.path.isfile(badmap_path)
