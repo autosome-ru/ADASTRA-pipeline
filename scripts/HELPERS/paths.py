@@ -1,6 +1,6 @@
 import os
-from scripts.HELPERS.paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
-    cl_dict_path, configs_path, results_path, valid_badmaps_path
+from .paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
+    cl_dict_path, configs_path, results_path
 
 
 def get_ending(for_what):
