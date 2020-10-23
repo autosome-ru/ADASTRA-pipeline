@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source ../scripts/HELPERS/paths_for_components.py
-source ../scripts/HELPERS/soft_configs.cfg
+source scripts/HELPERS/paths_for_components.py
+source scripts/HELPERS/soft_configs.cfg
 njobs=$1
 
 if [ ! -f "${dbsnp_vcf_path}.tbi" ]; then
