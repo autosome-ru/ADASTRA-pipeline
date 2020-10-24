@@ -15,8 +15,7 @@ def main(tf_name, motif_length):
     out_path = get_tf_sarus_path(tf_name, 'fasta')
     positions = dict()
     gen = dict()
-    pos = 0
-    l_const = 10000000
+
     tf_df = pd.read_table(tf_path)
     if tf_df.empty:
         exit(0)
@@ -27,6 +26,8 @@ def main(tf_name, motif_length):
         positions[row['#chr']].append(row['pos'])
 
     skip_to_next_chr = False
+    pos = 0
+    l_const = 10000000
     with open(FA, 'r') as fasta:
         for line in fasta:
             if line[0] == '>':
@@ -118,7 +119,7 @@ def main(tf_name, motif_length):
                                  for i in range((motif_length - 1))])
             right_tail = ''.join([nuc[gen[chromosome][pos + 1 + i]]
                                   for i in range((motif_length - 1))])
-
+            print(left_tail + R + right_tail)
             out.write('>' + ID + '_ref' + '\n')
             out.write(left_tail + R + right_tail + '\n')
 
