@@ -121,7 +121,6 @@ def main(tf_name, motif_length):
                                  for i in range((motif_length - 1))])
             right_tail = ''.join([nuc[gen[chromosome][pos + 1 + i]]
                                   for i in range((motif_length - 1))])
-            print(left_tail + R + right_tail)
             out.write('>' + ID + '_ref' + '\n')
             out.write(left_tail + R + right_tail + '\n')
 
