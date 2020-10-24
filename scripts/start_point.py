@@ -24,6 +24,7 @@ Usage:
             adastra join_correlation_threads
             adastra collect_release_stats
             adastra weights_to_df
+            adastra rename_tfs --uniprot-file <path>
             adastra -h | --help
 
 Arguments:
@@ -45,6 +46,7 @@ Options:
     --group=<group>             Name of badmap group
     --suffix=<suffix>           Suffix for stats file
     --cell-type=<name>          Cell type name
+    --uniprot-file=<path>       Path to file with uniprot conversion
 """
 import time
 
@@ -147,4 +149,6 @@ def main():
     elif args['collect_release_stats']:
         from .Qcontrol.check_made import main
         main()
-
+    elif args['rename_tfs']:
+        from .SARUSannotation.replace_tf_id_with_name import main
+        main(args['--uniprot-file'])
