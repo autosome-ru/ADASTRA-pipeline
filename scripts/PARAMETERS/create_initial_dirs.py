@@ -26,6 +26,7 @@ def main():
 
     # Dirs for ASBcalling
     check_and_create_dir(results_path)
+    check_and_create_dir(os.path.join(results_path, 'Sarus'))
     check_and_create_dir(get_release_stats_path())
     for what_for in 'TF', 'CL':
         check_and_create_dir(os.path.join(results_path, what_for + '_DICTS'))
