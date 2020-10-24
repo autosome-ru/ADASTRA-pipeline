@@ -272,7 +272,7 @@ def main(what_for, key_name):
     bool_ar = np.array([False] * len(table.index), dtype=np.bool)
     bool_ar[mc_filter_array] = bool_ar_alt + bool_ar_ref
 
-    with open(os.path.join(results_path, what_for + '_DICTS/{}_DICT.json'.format(key_name)), 'w') as out:
+    with open(os.path.join(results_path, what_for + '_DICTS/{}.json'.format(key_name)), 'w') as out:
         json.dump(origin_of_snp_dict, out)
 
 
