@@ -49,7 +49,7 @@ if [ -d "${pwms_path}/$tf_name"/ ]; then
     rm "${sarus_dir_base_path}.fasta"
   fi
 else
-  echo "No PWMs_path found for $tf_name"
+  echo "No PWMs found for $tf_name"
 fi
 
 if ! adastra annotate_table_with_sarus --name "$tf_name" --motif-len "${motif_len}"
