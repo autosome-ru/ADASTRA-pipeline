@@ -89,7 +89,8 @@ def main(tf_name, motif_length):
     sarus_table_path = get_tf_sarus_path(tf_name)
     dict_of_snps = make_dict_from_data(after_sarus_fasta_path, motif_length)
     tf_df = pd.read_table(os.path.join(results_path, 'TF_P-values', tf_name + '.tsv'))
-    print(tf_df.apply(lambda x: adjust_with_sarus(x, dict_of_snps), axis=1))
+    print(dict(zip(cols, tf_df.apply(lambda x:
+                                             adjust_with_sarus(x, dict_of_snps), axis=1))))
     tf_df[cols] = dict(zip(cols, tf_df.apply(lambda x:
                                              adjust_with_sarus(x, dict_of_snps), axis=1)))
     tf_df.to_csv(sarus_table_path, header=True, sep='\t', index=False)
