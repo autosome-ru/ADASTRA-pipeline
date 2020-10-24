@@ -5,7 +5,6 @@ from scripts.HELPERS.paths_for_components import results_path
 
 def generate_uniprot_dict(uniprot_dict_file):
     u_df = pd.read_table(uniprot_dict_file)
-    print(pd.Series(u_df['Entry name'].values, index=u_df['Entry']).to_dict())
     return pd.Series(u_df['Entry name'].values, index=u_df['Entry']).to_dict()
 
 
