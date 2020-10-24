@@ -20,6 +20,7 @@ used_vars_list = [
     'synonyms_path',
     'cgh_path',
     'cosmic_path',
+    'pwms_path'
 ]
 
 used_soft_list = [
@@ -77,6 +78,8 @@ def pack_line(config_dict, component_name):
         return construct_line(component_name,
                               os.path.join(config_dict['scripts_path'], 'Configs', 'tf_dict.json'))
     elif component_name == 'master_list_path':
+        return construct_line(component_name, config_dict[component_name])
+    elif component_name == 'pwms_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'dbsnp_vcf_path':
         return construct_line(component_name, config_dict[component_name])

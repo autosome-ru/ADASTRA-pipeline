@@ -53,6 +53,25 @@ def create_merged_vcf_path_function(name):
     return os.path.join(badmaps_path, 'merged_vcfs', name + ".tsv")
 
 
+def get_sarus_dir():
+    return os.path.join(results_path, 'Sarus')
+
+
+def get_sarus_ext(for_what):
+    if for_what == 'tsv':
+        return '.tsv'
+    elif for_what == 'sarus':
+        return '.sarus'
+    elif for_what == 'fasta':
+        return '.fasta'
+    else:
+        raise AssertionError('Wrong param for get_sarus_ext function {}'.format(for_what))
+
+
+def get_tf_sarus_path(tf_name, for_what='tsv'):
+    return os.path.join(get_sarus_dir(), tf_name + get_sarus_ext(for_what))
+
+
 def create_neg_bin_stats_path_function(BAD, suffix=''):
     return os.path.join(get_release_stats_path(), 'bias_stats_BAD{:.1f}{}.tsv'.format(
             BAD if BAD else 0, suffix))
