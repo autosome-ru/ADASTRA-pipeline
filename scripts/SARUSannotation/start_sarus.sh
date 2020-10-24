@@ -30,7 +30,7 @@ if [ -d "${pwms_path}/$tf_name"/ ]; then
     echo "Make sarus"
     # shellcheck disable=SC2154
 
-    if ! $Java -cp "${parameters_path}/sarus.jar" ru.autosome.SARUS "${sarus_dir_base_path}.fasta" \
+    if ! $Java -cp "${sarus_path}" ru.autosome.SARUS "${sarus_dir_base_path}.fasta" \
                             "${pwms_path}/${tf_name}/"* \
                             -10000000 \
                             --pvalues-file "${thresholds_path}/${tf_name}"* \
