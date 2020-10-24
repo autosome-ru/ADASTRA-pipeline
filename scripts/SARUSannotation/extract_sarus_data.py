@@ -50,10 +50,8 @@ def main(tf_name, motif_length):
                     next_1 = positions[chromosome].popleft()
                     next_start = next_1 - (motif_length - 1)
                     next_end = next_1 + (motif_length - 1)
-                    # print(next_start, next_end)
                     if positions[chromosome]:
                         next_2 = positions[chromosome].popleft()
-                        # print(next_2)
                         while next_end >= next_2 - (motif_length - 1):
                             next_end = next_2 + (motif_length - 1)
                             if positions[chromosome]:
@@ -70,7 +68,6 @@ def main(tf_name, motif_length):
 
                     if pos // l_const > count:
                         count = pos // l_const
-                    # print(count*l, '+100', next_start, next_end)
 
                     continue
                 for sym in line.strip():
@@ -78,7 +75,6 @@ def main(tf_name, motif_length):
 
                     if pos // l_const > count:
                         count = pos // l_const
-                    # print(count*l, '+1', next_start, next_end)
 
                     if pos > next_end:
                         if positions[chromosome]:
@@ -88,7 +84,7 @@ def main(tf_name, motif_length):
                             if positions[chromosome]:
                                 next_2 = positions[chromosome].popleft()
                                 while next_end >= next_2 - (motif_length - 1):
-                                    # print('a-haa!', p, next_start, next_end, next_2-(motive_length - 1))
+
                                     next_end = next_2 + (motif_length - 1)
                                     if positions[chromosome]:
                                         next_2 = positions[chromosome].popleft()
@@ -114,7 +110,7 @@ def main(tf_name, motif_length):
             ID = row['ID'] + ";" + A
             if gen[chromosome][pos] == 0:
                 continue
-            # print(chr, p, gen[chr][p])
+
             assert R.lower() == nuc[gen[chromosome][pos]]
 
             left_tail = ''.join([nuc[gen[chromosome][pos - (motif_length - 1) + i]]

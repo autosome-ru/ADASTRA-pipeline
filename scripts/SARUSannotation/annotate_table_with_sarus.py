@@ -46,7 +46,6 @@ def make_dict_from_data(tf_fasta_path, motif_length):
                 else:
                     assert allele in ("ref", "alt")
                     line = line.strip('\n').split()
-                    print(line)
                     dict_of_snps[current_snp_id][allele].append({
                         "p": float(line[0]),
                         "orientation": line[2],
