@@ -20,7 +20,7 @@ if [ -d "${pwms_path}/$tf_name"/ ]; then
   motif_len=$(wc -l "${pwms_path}/$tf_name/"*)
 #  motif_len=$((${motive_len%" "*}))
 
-  if ! adastra extract_sarus_data --tf-name "$tf_name" --motif-len "${motif_len}"
+  if ! adastra extract_sarus_data --name "$tf_name" --motif-len "${motif_len}"
   then
         echo "Failed to extract adjacent nucleotides"
         exit 0
@@ -52,7 +52,7 @@ else
   echo "No PWMs_path found for $tf_name"
 fi
 
-if ! adastra annotate_table_with_sarus --tf-name "$tf_name" --motif-len "${motif_len}"
+if ! adastra annotate_table_with_sarus --name "$tf_name" --motif-len "${motif_len}"
 then
   echo "Failed to add fc to the table"
   exit 0
