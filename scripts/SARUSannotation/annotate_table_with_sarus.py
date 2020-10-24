@@ -50,27 +50,35 @@ def make_dict_from_data(tf_fasta_path, motif_length):
 
 def adjust_with_sarus(df_row, dict_of_snps):
     ID = "{};{}".format(df_row['ID'], df_row['alt'])
-    dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['pos'])
-    dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['orientation'])
-    dict_of_snps[ID]['alt'] = sorted(dict_of_snps[ID]['alt'], key=lambda x: x['pos'])
-    dict_of_snps[ID]['alt'] = sorted(dict_of_snps[ID]['alt'], key=lambda x: x['orientation'])
-    ref_best = max(enumerate(dict_of_snps[ID]['ref']), key=lambda x: x[1]['p'])
-    alt_best = max(enumerate(dict_of_snps[ID]['alt']), key=lambda x: x[1]['p'])
-    best_idx, _ = max((ref_best, alt_best), key=lambda x: x[1]['p'])
+    if len(dict_of_snps) == 0:
+        df_row['motif_log_pref'] = None
+        df_row['motif_log_palt'] = None
+        df_row['motif_fc'] = None
+        df_row['motif_pos'] = None
+        df_row['motif_orient'] = None
+        df_row['motif_conc'] = None
+    else:
+        dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['pos'])
+        dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['orientation'])
+        dict_of_snps[ID]['alt'] = sorted(dict_of_snps[ID]['alt'], key=lambda x: x['pos'])
+        dict_of_snps[ID]['alt'] = sorted(dict_of_snps[ID]['alt'], key=lambda x: x['orientation'])
+        ref_best = max(enumerate(dict_of_snps[ID]['ref']), key=lambda x: x[1]['p'])
+        alt_best = max(enumerate(dict_of_snps[ID]['alt']), key=lambda x: x[1]['p'])
+        best_idx, _ = max((ref_best, alt_best), key=lambda x: x[1]['p'])
 
-    if len(dict_of_snps[ID]['ref']) != len(dict_of_snps[ID]['alt']):
-        raise AssertionError(ID, dict_of_snps[ID]['ref'], dict_of_snps[ID]['alt'])
-    assert dict_of_snps[ID]['ref'][best_idx]['pos'] == dict_of_snps[ID]['alt'][best_idx]['pos']
-    df_row['motif_log_pref'] = dict_of_snps[ID]['ref'][best_idx]['p']
-    df_row['motif_log_palt'] = dict_of_snps[ID]['alt'][best_idx]['p']
-    df_row['motif_fc'] = (df_row['motif_log_palt'] - df_row['motif_log_pref']) / np.log10(2)
-    df_row['motif_pos'] = dict_of_snps[ID]['ref'][best_idx]['pos']
-    df_row['motif_orient'] = dict_of_snps[ID]['ref'][best_idx]['orientation']
-    df_row['motif_conc'] = get_concordance(df_row['fdrp_bh_ref'],
-                                           df_row['fdrp_bh_alt'],
-                                           df_row['motif_fc'],
-                                           df_row['motif_log_pref'],
-                                           df_row['motif_log_palt'])
+        if len(dict_of_snps[ID]['ref']) != len(dict_of_snps[ID]['alt']):
+            raise AssertionError(ID, dict_of_snps[ID]['ref'], dict_of_snps[ID]['alt'])
+        assert dict_of_snps[ID]['ref'][best_idx]['pos'] == dict_of_snps[ID]['alt'][best_idx]['pos']
+        df_row['motif_log_pref'] = dict_of_snps[ID]['ref'][best_idx]['p']
+        df_row['motif_log_palt'] = dict_of_snps[ID]['alt'][best_idx]['p']
+        df_row['motif_fc'] = (df_row['motif_log_palt'] - df_row['motif_log_pref']) / np.log10(2)
+        df_row['motif_pos'] = dict_of_snps[ID]['ref'][best_idx]['pos']
+        df_row['motif_orient'] = dict_of_snps[ID]['ref'][best_idx]['orientation']
+        df_row['motif_conc'] = get_concordance(df_row['fdrp_bh_ref'],
+                                               df_row['fdrp_bh_alt'],
+                                               df_row['motif_fc'],
+                                               df_row['motif_log_pref'],
+                                               df_row['motif_log_palt'])
     return df_row
 
 
