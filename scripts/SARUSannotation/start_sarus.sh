@@ -2,7 +2,7 @@
 
 script_path="$(dirname $( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P ))"
 source $script_path/HELPERS/paths_for_components.py
-source $script_path/HELPERS/Config.cfg
+source $script_path/HELPERS/soft_configs.cfg
 
 GETNAME(){
 	local var=$1
