@@ -158,6 +158,8 @@ def main():
         main(args['--uniprot-file'])
     elif args['extract_sarus_data']:
         from .SARUSannotation.extract_sarus_data import main
+        print(args['--motif-len'])
+        print(int(args['--motif-len']))
         main(args['--name'], int(args['--motif-len']))
     elif args['annotate_table_with_sarus']:
         from .SARUSannotation.annotate_table_with_sarus import main
