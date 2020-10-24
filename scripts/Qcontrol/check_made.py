@@ -100,7 +100,8 @@ def main():
             "Concordant": 0,
             "Discordant": 0,
             "Weak Concordant": 0,
-            "Weak Discordant": 0
+            "Weak Discordant": 0,
+            "No Hit": 0
         }
         tf_df = pd.read_table(os.path.join(get_sarus_dir(), tf_file))
         d = tf_df['motif_conc'].value_counts().to_dict()
