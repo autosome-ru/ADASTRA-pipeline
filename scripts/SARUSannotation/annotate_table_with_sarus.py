@@ -4,6 +4,13 @@ import pandas as pd
 from scripts.HELPERS.paths_for_components import results_path
 from scripts.HELPERS.paths import get_tf_sarus_path
 
+cols = ['motif_log_pref',
+        'motif_log_palt',
+        'motif_fc',
+        'motif_pos',
+        'motif_orient',
+        'motif_conc']
+
 
 def get_concordance(p_val_ref, p_val_alt, motif_fc, motif_pval_ref, motif_pval_alt):
     if not pd.isna(p_val_ref) and not pd.isna(p_val_alt):
@@ -83,11 +90,6 @@ def main(tf_name, motif_length):
     dict_of_snps = make_dict_from_data(after_sarus_fasta_path, motif_length)
     tf_df = pd.read_table(os.path.join(results_path, 'TF_P-values', tf_name + '.tsv'))
     print(tf_df.apply(lambda x: adjust_with_sarus(x, dict_of_snps), axis=1))
-    tf_df[['motif_log_pref',
-           'motif_log_palt',
-           'motif_fc',
-           'motif_pos',
-           'motif_orient',
-           'motif_conc']] = tf_df.apply(lambda x:
-                                        adjust_with_sarus(x, dict_of_snps), axis=1)
+    tf_df[cols] = dict(zip(cols, tf_df.apply(lambda x:
+                                             adjust_with_sarus(x, dict_of_snps), axis=1)))
     tf_df.to_csv(sarus_table_path, header=True, sep='\t', index=False)
