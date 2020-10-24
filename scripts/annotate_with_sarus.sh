@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source scripts/HELPERS/paths_for_components.py
+script_path="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+source $script_path/HELPERS/paths_for_components.py
 
 njobs=$1
 
