@@ -51,12 +51,7 @@ def make_dict_from_data(tf_fasta_path, motif_length):
 def adjust_with_sarus(df_row, dict_of_snps):
     ID = "{};{}".format(df_row['ID'], df_row['alt'])
     if len(dict_of_snps) == 0:
-        df_row['motif_log_pref'] = None
-        df_row['motif_log_palt'] = None
-        df_row['motif_fc'] = None
-        df_row['motif_pos'] = None
-        df_row['motif_orient'] = None
-        df_row['motif_conc'] = None
+        return [None] * 6
     else:
         dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['pos'])
         dict_of_snps[ID]['ref'] = sorted(dict_of_snps[ID]['ref'], key=lambda x: x['orientation'])
@@ -69,17 +64,17 @@ def adjust_with_sarus(df_row, dict_of_snps):
         if len(dict_of_snps[ID]['ref']) != len(dict_of_snps[ID]['alt']):
             raise AssertionError(ID, dict_of_snps[ID]['ref'], dict_of_snps[ID]['alt'])
         assert dict_of_snps[ID]['ref'][best_idx]['pos'] == dict_of_snps[ID]['alt'][best_idx]['pos']
-        df_row['motif_log_pref'] = dict_of_snps[ID]['ref'][best_idx]['p']
-        df_row['motif_log_palt'] = dict_of_snps[ID]['alt'][best_idx]['p']
-        df_row['motif_fc'] = (df_row['motif_log_palt'] - df_row['motif_log_pref']) / np.log10(2)
-        df_row['motif_pos'] = dict_of_snps[ID]['ref'][best_idx]['pos']
-        df_row['motif_orient'] = dict_of_snps[ID]['ref'][best_idx]['orientation']
-        df_row['motif_conc'] = get_concordance(df_row['fdrp_bh_ref'],
-                                               df_row['fdrp_bh_alt'],
-                                               df_row['motif_fc'],
-                                               df_row['motif_log_pref'],
-                                               df_row['motif_log_palt'])
-    return df_row
+        return [dict_of_snps[ID]['ref'][best_idx]['p'],
+                dict_of_snps[ID]['alt'][best_idx]['p'],
+                (df_row['motif_log_palt'] - df_row['motif_log_pref']) / np.log10(2),
+                dict_of_snps[ID]['ref'][best_idx]['pos'],
+                dict_of_snps[ID]['ref'][best_idx]['orientation'],
+                get_concordance(df_row['fdrp_bh_ref'],
+                                df_row['fdrp_bh_alt'],
+                                df_row['motif_fc'],
+                                df_row['motif_log_pref'],
+                                df_row['motif_log_palt'])
+                ]
 
 
 def main(tf_name, motif_length):
@@ -87,5 +82,11 @@ def main(tf_name, motif_length):
     sarus_table_path = get_tf_sarus_path(tf_name)
     dict_of_snps = make_dict_from_data(after_sarus_fasta_path, motif_length)
     tf_df = pd.read_table(os.path.join(results_path, 'TF_P-values', tf_name + '.tsv'))
-    tf_df = tf_df.apply(lambda x: adjust_with_sarus(x, dict_of_snps), axis=1)
+    tf_df[['motif_log_pref',
+           'motif_log_palt',
+           'motif_fc',
+           'motif_pos',
+           'motif_orient',
+           'motif_conc']] = tf_df.apply(lambda x:
+                                        adjust_with_sarus(x, dict_of_snps), axis=1)
     tf_df.to_csv(sarus_table_path, header=True, sep='\t', index=False)
