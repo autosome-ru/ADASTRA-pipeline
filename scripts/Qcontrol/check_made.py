@@ -4,7 +4,7 @@ import pandas as pd
 
 from scripts.HELPERS.helpers import remove_punctuation, dtype_dict
 from scripts.HELPERS.paths import create_path_from_master_list_df, get_result_table_path, get_result_dir_path, \
-    get_release_stats_path
+    get_release_stats_path, get_sarus_dir
 from scripts.HELPERS.paths_for_components import results_path, badmaps_dict_path, master_list_path
 
 
@@ -13,8 +13,11 @@ def main():
     made_control_vcfs = 0
 
     made_annotated_tables = 0
-    dict_overall_statistics = {"SNP_calls": None, "unique_SNPs": None, "unique_asb": None, "datasets": None,
-                               "unique_SNPs_rs": None, "unique_asb_rs": None}
+    dict_concordance_stats = {}
+    dict_overall_statistics = {"SNP_calls": None, "unique_SNPs": None,
+                               "unique_asb": None, "datasets": None,
+                               "unique_SNPs_rs": None, "unique_asb_rs": None,
+                               }
     for key in dict_overall_statistics:
         dict_overall_statistics[key] = {"TF": {}, "CL": {}}
     ml_df = pd.read_table(master_list_path, dtype=dtype_dict)
@@ -87,10 +90,25 @@ def main():
             dict_overall_statistics["unique_asb_rs"][what_for][obj] += fdr_counter_alt
             total_fdrs_ref += fdr_counter_ref
             total_fdrs_alt += fdr_counter_alt
+
         print("Made aggregation for {} {}s".format(obj_counter[what_for], what_for))
         print('In {} aggregation - {},{} ref and alt ASB events respectively'.format(what_for,
                                                                                      total_fdrs_ref, total_fdrs_alt))
-
+    for tf_file in os.listdir(get_sarus_dir()):
+        tf_name = os.path.splitext(tf_file)[0]
+        dict_concordance_stats[tf_name] = {
+            "Concordant": 0,
+            "Discordant": 0,
+            "Weak Concordant": 0,
+            "Weak Discordant": 0
+        }
+        tf_df = pd.read_table(os.path.join(get_sarus_dir(), tf_file))
+        d = tf_df['motif_conc'].value_counts().to_dict()
+        for concordance in dict_concordance_stats[tf_name]:
+            if d.get(concordance) is not None:
+                dict_concordance_stats[tf_name][concordance] = d[concordance]
+    with open(os.path.join(get_release_stats_path(), "concordance_statistics.json"), "w") as json_file:
+        json.dump(dict_concordance_stats, json_file)
     with open(os.path.join(get_release_stats_path(), "overall_statistics.json"), "w") as json_file:
         json.dump(dict_overall_statistics, json_file)
 
