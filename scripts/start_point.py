@@ -49,7 +49,7 @@ Options:
     --group=<group>             Name of badmap group
     --suffix=<suffix>           Suffix for stats file
     --cell-type=<name>          Cell type name
-    --motive-len=<int>          Length of the motif
+    --motif-len=<int>           Length of the motif
     --uniprot-file=<path>       Path to file with uniprot conversion
 """
 import time
