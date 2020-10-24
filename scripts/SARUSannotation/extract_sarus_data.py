@@ -11,6 +11,7 @@ nuc = dict(zip([1, 2, 3, 4, 5], ['a', 'c', 'g', 't', 'N']))
 
 
 def main(tf_name, motif_length):
+    print(motif_length)
     tf_path = os.path.join(results_path, 'TF_P-values', tf_name + '.tsv')
     out_path = get_tf_sarus_path(tf_name, 'fasta')
     positions = dict()
@@ -116,7 +117,8 @@ def main(tf_name, motif_length):
 
             left_tail = ''.join([nuc[gen[chromosome][pos - (motif_length - 1) + i]]
                                  for i in range((motif_length - 1))])
-            right_tail = ''.join([nuc[gen[chromosome][pos + 1 + i]] for i in range((motif_length - 1))])
+            right_tail = ''.join([nuc[gen[chromosome][pos + 1 + i]]
+                                  for i in range((motif_length - 1))])
 
             out.write('>' + ID + '_ref' + '\n')
             out.write(left_tail + R + right_tail + '\n')

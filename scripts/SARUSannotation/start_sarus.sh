@@ -23,7 +23,7 @@ if [ -d "${pwms_path}/$tf_name"/ ]; then
   if ! adastra extract_sarus_data --name "$tf_name" --motif-len "${motif_len}"
   then
         echo "Failed to extract adjacent nucleotides"
-        exit 0
+        exit 1
   fi
   sarus_dir_base_path="${results_path}/Sarus/${tf_name}"
   if [ -s "${sarus_dir_base_path}.fasta" ]; then
@@ -39,7 +39,7 @@ if [ -d "${pwms_path}/$tf_name"/ ]; then
                             > "${sarus_dir_base_path}.sarus"
     then
           echo "Failed sarus"
-          exit 0
+          exit 1
     fi
 
   else
@@ -55,7 +55,7 @@ fi
 if ! adastra annotate_table_with_sarus --name "$tf_name" --motif-len "${motif_len}"
 then
   echo "Failed to add fc to the table"
-  exit 0
+  exit 1
 fi
 
 if [ -f "${sarus_dir_base_path}.sarus" ]; then
