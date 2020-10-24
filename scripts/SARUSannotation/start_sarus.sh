@@ -18,8 +18,9 @@ echo $pwms_path"/$tf_name"/
 if [ -d "${pwms_path}/$tf_name"/ ]; then
 
   motif_len=$(wc -l "${pwms_path}/$tf_name/"*)
-  echo $motif_len $((${motive_len%" "*}))
-#  motif_len=$((${motive_len%" "*}))
+  echo $motif_len
+  motif_len=$((${motive_len%" "*}))
+  echo $motif_len
 
   if ! adastra extract_sarus_data --name "$tf_name" --motif-len "${motif_len}"
   then
