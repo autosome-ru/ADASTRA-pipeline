@@ -10,12 +10,14 @@ def generate_uniprot_dict(uniprot_dict_file):
 
 def main(uniprot_dict_file):
     uniprot_dict = generate_uniprot_dict(uniprot_dict_file)
-    for file in os.listdir(os.path.join(results_path, 'TF_P-values')):
-        root_ext = os.path.splitext(file)
-        try:
-            new_file = uniprot_dict[root_ext[0]] + '.' + root_ext[1]
-        except KeyError:
-            print('No name found for given id {}'.format(root_ext[0]))
-            continue
-        print('Renaming {} in {}'.format(file, new_file))
-        os.rename(file, new_file)
+    for directory in 'TF_P-values', 'TF_DICTS':
+        base_dir = os.path.join(results_path, directory)
+        for file in os.listdir(base_dir):
+            root_ext = os.path.splitext(file)
+            try:
+                new_file = uniprot_dict[root_ext[0]] + '.' + root_ext[1]
+            except KeyError:
+                print('No name found for given id {}'.format(root_ext[0]))
+                continue
+            print('Renaming {} in {}'.format(file, new_file))
+            os.rename(os.path.join(base_dir, file), os.path.join(base_dir, new_file))
