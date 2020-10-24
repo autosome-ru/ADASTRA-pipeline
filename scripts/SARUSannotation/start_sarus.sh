@@ -43,7 +43,7 @@ if [ -d "${pwms_path}/$tf_name"/ ]; then
     fi
 
   else
-    echo "NO ASB found for ${tf_name}"
+    echo "NO SNPs found for ${tf_name}"
   fi
   if [ -f "${sarus_dir_base_path}.fasta" ]; then
     rm "${sarus_dir_base_path}.fasta"
