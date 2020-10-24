@@ -1,7 +1,8 @@
 #!/bin/bash
 
-source scripts/HELPERS/Config.cfg
-source scripts/HELPERS/paths_for_components.py
+script_path="$(dirname $( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P ))"
+source $script_path/HELPERS/paths_for_components.py
+source $script_path/HELPERS/Config.cfg
 
 GETNAME(){
 	local var=$1
