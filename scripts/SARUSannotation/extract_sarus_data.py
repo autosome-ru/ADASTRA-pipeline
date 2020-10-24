@@ -11,7 +11,7 @@ nuc = dict(zip([1, 2, 3, 4, 5], ['a', 'c', 'g', 't', 'N']))
 
 
 def main(tf_name, motif_length):
-    if motif_length is not None:
+    if motif_length is None:
         exit(0)
     tf_path = os.path.join(results_path, 'TF_P-values', tf_name + '.tsv')
     out_path = get_tf_sarus_path(tf_name, 'fasta')
