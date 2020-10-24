@@ -108,7 +108,6 @@ def main():
         for concordance in dict_concordance_stats[tf_name]:
             if d.get(concordance) is not None:
                 dict_concordance_stats[tf_name][concordance] = d[concordance]
-        print(d)
     with open(os.path.join(get_release_stats_path(), "concordance_statistics.json"), "w") as json_file:
         json.dump(dict_concordance_stats, json_file)
     with open(os.path.join(get_release_stats_path(), "overall_statistics.json"), "w") as json_file:
