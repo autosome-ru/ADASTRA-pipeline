@@ -24,18 +24,18 @@ if [ -d "${pwms_path}/$tf_name"/ ]; then
         echo "Failed to extract adjacent nucleotides"
         exit 0
   fi
-  sarus_base_path="${results_path}/Sarus/${tf_name}"
-  if [ -s "${sarus_base_path}.fasta" ]; then
+  sarus_dir_base_path="${results_path}/Sarus/${tf_name}"
+  if [ -s "${sarus_dir_base_path}.fasta" ]; then
     echo "Make sarus"
     # shellcheck disable=SC2154
 
-    if ! $Java -cp "${parameters_path}/sarus.jar" ru.autosome.SARUS "${sarus_base_path}.fasta" \
-                            "${PWMs_path}/${tf_name}/"* \
+    if ! $Java -cp "${parameters_path}/sarus.jar" ru.autosome.SARUS "${sarus_dir_base_path}.fasta" \
+                            "${pwms_path}/${tf_name}/"* \
                             -10000000 \
-                            --pvalues-file "${threshold_path}/${tf_name}"* \
+                            --pvalues-file "${thresholds_path}/${tf_name}"* \
                             --threshold-mode score \
                             --output-scoring-mode logpvalue \
-                            > "${sarus_base_path}.sarus"
+                            > "${sarus_dir_base_path}.sarus"
     then
           echo "Failed sarus"
           exit 0
@@ -44,8 +44,8 @@ if [ -d "${pwms_path}/$tf_name"/ ]; then
   else
     echo "NO ASB found for ${tf_name}"
   fi
-  if [ -f "${sarus_base_path}.fasta" ]; then
-    rm "${sarus_base_path}.fasta"
+  if [ -f "${sarus_dir_base_path}.fasta" ]; then
+    rm "${sarus_dir_base_path}.fasta"
   fi
 else
   echo "No PWMs_path found for $tf_name"
@@ -57,6 +57,6 @@ then
   exit 0
 fi
 
-if [ -f "${sarus_base_path}.sarus" ]; then
-  rm "${sarus_base_path}.sarus"
+if [ -f "${sarus_dir_base_path}.sarus" ]; then
+  rm "${sarus_dir_base_path}.sarus"
 fi
