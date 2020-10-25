@@ -13,13 +13,6 @@ def check_and_create_dir(dir_name):
 
 def main():
     check_and_create_dir(alignments_path)
-    # Dirs for BADcalling
-    check_and_create_dir(badmaps_path)
-    check_and_create_dir(get_correlation_path())
-    check_and_create_dir(get_heatmap_data_path())
-    for validity in True, False:
-        check_and_create_dir(get_badmaps_path_by_validity(validity))
-        check_and_create_dir(os.path.join(get_badmaps_path_by_validity(validity), 'CAIC'))
 
     # Dirs for ASBcalling
     check_and_create_dir(results_path)
@@ -28,6 +21,13 @@ def main():
     for what_for in 'TF', 'CL':
         check_and_create_dir(os.path.join(results_path, what_for + '_DICTS'))
         check_and_create_dir(os.path.join(results_path, what_for + '_P-values'))
+    # Dirs for BADcalling
+    check_and_create_dir(badmaps_path)
+    check_and_create_dir(get_correlation_path())
+    check_and_create_dir(get_heatmap_data_path())
+    for validity in True, False:
+        check_and_create_dir(get_badmaps_path_by_validity(validity))
+        check_and_create_dir(os.path.join(get_badmaps_path_by_validity(validity), 'CAIC'))
 
 
 if __name__ == '__main__':
