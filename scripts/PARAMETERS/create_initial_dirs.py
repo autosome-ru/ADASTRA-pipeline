@@ -23,6 +23,7 @@ def main():
         check_and_create_dir(os.path.join(results_path, what_for + '_P-values'))
     # Dirs for BADcalling
     check_and_create_dir(badmaps_path)
+    check_and_create_dir(os.path.join(badmaps_path, 'merged_vcfs'))
     check_and_create_dir(get_correlation_path())
     check_and_create_dir(get_heatmap_data_path())
     for validity in True, False:
