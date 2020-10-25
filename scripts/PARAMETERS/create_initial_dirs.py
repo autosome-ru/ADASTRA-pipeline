@@ -1,7 +1,5 @@
 import os
 from scripts.HELPERS.paths_for_components import badmaps_path, results_path, alignments_path
-
-from scripts.HELPERS.helpers import badmaps_dirs
 from scripts.HELPERS.paths import get_release_stats_path, get_correlation_path, get_heatmap_data_path, \
     get_badmaps_path_by_validity
 
@@ -16,7 +14,6 @@ def check_and_create_dir(dir_name):
 def main():
     check_and_create_dir(alignments_path)
     # Dirs for BADcalling
-    check_and_create_dir(badmaps_path)
     check_and_create_dir(badmaps_path)
     check_and_create_dir(get_correlation_path())
     check_and_create_dir(get_heatmap_data_path())

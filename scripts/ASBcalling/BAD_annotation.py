@@ -25,7 +25,7 @@ def main(key):
     badmap_file_name = rev_d[key]
 
     print('Now doing {} \n with BAD map file {}'.format(table_annotated, badmap_file_name))
-    badmap_file_path = create_badmaps_path_function(badmap_file_name, valid=True)
+    badmap_file_path = create_badmaps_path_function(badmap_file_name, valid=False)
     with open(badmap_file_path, 'r') as badmap_file, open(output, 'w') as out, open(table_annotated, 'r') as table_file:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts',
                         'repeat_type'] + callers_names + ['BAD'] + ["Q{:.2f}".format(x) for x in segmentation_states] +
