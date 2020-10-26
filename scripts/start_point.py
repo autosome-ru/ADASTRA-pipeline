@@ -24,7 +24,6 @@ Usage:
             adastra join_correlation_threads
             adastra collect_release_stats
             adastra weights_to_df
-            adastra rename_tfs --uniprot-file <path>
             adastra extract_sarus_data --name <name> --motif-len <int>
             adastra annotate_table_with_sarus --name <name> --motif-len <int>
             adastra -h | --help
@@ -152,9 +151,6 @@ def main():
         main()
     elif args['collect_release_stats']:
         from .Qcontrol.check_made import main
-        main()
-    elif args['rename_tfs']:
-        from .SARUSannotation.replace_tf_id_with_name import main
         main()
     elif args['extract_sarus_data']:
         from .SARUSannotation.extract_sarus_data import main

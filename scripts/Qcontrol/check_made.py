@@ -30,12 +30,12 @@ def main():
     ml_df = ml_df[ml_df['vcf_path'].apply(os.path.isfile)]
     for index, row in ml_df.iterrows():
         row['CELLS'] = remove_punctuation(row['CELLS'])
-        if row['TF_UNIPROT_ID'] not in dict_overall_statistics["datasets"]["TF"]:
-            dict_overall_statistics["datasets"]["TF"][row['TF_UNIPROT_ID']] = 0
+        if row['TF_UNIPROT_NAME'] not in dict_overall_statistics["datasets"]["TF"]:
+            dict_overall_statistics["datasets"]["TF"][row['TF_UNIPROT_NAME']] = 0
         if row['CELLS'] not in dict_overall_statistics["datasets"]["CL"]:
             dict_overall_statistics["datasets"]["CL"][row['CELLS']] = 0
         dict_overall_statistics["datasets"]["CL"][row['CELLS']] += 1
-        dict_overall_statistics["datasets"]["TF"][row['TF_UNIPROT_ID']] += 1
+        dict_overall_statistics["datasets"]["TF"][row['TF_UNIPROT_NAME']] += 1
         if row['EXP_TYPE'] == 'chip_control':
             made_control_vcfs += 1
         else:
@@ -51,12 +51,12 @@ def main():
         local_counter = len(an_table.index)
         if local_counter == 0:
             continue
-        if row['TF_UNIPROT_ID'] not in dict_overall_statistics["SNP_calls"]["TF"]:
-            dict_overall_statistics["SNP_calls"]["TF"][row['TF_UNIPROT_ID']] = 0
+        if row['TF_UNIPROT_NAME'] not in dict_overall_statistics["SNP_calls"]["TF"]:
+            dict_overall_statistics["SNP_calls"]["TF"][row['TF_UNIPROT_NAME']] = 0
         if row['CELLS'] not in dict_overall_statistics["SNP_calls"]["CL"]:
             dict_overall_statistics["SNP_calls"]["CL"][row['CELLS']] = 0
         dict_overall_statistics["SNP_calls"]["CL"][row['CELLS']] += local_counter
-        dict_overall_statistics["SNP_calls"]["TF"][row['TF_UNIPROT_ID']] += local_counter
+        dict_overall_statistics["SNP_calls"]["TF"][row['TF_UNIPROT_NAME']] += local_counter
 
     print("Made {}/{} VCFs ({} experiment VCFs, {} control VCFs), {} annotated tables".format(
         made_control_vcfs + made_experiment_vcfs, total_vcf_count,

@@ -17,9 +17,9 @@ def makedict(what_for):
     for index, row in master_df.iterrows():
         if what_for == "TF":
             try:
-                d[row['TF_UNIPROT_ID']].append(row['path'])
+                d[row['TF_UNIPROT_NAME']].append(row['path'])
             except KeyError:
-                d[row['TF_UNIPROT_ID']] = [row['path']]
+                d[row['TF_UNIPROT_NAME']] = [row['path']]
         if what_for == "CL":
             cell_line = remove_punctuation(row['CELLS'])
             try:
