@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from scripts.HELPERS.paths_for_components import results_path
+from scripts.HELPERS.paths_for_components import results_path, uniprot_convert_path
 
 
 def generate_uniprot_dict(uniprot_dict_file):
@@ -8,8 +8,8 @@ def generate_uniprot_dict(uniprot_dict_file):
     return pd.Series(u_df['Entry name'].values, index=u_df['Entry']).to_dict()
 
 
-def main(uniprot_dict_file):
-    uniprot_dict = generate_uniprot_dict(uniprot_dict_file)
+def main():
+    uniprot_dict = generate_uniprot_dict(uniprot_convert_path)
     for directory in 'TF_P-values', 'TF_DICTS':
         base_dir = os.path.join(results_path, directory)
         for file in os.listdir(base_dir):

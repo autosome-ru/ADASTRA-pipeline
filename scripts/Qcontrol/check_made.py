@@ -113,6 +113,13 @@ def main():
     with open(os.path.join(get_release_stats_path(), "overall_statistics.json"), "w") as json_file:
         json.dump(dict_overall_statistics, json_file)
 
+    with open(os.path.join(get_release_stats_path(), 'convert_cell_lines.json'), 'w') as o:
+        d_to_write = {}
+        master_df = pd.read_table(master_list_path, dtype=dtype_dict)
+        for key in master_df['CELLS'].tolist():
+            d_to_write[key] = remove_punctuation(key)
+        json.dump(d_to_write, o)
+
 
 if __name__ == '__main__':
     main()

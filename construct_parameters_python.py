@@ -22,6 +22,7 @@ used_vars_list = [
     'cosmic_path',
     'pwms_path',
     'thresholds_path',
+    'uniprot_convert_path',
     'sarus_path'
 ]
 
@@ -64,6 +65,8 @@ def pack_line(config_dict, component_name):
     elif component_name == 'alignments_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'results_path':
+        return construct_line(component_name, config_dict[component_name])
+    elif component_name == 'uniprot_convert_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'badmaps_path':
         return construct_line(component_name, os.path.join(config_dict['results_path'], 'BADmaps'))

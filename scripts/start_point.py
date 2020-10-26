@@ -155,7 +155,7 @@ def main():
         main()
     elif args['rename_tfs']:
         from .SARUSannotation.replace_tf_id_with_name import main
-        main(args['--uniprot-file'])
+        main()
     elif args['extract_sarus_data']:
         from .SARUSannotation.extract_sarus_data import main
         main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
