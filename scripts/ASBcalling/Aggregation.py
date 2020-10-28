@@ -45,7 +45,7 @@ def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return par
 
 
 def get_name(path):
-    return os.path.splitext(os.path.basename(path))
+    return os.path.splitext(os.path.basename(path))[0]
 
 
 def invert(dictionary):
