@@ -24,7 +24,6 @@ Usage:
             adastra join_correlation_threads
             adastra collect_release_stats
             adastra weights_to_df
-            adastra rename_tfs --uniprot-file <path>
             adastra extract_sarus_data --name <name> --motif-len <int>
             adastra annotate_table_with_sarus --name <name> --motif-len <int>
             adastra -h | --help
@@ -49,7 +48,7 @@ Options:
     --group=<group>             Name of badmap group
     --suffix=<suffix>           Suffix for stats file
     --cell-type=<name>          Cell type name
-    --motive-len=<int>          Length of the motif
+    --motif-len=<int>           Length of the motif
     --uniprot-file=<path>       Path to file with uniprot conversion
 """
 import time
@@ -153,12 +152,16 @@ def main():
     elif args['collect_release_stats']:
         from .Qcontrol.check_made import main
         main()
-    elif args['rename_tfs']:
-        from .SARUSannotation.replace_tf_id_with_name import main
-        main(args['--uniprot-file'])
     elif args['extract_sarus_data']:
         from .SARUSannotation.extract_sarus_data import main
-        main(args['--name'], int(args['--motif-len']))
+        main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
     elif args['annotate_table_with_sarus']:
         from .SARUSannotation.annotate_table_with_sarus import main
-        main(args['--name'], int(args['--motif-len']))
+        main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
+
+
+def convert_motif_len_to_int(motif_len_string):
+    if not motif_len_string:
+        return None
+    else:
+        return int(motif_len_string)

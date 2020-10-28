@@ -66,7 +66,7 @@ def pack_line(config_dict, component_name):
     elif component_name == 'results_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'badmaps_path':
-        return construct_line(component_name, config_dict[component_name])
+        return construct_line(component_name, os.path.join(config_dict['results_path'], 'BADmaps'))
     elif component_name == 'FA':
         return construct_line(component_name, os.path.join(config_dict['scripts_path'], 'Configs', 'reference',
                                                            'genome-norm.fasta'))

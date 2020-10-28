@@ -15,15 +15,14 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
 Nucleotides = {'A', 'T', 'G', 'C'}
 expected_args = {"CL": "TF", "TF": "CL"}
 
-segmentation_states = [1, 3 / 2, 2, 3, 4, 5]
+segmentation_states = [1, 4/3, 3 / 2, 2, 2.5, 3, 4, 5, 6]
 
 master_list_header = '#EXP	TF_UNIPROT_ID	ANTIBODY	TREATMENT	SPECIE	CELL_ID	CELLS	EXP_TYPE	CONTROL	' \
-                     'READS	ALIGNS	PEAKS	GEO	ENCODE	WG_ENCODE	READS_ALIGNED   DOWNLOAD_PATH '
+                     'READS	ALIGNS	PEAKS	GEO	ENCODE	WG_ENCODE	READS_ALIGNED   DOWNLOAD_PATH   TF_UNIPROT_ID'
 
 dtype_dict = {name: str if name != 'READS_ALIGNED' else np.float_ for name in master_list_header.split('\t')}
 
 test_percentiles_list = [1, 3, 5, 7, 10, 20]
-badmaps_dirs = ('merged_vcfs', 'BADmaps_correlations', 'valid_BADmaps')
 
 
 class ChromPos:

@@ -42,7 +42,7 @@ def get_heatmap_data_path():
 
 
 def get_badmaps_path_by_validity(valid=False):
-    return os.path.join(badmaps_path, 'BADmaps', 'valid' if valid else 'raw')
+    return os.path.join(badmaps_path, 'valid' if valid else 'raw')
 
 
 def create_badmaps_path_function(name, valid=False):
