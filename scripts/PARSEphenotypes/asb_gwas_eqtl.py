@@ -410,25 +410,25 @@ def main():
     release_TF_path = get_result_dir_path('TF')
     release_CL_path = get_result_dir_path('CL')
     outp_path = os.path.join(get_release_stats_path(), 'phen.tsv')
-    files = {'GRASP': 'pheno/grasp_pheno.tsv',
-             'EBI': 'pheno/gwas_catalog.tsv',
-             'ClinVar': 'pheno/variant_summary.txt',
-             'FineMapping': 'pheno/finemapping.csv',
-             'PheWas': 'pheno/phewas-catalog.csv',
+    files = {'GRASP': os.path.join(phenotypes_dir, 'pheno/grasp_pheno.tsv'),
+             'EBI': os.path.join(phenotypes_dir, 'pheno/gwas_catalog.tsv'),
+             'ClinVar': os.path.join(phenotypes_dir, 'pheno/variant_summary.txt'),
+             'FineMapping': os.path.join(phenotypes_dir, 'pheno/finemapping.csv'),
+             'PheWas': os.path.join(phenotypes_dir, 'pheno/phewas-catalog.csv'),
              }
 
-    qtlfiles = glob.glob('eqtl/signif/*.txt')
-    transqtl = 'eqtl/GTEx_Analysis_v8_trans_eGenes_fdr05.txt'
+    qtlfiles = glob.glob(os.path.join(phenotypes_dir, 'eqtl/signif/*.txt'))
+    transqtl = os.path.join(phenotypes_dir, 'eqtl/GTEx_Analysis_v8_trans_eGenes_fdr05.txt')
 
-    pval = 'fdrp_bh_'
+    pval = os.path.join(phenotypes_dir, 'fdrp_bh_')
     pvallim = {'fdrp_bh_': 0.05, 'logitp_': 0.0005}[pval]
 
-    snpph_path = 'snpph.tsv'
-    snpphtf_path = 'snpphtfASB.tsv'
-    snpphcl_path = 'snpphclASB.tsv'
-    snpphtfcl_path = 'snpphtfclASB.tsv'
+    snpph_path = os.path.join(phenotypes_dir, 'snpph.tsv')
+    snpphtf_path = os.path.join(phenotypes_dir, 'snpphtfASB.tsv')
+    snpphcl_path = os.path.join(phenotypes_dir, 'snpphclASB.tsv')
+    snpphtfcl_path = os.path.join(phenotypes_dir, 'snpphtfclASB.tsv')
 
-    snpphtfcl_chrpos_path = 'snpphtfclASBchrpos.tsv'
+    snpphtfcl_chrpos_path = os.path.join(phenotypes_dir, 'snpphtfclASBchrpos.tsv')
 
     annotate_main(files)
 
