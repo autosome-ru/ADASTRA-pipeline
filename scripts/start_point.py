@@ -158,6 +158,9 @@ def main():
     elif args['annotate_table_with_sarus']:
         from .SARUSannotation.annotate_table_with_sarus import main
         main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
+    elif args['annotate_with_phenotypes']:
+        from .PARSEphenotypes.annotate_with_phenotypes import main
+        main()
 
 
 def convert_motif_len_to_int(motif_len_string):
