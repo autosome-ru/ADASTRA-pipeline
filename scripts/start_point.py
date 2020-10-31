@@ -26,6 +26,7 @@ Usage:
             adastra weights_to_df
             adastra extract_sarus_data --name <name> --motif-len <int>
             adastra annotate_table_with_sarus --name <name> --motif-len <int>
+            adastra annotate_with_phenotypes
             adastra -h | --help
 
 Arguments:
