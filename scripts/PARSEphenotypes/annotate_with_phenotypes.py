@@ -2,6 +2,7 @@ import os
 from scripts.HELPERS.helpers import pack
 from scripts.HELPERS.paths import get_release_stats_path
 
+phenotype_db_names = ['grasp', 'ebi', 'clinvar', 'phewas', 'finemapping']
 
 def parse_grasp(filepath):
     phenotypes = {}
@@ -100,8 +101,6 @@ def main(files):
                 phenotypes_ids_dict[remove_phen_name_punctuation(phenotype)] = phenotype_id
                 ids_phenotypes_dict[phenotype_id] = remove_phen_name_punctuation(phenotype)
                 phenotype_id += 1
-
-    phenotype_db_names = ['grasp', 'ebi', 'clinvar', 'phewas', 'finemapping']
 
     all_phenotypes = {}
 
