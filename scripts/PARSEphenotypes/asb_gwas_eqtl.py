@@ -420,7 +420,7 @@ def main():
     qtlfiles = glob.glob(os.path.join(phenotypes_dir, 'eqtl/signif/*.txt'))
     transqtl = os.path.join(phenotypes_dir, 'eqtl', 'GTEx_Analysis_v8_trans_eGenes_fdr05.txt')
 
-    pval = os.path.join(phenotypes_dir, 'fdrp_bh_')
+    pval = 'fdrp_bh_'
     pvallim = {'fdrp_bh_': 0.05, 'logitp_': 0.0005}[pval]
 
     snpph_path = os.path.join(get_release_stats_path(), 'snpph.tsv')
