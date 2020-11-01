@@ -423,14 +423,13 @@ def main():
     pval = os.path.join(phenotypes_dir, 'fdrp_bh_')
     pvallim = {'fdrp_bh_': 0.05, 'logitp_': 0.0005}[pval]
 
-    snpph_path = os.path.join(phenotypes_dir, 'snpph.tsv')
-    snpphtf_path = os.path.join(phenotypes_dir, 'snpphtfASB.tsv')
-    snpphcl_path = os.path.join(phenotypes_dir, 'snpphclASB.tsv')
-    snpphtfcl_path = os.path.join(phenotypes_dir, 'snpphtfclASB.tsv')
+    snpph_path = os.path.join(get_release_stats_path(), 'snpph.tsv')
+    snpphtf_path = os.path.join(get_release_stats_path(), 'snpphtfASB.tsv')
+    snpphcl_path = os.path.join(get_release_stats_path(), 'snpphclASB.tsv')
+    snpphtfcl_path = os.path.join(get_release_stats_path(), 'snpphtfclASB.tsv')
+    snpphtfcl_chrpos_path = os.path.join(get_release_stats_path(), 'snpphtfclASBchrpos.tsv')
 
-    snpphtfcl_chrpos_path = os.path.join(phenotypes_dir, 'snpphtfclASBchrpos.tsv')
-
-    annotate_main(files)
+    annotate_main(files, snpph_path)
 
     Make_snpphtf('tf', release_TF_path, pval, pvallim, snpph_path, snpphtf_path)
     Make_snpphtf('cl', release_CL_path, pval, pvallim, snpph_path, snpphcl_path)

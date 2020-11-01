@@ -80,14 +80,13 @@ def parse_clinvar(filepath):
     return phenotypes
 
 
-def main(files):
+def main(files, path_to_output):
     phenotypes_for_db_list = [parse_grasp(files['GRASP']),
                               parse_ebi(files['EBI']),
                               parse_clinvar(files['ClinVar']),
                               parse_phewas(files['PheWas']),
                               parse_finemapping(files['FineMapping'])]
 
-    path_to_output = os.path.join(get_release_stats_path(), 'phenotypes_stats.tsv')
     phenotypes_ids_dict = {}
     ids_phenotypes_dict = {}
     phenotype_id = 1
