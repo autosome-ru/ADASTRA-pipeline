@@ -411,7 +411,7 @@ def main():
     phenotypes_dir = '/home/abramov/phenotypes'
     release_TF_path = get_result_dir_path('TF')
     release_CL_path = get_result_dir_path('CL')
-    outp_path = os.path.join(get_release_stats_path(), 'phen.tsv')
+    outp_path = os.path.join(get_release_stats_path(), 'phenotypes_stats.tsv')
     files = {'GRASP': os.path.join(phenotypes_dir, 'pheno', 'grasp_pheno.tsv'),
              'EBI': os.path.join(phenotypes_dir, 'pheno', 'gwas_catalog.tsv'),
              'ClinVar': os.path.join(phenotypes_dir, 'pheno', 'variant_summary.txt'),
