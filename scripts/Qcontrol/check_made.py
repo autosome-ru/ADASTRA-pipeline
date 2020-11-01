@@ -115,7 +115,7 @@ def main():
             all_asbs.append(tf_df)
         all_asbs = all_asbs.groupby(['#chr', 'pos', 'ID', 'ref', 'alt'],
                                     sort=False, as_index=False
-                                    )['#chr', 'pos', 'ID', 'ref', 'alt']
+                                    )['#chr', 'pos', 'ID', 'ref', 'alt'].first()
         d = tf_df['motif_conc'].value_counts().to_dict()
         for concordance in dict_concordance_stats[tf_name]:
             if d.get(concordance) is not None:
