@@ -107,14 +107,12 @@ def main():
         }
         tf_df = pd.read_table(get_result_table_path('TF', tf_name))
         tf_df = tf_df[(tf_df['fdrp_bh_ref'] <= 0.05) | (tf_df['fdrp_bh_alt'] <= 0.05)]
-        tf_df['unique_identifier'] = '{}@{}{}'.format(tf_df['#chr'], tf_df['pos'], tf_df['alt'])
         if tf_df.empty:
             continue
         if all_asbs is None:
             all_asbs = tf_df
         else:
             all_asbs.append(tf_df)
-        all_asbs = all_asbs.drop_duplicates(subset=['unique_identifier'])
         d = tf_df['motif_conc'].value_counts().to_dict()
         for concordance in dict_concordance_stats[tf_name]:
             if d.get(concordance) is not None:
