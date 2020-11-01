@@ -4,21 +4,23 @@ import os
 from collections import deque
 from scripts.HELPERS.helpers import ChromPos
 from scripts.HELPERS.paths_for_components import FA, results_path
-from scripts.HELPERS.paths import get_tf_sarus_path
+from scripts.HELPERS.paths import get_tf_sarus_path, get_result_table_path
 
 num = dict(zip(['A', 'a', 'C', 'c', 'G', 'g', 'T', 't'], [1, 1, 2, 2, 3, 3, 4, 4]))
 nuc = dict(zip([1, 2, 3, 4, 5], ['a', 'c', 'g', 't', 'N']))
 
 
-def main(tf_name, motif_length):
+def main(tf_name, motif_length, opened_df=None):
     if motif_length is None:
         exit(0)
-    tf_path = os.path.join(results_path, 'TF_P-values', tf_name + '.tsv')
+    tf_path = get_result_table_path('TF', tf_name)
     out_path = get_tf_sarus_path(tf_name, 'fasta')
     positions = dict()
     gen = dict()
-
-    tf_df = pd.read_table(tf_path)
+    if opened_df is not None:
+        tf_df = opened_df
+    else:
+        tf_df = pd.read_table(tf_path)
     if tf_df.empty:
         exit(0)
     for chr_name in ChromPos.chromosomes:

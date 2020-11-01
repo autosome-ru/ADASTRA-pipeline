@@ -5,7 +5,8 @@ import pandas as pd
 from scripts.HELPERS.helpers import remove_punctuation, dtype_dict
 from scripts.HELPERS.paths import create_path_from_master_list_df, get_result_table_path, get_result_dir_path, \
     get_release_stats_path, get_sarus_dir
-from scripts.HELPERS.paths_for_components import results_path, badmaps_dict_path, master_list_path
+from scripts.HELPERS.paths_for_components import master_list_path
+from scripts.SARUSannotation.extract_sarus_data import main as main_extract
 
 
 def main():
@@ -94,7 +95,8 @@ def main():
         print("Made aggregation for {} {}s".format(obj_counter[what_for], what_for))
         print('In {} aggregation - {},{} ref and alt ASB events respectively'.format(what_for,
                                                                                      total_fdrs_ref, total_fdrs_alt))
-    for tf_file in os.listdir(get_sarus_dir()):
+    all_asbs = None
+    for tf_file in os.listdir(get_result_dir_path('TF')):
         tf_name = os.path.splitext(tf_file)[0]
         dict_concordance_stats[tf_name] = {
             "Concordant": 0,
@@ -103,11 +105,22 @@ def main():
             "Weak Discordant": 0,
             "No Hit": 0
         }
-        tf_df = pd.read_table(os.path.join(get_sarus_dir(), tf_file))
+        tf_df = pd.read_table(get_result_table_path('TF', tf_file))
+        tf_df = tf_df[(tf_df['fdrp_bh_ref'] <= 0.05) | (tf_df['fdrp_bh_alt'] <= 0.05)]
+        if tf_df.empty:
+            continue
+        if all_asbs is None:
+            all_asbs = tf_df
+        else:
+            all_asbs.append(tf_df)
+        all_asbs = all_asbs.groupby(['#chr', 'pos', 'ID', 'ref', 'alt'],
+                                    sort=False, as_index=False
+                                    )['#chr', 'pos', 'ID', 'ref', 'alt']
         d = tf_df['motif_conc'].value_counts().to_dict()
         for concordance in dict_concordance_stats[tf_name]:
             if d.get(concordance) is not None:
                 dict_concordance_stats[tf_name][concordance] = d[concordance]
+    main_extract('all_tfs', 25, all_asbs)
     with open(os.path.join(get_release_stats_path(), "concordance_statistics.json"), "w") as conc_file:
         json.dump(dict_concordance_stats, conc_file)
     with open(os.path.join(get_release_stats_path(), "overall_statistics.json"), "w") as json_file:
