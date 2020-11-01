@@ -476,3 +476,10 @@ if __name__ == "__main__":
         for dict_key in d["CELLS"].tolist():
             d_to_write[dict_key] = remove_punctuation(dict_key)
         json.dump(d_to_write, o)
+
+
+def check_and_create_dir(dir_name):
+    if not os.path.isdir(dir_name):
+        if os.path.isfile(dir_name):
+            raise AssertionError("Can't create dir {} (file with such name exists)".format(dir_name))
+        os.mkdir(dir_name)

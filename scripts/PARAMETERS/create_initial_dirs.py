@@ -1,14 +1,9 @@
 import os
+
+from scripts.HELPERS.helpers import check_and_create_dir
 from scripts.HELPERS.paths_for_components import badmaps_path, results_path, alignments_path
 from scripts.HELPERS.paths import get_release_stats_path, get_correlation_path, get_heatmap_data_path, \
     get_badmaps_path_by_validity
-
-
-def check_and_create_dir(dir_name):
-    if not os.path.isdir(dir_name):
-        if os.path.isfile(dir_name):
-            raise AssertionError("Can't create dir {} (file with such name exists)".format(dir_name))
-        os.mkdir(dir_name)
 
 
 def main():

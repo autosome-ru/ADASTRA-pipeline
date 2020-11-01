@@ -2,6 +2,8 @@ import glob
 import os
 from .annotate_with_phenotypes import main as annotate_main, phenotype_db_names
 from scripts.HELPERS.paths import get_result_dir_path, get_release_stats_path
+from scripts.HELPERS.helpers import check_and_create_dir
+import shutil
 
 
 def Get_ASB(mode, release_path, pv='fdrp_bh_', fdr=0.05, peaks='>=', nagg=''):
@@ -410,24 +412,25 @@ def main():
     release_TF_path = get_result_dir_path('TF')
     release_CL_path = get_result_dir_path('CL')
     outp_path = os.path.join(get_release_stats_path(), 'phen.tsv')
-    files = {'GRASP': os.path.join(phenotypes_dir, 'pheno/grasp_pheno.tsv'),
-             'EBI': os.path.join(phenotypes_dir, 'pheno/gwas_catalog.tsv'),
-             'ClinVar': os.path.join(phenotypes_dir, 'pheno/variant_summary.txt'),
-             'FineMapping': os.path.join(phenotypes_dir, 'pheno/finemapping.csv'),
-             'PheWas': os.path.join(phenotypes_dir, 'pheno/phewas-catalog.csv'),
+    files = {'GRASP': os.path.join(phenotypes_dir, 'pheno', 'grasp_pheno.tsv'),
+             'EBI': os.path.join(phenotypes_dir, 'pheno', 'gwas_catalog.tsv'),
+             'ClinVar': os.path.join(phenotypes_dir, 'pheno', 'variant_summary.txt'),
+             'FineMapping': os.path.join(phenotypes_dir, 'pheno', 'finemapping.csv'),
+             'PheWas': os.path.join(phenotypes_dir, 'pheno', 'phewas-catalog.csv'),
              }
-
-    qtlfiles = glob.glob(os.path.join(phenotypes_dir, 'eqtl/signif/*.txt'))
+    pheno_tmp_dir = os.path.join(get_release_stats_path(), 'pheno_tmp')
+    check_and_create_dir(pheno_tmp_dir)
+    qtlfiles = glob.glob(os.path.join(phenotypes_dir, 'eqtl', 'signif', '*.txt'))
     transqtl = os.path.join(phenotypes_dir, 'eqtl', 'GTEx_Analysis_v8_trans_eGenes_fdr05.txt')
 
     pval = 'fdrp_bh_'
     pvallim = {'fdrp_bh_': 0.05, 'logitp_': 0.0005}[pval]
 
-    snpph_path = os.path.join(get_release_stats_path(), 'snpph.tsv')
-    snpphtf_path = os.path.join(get_release_stats_path(), 'snpphtfASB.tsv')
-    snpphcl_path = os.path.join(get_release_stats_path(), 'snpphclASB.tsv')
-    snpphtfcl_path = os.path.join(get_release_stats_path(), 'snpphtfclASB.tsv')
-    snpphtfcl_chrpos_path = os.path.join(get_release_stats_path(), 'snpphtfclASBchrpos.tsv')
+    snpph_path = os.path.join(pheno_tmp_dir, 'snpph.tsv')
+    snpphtf_path = os.path.join(pheno_tmp_dir, 'snpphtfASB.tsv')
+    snpphcl_path = os.path.join(pheno_tmp_dir, 'snpphclASB.tsv')
+    snpphtfcl_path = os.path.join(pheno_tmp_dir, 'snpphtfclASB.tsv')
+    snpphtfcl_chrpos_path = os.path.join(pheno_tmp_dir, 'snpphtfclASBchrpos.tsv')
 
     annotate_main(files, snpph_path)
 
@@ -439,3 +442,4 @@ def main():
     Add_chr_pos(release_TF_path, release_CL_path, pval, pvallim, snpphtfcl_path, snpphtfcl_chrpos_path)
 
     Add_eQTL(qtlfiles, transqtl, snpphtfcl_chrpos_path, outp_path)
+    shutil.rmtree(pheno_tmp_dir)
