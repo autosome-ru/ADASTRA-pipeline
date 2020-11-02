@@ -10,7 +10,7 @@ def main():
         for tf_file in os.listdir(get_result_dir_path(obj)):
             tf_name = os.path.splitext(tf_file)[0]
             tf_df = pd.read_table(get_result_table_path(obj, tf_name))
-            tf_df = tf_df.columns.drop(list(tf_df.filter(regex='motif')))
+            tf_df = tf_df[tf_df.columns.drop(list(tf_df.filter(regex='motif')))]
             tf_df = tf_df[(tf_df['fdrp_bh_ref'] <= 0.05) | (tf_df['fdrp_bh_alt'] <= 0.05)]
             if tf_df.empty:
                 continue
