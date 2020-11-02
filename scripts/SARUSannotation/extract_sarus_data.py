@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from collections import deque
 from scripts.HELPERS.helpers import ChromPos
-from scripts.HELPERS.paths_for_components import FA, results_path
+from scripts.HELPERS.paths_for_components import FA
 from scripts.HELPERS.paths import get_tf_sarus_path, get_result_table_path
 
 num = dict(zip(['A', 'a', 'C', 'c', 'G', 'g', 'T', 't'], [1, 1, 2, 2, 3, 3, 4, 4]))

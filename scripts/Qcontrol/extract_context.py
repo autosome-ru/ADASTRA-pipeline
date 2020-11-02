@@ -19,4 +19,4 @@ def main():
             all_asbs_df = tf_df
         else:
             all_asbs_df = all_asbs_df.append(tf_df, ignore_index=True)
-    main_extract('all_tfs', 25, all_asbs_df)
+    main_extract('all_tfs', 25, all_asbs_df.sort_values(by=['pos', '#chr']))
