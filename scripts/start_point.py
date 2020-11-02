@@ -27,6 +27,7 @@ Usage:
             adastra extract_sarus_data --name <name> --motif-len <int>
             adastra annotate_table_with_sarus --name <name> --motif-len <int>
             adastra annotate_with_phenotypes
+            adastra extract_context
             adastra -h | --help
 
 Arguments:
@@ -161,6 +162,9 @@ def main():
         main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
     elif args['annotate_with_phenotypes']:
         from .PARSEphenotypes.asb_gwas_eqtl import main
+        main()
+    elif args['extract_context']:
+        from .Qcontrol.extract_context import main
         main()
 
 
