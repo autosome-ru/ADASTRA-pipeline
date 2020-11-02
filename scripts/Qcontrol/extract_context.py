@@ -17,6 +17,6 @@ def main():
             all_asbs_df = tf_df
         else:
             all_asbs_df = all_asbs_df.append(tf_df, ignore_index=True)
-        all_asbs_df.drop_duplicates(subset='unique')
+        all_asbs_df = all_asbs_df.drop_duplicates(subset='unique')
         print(len(all_asbs_df.index))
     main_extract('all_tfs', 25, all_asbs_df)
