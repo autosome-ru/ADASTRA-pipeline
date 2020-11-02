@@ -10,6 +10,7 @@ def main():
         tf_name = os.path.splitext(tf_file)[0]
         tf_df = pd.read_table(get_result_table_path('TF', tf_name))
         tf_df = tf_df[(tf_df['fdrp_bh_ref'] <= 0.05) | (tf_df['fdrp_bh_alt'] <= 0.05)]
+        print(tf_name, len(tf_df.index))
         if tf_df.empty:
             continue
         tf_df['unique'] = '{}@{}{}'.format(tf_df['#chr'],
@@ -19,6 +20,6 @@ def main():
             all_asbs_df = tf_df
         else:
             all_asbs_df = all_asbs_df.append(tf_df, ignore_index=True)
-        all_asbs_df = all_asbs_df.drop_duplicates(subset='unique')
+        #all_asbs_df = all_asbs_df.drop_duplicates(subset='unique')
         print(len(all_asbs_df.index))
     main_extract('all_tfs', 25, all_asbs_df)

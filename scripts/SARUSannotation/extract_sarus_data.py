@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import os
 from collections import deque
 from scripts.HELPERS.helpers import ChromPos
 from scripts.HELPERS.paths_for_components import FA, results_path
