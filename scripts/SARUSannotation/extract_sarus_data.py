@@ -123,7 +123,7 @@ def main(tf_name, motif_length, opened_df=None):
                        for i in range((motif_length - 1))])
                 print([gen[chromosome][pos - (motif_length - 1) + i]
                                      for i in range((motif_length - 1))])
-                raise
+                continue
             out.write('>' + ID + '_ref' + '\n')
             out.write(left_tail + R + right_tail + '\n')
 
