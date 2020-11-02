@@ -113,7 +113,9 @@ def main(tf_name, motif_length, opened_df=None):
                 continue
 
             assert R.lower() == nuc[gen[chromosome][pos]]
-
+            if pos < 25:
+                print('Fuck...')
+                exit(1)
             left_tail = ''.join([nuc[gen[chromosome][pos - (motif_length - 1) + i]]
                                  for i in range((motif_length - 1))])
             right_tail = ''.join([nuc[gen[chromosome][pos + 1 + i]]
