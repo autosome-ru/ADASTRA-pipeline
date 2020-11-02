@@ -113,17 +113,12 @@ def main(tf_name, motif_length, opened_df=None):
                 continue
 
             assert R.lower() == nuc[gen[chromosome][pos]]
-            try:
-                left_tail = ''.join([nuc[gen[chromosome][pos - (motif_length - 1) + i]]
-                                     for i in range((motif_length - 1))])
-                right_tail = ''.join([nuc[gen[chromosome][pos + 1 + i]]
-                                      for i in range((motif_length - 1))])
-            except KeyError:
-                print([gen[chromosome][pos + 1 + i]
-                       for i in range((motif_length - 1))])
-                print([gen[chromosome][pos - (motif_length - 1) + i]
-                                     for i in range((motif_length - 1))])
-                continue
+
+            left_tail = ''.join([nuc[gen[chromosome][pos - (motif_length - 1) + i]]
+                                 for i in range((motif_length - 1))])
+            right_tail = ''.join([nuc[gen[chromosome][pos + 1 + i]]
+                                  for i in range((motif_length - 1))])
+
             out.write('>' + ID + '_ref' + '\n')
             out.write(left_tail + R + right_tail + '\n')
 
