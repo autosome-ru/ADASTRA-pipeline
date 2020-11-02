@@ -12,9 +12,9 @@ def main():
         tf_df = tf_df[(tf_df['fdrp_bh_ref'] <= 0.05) | (tf_df['fdrp_bh_alt'] <= 0.05)]
         if tf_df.empty:
             continue
-        tf_df['unique'] = '{}@{}{}'.format(all_asbs_df['#chr'],
-                                           all_asbs_df['pos'],
-                                           all_asbs_df['alt'])
+        tf_df['unique'] = '{}@{}{}'.format(tf_df['#chr'],
+                                           tf_df['pos'],
+                                           tf_df['alt'])
         if all_asbs_df is None:
             all_asbs_df = tf_df
         else:
