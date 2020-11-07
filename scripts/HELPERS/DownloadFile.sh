@@ -1,7 +1,8 @@
 #!/bin/bash
 
-DownloadPath=$1
-BamPath=$2
+download_path=$1
+dir_path=$2
+bam_name=$3
 
 if ! scp -T -P 1300 autosome@localhost:"$download_path" "$dir_path"
 then
