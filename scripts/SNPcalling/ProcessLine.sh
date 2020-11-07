@@ -17,6 +17,9 @@ alignment_download_path=${ADDR[3]}
 
 out_path=${alignments_path}"/$exp_name/"
 alignment_full_path=${alignments_path}"/$exp_name/${align_name}.bam"
+out_path=${alignments_path}"/$exp_name/"
+alignment_dir_path=${alignments_path}"/$exp_name/"
+alignment_full_path=${alignments_path}"/$exp_name/${align_name}.bam"
 
 if [ "$alignment_download_path" == "" ]; then
     echo "There is no Path for exp ${exp_name}. Checking ${alignments_path}/$exp_name"
@@ -33,7 +36,8 @@ else
   fi
   echo "Downloading $exp_name"
 
-  if ! bash ${helpers_scripts_path}/DownloadFile.sh "$alignment_download_path" "$alignment_full_path"
+  if ! bash ${helpers_scripts_path}/DownloadFile.sh "$alignment_download_path" \
+   "$alignment_dir_path" ${align_name}.bam
   then
     echo "Download failed for $exp_name"
     exit 1
@@ -44,14 +48,14 @@ else
 fi
 
 echo "Adding read_groups for $exp_name"
-if ! bash ${snp_calling_scripts_path}AddReadGroups.sh "$alignment_full_path" "$read_groups"
+if ! bash ${snp_calling_scripts_path}/AddReadGroups.sh "$alignment_full_path" "$read_groups"
 then
   echo "Failed AddReadGroups $exp_name"
   exit 1
 fi
 
 echo "Doing SNPcalling for $exp_name"
-if ! bash ${snp_calling_scripts_path}SNPcalling.sh -Exp "$alignment_full_path" -Out "$out_path"
+if ! bash ${snp_calling_scripts_path}/SNPcalling.sh -Exp "$alignment_full_path" -Out "$out_path"
 then
   echo "Failed SNPcalling $exp_name"
   exit 1
