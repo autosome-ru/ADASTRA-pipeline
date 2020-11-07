@@ -72,7 +72,8 @@ bam_size=$((bam_size + $(wc -c <"$OutPath${BamName}_formated.bam")))
 rm "$OutPath${BamName}_formated.bam"
 rm "$OutPath/${BamName}_metrics.txt"
 
-if ! $Java $JavaParameters -jar "$GATK" \
+if ! $GATK \
+  --java-options $JavaParameters \
 	BaseRecalibrator \
 	-R "$FA" \
 	-I "$OutPath/${BamName}_ready.bam" \
@@ -83,8 +84,8 @@ then
     exit 1
 fi
 
-if ! $Java $JavaParameters -jar "$GATK" \
-	ApplyBQSR \
+if ! $GATK ApplyBQSR \
+  --java-options $JavaParameters \
 	-R "$FA" \
 	-I "$OutPath/${BamName}_ready.bam" \
 	--bqsr-recal-file "$OutPath/${BamName}.table" \
@@ -101,9 +102,11 @@ fi
 rm "$OutPath/${BamName}.table"
 rm "$OutPath${BamName}_ready.bam"
 
-if ! $Java $JavaParameters -jar "$GATK" \
+if ! $GATK \
+  --java-options $JavaParameters \
 	HaplotypeCaller \
 	-R "$FA" \
+	-A 'StrandBiasBySample,MappingQuality' \
 	-I "$OutPath/${BamName}_final.bam" \
 	--dbsnp "$dbsnp_vcf_path" \
 	-O "$OutPath/${BamName}.vcf"
