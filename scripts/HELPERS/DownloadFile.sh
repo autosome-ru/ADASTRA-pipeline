@@ -10,9 +10,10 @@ then
   exit 1
 fi
 
-if ! adastra make_bam_list --exp-dir "$dir_path" --download $download_path
+if ! adastra make_bam_list --exp-dir "$dir_path" --download "$download_path"
 then
   echo 'Failed to merge bam'
+  exit 1
 fi
 
 if ! samtools merge -b "$dir_path/bam_list.txt" "$dir_path"/${bam_name}
@@ -20,4 +21,9 @@ then
   echo "Failed to merge vcfs for $download_path"
   exit 1
 fi
+while read line; do
+  echo "Removing bam $line"
+  rm $line
+done < "$dir_path/bam_list.txt"
+rm "$dir_path/bam_list.txt"
 
