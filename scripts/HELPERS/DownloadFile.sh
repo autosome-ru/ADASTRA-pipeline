@@ -10,7 +10,10 @@ then
   exit 1
 fi
 
-python3 ${scripts_path}/HELPERS/make_bam_list "$dir_path" $download_path
+if ! adastra make_bam_list --exp-dir "$dir_path" --download $download_path
+then
+  echo 'Failed to merge bam'
+fi
 
 if ! samtools merge -b "$dir_path/bam_list.txt" "$dir_path"/${bam_name}
 then

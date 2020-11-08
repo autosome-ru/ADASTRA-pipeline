@@ -28,6 +28,7 @@ Usage:
             adastra annotate_table_with_sarus --name <name> --motif-len <int>
             adastra annotate_with_phenotypes
             adastra extract_context
+            adastra make_bam_list --download <path> --exp-dir <path>
             adastra -h | --help
 
 Arguments:
@@ -52,6 +53,8 @@ Options:
     --cell-type=<name>          Cell type name
     --motif-len=<int>           Length of the motif
     --uniprot-file=<path>       Path to file with uniprot conversion
+    --download <path>           Path to files on server, space separated
+    --exp-dir <path>            Directory where experiment to be saved
 """
 import time
 
@@ -166,6 +169,9 @@ def main():
     elif args['extract_context']:
         from .Qcontrol.extract_context import main
         main()
+    elif args['make_bam_list']:
+        from .SNPcalling.make_bam_list import main
+        main(args['--exp-dir'], args['--download'])
 
 
 def convert_motif_len_to_int(motif_len_string):
