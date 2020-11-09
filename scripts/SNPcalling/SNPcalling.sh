@@ -73,7 +73,7 @@ rm "$OutPath${BamName}_formated.bam"
 rm "$OutPath/${BamName}_metrics.txt"
 
 if ! $GATK \
-  --java-options $JavaParameters \
+  --java-options "$JavaParameters" \
 	BaseRecalibrator \
 	-R "$FA" \
 	-I "$OutPath/${BamName}_ready.bam" \
@@ -84,8 +84,8 @@ then
     exit 1
 fi
 
-if ! $GATK ApplyBQSR \
-  --java-options $JavaParameters \
+if ! $GATK --java-options "$JavaParameters" \
+  ApplyBQSR \
 	-R "$FA" \
 	-I "$OutPath/${BamName}_ready.bam" \
 	--bqsr-recal-file "$OutPath/${BamName}.table" \
@@ -103,7 +103,7 @@ rm "$OutPath/${BamName}.table"
 rm "$OutPath${BamName}_ready.bam"
 
 if ! $GATK \
-  --java-options $JavaParameters \
+  --java-options "$JavaParameters" \
 	HaplotypeCaller \
 	-R "$FA" \
 	-A 'StrandBiasBySample MappingQuality' \
