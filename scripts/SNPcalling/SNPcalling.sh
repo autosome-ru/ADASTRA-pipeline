@@ -106,7 +106,8 @@ if ! $GATK \
   --java-options "$JavaParameters" \
 	HaplotypeCaller \
 	-R "$FA" \
-	-A 'StrandBiasBySample MappingQuality' \
+	-A StrandBiasBySample \
+  -A MappingQuality \
 	-I "$OutPath/${BamName}_final.bam" \
 	--dbsnp "$dbsnp_vcf_path" \
 	-O "$OutPath/${BamName}.vcf"

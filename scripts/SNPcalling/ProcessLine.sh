@@ -62,8 +62,8 @@ then
 fi
 
 echo "Cleaning up for ${exp_name}"
-rm "$alignment_full_path"
-rm "$alignment_full_path.bai"
+mv "$alignment_full_path" /mnt/NAS/home/abramov/dnase/
+mv "$alignment_full_path.bai" /mnt/NAS/home/abramov/dnase/
 
 if [ -f ${out_path}"$align_name.vcf.idx" ]; then
   rm ${out_path}"$align_name.vcf.idx"
