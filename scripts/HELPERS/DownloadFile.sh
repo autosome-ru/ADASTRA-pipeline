@@ -23,7 +23,7 @@ then
 fi
 while read line; do
   echo "Removing bam $line"
-  rm $line
+  mv $line /mnt/NAS/home/abramov/dnase/
 done < "$dir_path/bam_list.txt"
 rm "$dir_path/bam_list.txt"
 
