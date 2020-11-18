@@ -32,10 +32,7 @@ def main():
         if row['CELLS'] not in dict_overall_statistics["datasets"]["CL"]:
             dict_overall_statistics["datasets"]["CL"][row['CELLS']] = 0
         dict_overall_statistics["datasets"]["CL"][row['CELLS']] += 1
-        if row['EXP_TYPE'] == 'chip_control':
-            made_control_vcfs += 1
-        else:
-            made_experiment_vcfs += 1
+        made_experiment_vcfs += 1
         annotated_table_path = create_path_from_master_list_df(row, for_what="annotation")
         if not os.path.isfile(annotated_table_path):
             continue
