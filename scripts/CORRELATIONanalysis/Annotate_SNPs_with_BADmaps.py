@@ -63,7 +63,7 @@ def main(file_name):
                 if exc.errno != errno.EEXIST:
                     raise
                 pass
-        badmaps_file_path = os.path.join(badmaps_path, mode, name + '@' + lab + '.badmap.tsv')
+        badmaps_file_path = os.path.join(get_badmaps_path_by_validity(), mode, name + '@' + lab + '.badmap.tsv')
         out_path = os.path.join(correlation_path, mode + '_tables', name + '@' + lab + '.tsv')
         print(out_path)
 
