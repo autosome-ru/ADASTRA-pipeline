@@ -71,11 +71,13 @@ def main(file_name):
 
         with open(table_path, 'r') as table, open(badmaps_file_path, 'r') as BADmap_file, open(out_path, 'w') as out:
             out.write('#' + str(datasetsn) + '@' + lab + '@' + ','.join(al_list) + '\n')
-            for chrom, pos, ref, alt, in_intersection, segment_BAD, Qual, segn, sumcov \
+            for tup \
                     in Intersection(table, BADmap_file,
                                     unpack_segments_function=lambda x: u.unpack_bad_segments(x, states),
                                     unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
+                print(tup)
+                chrom, pos, ref, alt, in_intersection, segment_BAD, Qual, segn, sumcov = tup
                 if not in_intersection:
                     continue
                 out.write(pack([chrom, pos, ref, alt, segment_BAD] +
