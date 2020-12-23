@@ -89,8 +89,8 @@ def main():
                 snps_collection=snps_collection,
                 chromosomes_order=chromosomes_order,
                 out=create_badmaps_path_function(bad_group),
-                extra_states=[4 / 3, 1.5, 2.5, 6],
-                b_penalty='CAIC',
+                states=[1, 2, 3, 4, 5, 4 / 3, 1.5, 2.5, 6],
+                b_penalty=4,
                 verbose=True,
                 allele_reads_tr=5,
                 segmentation_mode='corrected'
