@@ -337,8 +337,7 @@ class UnpackBadSegments:
     @staticmethod
     def unpack_bad_segments(line, states):
         if line[0] == '#':
-            return [''] * (len(line.strip().split('\t')) - len(states) + 1 +
-                           (1 if UnpackBadSegments.counter is not None else 0))
+            return [''] * (len(line.strip().split('\t')) - len(states) + 1)
         line = line.strip().split('\t')
 
         if UnpackBadSegments.counter is not None:

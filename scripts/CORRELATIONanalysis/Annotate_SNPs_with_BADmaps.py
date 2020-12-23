@@ -76,7 +76,6 @@ def main(file_name):
                                     unpack_segments_function=lambda x: u.unpack_bad_segments(x, states),
                                     unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
-                print(tup)
                 chrom, pos, ref, alt, in_intersection, segment_BAD, Qual, segn, sumcov = tup
                 if not in_intersection:
                     continue
