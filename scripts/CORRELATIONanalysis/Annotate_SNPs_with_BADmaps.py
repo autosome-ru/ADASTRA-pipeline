@@ -13,7 +13,7 @@ from scripts.HELPERS.paths import get_badmaps_path_by_validity, get_correlation_
 
 def unpack_snps(line):
     line = line.strip().split('\t')
-    return [line[0], int(line[1]), int(line[5]), int(line[6]), line[7]]
+    return [line[0], int(line[1]), int(line[5]), int(line[6])]
 
 
 def get_p_value(n, p, x):
@@ -71,17 +71,16 @@ def main(file_name):
 
         with open(table_path, 'r') as table, open(badmaps_file_path, 'r') as BADmap_file, open(out_path, 'w') as out:
             out.write('#' + str(datasetsn) + '@' + lab + '@' + ','.join(al_list) + '\n')
-            for chrom, pos, ref, alt, filename, in_intersection, segment_BAD, segment_id, Qual, segn, sumcov \
+            for chrom, pos, ref, alt, in_intersection, segment_BAD, Qual, segn, sumcov \
                     in Intersection(table, BADmap_file,
                                     unpack_segments_function=lambda x: u.unpack_bad_segments(x, states),
                                     unpack_snp_function=unpack_snps,
                                     write_intersect=True, write_segment_args=True):
                 if not in_intersection:
                     continue
-                p_value = get_p_value(ref + alt, 1 / (segment_BAD + 1), min(ref, alt))
                 out.write(pack([chrom, pos, ref, alt, segment_BAD] +
                                [Qual[x] for x in Qual] + [segn, sumcov] +
-                               [filename, segment_id, p_value]))
+                               ['file', sum([Qual[x] for x in Qual]), '0.1']))
 
 
 if __name__ == '__main__':
