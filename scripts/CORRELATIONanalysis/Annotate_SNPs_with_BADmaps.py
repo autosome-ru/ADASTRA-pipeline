@@ -81,7 +81,7 @@ def main(file_name):
                     continue
                 out.write(pack([chrom, pos, ref, alt, segment_BAD] +
                                [Qual[x] for x in Qual] + [segn, sumcov] +
-                               ['file', sum([Qual[x] for x in Qual]), '0.1']))
+                               ['file', ''.join([str(Qual[x]) for x in Qual]), '0.1']))
 
 
 if __name__ == '__main__':
