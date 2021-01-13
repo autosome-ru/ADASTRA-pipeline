@@ -1,7 +1,6 @@
 import sys
 import gzip
-import os.path
-from scripts.HELPERS.helpers import pack, make_dict_from_vcf, Intersection, callers_names
+from scripts.HELPERS.helpers import pack, make_dict_from_vcf, Intersection
 from scripts.HELPERS.paths_for_components import repeats_path
 
 from scripts.HELPERS.paths import get_ending
@@ -27,21 +26,9 @@ def main(base_path):
             new_arr.append([chromosome, pos, ID, REF, ALT, R, A, repeat_type])
         sorted_lines = new_arr
 
-    for peak_type in callers_names:
-        new_arr = []
-        caller_path = make_sorted_caller_path(base_path, peak_type)
-        if os.path.isfile(caller_path):
-            peak_file = open(caller_path, "r")
-        else:
-            peak_file = []
-        for chromosome, pos, ID, REF, ALT, R, A, repeat_type, *in_peaks in Intersection(sorted_lines, peak_file,
-                                                                                        write_intersect=True):
-            new_arr.append([chromosome, pos, ID, REF, ALT, R, A, repeat_type] + in_peaks)
-        sorted_lines = new_arr
     table_annotated_path = base_path + get_ending('annotation')
     with open(table_annotated_path, "w") as out:
-        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts', 'repeat_type'] +
-                       callers_names))
+        out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'ref_read_counts', 'alt_read_counts', 'repeat_type']))
         for split_line in sorted_lines:
             out.write(pack(split_line))
 

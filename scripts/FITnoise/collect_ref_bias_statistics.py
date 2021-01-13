@@ -43,7 +43,6 @@ def collect_fixed_alt_statistics(master_df, key_name=None, BAD=None, suffix=''):
 
 def main(cell_line=None, suffix='', in_stats=False):
     master_df = pd.read_table(master_list_path, dtype=dtype_dict)
-    master_df = master_df[master_df['EXP_TYPE'] != 'chip_control']
     if in_stats:
         if not cell_line:
             collect_fixed_alt_statistics(master_df, BAD=None)
