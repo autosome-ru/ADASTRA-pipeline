@@ -57,8 +57,8 @@ def invert(dictionary):
 def get_another_agr(path, what_for):
     if what_for == "TF":
         return invert(cell_lines_dict).get(path, "None")
-    if what_for == "CL":
-        return invert(tf_dict).get(path, "None")
+    # if what_for == "CL":
+    #     return invert(tf_dict).get(path, "None")
 
 
 def get_noise(k, n, weight):
@@ -77,14 +77,14 @@ def main(what_for, key_name):
     tables = []
     if what_for == "CL":
         tables = cell_lines_dict[key_name]
-    if what_for == "TF":
-        tables = tf_dict[key_name]
+    # if what_for == "TF":
+    #     tables = tf_dict[key_name]
     print('Reading datasets for {} {}'.format(what_for, key_name))
     common_snps = dict()
     for table in tables:
         if os.path.isfile(table):
             table_name = get_name(table)
-            another_agr = get_another_agr(table, what_for)
+            another_agr = 'None'
             with open(table, 'r') as file:
                 for line in file:
                     try:
