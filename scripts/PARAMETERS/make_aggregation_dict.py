@@ -29,8 +29,7 @@ def makedict(what_for):
 
 
 def main():
-    for ind in 'CL':
-        makedict(ind)
+    makedict('CL')
 
 
 if __name__ == '__main__':
