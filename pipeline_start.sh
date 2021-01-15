@@ -116,11 +116,6 @@ if [ "$stage_index" -le 6 ]; then
 fi
 
 if [ "$stage_index" -le 7 ]; then
-  if ! bash "$scripts_path"/aggregation.sh "$njobs" --forTF
-  then
-    echo 'TF aggregation failed'
-    exit 1
-  fi
   if ! bash "$scripts_path"/aggregation.sh "$njobs" --forCL
   then
     echo 'CL aggregation failed'

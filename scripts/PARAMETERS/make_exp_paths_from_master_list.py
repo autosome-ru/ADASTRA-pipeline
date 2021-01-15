@@ -17,6 +17,8 @@ def main(for_what):
     if for_what == 'badmaps':
         master_df = master_df[master_df['path'].apply(
             lambda x: os.path.isfile(x + get_ending('annotation')))]
+        if master_df.empty:
+            exit(1)
         master_df['path'].to_csv(out_path, sep='\t', index=False, header=False)
     elif for_what == 'annotation':
         master_df[['path', 'PEAKS']].to_csv(out_path, sep='\t', index=False, header=False)
