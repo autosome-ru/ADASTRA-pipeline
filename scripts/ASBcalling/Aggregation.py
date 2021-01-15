@@ -14,8 +14,6 @@ from scripts.HELPERS.paths import get_result_table_path
 
 with open(cl_dict_path, "r") as read_file:
     cell_lines_dict = json.loads(read_file.readline())
-with open(tf_dict_path, "r") as read_file:
-    tf_dict = json.loads(read_file.readline())
 
 
 def logit_combine_p_values(pvalues):
