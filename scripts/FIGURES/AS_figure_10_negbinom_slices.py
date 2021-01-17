@@ -6,14 +6,13 @@ from matplotlib import pyplot as plt, ticker
 import seaborn as sns
 from scipy import stats as st
 
-sys.path.insert(1, "/home/abramov/ASB-Project")
-from scripts.HELPERS.helpers import states
+states = [1, 1.5, 2, 3, 4, 5]
 
 BAD_dict = {1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 4/3: '4/3', 3/2: '3/2', 5/2: '5/2'}
 
 
 def make_negative_binom_density(r, p, w, size_of_counts):
-    negative_binom_density_array = np.zeros(size_of_counts + 1, dtype=np.float128)
+    negative_binom_density_array = np.zeros(size_of_counts + 1, dtype=np.float_)
     dist1 = st.nbinom(r, p)
     f1 = dist1.pmf
     cdf1 = dist1.cdf
@@ -77,7 +76,7 @@ for BAD in states:
         max_c = 50
 
     t = pd.read_table(os.path.expanduser(
-        '~/DataForFigures/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
+        '~/DataForFigures/bias_stats_BAD{:.1f}{}.tsv'.format(BAD,
                                                               {'all': '',
                                                                'K562': '_k562',
                                                                'diploid': '_esc'}[
@@ -151,7 +150,7 @@ for BAD in states:
     for fix_c, fixed_allele, ax in zip(covs, fixs, (ax2, ax3)):
         main_allele = "ref" if fixed_allele == "alt" else "alt"
         stats = pd.read_table(os.path.expanduser(
-            '~/DataForFigures/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD,
+            '~/DataForFigures/bias_stats_BAD{:.1f}{}.tsv'.format(BAD,
                                                                   {'all': '',
                                                                    'K562': '_k562',
                                                                    'diploid': '_esc'}[
@@ -205,8 +204,8 @@ for BAD in states:
 
     # gof vs read cov
 
-    df_alt = pd.read_table(os.path.expanduser('~/DataForFigures/NBweights_alt_BAD={:.1f}.tsv'.format(BAD)))
-    df_ref = pd.read_table(os.path.expanduser('~/DataForFigures/NBweights_ref_BAD={:.1f}.tsv'.format(BAD)))
+    df_alt = pd.read_table(os.path.expanduser('~/DataForFigures/NBweights_alt_BAD{:.1f}.tsv'.format(BAD)))
+    df_ref = pd.read_table(os.path.expanduser('~/DataForFigures/NBweights_ref_BAD{:.1f}.tsv'.format(BAD)))
 
     df_ref = df_ref[(df_ref['gof'] > 0) & (df_ref.index <= 50)]
     df_alt = df_alt[(df_alt['gof'] > 0) & (df_alt.index <= 50)]

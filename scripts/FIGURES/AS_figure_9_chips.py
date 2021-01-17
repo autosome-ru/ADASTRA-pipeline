@@ -86,12 +86,13 @@ lw = 0.05
 a = 0.8
 
 
-df = pd.read_table(os.path.expanduser("~/DataForFigures/cor_stats_test.tsv"))
+# df = pd.read_table(os.path.expanduser("~/DataForFigures/cor_stats_test.tsv"))
+df = pd.read_table(os.path.expanduser("~/Desktop/cor_stats_mcf7_badmap.tsv"))
 # df = df[df['total_snps'] >= 10000]
 df['color'] = df.apply(get_color, axis=1)
 df['hue'] = df.apply(get_hue, axis=1)
 df = df.sort_values('color', axis=0)
-df = df.dropna(subset=["cor_by_snp_CAIC"])
+# df = df.dropna(subset=["cor_by_snp_CAIC"])
 df = df.sort_values("cor_by_snp_CAIC", axis=0, ascending=False)
 df["delta_tau"] = df["cor_by_snp_CAIC"] - df["cor_by_snp_probe_CGH"]
 
@@ -117,11 +118,11 @@ ax.stackplot(x_other, y_other, alpha=a,
 
 ax.grid(True)
 ax.legend()
-ax.set_ylabel("Kendall's τ (Segmentation, COSMIC)")
+ax.set_ylabel("Kendall's τ (Segmentation, CCLE)")
 ax.set_xlabel("Dataset groups sorted by τ")
 
-plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_cor_cosmic.png"), dpi=300)
-plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_cor_cosmic.svg"), dpi=300)
+plt.savefig(os.path.expanduser("~/Dnase/AC_9/Figure_AS_9_cor_cosmic.png"), dpi=300)
+plt.savefig(os.path.expanduser("~/Dnase/AC_9/Figure_AS_9_cor_cosmic.svg"), dpi=300)
 plt.close(fig)
 
 # Draw scatter vs COSMIC
@@ -140,15 +141,15 @@ ax.axhline(y=0, color='#505050', linestyle='--')
 ax.legend(loc='lower left')
 ax.set_xticks([-0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
 ax.set_yticks([-0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
-ax.set_xlim(-0.5, 1)
-ax.set_ylim(-0.5, 1)
+ax.set_xlim(-1, 1)
+ax.set_ylim(-1, 1)
 ax.grid(True)
 
-ax.set_ylabel("Kendall's τ (aCGH Varma et al., COSMIC)")
-ax.set_xlabel("Kendall's τ (Segmentation, COSMIC)")
+ax.set_ylabel("Kendall's τ (aCGH Varma et al., CCLE)")
+ax.set_xlabel("Kendall's τ (Segmentation, CCLE)")
 
-plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter.png"), dpi=300)
-plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter.svg"), dpi=300)
+plt.savefig(os.path.expanduser("~/Dnase/AC_9/Figure_AS_9_scatter.png"), dpi=300)
+plt.savefig(os.path.expanduser("~/Dnase/AC_9/Figure_AS_9_scatter.svg"), dpi=300)
 plt.close(fig)
 
 # Draw scatter vs COSMIC
@@ -161,12 +162,12 @@ df_other = df[df['color'] == 'C0']
 
 field = 'total_snps'
 
-sns.scatterplot(y=df_k562["cor_by_snp_CAIC"], x=df_k562[field], zorder=10,
-                linewidth=0, alpha=0.7, color='C1', label='K562')
+# sns.scatterplot(y=df_k562["cor_by_snp_CAIC"], x=df_k562[field], zorder=10,
+#                 linewidth=0, alpha=0.7, color='C1', label='K562')
 sns.scatterplot(y=df_mcf7["cor_by_snp_CAIC"], x=df_mcf7[field], zorder=10,
                 linewidth=0, alpha=0.7, color='C2', label='MCF7')
-sns.scatterplot(y=df_other["cor_by_snp_CAIC"], x=df_other[field], zorder=10,
-                linewidth=0, alpha=0.7, color='C0', label='Other')
+# sns.scatterplot(y=df_other["cor_by_snp_CAIC"], x=df_other[field], zorder=10,
+#                 linewidth=0, alpha=0.7, color='C0', label='Other')
 sns.lineplot(x=[-1, 1], y=[-1, 1], color='#505050')
 ax.axvline(x=0, color='#505050', linestyle='--')
 ax.axhline(y=0, color='#505050', linestyle='--')
@@ -178,12 +179,29 @@ ax.set_xlim(100, 2000000)
 ax.set_ylim(-0.5, 1)
 ax.grid(True)
 
-ax.set_ylabel("Kendall's τ (Segmentation, COSMIC)")
+ax.set_ylabel("Kendall's 𝜏 (ChIP-Seq data, WGS data)")
 ax.set_xlabel("Number of SNPs in a group of datasets")
 
-plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter_{}.png".format(field)), dpi=300)
-plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter_{}.svg".format(field)), dpi=300)
+plt.savefig(os.path.expanduser("~/Dnase/AC_9/Figure_AS_9_scatter_{}.png".format(field)), dpi=300)
+plt.savefig(os.path.expanduser("~/Dnase/AC_9/Figure_AS_9_scatter_{}.svg".format(field)), dpi=300)
 plt.close(fig)
+
+# # Scatter vs Q
+# for field in ['Q{}_CAIC'.format(x) for x in [1, 3, 5, 7, 10, 20]]:
+#     fig, ax = plt.subplots()
+#     fig.tight_layout(pad=2)
+#     plt.hist(df[field], range=(0, 0.5), bins=50)
+#     ax.axvline(x=float(df[df['#cell_line'] == 'cranial_neural_crest_cells'][field]), color='red', linestyle='--')
+#     ax.grid(True)
+#
+#     ax.set_ylabel("Count")
+#     ax.set_xlabel(field)
+#
+#     plt.savefig(os.path.expanduser("~/Dnase/AC_9/Figure_AS_9_hist_{}.png".format(field)), dpi=300)
+#     plt.savefig(os.path.expanduser("~/Dnase/AC_9/Figure_AS_9_hist_{}.svg".format(field)), dpi=300)
+#     plt.close(fig)
+#
+#
 
 # delta tau 3 colors
 fig, ax = plt.subplots()
@@ -211,6 +229,6 @@ ax.set_xlabel("Dataset groups sorted by Δτ")
 
 ax.grid(True)
 ax.legend()
-plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_delta_tau_chips.png"), dpi=300)
-plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_delta_tau_chips.svg"), dpi=300)
+plt.savefig(os.path.expanduser("~/Dnase/AC_9/Figure_AS_9_delta_tau_chips.png"), dpi=300)
+plt.savefig(os.path.expanduser("~/Dnase/AC_9/Figure_AS_9_delta_tau_chips.svg"), dpi=300)
 plt.close(fig)

@@ -11,6 +11,8 @@ def get_hue(row):
         return 'K562__myelogenous_leukemia_'
     elif row['#cell_line'] == "MCF7__Invasive_ductal_breast_carcinoma_":
         return "MCF7__Invasive_ductal_breast_carcinoma_"
+    elif row['#cell_line'] == 'A549__lung_carcinoma_':
+        return 'A549__lung_carcinoma_'
     else:
         return "others"
 
@@ -20,23 +22,29 @@ def get_color(row):
         return 'C1'
     elif row['#cell_line'] == "MCF7__Invasive_ductal_breast_carcinoma_":
         return "C2"
+    elif row['#cell_line'] == 'A549__lung_carcinoma_':
+        return 'C3'
     else:
         return "C0"
 
 
-def get_cl(row, name):
+def get_cl(row, name, model):
     if name == "K562":
         if row['#cell_line'] != 'K562__myelogenous_leukemia_':
-            row["cor_by_snp_CAIC"] = 0
+            row[model] = 0
             row["delta_tau"] = 0
     if name == "MCF7":
         if row['#cell_line'] != "MCF7__Invasive_ductal_breast_carcinoma_":
-            row["cor_by_snp_CAIC"] = 0
+            row[model] = 0
+            row["delta_tau"] = 0
+    if name == 'A549':
+        if row['#cell_line'] != 'A549__lung_carcinoma_':
+            row[model] = 0
             row["delta_tau"] = 0
     elif name == "other":
         if row['#cell_line'] == "MCF7__Invasive_ductal_breast_carcinoma_" or \
-                row['#cell_line'] == 'K562__myelogenous_leukemia_':
-            row["cor_by_snp_CAIC"] = 0
+                row['#cell_line'] == 'K562__myelogenous_leukemia_' or row['#cell_line'] == 'A549__lung_carcinoma_':
+            row[model] = 0
             row["delta_tau"] = 0
     return row
 
@@ -67,7 +75,7 @@ def get_rect(dataframe: pd.DataFrame, col_name):
 sns.set(font_scale=1.4, style="ticks", font="lato",
         # palette=('#56B4E9', '#009E73', '#F0E442'))
         # palette=('#7570b3', '#d95f02', '#1b9e77'))
-        palette=('#56B4E9', '#E69F00', '#009E73'))
+        palette=('#56B4E9', '#E69F00', '#009E73', '#D55E00'))
         # palette=('#1f77b4', '#2ca02c', '#ff7f0e'))
 sns.set_style({"xtick.direction": "in", "ytick.direction": "in"})
 plt.rcParams['font.weight'] = "medium"
@@ -85,32 +93,45 @@ plt.rcParams["legend.framealpha"] = 1
 lw = 0.05
 a = 0.8
 
+# model = 'cor_by_snp_CAIC@{}@{:.1f}'.format('all_5', 4)
+model = 'cor_by_snp_CAIC'
 
-df = pd.read_table(os.path.expanduser("~/Desktop/soos_BAD/cor_stats_test.tsv"))
+df = pd.read_table(os.path.expanduser("~/DataForFigures/cor_stats_test_full.tsv"))
 # df = df[df['total_snps'] >= 10000]
 df['color'] = df.apply(get_color, axis=1)
 df['hue'] = df.apply(get_hue, axis=1)
 df = df.sort_values('color', axis=0)
-df = df.dropna(subset=["cor_by_snp_CAIC"])
-df = df.sort_values("cor_by_snp_CAIC", axis=0, ascending=False)
-df["delta_tau"] = df["cor_by_snp_CAIC"] - df["cor_by_snp_probe_CGH"]
+df = df.fillna(value=0.01)
+df = df.dropna(subset=[model])
+df = df.sort_values(model, axis=0, ascending=False)
+df["delta_tau"] = df[model] - df["cor_by_snp_probe_CGH"]
 
 # Draw scatter vs COSMIC
 fig, ax = plt.subplots()
 fig.tight_layout(pad=2)
 
-df_k562 = df[df['color'] == 'C1']
-df_mcf7 = df[df['color'] == 'C2']
-df_other = df[df['color'] == 'C0']
-
 field = 'total_snps'
 
-sc1 = plt.scatter(y=df_k562["cor_by_snp_CAIC"], x=df_k562[field], zorder=1,
-                linewidth=0, alpha=0.7, color='C1', label='K562')
-sc2 = plt.scatter(y=df_mcf7["cor_by_snp_CAIC"], x=df_mcf7[field], zorder=1,
-                linewidth=0, alpha=0.7, color='C2', label='MCF7')
-sc3 = plt.scatter(y=df_other["cor_by_snp_CAIC"], x=df_other[field], zorder=1,
-                linewidth=0, alpha=0.7, color='C0', label='Other')
+sc = plt.scatter(y=df[model], x=df[field], zorder=1, linewidth=0, alpha=0.7, color=df['color'])
+
+# df_k562 = df[df['color'] == 'C1']
+# df_mcf7 = df[df['color'] == 'C2']
+# df_a549 = df[df['color'] == 'C3']
+# df_other = df[df['color'] == 'C0']
+#
+# field = 'total_snps'
+#
+# sc1 = plt.scatter(y=df_k562[model], x=df_k562[field], zorder=1,
+#                   linewidth=0, alpha=0.7, color='C1', label='K562')
+# sc2 = plt.scatter(y=df_mcf7[model], x=df_mcf7[field], zorder=1,
+#                   linewidth=0, alpha=0.7, color='C2', label='MCF7')
+# sc3 = plt.scatter(y=df_other[model], x=df_other[field], zorder=1,
+#                   linewidth=0, alpha=0.7, color='C0', label='Other')
+# sc4 = plt.scatter(y=df_a549[model], x=df_a549[field], zorder=1,
+#                   linewidth=0, alpha=0.7, color='C3', label='A 549')
+
+
+
 sns.lineplot(x=[-1, 1], y=[-1, 1], color='#505050')
 ax.axvline(x=0, color='#505050', linestyle='--')
 ax.axhline(y=0, color='#505050', linestyle='--')
@@ -118,7 +139,7 @@ ax.legend(loc='lower right', handletextpad=0.3, handlelength=1)
 # ax.set_xticks([-0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
 ax.set_yticks([-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
 ax.set_xscale('log')
-ax.set_xlim(100, 2000000)
+ax.set_xlim(100, 4000000)
 ax.set_ylim(-0.5, 1)
 ax.grid(True)
 
@@ -134,7 +155,7 @@ annot.set_visible(False)
 def update_annot(ind, names, sc, col):
     pos = sc.get_offsets()[ind["ind"][0]]
     annot.xy = pos
-    text = "{}".format("\n".join([names[n] for n in ind["ind"]]))
+    text = "{}".format("\n\n".join([names[n] for n in ind["ind"]]))
     annot.set_text(text)
     annot.get_bbox_patch().set_facecolor(col)
     annot.get_bbox_patch().set_alpha(0.4)
@@ -156,15 +177,14 @@ def hover_sc(names, sc, col):
     return hover
 
 
-def extract_biosamples(name):
+def extract_biosamples(row):
+    name = row['cells']
     if name.find('ENC') != -1:
         return name[name.find('ENC'):-1]
     if name.find('GSE') != -1:
         return name[name.find('GSE'):]
 
 
-fig.canvas.mpl_connect("motion_notify_event", hover_sc([extract_biosamples(x) for x in list(df_k562['cells'])], sc1, 'C1'))
-fig.canvas.mpl_connect("motion_notify_event", hover_sc([extract_biosamples(x) for x in list(df_mcf7['cells'])], sc2, 'C2'))
-fig.canvas.mpl_connect("motion_notify_event", hover_sc([extract_biosamples(x) for x in list(df_other['cells'])], sc3, 'C0'))
+fig.canvas.mpl_connect("motion_notify_event", hover_sc(['\n'.join(map(str, [x['#cell_line'], x['#_of_merged_datasets'], extract_biosamples(x)])) for i, x in df.iterrows()], sc, 'grey'))
 
 plt.show()

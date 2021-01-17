@@ -39,18 +39,18 @@ plt.rcParams["legend.framealpha"] = 1
 
 
 lw = 1.25
-states = [1, 2, 3, 4, 5, 6, 4/3, 3/2, 5/2]
+states = [1, 2, 3, 4, 5, 3/2]
 
 for max_c, cells, covs, BAD, p, suffix in [
-    [150, 'K562', [30, 60], 0, 1/3, '_big'],
-    [100, 'diploid', [15, 30], 0, 1/2, '_small'],
-    [50, 'HCT116', [15, 30], 0, 1/2, '_small'],
+    # [150, 'K562', [30, 60], 0, 1/3, '_big'],
+    # [100, 'diploid', [15, 30], 0, 1/2, '_small'],
+    # [50, 'HCT116', [15, 30], 0, 1/2, '_small'],
 ] + [[150, 'all', [30, 60], B, 0, '_big'] for B in states] + [[50, 'all', [15, 30], B, 0, '_small'] for B in states + [0]] + \
         [[50, 'all', [15, 30], 0, 1/2, '_small'], [150, 'all', [30, 60], 0, 1/2, '_big']]:
     if BAD != 0:
         p = 1/(BAD + 1)
     t = pd.read_table(os.path.expanduser(
-        '~/DataForFigures/fixed_alt_bias_statistics_BAD={:.1f}{}.tsv'.format(BAD if BAD else 0,
+        '~/DataForFigures/bias_stats_BAD{:.1f}{}.tsv'.format(BAD if BAD else 0,
                                                               {'all': '',
                                                                'K562': '_k562',
                                                                'diploid': '_esc',

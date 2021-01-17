@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt, ticker
 from matplotlib import gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import seaborn as sns
+from scipy.stats import kendalltau
 
 sys.path.insert(1, "/home/abramov/ASB-Project")
 from scripts.HELPERS.helpers import ChromPos
@@ -32,15 +33,16 @@ plt.rcParams["legend.framealpha"] = 1
 # snps_name = os.path.expanduser('~/cherry_BAD/K562__myelogenous_leukemia_!_labs_xiang-dong-fu___biosamples_ENCBS074NGX_.tsv')
 # ploidy_name = os.path.expanduser('~/K562_BAD_Segments/K562_myelogenous_leukemia!_labs_xiang-dong-fu___biosamples_ENCBS074NGX__ploidy.tsv')
 
-snps_name = os.path.expanduser('~/DataForFigures/K562__myelogenous_leukemia_!_labs_michael-snyder___biosamples_ENCBS725WFV_.tsv')
-ploidy_name = os.path.expanduser('~/DataForFigures/K562__myelogenous_leukemia_!_labs_michael-snyder___biosamples_ENCBS725WFV__ploidy.tsv')
+snps_name = os.path.expanduser('~/Desktop//SRR8652105.table.tsv')
+ploidy_name = os.path.expanduser('~/Desktop//SRR8652105.badmap.tsv')
 
 
-cosmic_name = os.path.expanduser('~/DataForFigures/cell_lines_copy_number.csv')
-cnv_line = 'K-562'
+# cosmic_name = os.path.expanduser('~/Desktop/CCLE_copy_number_hg38.sorted.txt')
+cosmic_name = os.path.expanduser('~/Desktop/COSMIC_copy_number_MCF7.txt')
+cnv_line = 'MCF7_BREAST'
 
 snps = pd.read_table(snps_name, header=None)
-snps.columns = ['chr', 'pos', 'ID', 'ref', 'alt', 'ref_c', 'alt_c']
+snps.columns = ['chr', 'pos', 'ID', 'ref', 'alt', 'ref_c', 'alt_c', 'dataset']
 snps = snps[snps['ID'] != '.']
 snps['AD'] = snps[['ref_c', 'alt_c']].max(axis=1) / snps[['ref_c', 'alt_c']].min(axis=1)
 snps['cov'] = snps['ref_c'] + snps['alt_c']
@@ -59,11 +61,143 @@ y_min = 0.8
 y_max = 6
 delta_y = 0.05
 
+def unpack_segments(line):
+    if isinstance(line, (list, tuple)):
+        return line
+    if line[0] == '#':
+        return [''] * len(line.strip().split('\t'))
+    return line.strip().split('\t')
+
+class Intersection:
+    def __init__(self, snps, segments, write_segment_args=False, write_intersect=False,
+                 unpack_segments_function=unpack_segments, unpack_snp_function=lambda x: x):
+        self.snps = iter(snps)
+        self.segments = iter(segments)
+        self.unpack_snp_function = unpack_snp_function
+        self.unpack_segments_function = unpack_segments_function
+        self.write_segment_args = write_segment_args
+        self.write_intersect = write_intersect
+        self.snp_args = []
+        self.seg_args = []
+        self.snp_coordinate = None
+        self.segment_start = None
+        self.segment_end = None
+        self.has_segments = True
+        self.has_snps = True
+
+    def __iter__(self):
+        return self
+
+    def return_snp(self, intersect):
+        return [self.snp_coordinate.chr, self.snp_coordinate.pos] + self.snp_args \
+               + [int(intersect)] * self.write_intersect \
+               + [((arg if intersect else {}) if isinstance(arg, dict) else arg * intersect)
+                  for arg in self.seg_args] * self.write_segment_args
+
+    def get_next_snp(self):
+        try:
+            snp_chr, pos, *self.snp_args = self.unpack_snp_function(next(self.snps))
+            self.snp_coordinate = ChromPos(snp_chr, pos)
+        except ValueError:
+            self.get_next_snp()
+
+    def get_next_segment(self):
+        try:
+            seg_chr, start_pos, end_pos, *self.seg_args = self.unpack_segments_function(next(self.segments))
+            self.segment_start = ChromPos(seg_chr, start_pos)
+            self.segment_end = ChromPos(seg_chr, end_pos)
+        except StopIteration:
+            self.has_segments = False
+        except ValueError:
+            self.get_next_segment()
+
+    def __next__(self):
+        if not self.has_snps:
+            raise StopIteration
+
+        if self.snp_coordinate is None:
+            self.get_next_snp()
+        if self.segment_start is None:
+            self.get_next_segment()
+
+        while self.has_segments and self.snp_coordinate >= self.segment_end:
+            self.get_next_segment()
+
+        if self.has_segments and self.snp_coordinate >= self.segment_start:
+            x = self.return_snp(True)
+            self.get_next_snp()
+            return x
+        else:
+            x = self.return_snp(False)
+            try:
+                self.get_next_snp()
+            except StopIteration:
+                self.has_snps = False
+            return x
+
+def correlation_with_cosmic():
+    cosmic_segments = []
+    with open(cosmic_name, 'r') as cosmic_file:
+        for line in cosmic_file:
+            if line.startswith('#'):
+                continue
+            sample_name, chr, startpos, endpos, minorCN, totalCN = line.strip('\n').split('\t')
+            if sample_name != 'MCF7_BREAST':
+                continue
+            if int(minorCN) == 0:
+                continue
+            cosmic_segments.append((chr, int(startpos), int(endpos), (int(totalCN) - int(minorCN))/int(minorCN) ))
+    ploidy_segments = []
+    with open(ploidy_name, 'r') as ploidy_file:
+        for line in ploidy_file:
+            if line.startswith('#'):
+                continue
+            pl_chr, start, end, BAD, *values = line.strip('\n').split('\t')
+            if BAD == 0:
+                continue
+            ploidy_segments.append((pl_chr, int(start), int(end), float(BAD)))
+    snps = []
+    with open(snps_name, 'r') as snps_file:
+        for line in snps_file:
+            if line.startswith('#'):
+                continue
+            chr, pos, ID, ref, alt, ref_c, alt_c, dataset = line.strip('\n').split('\t')
+            snps.append((chr, int(pos)))
+
+
+    pl_snps = []
+    for chr, pos, in_intersect, BAD \
+            in Intersection(snps, ploidy_segments, write_intersect=True,
+                            write_segment_args=True):
+        if not in_intersect:
+            continue
+        pl_snps.append((chr, pos, BAD))
+
+
+    snp_ploidy = []
+    cosm_ploidy = []
+    for chr, pos, ploidy, in_intersect, cosmic_ploidy \
+            in Intersection(pl_snps, cosmic_segments, write_intersect=True,
+                            write_segment_args=True):
+        if not in_intersect:
+            continue
+        snp_ploidy.append(ploidy)
+        cosm_ploidy.append(cosmic_ploidy)
+
+    if len(snp_ploidy) != 0:
+        kt = kendalltau(snp_ploidy, cosm_ploidy)[0]
+        if kt == 'nan':
+            return 'NaN'
+        return kt
+    return 'NaN'
+
+print(correlation_with_cosmic())
+
 
 #COSMIC comparison
 for chr in chrs:
     print(chr)
-    cosmic = pd.read_csv(cosmic_name, low_memory=False)
+    cosmic = pd.read_table(cosmic_name, low_memory=False)
     fig, ax = plt.subplots(1, 1)
     fig.tight_layout(pad=1.5)
     plt.gca().xaxis.set_major_formatter(plt.ScalarFormatter(useMathText=True))
@@ -73,10 +207,10 @@ for chr in chrs:
     chr_snps['AD'] = chr_snps['AD'].apply(lambda y: y_max - delta_y if y > y_max else y)
     chr_cosmic = cosmic.loc[
         (cosmic['#sample_name'] == cnv_line) &
-        ('chr' + cosmic['chr'] == chr) &
+        (cosmic['chr'] == chr) &
         (cosmic['minorCN'] != 0)
     ].copy()
-    chr_cosmic['chr'] = 'chr' + chr_cosmic['chr']
+    chr_cosmic['chr'] = chr_cosmic['chr']
     chr_cosmic['startpos'] = chr_cosmic['startpos'].astype(int)
     chr_cosmic['endpos'] = chr_cosmic['endpos'].astype(int)
 
@@ -143,8 +277,7 @@ for chr in chrs:
     COSMIC_BADs = []
     cosmic_borders = []
     last_end = 1
-    for index, (sample_name, sample_id, SNPstart, SNPend, chr,
-                startpos, endpos, chr_37, start_37, end_37, minorCN, totalCN) in chr_cosmic.iterrows():
+    for index, (sample_name, chr, startpos, endpos, minorCN, totalCN) in chr_cosmic.iterrows():
         if startpos - last_end >= ChromPos.chrs[chr] * vd * 2:
             if last_end == 1:
                 cosmic_borders += [startpos - ChromPos.chrs[chr] * vd]
@@ -179,7 +312,7 @@ for chr in chrs:
     ax.grid(which='major', axis='both')
     ax.set_xticklabels([])
     ax.set_yticks(list(range(1, int(y_max) + 1)))
-    ax.text(0.99, 0.95, 'K562 {}'.format(chr),
+    ax.text(0.99, 0.95, 'MCF7 {}'.format(chr),
             horizontalalignment='right',
             verticalalignment='top',
             transform=ax.transAxes)
@@ -209,6 +342,6 @@ for chr in chrs:
     #                                orientation='horizontal')
 
     # plt.savefig(os.path.expanduser('~/AC_4/Figure_AS_4_stage2_cosmic_{}.svg'.format(chr)), dpi=300)
-    plt.savefig(os.path.expanduser('~/AC_4/Figure_AS_4_stage2_cosmic_{}.svg'.format(chr)), dpi=300)
+    plt.savefig(os.path.expanduser('~/Desktop/SRR/Figure_AS_4_stage2_cosmic_{}.png'.format(chr)), dpi=300)
     # plt.show()
     plt.close(fig)
