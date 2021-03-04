@@ -52,7 +52,7 @@ def make_dict(master_list_dnase, master_list_chip):
     master_dnase = pd.read_table(master_list_dnase, dtype=dtype_dict)
     master_dnase['CELLS'] = master_dnase['CELLS'].apply(remove_punctuation)
     d = {}
-    if master_chip:
+    if master_list_chip:
         chip_len = len(master_chip.index)
         for index, row in master_chip.iterrows():
             if chip_len > 10 and index % (chip_len // 10) == 0:
