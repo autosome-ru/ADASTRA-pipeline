@@ -17,7 +17,9 @@ def get_ending(for_what):
     raise AssertionError('Incorrect input parameter')
 
 
-def create_path_from_master_list_df(row, for_what='base'):
+def create_path_from_master_list_df(row, for_what='base', is_chip=False):
+    if is_chip:
+        return os.path.join('/home/abramov/AlignmentsChip', row['#EXP'], row['ALIGNS'] + get_ending(for_what))
     return os.path.join(alignments_path, row['#EXP'], row['ALIGNS'] + get_ending(for_what))
 
 
