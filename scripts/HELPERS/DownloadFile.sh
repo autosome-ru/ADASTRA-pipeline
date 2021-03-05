@@ -4,26 +4,13 @@ download_path=$1
 dir_path=$2
 bam_name=$3
 
-if ! scp -T -P 1300 autosome@localhost:"$download_path" "$dir_path"
+if ! scp -P 1300 autosome@localhost:"$download_path" "$dir_path/${bam_name}"
 then
-  echo "Failed to download $download_path in $dir_path"
+  echo "Failed to download $download_path in $dir_path/${bam_name}"
   exit 1
 fi
 
-if ! adastra make_bam_list --exp-dir "$dir_path" --download "$download_path"
-then
-  echo 'Failed to merge bam'
-  exit 1
-fi
+mv "$dir_path/${bam_name}" /mnt/NAS/home/abramov/atac/
 
-if ! samtools merge -b "$dir_path/bam_list.txt" "$dir_path"/${bam_name}
-then
-  echo "Failed to merge vcfs for $download_path"
-  exit 1
-fi
-while read line; do
-  echo "Removing bam $line"
-  mv $line /mnt/NAS/home/abramov/dnase/
-done < "$dir_path/bam_list.txt"
-rm "$dir_path/bam_list.txt"
+
 
