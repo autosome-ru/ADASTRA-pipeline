@@ -300,8 +300,8 @@ def main(file_name):
                                  [quality_scores[model]
                                   for model in map(lambda x: get_name_by_dir(x, naive_modes), snp_dirs)] +
 
-                                 [json.dumps(datasets_info[model])
-                                  for model in map(lambda x: get_name_by_dir(x, naive_modes), snp_dirs)]
+                                 [[json.dumps(datasets_info[model])
+                                  for model in map(lambda x: get_name_by_dir(x, naive_modes), snp_dirs)]]
 
                                  )) + '\n'
         out.write(out_line)
