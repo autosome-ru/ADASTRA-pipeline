@@ -140,7 +140,7 @@ def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, f
                 out2.write(header_comment)
             assert os.path.isfile(badmap_path)
             copy2(badmap_path, new_badmap_path)
-            return ['NaN'] * len(percentiles_list)
+            return ['NaN'] * (len(percentiles_list) + len(cover_procentiles_list)), {}
     out_table = pd.read_table(snps_path, header=None, comment='#')
     out_table.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in states] + ['snps_n',
                                                                                                            'sumcov',
