@@ -1,6 +1,6 @@
 import os
 
-from scripts.HELPERS.helpers import test_percentiles_list
+from scripts.HELPERS.helpers import test_percentiles_list, cover_procentiles_list
 from scripts.HELPERS.paths import get_correlation_path
 
 
@@ -29,8 +29,11 @@ def main():
                                 [['cor_by_snp_naive',
                                   'cor_by_probe_CGH', 'cor_by_snp_probe_CGH']] +
                                 [['Q{}_{}'.format(percentile, get_name_by_dir(snp_dir)) for
-                                  percentile in test_percentiles_list]
-                                 for snp_dir in snp_dirs]
+                                  percentile in test_percentiles_list] +
+                                 ['CQ{}_{}'.format(percentile, get_name_by_dir(snp_dir)) for
+                                  percentile in cover_procentiles_list]
+                                 for snp_dir in snp_dirs] +
+                                [['datasets_info']]
                                 )) + '\n')
 
         for file_name in os.listdir(correlation_path):

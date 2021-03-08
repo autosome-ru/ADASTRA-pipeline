@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import sys
@@ -7,7 +8,7 @@ import pandas as pd
 from shutil import copy2
 import errno
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos, get_states, \
-    test_percentiles_list
+    test_percentiles_list, cover_procentiles_list
 from scripts.HELPERS.paths_for_components import cgh_path, cosmic_path, badmaps_path
 from scripts.HELPERS.paths import get_correlation_path, get_heatmap_data_path, get_badmaps_path_by_validity
 
@@ -139,7 +140,7 @@ def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, f
                 out2.write(header_comment)
             assert os.path.isfile(badmap_path)
             copy2(badmap_path, new_badmap_path)
-            return ['NaN'] * len(percentiles_list)
+            return ['NaN'] * (len(percentiles_list) + len(cover_procentiles_list)), '{}'
     out_table = pd.read_table(snps_path, header=None, comment='#')
     out_table.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in states] + ['snps_n',
                                                                                                            'sumcov',
@@ -148,6 +149,21 @@ def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, f
                                                                                                            'p_value']
     quals = get_quality_metrics(test_percentiles_list, out_table)
     valid = np.quantile(out_table['p_value'], 0.05) >= 0.05
+    cover_list = out_table['ref'] + out_table['alt']
+    q_var = [np.quantile(cover_list, q/100) for q in cover_procentiles_list]
+
+    datasets_info = {}
+    for dataset in out_table['dataset'].unique():
+        table = out_table[out_table['dataset'] == dataset]
+        quals = get_quality_metrics(test_percentiles_list, table)
+        cover_list = table['ref'] + table['alt']
+        datasets_info[dataset] = {
+            'snps': len(table.index),
+            'cover': sum(cover_list),
+            'quals': {'Q{}'.format(pr): q for pr, q in zip(test_percentiles_list, quals)},
+            'cover_quals': {'CQ{}'.format(q): np.quantile(cover_list, q/100) for q in cover_procentiles_list}
+        }
+
     with open(new_path, 'w') as out:
         out.write(header_comment)
 
@@ -160,7 +176,7 @@ def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, f
             header = src.readline()
             dst.write(header)
 
-    return quals
+    return quals + q_var, datasets_info
 
 
 def main(file_name):
@@ -191,6 +207,7 @@ def main(file_name):
         corr_to_objects = {}
         segment_numbers = {}
         quality_scores = {}
+        datasets_info = {}
         # print('reading COSMIC')
         cell_line_name = file_name[:file_name.rfind('@')]
 
@@ -214,7 +231,7 @@ def main(file_name):
             if not os.path.isdir(os.path.join(valid_badmaps_path, model)):
                 os.mkdir(os.path.join(valid_badmaps_path, model))
 
-            quality_scores[model] = filter_segments_or_datasets(reader.SNP_path, states, new_path,
+            quality_scores[model], datasets_info[model] = filter_segments_or_datasets(reader.SNP_path, states, new_path,
                                                                 test_percentiles_list, file_name, model)
             reader.SNP_path = new_path
 
@@ -281,7 +298,10 @@ def main(file_name):
                                  [[corr_to_objects_chip_nearest]] +
 
                                  [quality_scores[model]
-                                  for model in map(lambda x: get_name_by_dir(x, naive_modes), snp_dirs)]
+                                  for model in map(lambda x: get_name_by_dir(x, naive_modes), snp_dirs)] +
+
+                                 [[json.dumps(datasets_info[model])
+                                  for model in map(lambda x: get_name_by_dir(x, naive_modes), snp_dirs)]]
 
                                  )) + '\n'
         out.write(out_line)
