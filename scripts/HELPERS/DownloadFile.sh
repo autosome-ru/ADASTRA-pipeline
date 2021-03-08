@@ -10,7 +10,7 @@ then
   exit 1
 fi
 
-mv "$dir_path/${bam_name}" /mnt/NAS/home/abramov/atac/
+cp "$dir_path/${bam_name}" /mnt/NAS/home/abramov/atac/
 
 
 
