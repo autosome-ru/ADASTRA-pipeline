@@ -85,8 +85,12 @@ plt.rcParams["legend.framealpha"] = 1
 lw = 0.05
 a = 0.8
 
+def get_metric(row):
+    return row['Q5_CAIC']
+    # return row['CQ75_CAIC'] / row['CQ25_CAIC']
 
-df = pd.read_table(os.path.expanduser("~/DataForFigures/cor_stats_test.tsv"))
+
+df = pd.read_table(os.path.expanduser("D:\\Sashok\\Desktop\\cor_stats_dnase.tsv"))
 # df = df[df['total_snps'] >= 10000]
 df['color'] = df.apply(get_color, axis=1)
 df['hue'] = df.apply(get_hue, axis=1)
@@ -94,6 +98,7 @@ df = df.sort_values('color', axis=0)
 df = df.dropna(subset=["cor_by_snp_CAIC"])
 df = df.sort_values("cor_by_snp_CAIC", axis=0, ascending=False)
 df["delta_tau"] = df["cor_by_snp_CAIC"] - df["cor_by_snp_probe_CGH"]
+df['siz'] = df.apply(get_metric, axis=1)
 
 df_k562 = df.apply(lambda x: get_cl(x, "K562"), axis=1)
 df_mcf7 = df.apply(lambda x: get_cl(x, "MCF7"), axis=1)
@@ -162,11 +167,11 @@ df_other = df[df['color'] == 'C0']
 field = 'total_snps'
 
 sns.scatterplot(y=df_k562["cor_by_snp_CAIC"], x=df_k562[field], zorder=10,
-                linewidth=0, alpha=0.7, color='C1', label='K562')
+                linewidth=0, alpha=0.7, color='C1', label='K562', size=df_k562['siz'])
 sns.scatterplot(y=df_mcf7["cor_by_snp_CAIC"], x=df_mcf7[field], zorder=10,
-                linewidth=0, alpha=0.7, color='C2', label='MCF7')
+                linewidth=0, alpha=0.7, color='C2', label='MCF7', size=df_mcf7['siz'])
 sns.scatterplot(y=df_other["cor_by_snp_CAIC"], x=df_other[field], zorder=10,
-                linewidth=0, alpha=0.7, color='C0', label='Other')
+                linewidth=0, alpha=0.7, color='C0', label='Other', size=df_other['siz'])
 sns.lineplot(x=[-1, 1], y=[-1, 1], color='#505050')
 print(len(df_k562.index) + len(df_mcf7.index) + len(df_other.index))
 ax.axvline(x=0, color='#505050', linestyle='--')
