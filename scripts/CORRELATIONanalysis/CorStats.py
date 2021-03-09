@@ -125,8 +125,13 @@ def find_nearest_probe_to_SNP(SNP_objects, CGH_objects):
     return nearest_probes
 
 
-def get_quality_metrics(percentiles_list, df):
+def get_p_value_quantiles(percentiles_list, df):
     return list(np.quantile(df['p_value'], [x / 100 for x in percentiles_list]))
+
+
+def get_p_value_tails_weights(percentiles_list, df):
+    total = len(df.index)
+    return list(len(df[df['p_value'] <= p / 100].index) / total for p in percentiles_list)
 
 
 def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, file_name, model):
@@ -147,7 +152,8 @@ def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, f
                                                                                                            'dataset',
                                                                                                            'seg_id',
                                                                                                            'p_value']
-    quals = get_quality_metrics(test_percentiles_list, out_table)
+    quals = get_p_value_quantiles(test_percentiles_list, out_table)
+    p_tails = get_p_value_tails_weights(test_percentiles_list, out_table)
     valid = np.quantile(out_table['p_value'], 0.05) >= 0.05
     cover_list = out_table['ref'] + out_table['alt']
     q_var = [np.quantile(cover_list, q/100) for q in cover_procentiles_list]
@@ -155,13 +161,15 @@ def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, f
     datasets_info = {}
     for dataset in out_table['dataset'].unique():
         table = out_table[out_table['dataset'] == dataset]
-        quals = get_quality_metrics(test_percentiles_list, table)
+        quals = get_p_value_quantiles(test_percentiles_list, table)
         cover_list = table['ref'] + table['alt']
+        total = len(table.index)
         datasets_info[dataset] = {
             'snps': len(table.index),
             'cover': sum(cover_list),
             'quals': {'Q{}'.format(pr): q for pr, q in zip(test_percentiles_list, quals)},
-            'cover_quals': {'CQ{}'.format(q): np.quantile(cover_list, q/100) for q in cover_procentiles_list}
+            'p_tails': {'P{}'.format(p): len(table[table['p_value'] <= p / 100].index) / total for p in percentiles_list},
+            'cover_quals': {'CQ{}'.format(q): np.quantile(cover_list, q/100) for q in cover_procentiles_list},
         }
 
     with open(new_path, 'w') as out:
@@ -176,7 +184,7 @@ def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, f
             header = src.readline()
             dst.write(header)
 
-    return quals + q_var, datasets_info
+    return quals + p_tails + q_var, datasets_info
 
 
 def main(file_name):
