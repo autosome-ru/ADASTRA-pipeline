@@ -30,6 +30,8 @@ def main():
                                   'cor_by_probe_CGH', 'cor_by_snp_probe_CGH']] +
                                 [['Q{}_{}'.format(percentile, get_name_by_dir(snp_dir)) for
                                   percentile in test_percentiles_list] +
+                                 ['P{}_{}'.format(percentile, get_name_by_dir(snp_dir)) for
+                                  percentile in test_percentiles_list] +
                                  ['CQ{}_{}'.format(percentile, get_name_by_dir(snp_dir)) for
                                   percentile in cover_procentiles_list]
                                  for snp_dir in snp_dirs] +
