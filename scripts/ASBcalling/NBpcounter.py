@@ -27,6 +27,7 @@ def count_p(ref_c, alt_c, BADs):
             if r == 0:
                 r = ref_c[i]
                 w = 1
+        w = 1  # FIXME: testing
         dist1 = st.nbinom(r, 1 / (BADs[i] + 1))
         dist2 = st.nbinom(r, BADs[i] / (BADs[i] + 1))
         cdf1 = dist1.cdf
@@ -53,6 +54,7 @@ def count_p(ref_c, alt_c, BADs):
             if r == 0:
                 r = alt_c[i]
                 w = 1
+        w = 1  # FIXME: testing
         dist1 = st.nbinom(r, 1 / (BADs[i] + 1))
         dist2 = st.nbinom(r, BADs[i] / (BADs[i] + 1))
         cdf1 = dist1.cdf
