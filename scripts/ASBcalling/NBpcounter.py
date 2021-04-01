@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import pandas as pd
+from math import ceil
 from scipy import stats as st
 from scripts.HELPERS.helpers import read_weights
 from scripts.HELPERS.paths import get_ending
@@ -16,61 +17,56 @@ def count_p(ref_c, alt_c, BADs):
     es_alt = np.zeros(N, dtype=np.float128)
 
     for i in range(N):
-
-        if ref_c[i] > 500:
-            r = ref_c[i]
-            w = 1
-        else:
-            r, w, gof = (r_dict['ref'][BADs[i]][ref_c[i]],
-                         w_dict['ref'][BADs[i]][ref_c[i]],
-                         gof_dict['ref'][BADs[i]][ref_c[i]])
-            if r == 0:
+        if alt_c[i] >= ref_c[i] * BADs[i]:
+            if ref_c[i] > 500:
                 r = ref_c[i]
-                w = 1
-        w = 1  # FIXME: testing
-        dist1 = st.nbinom(r, 1 / (BADs[i] + 1))
-        dist2 = st.nbinom(r, BADs[i] / (BADs[i] + 1))
-        cdf1 = dist1.cdf
-        cdf2 = dist2.cdf
-        pmf1 = dist1.pmf
-        pmf2 = dist2.pmf
-        pmf = lambda x: w * pmf1(x) + (1 - w) * pmf2(x)
-        cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
-        p_alt[i] = (1 - cdf(alt_c[i] - 1)) / (1 - cdf(4))
-        if p_alt[i] != 1:
-            E_alt = (r * (BADs[i] * w + (1 - w) / BADs[i]) - sum(i * pmf(i) for i in range(5))) / (
-                    1 - cdf(4))
-            es_alt[i] = np.log(alt_c[i] / E_alt)
-        else:
-            es_alt[i] = 'NaN'
+            else:
+                r, gof = (r_dict['ref'][BADs[i]][ref_c[i]],
+                          gof_dict['ref'][BADs[i]][ref_c[i]])
+                if r == 0:
+                    r = ref_c[i]
 
-        if alt_c[i] > 500:
-            r = alt_c[i]
-            w = 1
+            dist = st.nbinom(r, 1 / (BADs[i] + 1))
+            cdf = dist.cdf
+            left_border = ceil(r * BADs[i])
+            p_alt[i] = (1 - cdf(alt_c[i] - 1)) / (1 - cdf(left_border - 1))
+            es_alt[i] = np.log2(alt_c[i] / left_border)
         else:
-            r, w, gof = (r_dict['alt'][BADs[i]][alt_c[i]],
-                         w_dict['alt'][BADs[i]][alt_c[i]],
-                         gof_dict['alt'][BADs[i]][alt_c[i]])
-            if r == 0:
+            p_alt[i] = np.nan
+            es_alt[i] = np.nan
+
+        #  _______________________________
+
+        if ref_c[i] >= alt_c[i] * BADs[i]:
+            if alt_c[i] > 500:
                 r = alt_c[i]
-                w = 1
-        w = 1  # FIXME: testing
-        dist1 = st.nbinom(r, 1 / (BADs[i] + 1))
-        dist2 = st.nbinom(r, BADs[i] / (BADs[i] + 1))
-        cdf1 = dist1.cdf
-        cdf2 = dist2.cdf
-        pmf1 = dist1.pmf
-        pmf2 = dist2.pmf
-        pmf = lambda x: w * pmf1(x) + (1 - w) * pmf2(x)
-        cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
-        p_ref[i] = (1 - cdf(ref_c[i] - 1)) / (1 - cdf(4))
-        if p_ref[i] != 1:
-            E_ref = (r * (BADs[i] * w + (1 - w) / BADs[i]) - sum(i * pmf(i) for i in range(5))) / (
-                    1 - cdf(4))
-            es_ref[i] = np.log(ref_c[i] / E_ref)
+            else:
+                r, gof = (r_dict['alt'][BADs[i]][alt_c[i]],
+                          gof_dict['alt'][BADs[i]][alt_c[i]])
+                if r == 0:
+                    r = alt_c[i]
+
+            dist = st.nbinom(r, 1 / (BADs[i] + 1))
+            cdf = dist.cdf
+            left_border = ceil(r * BADs[i])
+            p_ref[i] = (1 - cdf(ref_c[i] - 1)) / (1 - cdf(left_border - 1))
+            es_ref[i] = np.log2(ref_c[i] / left_border)
         else:
-            es_ref[i] = 'NaN'
+            p_ref[i] = np.nan
+            es_ref[i] = np.nan
     return p_ref, p_alt, es_ref, es_alt
+
+
+def test_pval():
+    inp_str = ''
+    while inp_str != 'q':
+        inp_str = input('Enter ref_c alt_c BAD')
+        try:
+            refc, altc, BAD = [float(x) for x in inp_str]
+        except ValueError:
+            continue
+        p_ref, p_alt, es_ref, es_alt = count_p([refc], [altc], [BAD])
+        print('pval ref: {}\npval alt: {}\nes ref: {}\nes_alt: {}'.format(p_ref[0], p_alt[0], es_ref[0], es_alt[0]))
 
 
 def main(base_path):

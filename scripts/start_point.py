@@ -26,6 +26,7 @@ Usage:
             adastra weights_to_df
             adastra extract_sarus_data --name <name> --motif-len <int>
             adastra annotate_table_with_sarus --name <name> --motif-len <int>
+            adastra test_pval
             adastra annotate_with_phenotypes
             adastra extract_context
             adastra -h | --help
@@ -166,6 +167,9 @@ def main():
     elif args['extract_context']:
         from .Qcontrol.extract_context import main
         main()
+    elif args['test_pval']:
+        from .ASBcalling.NBpcounter import test_pval
+        test_pval()
 
 
 def convert_motif_len_to_int(motif_len_string):
