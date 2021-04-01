@@ -27,8 +27,7 @@ def count_p(ref_c, alt_c, BADs):
                     r = ref_c[i]
 
             cdf = st.nbinom(r, 1 / (BADs[i] + 1)).cdf
-            left_border = ceil(r * BADs[i])
-            print(left_border)
+            left_border = ceil(ref_c[i] * BADs[i])
             p_alt[i] = (1 - cdf(alt_c[i] - 1)) / (1 - cdf(left_border - 1))
             es_alt[i] = np.log2(alt_c[i] / left_border)
         else:
@@ -47,7 +46,7 @@ def count_p(ref_c, alt_c, BADs):
                     r = alt_c[i]
 
             cdf = st.nbinom(r, 1 / (BADs[i] + 1)).cdf
-            left_border = ceil(r * BADs[i])
+            left_border = ceil(alt_c[i] * BADs[i])
             p_ref[i] = (1 - cdf(ref_c[i] - 1)) / (1 - cdf(left_border - 1))
             es_ref[i] = np.log2(ref_c[i] / left_border)
         else:
