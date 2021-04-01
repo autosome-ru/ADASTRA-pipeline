@@ -94,6 +94,8 @@ def main():
         print("Made aggregation for {} {}s".format(obj_counter[what_for], what_for))
         print('In {} aggregation - {},{} ref and alt ASB events respectively'.format(what_for,
                                                                                      total_fdrs_ref, total_fdrs_alt))
+    with open(os.path.join(get_release_stats_path(), "overall_statistics.json"), "w") as json_file:
+        json.dump(dict_overall_statistics, json_file)
     for tf_file in os.listdir(get_result_dir_path('TF')):
         tf_name = os.path.splitext(tf_file)[0]
         dict_concordance_stats[tf_name] = {
@@ -113,8 +115,6 @@ def main():
                 dict_concordance_stats[tf_name][concordance] = d[concordance]
     with open(os.path.join(get_release_stats_path(), "concordance_statistics.json"), "w") as conc_file:
         json.dump(dict_concordance_stats, conc_file)
-    with open(os.path.join(get_release_stats_path(), "overall_statistics.json"), "w") as json_file:
-        json.dump(dict_overall_statistics, json_file)
 
     with open(os.path.join(get_release_stats_path(), 'convert_cell_lines.json'), 'w') as o:
         d_to_write = {}
