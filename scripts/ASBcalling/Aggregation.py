@@ -194,7 +194,7 @@ def main(what_for, key_name):
 
             logitp_ref = logit_combine_p_values(p_ref_array)
             logitp_palt = logit_combine_p_values(p_alt_array)
-
+            assert len(ref_effect_size_array) == len(p_ref_array)
             if ref_effect_size_array:
                 weights = [-1 * np.log10(x) for x in p_ref_array]
                 es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
