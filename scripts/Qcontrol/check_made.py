@@ -67,6 +67,7 @@ def main():
     obj_counter = {'TF': 0, 'CL': 0}
     total_fdrs_ref = 0
     total_fdrs_alt = 0
+    total_fdrs = 0
     for what_for in ('TF', 'CL'):
         for obj in os.listdir(get_result_dir_path(what_for)):
             obj_counter[what_for] += 1
@@ -77,6 +78,9 @@ def main():
             local_counter_rs = len(obj_table['ID'].unique())
             fdr_counter_ref = len(obj_table[(obj_table['fdrp_bh_ref'] <= 0.05)].index)
             fdr_counter_alt = len(obj_table[(obj_table['fdrp_bh_alt'] <= 0.05)].index)
+            fdr_filtered_table = obj_table[(obj_table['fdrp_bh_alt'] <= 0.05) | (obj_table['fdrp_bh_ref'] <= 0.05)]
+            fdr_counter = len(fdr_filtered_table.index)
+            fdr_counter_rs = len(fdr_filtered_table['ID'].unique())
             if obj not in dict_overall_statistics["unique_SNPs"][what_for]:
                 dict_overall_statistics["unique_SNPs"][what_for][obj] = 0
                 dict_overall_statistics["unique_SNPs_rs"][what_for][obj] = 0
@@ -86,14 +90,17 @@ def main():
             if obj not in dict_overall_statistics["unique_asb"][what_for]:
                 dict_overall_statistics["unique_asb"][what_for][obj] = 0
                 dict_overall_statistics["unique_asb_rs"][what_for][obj] = 0
-            dict_overall_statistics["unique_asb"][what_for][obj] += fdr_counter_ref
-            dict_overall_statistics["unique_asb_rs"][what_for][obj] += fdr_counter_alt
+            dict_overall_statistics["unique_asb"][what_for][obj] += fdr_counter
+            dict_overall_statistics["unique_asb_rs"][what_for][obj] += fdr_counter_rs
             total_fdrs_ref += fdr_counter_ref
             total_fdrs_alt += fdr_counter_alt
+            total_fdrs += fdr_counter
 
         print("Made aggregation for {} {}s".format(obj_counter[what_for], what_for))
-        print('In {} aggregation - {},{} ref and alt ASB events respectively'.format(what_for,
-                                                                                     total_fdrs_ref, total_fdrs_alt))
+        print('In {} aggregation - {},{} ref and alt ASB events respectively, total: {}'.format(what_for,
+                                                                                                total_fdrs_ref,
+                                                                                                total_fdrs_alt,
+                                                                                                total_fdrs))
     with open(os.path.join(get_release_stats_path(), "overall_statistics.json"), "w") as json_file:
         json.dump(dict_overall_statistics, json_file)
     for tf_file in os.listdir(get_result_dir_path('TF')):
