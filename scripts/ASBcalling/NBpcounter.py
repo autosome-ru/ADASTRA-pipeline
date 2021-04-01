@@ -65,6 +65,7 @@ def count_p(ref_c, alt_c, BADs):
         cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
         p_ref[i] = (1 - cdf(ref_c[i] - 1)) / (1 - cdf(4))
         if p_ref[i] != 1:
+            w = 1  # FIXME: testing
             E_ref = (r * (BADs[i] * w + (1 - w) / BADs[i]) - sum(i * pmf(i) for i in range(5))) / (
                     1 - cdf(4))
             es_ref[i] = np.log(ref_c[i] / E_ref)
