@@ -26,9 +26,9 @@ def count_p(ref_c, alt_c, BADs):
                 if r == 0:
                     r = ref_c[i]
 
-            dist = st.nbinom(r, 1 / (BADs[i] + 1))
-            cdf = dist.cdf
+            cdf = st.nbinom(r, 1 / (BADs[i] + 1)).cdf
             left_border = ceil(r * BADs[i])
+            print(left_border)
             p_alt[i] = (1 - cdf(alt_c[i] - 1)) / (1 - cdf(left_border - 1))
             es_alt[i] = np.log2(alt_c[i] / left_border)
         else:
@@ -46,8 +46,7 @@ def count_p(ref_c, alt_c, BADs):
                 if r == 0:
                     r = alt_c[i]
 
-            dist = st.nbinom(r, 1 / (BADs[i] + 1))
-            cdf = dist.cdf
+            cdf = st.nbinom(r, 1 / (BADs[i] + 1)).cdf
             left_border = ceil(r * BADs[i])
             p_ref[i] = (1 - cdf(ref_c[i] - 1)) / (1 - cdf(left_border - 1))
             es_ref[i] = np.log2(ref_c[i] / left_border)
@@ -60,7 +59,7 @@ def count_p(ref_c, alt_c, BADs):
 def test_pval():
     inp_str = ''
     while inp_str != 'q':
-        inp_str = input('Enter ref_c alt_c BAD:\n')
+        inp_str = input('Enter ref_c alt_c BAD (enter q to exit):\n')
         try:
             refc, altc, BAD = [float(x) for x in inp_str.split()]
         except ValueError:
