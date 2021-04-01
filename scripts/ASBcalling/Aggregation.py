@@ -181,8 +181,8 @@ def main(what_for, key_name):
 
             ref_effect_size_array = [es for es in ref_effect_size_raw_array if not np.isnan(es)]
             alt_effect_size_array = [es for es in ref_effect_size_raw_array if not np.isnan(es)]
-            p_ref_array = [p for p in p_ref_raw_array if not np.isnan(p)]
-            p_alt_array = [p for p in p_alt_raw_array if not np.isnan(p)]
+            p_ref_array = [p for p in p_ref_raw_array if not np.isnan(p) and p != 1]
+            p_alt_array = [p for p in p_alt_raw_array if not np.isnan(p) and p != 1]
             min_cover = min(cover_array)
             max_cover = max(cover_array)
             med_cover = median_grouped(cover_array)
@@ -212,7 +212,8 @@ def main(what_for, key_name):
                 p_mostsig_ref = 'NaN'
                 alt_c_mostsig_ref = 'NaN'
                 BAD_mostsig_ref = 'NaN'
-            assert len(alt_effect_size_array) == len(p_alt_array)
+            if len(alt_effect_size_array) != len(p_alt_array):
+                print(alt_effect_size_raw_array, ref_effect_size_raw_array, p_ref_raw_array, p_alt_raw_array)
             if alt_effect_size_array:
                 weights = [-1 * np.log10(x) for x in p_alt_array]
                 es_mean_alt = np.round(np.average(alt_effect_size_array, weights=weights), 3)
