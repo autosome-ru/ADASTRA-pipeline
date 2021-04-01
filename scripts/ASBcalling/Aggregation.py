@@ -97,7 +97,8 @@ def main(what_for, key_name):
                             continue
                         else:
                             raise
-                    if p_ref == '.' or ID == '.':
+
+                    if p_ref == '.' or ID == '.' or max(ref_c, alt_c) / min(ref_c, alt_c) < BAD:
                         continue
                     cov = ref_c + alt_c
 
