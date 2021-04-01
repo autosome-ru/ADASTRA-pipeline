@@ -20,14 +20,18 @@ def count_p(ref_c, alt_c, BADs):
         if alt_c[i] >= ref_c[i] * BADs[i]:
             if ref_c[i] > 500:
                 r = ref_c[i]
+                r_ref = ref_c[i]
             else:
                 r, gof = (r_dict['ref'][BADs[i]][ref_c[i]],
                           gof_dict['ref'][BADs[i]][ref_c[i]])
+                r_ref = r_dict['alt'][BADs[i]][ref_c[i]]
                 if r == 0:
                     r = ref_c[i]
+                if r_ref == 0:
+                    r_ref = ref_c[i]
 
             cdf = st.nbinom(r, 1 / (BADs[i] + 1)).cdf
-            left_border = ceil(ref_c[i] * BADs[i])
+            left_border = ceil(ref_c[i] * BADs[i] * r / r_ref)
             p_alt[i] = (1 - cdf(alt_c[i] - 1)) / (1 - cdf(left_border - 1))
             es_alt[i] = np.log2(alt_c[i] / left_border)
         else:
