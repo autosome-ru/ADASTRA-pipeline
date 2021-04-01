@@ -212,7 +212,7 @@ def main(what_for, key_name):
                 p_mostsig_ref = 'NaN'
                 alt_c_mostsig_ref = 'NaN'
                 BAD_mostsig_ref = 'NaN'
-
+            assert len(alt_effect_size_array) == len(p_alt_array)
             if alt_effect_size_array:
                 weights = [-1 * np.log10(x) for x in p_alt_array]
                 es_mean_alt = np.round(np.average(alt_effect_size_array, weights=weights), 3)
