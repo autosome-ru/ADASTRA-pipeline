@@ -65,7 +65,9 @@ def test_pval():
             refc, altc, BAD = [float(x) for x in inp_str.split()]
         except ValueError:
             continue
-        p_ref, p_alt, es_ref, es_alt = count_p([refc], [altc], [BAD])
+        p_ref, p_alt, es_ref, es_alt = count_p(np.array([refc], dtype=np.int_),
+                                               np.array([altc], dtype=np.int_),
+                                               np.array([BAD], dtype=np.float_))
         print('pval ref: {}\npval alt: {}\nes ref: {}\nes_alt: {}'.format(p_ref[0], p_alt[0], es_ref[0], es_alt[0]))
 
 
