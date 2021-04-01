@@ -62,7 +62,7 @@ def test_pval():
     while inp_str != 'q':
         inp_str = input('Enter ref_c alt_c BAD:\n')
         try:
-            refc, altc, BAD = [float(x) for x in inp_str]
+            refc, altc, BAD = [float(x) for x in inp_str.split()]
         except ValueError:
             continue
         p_ref, p_alt, es_ref, es_alt = count_p([refc], [altc], [BAD])
