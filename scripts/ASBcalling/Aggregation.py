@@ -181,8 +181,8 @@ def main(what_for, key_name):
 
             ref_effect_size_array = [es for es in ref_effect_size_raw_array if not np.isnan(es)]
             alt_effect_size_array = [es for es in ref_effect_size_raw_array if not np.isnan(es)]
-            p_ref_array = [p for p in p_ref_raw_array if not np.isnan(p) and p != 1]
-            p_alt_array = [p for p in p_alt_raw_array if not np.isnan(p) and p != 1]
+            p_ref_array = [p for p in p_ref_raw_array if not np.isnan(p)]
+            p_alt_array = [p for p in p_alt_raw_array if not np.isnan(p)]
             min_cover = min(cover_array)
             max_cover = max(cover_array)
             med_cover = median_grouped(cover_array)
