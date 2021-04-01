@@ -194,30 +194,25 @@ def main(what_for, key_name):
 
             logitp_ref = logit_combine_p_values(p_ref_array)
             logitp_palt = logit_combine_p_values(p_alt_array)
-            assert len(ref_effect_size_array) == len(p_ref_array)
 
-            if len(alt_effect_size_array) != len(p_alt_array):
-                print(alt_effect_size_raw_array, ref_effect_size_raw_array, p_ref_raw_array, p_alt_raw_array)
-                print(alt_effect_size_array, ref_effect_size_array, p_ref_array, p_alt_array)
-            es_mean_ref = 'NaN'
-            es_mostsig_ref = 'NaN'
-            ref_c_mostsig_ref = 'NaN'
-            p_mostsig_ref = 'NaN'
-            alt_c_mostsig_ref = 'NaN'
-            BAD_mostsig_ref = 'NaN'
-            if ref_effect_size_array:
-                weights = [-1 * np.log10(x) for x in p_ref_array]
+            weights = [-1 * np.log10(x) for x in p_ref_array]
+            if ref_effect_size_array and sum(weights) > 0:
                 es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
-
                 idx = int(np.nanargmax([-x for x in p_ref_raw_array]))
                 es_mostsig_ref = ref_effect_size_raw_array[idx]
                 p_mostsig_ref = p_ref_raw_array[idx]
                 ref_c_mostsig_ref = ref_counts_array[idx]
                 alt_c_mostsig_ref = alt_counts_array[idx]
                 BAD_mostsig_ref = BAD_array[idx]
-
-            if alt_effect_size_array:
-                weights = [-1 * np.log10(x) for x in p_alt_array]
+            else:
+                es_mean_ref = 'NaN'
+                es_mostsig_ref = 'NaN'
+                ref_c_mostsig_ref = 'NaN'
+                p_mostsig_ref = 'NaN'
+                alt_c_mostsig_ref = 'NaN'
+                BAD_mostsig_ref = 'NaN'
+            weights = [-1 * np.log10(x) for x in p_alt_array]
+            if alt_effect_size_array and sum(weights) > 0:
                 es_mean_alt = np.round(np.average(alt_effect_size_array, weights=weights), 3)
 
                 idx = int(np.nanargmax([-x for x in p_alt_raw_array]))
@@ -226,7 +221,13 @@ def main(what_for, key_name):
                 ref_c_mostsig_alt = ref_counts_array[idx]
                 alt_c_mostsig_alt = alt_counts_array[idx]
                 BAD_mostsig_alt = BAD_array[idx]
-
+            else:
+                es_mean_alt = 'NaN'
+                es_mostsig_alt = 'NaN'
+                ref_c_mostsig_alt = 'NaN'
+                p_mostsig_alt = 'NaN'
+                alt_c_mostsig_alt = 'NaN'
+                BAD_mostsig_alt = 'NaN'
             out.write(pack(
                 [chromosome, pos, ID, ref, alt, repeat, total_callers_counter, unique_callers,
                  mean_BAD, mean_SNPs_per_segment, n_aggregated,
