@@ -16,7 +16,8 @@ def count_p(ref_c, alt_c, BADs):
     es_alt = np.zeros(N, dtype=np.float128)
 
     for i in range(N):
-
+        if (i+1) % 1000 == 0:
+            print(i+1)
         if ref_c[i] > 500:
             r = ref_c[i]
             w = 1
@@ -157,7 +158,7 @@ def manual(exp, aligns):
     output = '/home/abramov/test_K562_weighted_p/{}_{}'.format(exp, aligns) + get_ending("p-value")
     print('Now counting P-value for {}'.format(table_BAD))
     df_with_BAD = pd.read_table(table_BAD)
-    df_with_BAD = df_with_BAD[df_with_BAD['#chr'] == 'chr2']
+    # df_with_BAD = df_with_BAD[df_with_BAD['#chr'] == 'chr2']
     print(len(df_with_BAD.index))
     p_ref, p_alt, es_ref, es_alt = count_p(np.array(df_with_BAD["ref_read_counts"], dtype=np.int_),
                                            np.array(df_with_BAD["alt_read_counts"], dtype=np.int_),
