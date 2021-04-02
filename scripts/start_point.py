@@ -28,6 +28,7 @@ Usage:
             adastra annotate_table_with_sarus --name <name> --motif-len <int>
             adastra annotate_with_phenotypes
             adastra extract_context
+            adastra count_p <exp> <aligns>
             adastra -h | --help
 
 Arguments:
@@ -166,6 +167,9 @@ def main():
     elif args['extract_context']:
         from .Qcontrol.extract_context import main
         main()
+    elif args['count_p']:
+        from .ASBcalling.NBpcounter import manual
+        manual(args['<exp>'], args['<aligns>'])
 
 
 def convert_motif_len_to_int(motif_len_string):
