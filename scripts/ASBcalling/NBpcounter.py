@@ -34,8 +34,10 @@ def count_p(ref_c, alt_c, BADs):
         cdf2 = dist2.cdf
         pmf1 = dist1.pmf
         pmf2 = dist2.pmf
-        pmf = lambda x: w * pmf1(x) + (1 - w) * pmf2(x)
+        w = w * pmf1(alt_c[i]) / (w * pmf1(alt_c[i]) + (1-w) * pmf2(alt_c[i]))  # posterior w
+
         cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
+        pmf = lambda x: w * pmf1(x) + (1 - w) * pmf2(x)
         p_alt[i] = (1 - cdf(alt_c[i] - 1)) / (1 - cdf(4))
         if p_alt[i] != 1:
             E_alt = (r * (BADs[i] * w + (1 - w) / BADs[i]) - sum(i * pmf(i) for i in range(5))) / (
@@ -43,6 +45,8 @@ def count_p(ref_c, alt_c, BADs):
             es_alt[i] = np.log(alt_c[i] / E_alt)
         else:
             es_alt[i] = 'NaN'
+
+        # ----------------------
 
         if alt_c[i] > 500:
             r = alt_c[i]
@@ -60,8 +64,11 @@ def count_p(ref_c, alt_c, BADs):
         cdf2 = dist2.cdf
         pmf1 = dist1.pmf
         pmf2 = dist2.pmf
-        pmf = lambda x: w * pmf1(x) + (1 - w) * pmf2(x)
+
+        w = w * pmf1(ref_c[i]) / (w * pmf1(ref_c[i]) + (1-w) * pmf2(ref_c[i]))  # posterior w
+
         cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
+        pmf = lambda x: w * pmf1(x) + (1 - w) * pmf2(x)
         p_ref[i] = (1 - cdf(ref_c[i] - 1)) / (1 - cdf(4))
         if p_ref[i] != 1:
             E_ref = (r * (BADs[i] * w + (1 - w) / BADs[i]) - sum(i * pmf(i) for i in range(5))) / (
