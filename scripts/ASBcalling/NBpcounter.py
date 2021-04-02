@@ -76,8 +76,10 @@ def count_p_adjusted(ref_c, alt_c, BADs):
     N = len(ref_c)
     p_ref = np.zeros(N, dtype=np.float128)
     p_alt = np.zeros(N, dtype=np.float128)
-    es_ref = np.zeros(N, dtype=np.float128)
-    es_alt = np.zeros(N, dtype=np.float128)
+    p_ref_bayes = np.zeros(N, dtype=np.float128)
+    p_alt_bayes = np.zeros(N, dtype=np.float128)
+    p_ref_likelihood = np.zeros(N, dtype=np.float128)
+    p_alt_likelihood = np.zeros(N, dtype=np.float128)
 
     for i in range(N):
         if (i+1) % 1000 == 0:
@@ -98,16 +100,19 @@ def count_p_adjusted(ref_c, alt_c, BADs):
         cdf2 = dist2.cdf
         pmf1 = dist1.pmf
         pmf2 = dist2.pmf
-        w = w * pmf1(alt_c[i]) / (w * pmf1(alt_c[i]) + (1-w) * pmf2(alt_c[i]))
-        pmf = lambda x: w * pmf1(x) + (1 - w) * pmf2(x)
+        w_bayes = w * pmf1(alt_c[i]) / (w * pmf1(alt_c[i]) + (1-w) * pmf2(alt_c[i]))
+        w_likelihood = (1 - w) * pmf1(alt_c[i]) / pmf2(alt_c[i])
+
         cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
         p_alt[i] = (1 - cdf(alt_c[i] - 1)) / (1 - cdf(4))
-        if p_alt[i] != 1:
-            E_alt = (r * (BADs[i] * w + (1 - w) / BADs[i]) - sum(i * pmf(i) for i in range(5))) / (
-                    1 - cdf(4))
-            es_alt[i] = np.log(alt_c[i] / E_alt)
-        else:
-            es_alt[i] = 'NaN'
+
+        cdf = lambda x: w_bayes * cdf1(x) + (1 - w_bayes) * cdf2(x)
+        p_alt_bayes[i] = (1 - cdf(alt_c[i] - 1)) / (1 - cdf(4))
+
+        cdf = lambda x: w_likelihood * cdf1(x) + (1 - w_likelihood) * cdf2(x)
+        p_alt_likelihood[i] = (1 - cdf(alt_c[i] - 1)) / (1 - cdf(4))
+
+        # ----------------------
 
         if alt_c[i] > 500:
             r = alt_c[i]
@@ -125,17 +130,21 @@ def count_p_adjusted(ref_c, alt_c, BADs):
         cdf2 = dist2.cdf
         pmf1 = dist1.pmf
         pmf2 = dist2.pmf
-        w = w * pmf1(alt_c[i]) / (w * pmf1(alt_c[i]) + (1-w) * pmf2(alt_c[i]))
-        pmf = lambda x: w * pmf1(x) + (1 - w) * pmf2(x)
+        w_bayes = w * pmf1(ref_c[i]) / (w * pmf1(ref_c[i]) + (1-w) * pmf2(ref_c[i]))
+        w_likelihood = (1 - w) * pmf1(ref_c[i]) / pmf2(ref_c[i])
+
         cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
         p_ref[i] = (1 - cdf(ref_c[i] - 1)) / (1 - cdf(4))
-        if p_ref[i] != 1:
-            E_ref = (r * (BADs[i] * w + (1 - w) / BADs[i]) - sum(i * pmf(i) for i in range(5))) / (
-                    1 - cdf(4))
-            es_ref[i] = np.log(ref_c[i] / E_ref)
-        else:
-            es_ref[i] = 'NaN'
-    return p_ref, p_alt, es_ref, es_alt
+
+        cdf = lambda x: w_bayes * cdf1(x) + (1 - w_bayes) * cdf2(x)
+        p_ref_bayes[i] = (1 - cdf(ref_c[i] - 1)) / (1 - cdf(4))
+
+        cdf = lambda x: w_likelihood * cdf1(x) + (1 - w_likelihood) * cdf2(x)
+        p_ref_likelihood[i] = (1 - cdf(ref_c[i] - 1)) / (1 - cdf(4))
+
+    return (p_ref, p_alt,
+           p_ref_bayes, p_alt_bayes,
+           p_ref_likelihood, p_alt_likelihood)
 
 
 def main(base_path):
@@ -160,21 +169,21 @@ def manual(exp, aligns):
     df_with_BAD = pd.read_table(table_BAD)
     # df_with_BAD = df_with_BAD[df_with_BAD['#chr'] == 'chr2']
     print(len(df_with_BAD.index))
-    p_ref, p_alt, es_ref, es_alt = count_p(np.array(df_with_BAD["ref_read_counts"], dtype=np.int_),
-                                           np.array(df_with_BAD["alt_read_counts"], dtype=np.int_),
-                                           np.array(df_with_BAD["BAD"], dtype=np.float_))
-    p_ref_adj, p_alt_adj, es_ref_adj, es_alt_adj = count_p_adjusted(np.array(df_with_BAD["ref_read_counts"], dtype=np.int_),
+    (p_ref, p_alt,
+     p_ref_bayes, p_alt_bayes,
+     p_ref_likelihood, p_alt_likelihood) = count_p_adjusted(np.array(df_with_BAD["ref_read_counts"], dtype=np.int_),
                                            np.array(df_with_BAD["alt_read_counts"], dtype=np.int_),
                                            np.array(df_with_BAD["BAD"], dtype=np.float_))
     df_with_BAD['p_value_ref'] = p_ref
     df_with_BAD['p_value_alt'] = p_alt
-    df_with_BAD['es_ref'] = es_ref
-    df_with_BAD['es_alt'] = es_alt
-    df_with_BAD['p_value_ref_adj'] = p_ref_adj
-    df_with_BAD['p_value_alt_adj'] = p_alt_adj
-    df_with_BAD['es_ref_adj'] = es_ref_adj
-    df_with_BAD['es_alt_adj'] = es_alt_adj
+    df_with_BAD['p_value_ref_bayes'] = p_ref_bayes
+    df_with_BAD['p_value_alt_bayes'] = p_alt_bayes
+    df_with_BAD['p_value_ref_likelihood'] = p_ref_likelihood
+    df_with_BAD['p_value_alt_likelihood'] = p_alt_likelihood
+
+    print('i dump..')
     df_with_BAD.to_csv(output, sep="\t", index=False)
+    print('i dump!')
 
 
 if __name__ == '__main__':
