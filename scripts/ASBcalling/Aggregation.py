@@ -193,6 +193,10 @@ def main(what_for, key_name):
 
             if ref_effect_size_array:
                 weights = [-1 * np.log10(x) for x in p_ref_array if x != 1]
+                if len(ref_effect_size_array) != len(weights):
+                    print(p_ref_array)
+                    print(ref_effect_size_array)
+                    exit(1)
                 es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
                 es_mostsig_ref = ref_effect_size_array[int(np.argmax(weights))]
                 idx = int(np.argmax([-x for x in p_ref_array]))
