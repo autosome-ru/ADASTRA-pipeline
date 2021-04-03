@@ -249,6 +249,10 @@ def make_list_from_vcf_without_filter(vcf):
     return vcf_list
 
 
+def check_float(n_str):
+    return np.nan if (n_str == '' or n_str is None) else float(n_str)
+
+
 def unpack(line, use_in):
     if line[0] == '#':
         return []
@@ -272,17 +276,8 @@ def unpack(line, use_in):
     quals_dict = dict(zip(segmentation_states, quals))
     difference += len(segmentation_states)
     seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
-    p_ref, p_alt = map(float, line_split[11 + difference:13 + difference])
-    es_ref = line_split[13 + difference]
-    es_alt = line_split[14 + difference]
-    if es_ref != '' and es_ref is not None:
-        es_ref = float(es_ref)
-    else:
-        es_ref = None
-    if es_alt != '' and es_alt is not None:
-        es_alt = float(es_alt)
-    else:
-        es_alt = None
+    p_ref, p_alt = map(check_float, line_split[11 + difference:13 + difference])
+    es_ref, es_alt = map(check_float, line_split[13 + difference:15 + difference])
     if use_in == "Aggregation":
         return chromosome, pos, ID, ref, alt, ref_c, alt_c, repeat, in_callers, ploidy, quals_dict, \
                seg_c, sum_cov, p_ref, p_alt, es_ref, es_alt
