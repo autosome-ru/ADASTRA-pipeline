@@ -34,7 +34,11 @@ def count_p(ref_c, alt_c, BADs):
         cdf2 = dist2.cdf
         pmf1 = dist1.pmf
         pmf2 = dist2.pmf
-        w = w * pmf1(alt_c[i]) / (w * pmf1(alt_c[i]) + (1-w) * pmf2(alt_c[i]))  # posterior w
+
+        p1 = w * pmf1(alt_c[i])
+        p2 = (1-w) * pmf2(alt_c[i])
+        if p1 + p2 != 0:
+            w = p1 / (p1 + p2)  # posterior w
 
         cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
         pmf = lambda x: w * pmf1(x) + (1 - w) * pmf2(x)
@@ -65,7 +69,10 @@ def count_p(ref_c, alt_c, BADs):
         pmf1 = dist1.pmf
         pmf2 = dist2.pmf
 
-        w = w * pmf1(ref_c[i]) / (w * pmf1(ref_c[i]) + (1-w) * pmf2(ref_c[i]))  # posterior w
+        p1 = w * pmf1(alt_c[i])
+        p2 = (1 - w) * pmf2(alt_c[i])
+        if p1 + p2 != 0:
+            w = p1 / (p1 + p2)  # posterior w
 
         cdf = lambda x: w * cdf1(x) + (1 - w) * cdf2(x)
         pmf = lambda x: w * pmf1(x) + (1 - w) * pmf2(x)
