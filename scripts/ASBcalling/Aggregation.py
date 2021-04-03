@@ -120,8 +120,8 @@ def main(what_for, key_name):
     with open(table_path, 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
                         'mean_BAD', 'mean_SNP_per_segment', 'n_aggregated',
-                        'refc_mostsig_ref', 'altc_mostsig_ref', 'BAD_mostsig_ref', 'es_mostsig_ref',
-                        'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'es_mostsig_alt',
+                        'refc_mostsig_ref', 'altc_mostsig_ref', 'BAD_mostsig_ref', 'es_mostsig_ref', 'p_mostsig_ref',
+                        'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'es_mostsig_alt', 'p_mostsig_alt',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
                         'es_mean_ref', 'es_mean_alt',
                         'logitp_ref', 'logitp_alt']))
@@ -196,6 +196,7 @@ def main(what_for, key_name):
                 es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
                 es_mostsig_ref = ref_effect_size_array[int(np.argmax(weights))]
                 idx = int(np.argmax([-x for x in p_ref_array]))
+                p_mostsig_ref = p_ref_array[idx]
                 ref_c_mostsig_ref = ref_counts_array[idx]
                 alt_c_mostsig_ref = alt_counts_array[idx]
                 BAD_mostsig_ref = BAD_array[idx]
@@ -203,6 +204,7 @@ def main(what_for, key_name):
                 es_mean_ref = 'NaN'
                 es_mostsig_ref = 'NaN'
                 ref_c_mostsig_ref = 'NaN'
+                p_mostsig_ref = 'NaN'
                 alt_c_mostsig_ref = 'NaN'
                 BAD_mostsig_ref = 'NaN'
 
@@ -211,6 +213,7 @@ def main(what_for, key_name):
                 es_mean_alt = np.round(np.average(alt_effect_size_array, weights=weights), 3)
                 es_mostsig_alt = alt_effect_size_array[int(np.argmax(weights))]
                 idx = int(np.argmax([-x for x in p_alt_array]))
+                p_mostsig_alt = p_alt_array[idx]
                 ref_c_mostsig_alt = ref_counts_array[idx]
                 alt_c_mostsig_alt = alt_counts_array[idx]
                 BAD_mostsig_alt = BAD_array[idx]
@@ -218,14 +221,15 @@ def main(what_for, key_name):
                 es_mean_alt = 'NaN'
                 es_mostsig_alt = 'NaN'
                 ref_c_mostsig_alt = 'NaN'
+                p_mostsig_alt = 'NaN'
                 alt_c_mostsig_alt = 'NaN'
                 BAD_mostsig_alt = 'NaN'
 
             out.write(pack(
                 [chromosome, pos, ID, ref, alt, repeat, total_callers_counter, unique_callers,
                  mean_BAD, mean_SNPs_per_segment, n_aggregated,
-                 ref_c_mostsig_ref, alt_c_mostsig_ref, BAD_mostsig_ref, es_mostsig_ref,
-                 ref_c_mostsig_alt, alt_c_mostsig_alt, BAD_mostsig_alt, es_mostsig_alt,
+                 ref_c_mostsig_ref, alt_c_mostsig_ref, BAD_mostsig_ref, es_mostsig_ref, p_mostsig_ref,
+                 ref_c_mostsig_alt, alt_c_mostsig_alt, BAD_mostsig_alt, es_mostsig_alt, p_mostsig_alt,
                  min_cover, max_cover, med_cover, total_cover,
                  es_mean_ref, es_mean_alt,
                  logitp_ref, logitp_palt]))
