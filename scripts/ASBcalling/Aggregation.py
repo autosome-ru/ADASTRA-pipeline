@@ -169,9 +169,9 @@ def main(what_for, key_name):
                 SNPs_per_segment_array.append(seg_c)
                 p_ref_array.append(p_ref)
                 p_alt_array.append(p_alt)
-                if es_ref is not None:
+                if not np.isnan(es_ref):
                     ref_effect_size_array.append(es_ref / np.log(2))
-                if es_alt is not None:
+                if not np.isnan(es_alt):
                     alt_effect_size_array.append(es_alt / np.log(2))
                 cover_array.append(cov)
 
@@ -193,10 +193,6 @@ def main(what_for, key_name):
 
             if ref_effect_size_array:
                 weights = [-1 * np.log10(x) for x in p_ref_array if x != 1]
-                if len(ref_effect_size_array) != len(weights):
-                    print(p_ref_array)
-                    print(ref_effect_size_array)
-                    exit(1)
                 es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
                 es_mostsig_ref = ref_effect_size_array[int(np.argmax(weights))]
                 idx = int(np.argmax([-x for x in p_ref_array]))
