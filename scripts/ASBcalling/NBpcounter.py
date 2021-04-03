@@ -16,8 +16,8 @@ def count_p(ref_c, alt_c, BADs):
     es_alt = np.zeros(N, dtype=np.float128)
 
     for i in range(N):
-        if (i+1) % 1000 == 0:
-            print(i+1)
+        # if (i+1) % 1000 == 0:
+        #     print(i+1)
         if ref_c[i] > 500:
             r = ref_c[i]
             w = 1
