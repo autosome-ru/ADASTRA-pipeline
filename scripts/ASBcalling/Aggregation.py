@@ -120,8 +120,8 @@ def main(what_for, key_name):
     with open(table_path, 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
                         'mean_BAD', 'mean_SNP_per_segment', 'n_aggregated',
-                        'refc_mostsig_ref', 'altc_mostsig_ref', 'BAD_mostsig_ref', 'es_mostsig_ref',
-                        'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'es_mostsig_alt',
+                        'refc_mostsig_ref', 'altc_mostsig_ref', 'BAD_mostsig_ref', 'es_mostsig_ref', 'p_mostsig_ref',
+                        'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'es_mostsig_alt', 'p_mostsig_alt',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
                         'es_mean_ref', 'es_mean_alt',
                         'logitp_ref', 'logitp_alt']))
@@ -146,13 +146,14 @@ def main(what_for, key_name):
             total_callers_counter = 0
             BAD_array = []
             SNPs_per_segment_array = []
-            p_ref_array = []
-            p_alt_array = []
-            cover_array = []
-            ref_effect_size_array = []
-            alt_effect_size_array = []
+            p_ref_raw_array = []
+            p_alt_raw_array = []
+
+            ref_effect_size_raw_array = []
+            alt_effect_size_raw_array = []
             table_names_array = []
             another_agr_name = []
+            cover_array = []
             ref_counts_array = []
             alt_counts_array = []
 
@@ -167,18 +168,20 @@ def main(what_for, key_name):
                     total_callers_counter += in_callers[caller]
                 BAD_array.append(BAD)
                 SNPs_per_segment_array.append(seg_c)
-                p_ref_array.append(p_ref)
-                p_alt_array.append(p_alt)
-                if es_ref is not None:
-                    ref_effect_size_array.append(es_ref / np.log(2))
-                if es_alt is not None:
-                    alt_effect_size_array.append(es_alt / np.log(2))
+
+                p_ref_raw_array.append(p_ref)
+                p_alt_raw_array.append(p_alt)
+                ref_effect_size_raw_array.append(es_ref)
+                alt_effect_size_raw_array.append(es_alt)
                 cover_array.append(cov)
 
                 ref_counts_array.append(ref_c)
                 alt_counts_array.append(alt_c)
-                p = 1 / (BAD + 1)
 
+            ref_effect_size_array = [es for es in ref_effect_size_raw_array if not np.isnan(es)]
+            alt_effect_size_array = [es for es in alt_effect_size_raw_array if not np.isnan(es)]
+            p_ref_array = [p for p in p_ref_raw_array if not np.isnan(p)]
+            p_alt_array = [p for p in p_alt_raw_array if not np.isnan(p)]
             min_cover = min(cover_array)
             max_cover = max(cover_array)
             med_cover = median_grouped(cover_array)
@@ -191,11 +194,12 @@ def main(what_for, key_name):
             logitp_ref = logit_combine_p_values(p_ref_array)
             logitp_palt = logit_combine_p_values(p_alt_array)
 
-            if ref_effect_size_array:
-                weights = [-1 * np.log10(x) for x in p_ref_array if x != 1]
+            weights = [-1 * np.log10(x) for x in p_ref_array]
+            if ref_effect_size_array and sum(weights) > 0:
                 es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
-                es_mostsig_ref = ref_effect_size_array[int(np.argmax(weights))]
-                idx = int(np.argmax([-x for x in p_ref_array]))
+                idx = int(np.nanargmax([-x for x in p_ref_raw_array]))
+                es_mostsig_ref = ref_effect_size_raw_array[idx]
+                p_mostsig_ref = p_ref_raw_array[idx]
                 ref_c_mostsig_ref = ref_counts_array[idx]
                 alt_c_mostsig_ref = alt_counts_array[idx]
                 BAD_mostsig_ref = BAD_array[idx]
@@ -203,14 +207,16 @@ def main(what_for, key_name):
                 es_mean_ref = 'NaN'
                 es_mostsig_ref = 'NaN'
                 ref_c_mostsig_ref = 'NaN'
+                p_mostsig_ref = 'NaN'
                 alt_c_mostsig_ref = 'NaN'
                 BAD_mostsig_ref = 'NaN'
-
-            if alt_effect_size_array:
-                weights = [-1 * np.log10(x) for x in p_alt_array if x != 1]
+            weights = [-1 * np.log10(x) for x in p_alt_array]
+            if alt_effect_size_array and sum(weights) > 0:
                 es_mean_alt = np.round(np.average(alt_effect_size_array, weights=weights), 3)
-                es_mostsig_alt = alt_effect_size_array[int(np.argmax(weights))]
-                idx = int(np.argmax([-x for x in p_alt_array]))
+
+                idx = int(np.nanargmax([-x for x in p_alt_raw_array]))
+                es_mostsig_alt = alt_effect_size_raw_array[idx]
+                p_mostsig_alt = p_alt_raw_array[idx]
                 ref_c_mostsig_alt = ref_counts_array[idx]
                 alt_c_mostsig_alt = alt_counts_array[idx]
                 BAD_mostsig_alt = BAD_array[idx]
@@ -218,14 +224,14 @@ def main(what_for, key_name):
                 es_mean_alt = 'NaN'
                 es_mostsig_alt = 'NaN'
                 ref_c_mostsig_alt = 'NaN'
+                p_mostsig_alt = 'NaN'
                 alt_c_mostsig_alt = 'NaN'
                 BAD_mostsig_alt = 'NaN'
-
             out.write(pack(
                 [chromosome, pos, ID, ref, alt, repeat, total_callers_counter, unique_callers,
                  mean_BAD, mean_SNPs_per_segment, n_aggregated,
-                 ref_c_mostsig_ref, alt_c_mostsig_ref, BAD_mostsig_ref, es_mostsig_ref,
-                 ref_c_mostsig_alt, alt_c_mostsig_alt, BAD_mostsig_alt, es_mostsig_alt,
+                 ref_c_mostsig_ref, alt_c_mostsig_ref, BAD_mostsig_ref, es_mostsig_ref, p_mostsig_ref,
+                 ref_c_mostsig_alt, alt_c_mostsig_alt, BAD_mostsig_alt, es_mostsig_alt, p_mostsig_alt,
                  min_cover, max_cover, med_cover, total_cover,
                  es_mean_ref, es_mean_alt,
                  logitp_ref, logitp_palt]))
@@ -233,11 +239,11 @@ def main(what_for, key_name):
                                                             expected_args[what_for]: another_agr_name,
                                                             'ref_counts': ref_counts_array,
                                                             'alt_counts': alt_counts_array,
-                                                            'ref_ef': ref_effect_size_array,
-                                                            'alt_ef': alt_effect_size_array,
+                                                            'ref_ef': ref_effect_size_raw_array,
+                                                            'alt_ef': alt_effect_size_raw_array,
                                                             'BAD': BAD_array,
-                                                            'ref_pvalues': p_ref_array,
-                                                            'alt_pvalues': p_alt_array,
+                                                            'ref_pvalues': p_ref_raw_array,
+                                                            'alt_pvalues': p_alt_raw_array,
                                                             }
 
     print("Counting FDR")
