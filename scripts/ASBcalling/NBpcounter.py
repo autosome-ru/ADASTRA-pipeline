@@ -73,8 +73,8 @@ def count_p(ref_c, alt_c, BADs):
         pmf2 = dist2.pmf
 
         if w != 1:
-            p1 = w * pmf1(alt_c[i])
-            p2 = (1 - w) * pmf2(alt_c[i])
+            p1 = w * pmf1(ref_c[i])
+            p2 = (1 - w) * pmf2(ref_c[i])
             if p1 + p2 != 0:
                 w = p1 / (p1 + p2)  # posterior w
             else:
