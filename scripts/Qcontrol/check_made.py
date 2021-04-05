@@ -76,9 +76,9 @@ def main():
                 continue
             local_counter = len(obj_table.index)
             local_counter_rs = len(obj_table['ID'].unique())
-            fdr_counter_ref = len(obj_table[(obj_table['fdrp_bh_ref'] <= 0.05)].index)
-            fdr_counter_alt = len(obj_table[(obj_table['fdrp_bh_alt'] <= 0.05)].index)
-            fdr_filtered_table = obj_table[(obj_table['fdrp_bh_alt'] <= 0.05) | (obj_table['fdrp_bh_ref'] <= 0.05)]
+            fdr_counter_ref = len(obj_table[(obj_table['fdrp_bh_ref'] <= 0.1)].index)
+            fdr_counter_alt = len(obj_table[(obj_table['fdrp_bh_alt'] <= 0.1)].index)
+            fdr_filtered_table = obj_table[(obj_table['fdrp_bh_alt'] <= 0.1) | (obj_table['fdrp_bh_ref'] <= 0.1)]
             fdr_counter = len(fdr_filtered_table.index)
             fdr_counter_rs = len(fdr_filtered_table['ID'].unique())
             if obj not in dict_overall_statistics["unique_SNPs"][what_for]:
