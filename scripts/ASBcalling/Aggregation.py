@@ -38,6 +38,12 @@ def fisher_combine_p_values(pvalues):
     return p
 
 
+def hmp_combine_p_values(pvalues):
+    pvalues = np.array([pvalue for pvalue in pvalues if pvalue > 0])
+    p = stats.hmean(pvalues)
+    return p
+
+
 def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return part of the dictionary with fdr from table
     keys = list(dictionary.keys())
     for index in range(len(ps_ref)):
@@ -197,8 +203,8 @@ def main(what_for, key_name):
                 logitp_ref = logit_combine_p_values(p_ref_array)
                 logitp_palt = logit_combine_p_values(p_alt_array)
             elif what_for == 'CL':
-                logitp_ref = fisher_combine_p_values(p_ref_array)
-                logitp_palt = fisher_combine_p_values(p_alt_array)
+                logitp_ref = hmp_combine_p_values(p_ref_array)
+                logitp_palt = hmp_combine_p_values(p_alt_array)
             else:
                 exit(1)
 
