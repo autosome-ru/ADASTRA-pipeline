@@ -15,7 +15,7 @@ cols = ['motif_log_pref',
 def get_concordance(p_val_ref, p_val_alt, motif_fc, motif_pval_ref, motif_pval_alt):
     if not pd.isna(p_val_ref) and not pd.isna(p_val_alt):
         log_pv = np.log10(min(p_val_ref, p_val_alt)) * np.sign(p_val_alt - p_val_ref)
-        if abs(log_pv) >= -np.log10(0.05) and motif_fc != 0:
+        if abs(log_pv) >= -np.log10(0.25) and motif_fc != 0:
             if max(motif_pval_ref, motif_pval_alt) >= -np.log10(0.0005):
                 result = "Weak " if abs(motif_fc) < 2 else ""
                 if motif_fc * log_pv > 0:
