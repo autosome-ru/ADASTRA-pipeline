@@ -19,6 +19,22 @@ def main():
             tf_name = os.path.splitext(tf_file)[0]
             tf_df = pd.read_table(get_result_table_path(obj, tf_name))
             tf_df = tf_df[tf_df.columns.drop(list(tf_df.filter(regex='motif')))]
+            tf_df = tf_df[tf_df.columns.drop(['logitp_ref',
+                                              'logitp_alt',
+                                              'median_cover',
+                                              'max_cover',
+                                              'min_cover',
+                                              'refc_mostsig_ref',
+                                              'altc_mostsig_ref',
+                                              'BAD_mostsig_ref',
+                                              'es_mostsig_ref',
+                                              'p_mostsig_ref',
+                                              'refc_mostsig_alt',
+                                              'altc_mostsig_alt',
+                                              'BAD_mostsig_alt',
+                                              'es_mostsig_alt',
+                                              'p_mostsig_alt'
+                                              ])]
             tf_df = tf_df[(~tf_df['fdrp_bh_ref'].isna()) & (~tf_df['fdrp_bh_alt'].isna())]
             if tf_df.empty:
                 continue
