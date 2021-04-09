@@ -22,6 +22,7 @@ def main():
             tf_df = tf_df[(~tf_df['fdrp_bh_ref'].isna()) & (~tf_df['fdrp_bh_alt'].isna())]
             if tf_df.empty:
                 continue
-            tf_df.to_csv(os.path.join('~/release_dump/', obj, tf_file))
+            tf_df.to_csv(os.path.join('~/release_dump/', obj, tf_file),
+                         sep='\t', index=False)
 
 main()
