@@ -18,7 +18,6 @@ def main():
         for tf_file in os.listdir(get_result_dir_path(obj)):
             tf_name = os.path.splitext(tf_file)[0]
             tf_df = pd.read_table(get_result_table_path(obj, tf_name))
-            tf_df = tf_df[tf_df.columns.drop(list(tf_df.filter(regex='motif')))]
             tf_df = tf_df[tf_df.columns.drop(['logitp_ref',
                                               'logitp_alt',
                                               'median_cover',
