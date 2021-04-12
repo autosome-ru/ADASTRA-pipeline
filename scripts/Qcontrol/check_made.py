@@ -70,10 +70,10 @@ def main():
     total_fdrs = 0
     for what_for in ('TF', 'CL'):
         for obj in os.listdir(get_result_dir_path(what_for)):
-            obj_counter[what_for] += 1
             obj_table = pd.read_table(get_result_table_path(what_for, os.path.splitext(obj)[0]))
             if obj_table.empty:
                 continue
+            obj_counter[what_for] += 1
             local_counter = len(obj_table.index)
             local_counter_rs = len(obj_table['ID'].unique())
             fdr_counter_ref = len(obj_table[(obj_table['fdrp_bh_ref'] <= 0.1)].index)
