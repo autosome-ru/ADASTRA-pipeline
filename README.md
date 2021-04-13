@@ -3,7 +3,7 @@ A pipeline for processing ChIP-seq read allignments in _bam_ format to find alle
 It consists of 5 main parts:
 ### A. SNP calling
 This part uses [GATK](https://github.com/broadinstitute/gatk/releases) and [PICARD](https://broadinstitute.github.io/picard/) tools for variant calling.
-The result is vcf file of SNV calls in [GATK vcf format](https://gatk.broadinstitute.org/hc/en-us/articles/360035531692-VCF-Variant-Call-Format#:~:text=VCF%2C%20or%20Variant%20Call%20Format,indel%2C%20and%20structural%20variation%20calls.&text=This%20document%20describes%20the%20key,output%20by%20the%20GATK%20tools.).
+The result is a vcf file with SNV calls in [GATK vcf format](https://gatk.broadinstitute.org/hc/en-us/articles/360035531692-VCF-Variant-Call-Format#:~:text=VCF%2C%20or%20Variant%20Call%20Format,indel%2C%20and%20structural%20variation%20calls.&text=This%20document%20describes%20the%20key,output%20by%20the%20GATK%20tools.).
 ### B. Peak annotation and filtering
 Homozygous SNVs, SNVs with less than 5 reads on each allele and not present in dbSNP common colection are filtered out from the vcf files obtained on the previous step. The resulting variants are annotated with ChIP-seq peaks from 4 different peak callers (if available in _bed_ format).
 ### C. BAD calling
@@ -20,9 +20,9 @@ Performing one-tailed tests and aggregating the resulting P-values on TF and cel
 git clone https://github.com/autosome-ru/ADASTRA-pipeline/
 ```
 2. Fill the paths to the required files (listed below) in CONFIG.cfg file.
-3. Run construct_parameters_python.py, then install adastra package with ```pip3 install ./``` command
-4. From /scripts/ execute pipline_start.sh <n_tr> <stage>
-n_tr is max. number of jobs,
+3. Run ```python3 construct_parameters_python.py```, then install adastra package with ```pip3 install ./``` command
+4. Execute ```pipline_start.sh <n_tr> <stage>``` <br>
+n_tr is max. number of jobs,<br>
 stage is a flag, corresponding to a part of pipeline you wish to start with (listed in order):
 - --create-reference create normalized genome and index
 - --snp-call GATK snp calling
@@ -45,7 +45,7 @@ scipy>=1.5.1 <br>
 statsmodels>=0.11.1 <br>
 
 ## Required files
-To run the pipeline successfully one must fill absolute path for each file in the scripts/Configs/config.cfg file.
+To run the pipeline successfully one must fill path for each file in the  CONFIG.cfg file.
 ### Directories
 - alignments_path = "/home/user/Alignments/"
 The directory with .bam files of experiment and control alignments. Should contains directories with experiment name with corresponding .bam files in them.  
