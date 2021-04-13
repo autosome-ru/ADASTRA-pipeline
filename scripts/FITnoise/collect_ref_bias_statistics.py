@@ -1,15 +1,13 @@
 import os.path
 import pandas as pd
 
-from scripts.HELPERS.helpers import dtype_dict
+from scripts.HELPERS.helpers import dtype_dict, segmentation_states
 from scripts.HELPERS.paths import create_path_from_master_list_df, create_neg_bin_stats_path_function
 from scripts.HELPERS.paths_for_components import master_list_path
 
 
-def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
+def collect_fixed_alt_statistics(master_df, key_name=None, BAD=None, suffix=''):
     out_t = None
-    master_df = pd.read_table(master_list_path, dtype=dtype_dict)
-    master_df = master_df[master_df['EXP_TYPE'] != 'chip_control']
     for index, row in master_df.iterrows():
         if key_name is not None:
             if row['CELLS'] not in key_name:  # <------
@@ -40,15 +38,19 @@ def collect_fixed_alt_statistics(key_name=None, BAD=None, suffix=''):
             out_t = out_t.append(tmp_df).groupby(['alt_counts', 'ref_counts'], as_index=False).sum()
     if out_t is None:
         return
-    with open(create_neg_bin_stats_path_function(BAD, suffix), 'w') as out:
-        out_t.to_csv(out, sep="\t", index=False)
+    out_t.to_csv(create_neg_bin_stats_path_function(BAD, suffix), sep="\t", index=False)
 
 
-def main():
-    for bad in [1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
-        collect_fixed_alt_statistics(BAD=bad, key_name=None, suffix='')
+def main(cell_line=None, suffix='', in_stats=False):
+    master_df = pd.read_table(master_list_path, dtype=dtype_dict)
+    master_df = master_df[master_df['EXP_TYPE'] != 'chip_control']
+    if in_stats:
+        if not cell_line:
+            collect_fixed_alt_statistics(master_df, BAD=None)
+        else:
+            for bad in [None] + segmentation_states:
+                collect_fixed_alt_statistics(master_df, BAD=bad, key_name=cell_line, suffix=suffix)
+    else:
+        for bad in segmentation_states:
+            collect_fixed_alt_statistics(master_df, BAD=bad)
 
-
-if __name__ == "__main__":
-    for BAD in [None, 1, 2, 3, 4, 5, 6, 4/3, 5/2, 3/2]:
-        collect_fixed_alt_statistics(BAD=BAD, key_name=None, suffix='')

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy import optimize
 from scipy import stats as st
-from scripts.HELPERS.helpers import states
+from scripts.HELPERS.helpers import segmentation_states
 from scripts.HELPERS.paths import create_neg_bin_stats_path_function, create_neg_bin_weights_path_function
 
 
@@ -94,7 +94,7 @@ def main():
 
         fix_c_array = list(range(5, 501))
 
-        for BAD in states:
+        for BAD in segmentation_states:
             save_array = np.zeros((max(fix_c_array) + 1, 4), dtype=np.float_)
             filename = create_neg_bin_stats_path_function(BAD)
             stats = pd.read_table(filename)

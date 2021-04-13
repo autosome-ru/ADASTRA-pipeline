@@ -11,12 +11,12 @@ python3 "construct_parameters_python.py"
 
 source "scripts/HELPERS/paths_for_components.py"
 
-case "$2" in
+case "$flag" in
   --create-reference) stage_index=1
     ;;
   --snp-call) stage_index=2
     ;;
-  --peak-call) stage_index=3
+  --peak-annotation) stage_index=3
     ;;
   --bad-call) stage_index=4
     ;;
@@ -28,7 +28,7 @@ case "$2" in
     ;;
   *)
     echo "There is no option $2"
-    stage_index=0
+    exit 0
     ;;
 esac
 
@@ -80,6 +80,11 @@ if [ "$stage_index" -le 4 ]; then
   if ! bash "$scripts_path"/bad_map_est.sh "$njobs" --merge
   then
     echo 'BAD estimation failed'
+    exit 1
+  fi
+  if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --annotate
+  then
+    echo 'Correlation analysis failed'
     exit 1
   fi
   if ! bash "$scripts_path"/BAD_annotation.sh "$njobs"

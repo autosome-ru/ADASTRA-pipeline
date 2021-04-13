@@ -10,6 +10,7 @@ from collections import OrderedDict
 from scripts.HELPERS.paths_for_components import results_path, tf_dict_path, cl_dict_path
 from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, \
     expected_args
+from scripts.HELPERS.paths import get_result_table_path
 
 with open(cl_dict_path, "r") as read_file:
     cell_lines_dict = json.loads(read_file.readline())
@@ -44,7 +45,7 @@ def annotate_snp_with_tables(dictionary, ps_ref, ps_alt, bool_ar):  # return par
 
 
 def get_name(path):
-    return os.path.splitext(os.path.basename(path))
+    return os.path.splitext(os.path.basename(path))[0]
 
 
 def invert(dictionary):
@@ -73,7 +74,7 @@ def get_noise(k, n, weight):
 def main(what_for, key_name):
     check_if_in_expected_args(what_for)
 
-    table_path = os.path.join(results_path, what_for + '_P-values/{}.tsv'.format(key_name))
+    table_path = get_result_table_path(what_for, key_name)
 
     tables = []
     if what_for == "CL":
@@ -119,8 +120,8 @@ def main(what_for, key_name):
     with open(table_path, 'w') as out:
         out.write(pack(['#chr', 'pos', 'ID', 'ref', 'alt', 'repeat_type', 'n_peak_calls', 'n_peak_callers',
                         'mean_BAD', 'mean_SNP_per_segment', 'n_aggregated',
-                        'refc_mostsig_ref', 'altc_mostsig_ref', 'BAD_mostsig_ref', 'es_mostsig_ref',
-                        'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'es_mostsig_alt',
+                        'refc_mostsig_ref', 'altc_mostsig_ref', 'BAD_mostsig_ref', 'es_mostsig_ref', 'p_mostsig_ref',
+                        'refc_mostsig_alt', 'altc_mostsig_alt', 'BAD_mostsig_alt', 'es_mostsig_alt', 'p_mostsig_alt',
                         'min_cover', 'max_cover', 'median_cover', 'total_cover',
                         'es_mean_ref', 'es_mean_alt',
                         'logitp_ref', 'logitp_alt']))
@@ -168,9 +169,9 @@ def main(what_for, key_name):
                 SNPs_per_segment_array.append(seg_c)
                 p_ref_array.append(p_ref)
                 p_alt_array.append(p_alt)
-                if es_ref is not None:
+                if not np.isnan(es_ref):
                     ref_effect_size_array.append(es_ref / np.log(2))
-                if es_alt is not None:
+                if not np.isnan(es_alt):
                     alt_effect_size_array.append(es_alt / np.log(2))
                 cover_array.append(cov)
 
@@ -195,6 +196,7 @@ def main(what_for, key_name):
                 es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
                 es_mostsig_ref = ref_effect_size_array[int(np.argmax(weights))]
                 idx = int(np.argmax([-x for x in p_ref_array]))
+                p_mostsig_ref = p_ref_array[idx]
                 ref_c_mostsig_ref = ref_counts_array[idx]
                 alt_c_mostsig_ref = alt_counts_array[idx]
                 BAD_mostsig_ref = BAD_array[idx]
@@ -202,6 +204,7 @@ def main(what_for, key_name):
                 es_mean_ref = 'NaN'
                 es_mostsig_ref = 'NaN'
                 ref_c_mostsig_ref = 'NaN'
+                p_mostsig_ref = 'NaN'
                 alt_c_mostsig_ref = 'NaN'
                 BAD_mostsig_ref = 'NaN'
 
@@ -210,6 +213,7 @@ def main(what_for, key_name):
                 es_mean_alt = np.round(np.average(alt_effect_size_array, weights=weights), 3)
                 es_mostsig_alt = alt_effect_size_array[int(np.argmax(weights))]
                 idx = int(np.argmax([-x for x in p_alt_array]))
+                p_mostsig_alt = p_alt_array[idx]
                 ref_c_mostsig_alt = ref_counts_array[idx]
                 alt_c_mostsig_alt = alt_counts_array[idx]
                 BAD_mostsig_alt = BAD_array[idx]
@@ -217,14 +221,15 @@ def main(what_for, key_name):
                 es_mean_alt = 'NaN'
                 es_mostsig_alt = 'NaN'
                 ref_c_mostsig_alt = 'NaN'
+                p_mostsig_alt = 'NaN'
                 alt_c_mostsig_alt = 'NaN'
                 BAD_mostsig_alt = 'NaN'
 
             out.write(pack(
                 [chromosome, pos, ID, ref, alt, repeat, total_callers_counter, unique_callers,
                  mean_BAD, mean_SNPs_per_segment, n_aggregated,
-                 ref_c_mostsig_ref, alt_c_mostsig_ref, BAD_mostsig_ref, es_mostsig_ref,
-                 ref_c_mostsig_alt, alt_c_mostsig_alt, BAD_mostsig_alt, es_mostsig_alt,
+                 ref_c_mostsig_ref, alt_c_mostsig_ref, BAD_mostsig_ref, es_mostsig_ref, p_mostsig_ref,
+                 ref_c_mostsig_alt, alt_c_mostsig_alt, BAD_mostsig_alt, es_mostsig_alt, p_mostsig_alt,
                  min_cover, max_cover, med_cover, total_cover,
                  es_mean_ref, es_mean_alt,
                  logitp_ref, logitp_palt]))
@@ -271,7 +276,7 @@ def main(what_for, key_name):
     bool_ar = np.array([False] * len(table.index), dtype=np.bool)
     bool_ar[mc_filter_array] = bool_ar_alt + bool_ar_ref
 
-    with open(os.path.join(results_path, what_for + '_DICTS/{}_DICT.json'.format(key_name)), 'w') as out:
+    with open(os.path.join(results_path, what_for + '_DICTS/{}.json'.format(key_name)), 'w') as out:
         json.dump(origin_of_snp_dict, out)
 
 
