@@ -22,15 +22,15 @@ git clone https://github.com/autosome-ru/ADASTRA-pipeline/
 2. Fill the paths to the required files (listed below) in CONFIG.cfg file.
 3. Run ```python3 construct_parameters_python.py```, then install adastra package with ```pip3 install ./``` command
 4. Execute ```pipline_start.sh <n_tr> <stage>``` <br>
-n_tr is max. number of jobs,<br>
-stage is a flag, corresponding to a part of pipeline you wish to start with (listed in order):
-- --create-reference create normalized genome and index
-- --snp-call GATK snp calling
-- --peak-annotation peak annotation and filtering
-- --bad-call BAD estimation
-- --nb-fit fit negative binomial distributions
-- --pvalue-count evaluate statistical significance
-- --aggregate-pvalues perform cell-type and TF-level aggregation of p-values
+```n_tr``` is max. number of jobs,<br>
+```stage``` is a flag, corresponding to a part of pipeline you wish to start with (listed in order):
+- ```--create-reference``` create normalized genome and index
+- ```--snp-call``` GATK snp calling
+- ```--peak-annotation``` peak annotation and filtering
+- ```--bad-call``` BAD estimation
+- ```--nb-fit``` fit negative binomial distributions
+- ```--pvalue-count``` evaluate statistical significance
+- ```--aggregate-pvalues``` perform cell-type and TF-level aggregation of p-values
 ## Required software
 ### General
 1. Java SE 8
