@@ -1,5 +1,4 @@
-# ADASTra pipeline release Soos 22.06.2020
-[![DOI](https://zenodo.org/badge/212853786.svg)](https://zenodo.org/badge/latestdoi/212853786) <br>
+# ADASTra pipeline release Susan 12.04.2021
 A pipeline for processing ChIP-seq read allignments in _bam_ format to find allele-specific TF binding (ASB) events.
 It consists of 5 main parts:
 ### A. SNP calling
@@ -20,24 +19,25 @@ Performing one-tailed tests and aggregating the resulting P-values on TF and cel
 ```
 git clone https://github.com/autosome-ru/ADASTRA-pipeline/
 ```
-2. Fill the paths to the required files (listed below) in Configs/config.cfg file.
-3. From /scripts/ execute pipline_start.sh <stage>
+2. Fill the paths to the required files (listed below) in CONFIG.cfg file.
+3. Run construct_parameters_python.py, then install adastra package with ```pip3 install ./``` command
+4. From /scripts/ execute pipline_start.sh <n_tr> <stage>
+n_tr is max. number of jobs,
 stage is a flag, corresponding to a part of pipeline you wish to start with (listed in order):
-- --create_reference create normalized genome and index
-- --snp_call GATK snp calling
-- --peak_call peak annotation and filtering
-- --bad_groups download and annotate BAD groups by GEO GSE or ENCODE id
-- --bad_call BAD estimation
-- --nb_fit fit negative binomial distributions
-- --p_value_count evaluate statistical significance
-- --aggregate_p_values perform cell-type and TF-level aggregation of p-values
+- --create-reference create normalized genome and index
+- --snp-call GATK snp calling
+- --peak-annotation peak annotation and filtering
+- --bad-call BAD estimation
+- --nb-fit fit negative binomial distributions
+- --pvalue-count evaluate statistical significance
+- --aggregate-pvalues perform cell-type and TF-level aggregation of p-values
 ## Required software
 ### General
 1. Java SE 8
 2. Python >= 3.6
 3. GATK >= 4.0.12.0
 4. PICARD
-5. Parallel
+5. GNU Parallel
 ### Python packages
 numpy>=1.19.0 <br>
 pandas>=1.1.0 <br>
@@ -49,8 +49,6 @@ To run the pipeline successfully one must fill absolute path for each file in th
 ### Directories
 - alignments_path = "/home/user/Alignments/"
 The directory with .bam files of experiment and control alignments. Should contains directories with experiment name with corresponding .bam files in them.  
-- badmaps_path = "/home/user/BADMAPS/"
-A directory to save badmaps in.
 - results_path = "/home/user/DATA/"
 A directory to save final ASB calls into.
 - intervals_path = "/home/user/interval/"
