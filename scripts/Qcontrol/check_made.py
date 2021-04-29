@@ -18,7 +18,7 @@ def main():
                                "unique_SNPs_rs": None, "unique_asb_rs": None,
                                }
     for key in dict_overall_statistics:
-        dict_overall_statistics[key] = {"TF": {}, "CL": {}}
+        dict_overall_statistics[key] = {"CL": {}}
     ml_df = pd.read_table(master_list_path, dtype=dtype_dict)
     total_vcf_count = len(ml_df.index)
     ml_df['vcf_path'] = ml_df.apply(lambda x: create_path_from_master_list_df(x, 'vcf'), axis=1)
@@ -27,10 +27,17 @@ def main():
         os.path.join(get_release_stats_path(), 'not_downloaded.tsv'),
         index=False, sep='\t')
     ml_df = ml_df[ml_df['vcf_path'].apply(os.path.isfile)]
+    total_vcf_snps = 0
+    total_ann_table_snps = 0
     for index, row in ml_df.iterrows():
         row['CELLS'] = remove_punctuation(row['CELLS'])
         if row['CELLS'] not in dict_overall_statistics["datasets"]["CL"]:
             dict_overall_statistics["datasets"]["CL"][row['CELLS']] = 0
+        try:
+            vcf_df = pd.read_table(row['vcf_path'], header=None, comment='#')
+        except:
+            continue
+        total_vcf_snps += len(vcf_df.index)
         dict_overall_statistics["datasets"]["CL"][row['CELLS']] += 1
         made_experiment_vcfs += 1
         annotated_table_path = create_path_from_master_list_df(row, for_what="annotation")
@@ -47,17 +54,28 @@ def main():
         if row['CELLS'] not in dict_overall_statistics["SNP_calls"]["CL"]:
             dict_overall_statistics["SNP_calls"]["CL"][row['CELLS']] = 0
         dict_overall_statistics["SNP_calls"]["CL"][row['CELLS']] += local_counter
+        total_ann_table_snps += local_counter
 
-    print("Made {}/{} VCFs ({} experiment VCFs, {} control VCFs), {} annotated tables".format(
-        made_control_vcfs + made_experiment_vcfs, total_vcf_count,
-        made_experiment_vcfs,
-        made_control_vcfs,
-        made_annotated_tables))
+    print(
+        "Made {}/{} VCFs ({} experiment VCFs, {} control VCFs)\n"
+        "{} annotated tables\n"
+        "CLs {}\n"
+        "SNPs called {}\n"
+        "SNPs after basic filter {}".format(
+            made_control_vcfs + made_experiment_vcfs, total_vcf_count,
+            made_experiment_vcfs,
+            made_control_vcfs,
+            made_annotated_tables,
+            len(ml_df['CELLS'].unique()),
+            total_vcf_snps,
+            total_ann_table_snps
+        )
+    )
 
-    obj_counter = {'TF': 0, 'CL': 0}
+    obj_counter = {'CL': 0}
     total_fdrs_ref = 0
     total_fdrs_alt = 0
-    for what_for in ('CL', ):
+    for what_for in ('CL',):
         for obj in os.listdir(get_result_dir_path(what_for)):
             obj_counter[what_for] += 1
             obj_table = pd.read_table(get_result_table_path(what_for, os.path.splitext(obj)[0]))
