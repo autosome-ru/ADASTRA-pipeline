@@ -347,22 +347,22 @@ class UnpackBadSegments:
 
 
 def get_states(states_sign):
-    if states_sign == 'all_but_1.33_2.5':
-        states = [1, 2, 3, 4, 5, 6, 1.5]
-    elif states_sign == '123456':
-        states = [1, 2, 3, 4, 5, 6]
-    elif states_sign == '12345':
+    if states_sign == 'int_5':
         states = [1, 2, 3, 4, 5]
-    elif states_sign == 'all_but_1.33':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
-    elif states_sign == 'all_but_2.5':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3]
-    elif states_sign == 'all':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3, 2.5]
-    elif states_sign == 'all_5':
+    elif states_sign == 'int_6':
+        states = [1, 2, 3, 4, 5, 6]
+    elif states_sign == 'full_5':
         states = [1, 2, 3, 4, 5, 1.5]
-    else:
+    elif states_sign == 'full_5_and_6':
+        states = [1, 2, 3, 4, 5, 6, 1.5]
+    elif states_sign == 'full_6_but_1.33':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
+    elif states_sign == 'full_6_but_2.5':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3]
+    elif states_sign == 'full_6':
         states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3, 2.5]
+    else:
+        states = segmentation_states
     return sorted(states)
 
 

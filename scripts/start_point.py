@@ -5,7 +5,7 @@ Usage:
             adastra init_dirs
             adastra aggregation_dict
             adastra make_paths --mode <mode>
-            adastra badmaps_params
+            adastra badmaps_params [only_cosmic]
             adastra aggregation_params --for <for>
             adastra annotation_params
             adastra correlation_params
@@ -38,6 +38,7 @@ Arguments:
     <path>     Path to file
     <suffix>   Suffix for stats file
     <int>      Positive integer
+    <set_name> Name of a set of states
 
 Options:
     -h, --help                  Show help.
@@ -49,6 +50,8 @@ Options:
     --type=<type>               Peak type
     --base=<path>               Path to file to annotate
     --group=<group>             Name of badmap group
+    --states_set=<set_name>     Set of states to use in BAD calling
+    --b_penalty=<int>
     --suffix=<suffix>           Suffix for stats file
     --cell-type=<name>          Cell type name
     --motif-len=<int>           Length of the motif
@@ -59,7 +62,7 @@ import time
 from docopt import docopt
 from babachi import BADEstimation
 
-from .HELPERS.helpers import segmentation_states
+from .HELPERS.helpers import get_states
 from .HELPERS.paths import create_merged_vcf_path_function, create_badmaps_path_function
 
 
@@ -82,7 +85,7 @@ def main():
         main(args['--mode'])
     elif args['badmaps_params']:
         from .PARAMETERS.make_params_bad_estimation import main
-        main()
+        main(args['only_cosmic'])
     elif args['annotation_params']:
         from .PARAMETERS.make_params_annotation import main
         main()
@@ -112,9 +115,9 @@ def main():
             GS = BADEstimation.GenomeSegmentator(
                 snps_collection=snps_collection,
                 chromosomes_order=chromosomes_order,
-                out=create_badmaps_path_function(bad_group),
-                states=segmentation_states,
-                b_penalty=4,
+                out=create_badmaps_path_function(bad_group, states_set=args['--states_set'], b_penalty=args['--b_penalty']),
+                states=get_states(args['--states_set']),
+                b_penalty=convert_string_to_int(args['--b_penalty']),
                 verbose=True,
                 allele_reads_tr=5,
                 segmentation_mode='corrected'
@@ -157,10 +160,10 @@ def main():
         main()
     elif args['extract_sarus_data']:
         from .SARUSannotation.extract_sarus_data import main
-        main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
+        main(args['--name'], convert_string_to_int(args['--motif-len']))
     elif args['annotate_table_with_sarus']:
         from .SARUSannotation.annotate_table_with_sarus import main
-        main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
+        main(args['--name'], convert_string_to_int(args['--motif-len']))
     elif args['annotate_with_phenotypes']:
         from .PARSEphenotypes.asb_gwas_eqtl import main
         main()
@@ -172,8 +175,8 @@ def main():
         manual(args['<exp>'], args['<aligns>'])
 
 
-def convert_motif_len_to_int(motif_len_string):
-    if not motif_len_string:
+def convert_string_to_int(string):
+    if not string:
         return None
     else:
-        return int(motif_len_string)
+        return int(string)
