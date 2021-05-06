@@ -18,10 +18,10 @@ def in_cosmic(cell_line_name, cosmic_names):
 
 def main(only_cosmic=False):
     cosmic_names, _ = read_synonims()
-    print(only_cosmic)
     with open(badmaps_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     keys = sorted(d.keys())
+    print(len(keys))
     with open(out_path, 'w') as file:
         for key in keys:
             if only_cosmic and not in_cosmic(key, cosmic_names):
