@@ -18,6 +18,7 @@ def in_cosmic(cell_line_name, cosmic_names):
 
 def main(only_cosmic=False):
     cosmic_names, _ = read_synonims()
+    print(only_cosmic)
     with open(badmaps_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     keys = sorted(d.keys())
@@ -43,7 +44,8 @@ def main(only_cosmic=False):
                                 'full_6'
                         ):
                             file.write("{},{},{}\n".format(key, state_sign, caic))
-
+            else:
+                file.write(key + '\n')
 
 
 
