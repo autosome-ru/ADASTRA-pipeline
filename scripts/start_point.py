@@ -13,7 +13,7 @@ Usage:
             adastra check_pos_peaks --peak <path> --out <path> --type <type>
             adastra annotate_peaks --base <path>
             adastra vcf_merge --group <group>
-            adastra bad_call --group <group>
+            adastra bad_call --group <group> [--states_set <set_name>] [--b_penalty <int>]
             adastra bad_annotation --base <path>
             adastra collect_ref_bias [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin
