@@ -21,11 +21,11 @@ def main(only_cosmic=False):
     with open(badmaps_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     keys = sorted(d.keys())
-    print(len(keys))
     with open(out_path, 'w') as file:
         for key in keys:
             if only_cosmic and not in_cosmic(key, cosmic_names):
                 continue
+            print(key)
             is_empty = True
             for value in d[key]:
                 if os.path.isfile(value + get_ending('vcf')):
