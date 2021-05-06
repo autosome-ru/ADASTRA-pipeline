@@ -13,7 +13,7 @@ Usage:
             adastra check_pos_peaks --peak <path> --out <path> --type <type>
             adastra annotate_peaks --base <path>
             adastra vcf_merge --group <group>
-            adastra bad_call --group <group> [--states_set <set_name>] [--b_penalty <int>]
+            adastra bad_call --group <group>
             adastra bad_annotation --base <path>
             adastra collect_ref_bias [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin
@@ -38,7 +38,6 @@ Arguments:
     <path>     Path to file
     <suffix>   Suffix for stats file
     <int>      Positive integer
-    <set_name> Name of a set of states
 
 Options:
     -h, --help                  Show help.
@@ -50,8 +49,7 @@ Options:
     --type=<type>               Peak type
     --base=<path>               Path to file to annotate
     --group=<group>             Name of badmap group
-    --states_set=<set_name>     Set of states to use in BAD calling
-    --b_penalty=<int>
+
     --suffix=<suffix>           Suffix for stats file
     --cell-type=<name>          Cell type name
     --motif-len=<int>           Length of the motif
@@ -106,16 +104,19 @@ def main():
         main(args['--base'])
     elif args['vcf_merge']:
         from .BADcalling.VCFMerger import main
-        main(args['--group'])
+        bad_group, states_set, b_penalty = args['--group'].split(',')
+        main(bad_group)
     elif args['bad_call']:
-        bad_group = args['--group']
+        bad_group, states_set, b_penalty = args['--group'].split(',')
         t = time.clock()
         with open(create_merged_vcf_path_function(bad_group)) as m_vcf:
             snps_collection, chromosomes_order, _ = BADEstimation.parse_input_file(m_vcf, allele_reads_tr=5)
             GS = BADEstimation.GenomeSegmentator(
                 snps_collection=snps_collection,
                 chromosomes_order=chromosomes_order,
-                out=create_badmaps_path_function(bad_group, states_set=args['--states_set'], b_penalty=args['--b_penalty']),
+                out=create_badmaps_path_function(bad_group,
+                                                 states_set=states_set,
+                                                 b_penalty=b_penalty),
                 states=get_states(args['--states_set']),
                 b_penalty=convert_string_to_int(args['--b_penalty']),
                 verbose=True,
