@@ -25,7 +25,6 @@ def main(only_cosmic=False):
         for key in keys:
             if only_cosmic and not in_cosmic(key, cosmic_names):
                 continue
-            print(key)
             is_empty = True
             for value in d[key]:
                 if os.path.isfile(value + get_ending('vcf')):
