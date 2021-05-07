@@ -117,8 +117,8 @@ def main():
                 out=create_badmaps_path_function(bad_group,
                                                  states_set=states_set,
                                                  b_penalty=b_penalty),
-                states=get_states(args['--states_set']),
-                b_penalty=convert_string_to_int(args['--b_penalty']),
+                states=get_states(states_set),
+                b_penalty=convert_string_to_int(b_penalty),
                 verbose=True,
                 allele_reads_tr=5,
                 segmentation_mode='corrected'
