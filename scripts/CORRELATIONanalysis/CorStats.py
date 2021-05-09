@@ -230,6 +230,7 @@ def main(file_name):
             reader.states = states
 
             reader.SNP_path = os.path.join(snp_dir, file_name)
+            print('snps path: {}'.format(reader.SNP_path))
 
             new_dir = snp_dir[:-1] + '_filtered' if snp_dir.endswith('/') else snp_dir + '_filtered'
             if not os.path.isdir(new_dir):
