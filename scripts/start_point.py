@@ -21,6 +21,7 @@ Usage:
             adastra aggregation --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path>
             adastra cosmic_correlation --base <path>
+            adastra collect_roc --group <group>
             adastra join_correlation_threads
             adastra collect_release_stats
             adastra weights_to_df
@@ -125,7 +126,10 @@ def main():
             )
             GS.estimate_BAD()
         print('Total time: {} s'.format(time.clock() - t))
-
+    elif args['collect_roc']:
+        states_set, b_penalty = args['--group'].split(',')
+        from .Qcontrol.collect_data_for_ROC import main
+        main(states_set, convert_string_to_int(b_penalty))
     elif args['bad_annotation']:
         from .ASBcalling.BAD_annotation import main
         main(args['--base'])
