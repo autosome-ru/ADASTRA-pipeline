@@ -7,7 +7,7 @@ flag=$2
 
 if [ "$flag" == --bad-call ]; then
   adastra badmaps_params only_cosmic
-  #parallel --jobs "$njobs" adastra vcf_merge --group :::: "$parallel_parameters_path"/BE_parameters.cfg
+  parallel --jobs "$njobs" adastra vcf_merge --group :::: "$parallel_parameters_path"/BE_parameters.cfg
   adastra sort_params
   parallel --jobs "$njobs" adastra bad_call --group :::: "$parallel_parameters_path"/BE_parameters.cfg
 fi
