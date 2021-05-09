@@ -7,7 +7,7 @@ from scripts.HELPERS.paths import get_heatmap_data_path
 
 
 def main(states_sign, b_penalty):
-    model = 'CAIC@{}@{}_filtered'.format(states_sign, b_penalty)
+    model = 'CAIC@{}@{}'.format(states_sign, b_penalty)
     print(model)
     states = get_states(states_sign)
     heatmap_dir = os.path.join(get_heatmap_data_path(), model + '_tables/')
