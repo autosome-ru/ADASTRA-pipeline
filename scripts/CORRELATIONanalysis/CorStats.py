@@ -219,6 +219,7 @@ def main(file_name):
         datasets_info = {}
         # print('reading COSMIC')
         cell_line_name = file_name[:file_name.rfind('@')]
+        print(cell_line_name)
 
         for snp_dir in snp_dirs:
             model = get_name_by_dir(snp_dir, naive_modes)
