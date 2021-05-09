@@ -259,7 +259,9 @@ def main(file_name):
             number_of_datasets, lab, SNP_objects, aligns, segments_number, sum_cov = reader.read_SNPs(method='cover')
 
             segment_numbers[model] = segments_number
+            print('i am here and heatmapfile is {}'.format(heatmap_data_file))
             if cosmic_names.get(cell_line_name):
+                print('cosmic line exists')
                 corr_to_objects[model] = correlation_with_cosmic(SNP_objects, mode='normal', method='cover',
                                                                  heatmap_data_file=heatmap_data_file,
                                                                  cell_line_name=cell_line_name,
