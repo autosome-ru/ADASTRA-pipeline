@@ -219,7 +219,6 @@ def main(file_name):
         datasets_info = {}
         # print('reading COSMIC')
         cell_line_name = file_name[:file_name.rfind('@')]
-        print(cell_line_name)
 
         for snp_dir in snp_dirs:
             model = get_name_by_dir(snp_dir, naive_modes)
@@ -261,6 +260,8 @@ def main(file_name):
 
             segment_numbers[model] = segments_number
             print('i am here and heatmapfile is {}'.format(heatmap_data_file))
+            print(cell_line_name in cosmic_names)
+            print(cosmic_names.keys())
             if cosmic_names.get(cell_line_name):
                 print('cosmic line exists')
                 corr_to_objects[model] = correlation_with_cosmic(SNP_objects, mode='normal', method='cover',
