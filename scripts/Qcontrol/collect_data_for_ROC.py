@@ -13,7 +13,10 @@ def main(states_sign, b_penalty):
     heatmap_dir = os.path.join(get_heatmap_data_path(), model + '_tables/')
     dfs = []
     for file in os.listdir(heatmap_dir):
-        dfs.append(pd.read_table(os.path.join(heatmap_dir, file), header=None, comment='#'))
+        try:
+            dfs.append(pd.read_table(os.path.join(heatmap_dir, file), header=None, comment='#'))
+        except pd.errors.EmptyDataError:
+            continue
     full_df = pd.concat(dfs)
     full_df.columns = ['chr', 'pos', 'cov', 'BAD', 'COSMIC'] + ['Q{:.2f}'.format(state) for state in states]
     print('i read')
