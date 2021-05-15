@@ -15,7 +15,7 @@ cell_sign_dict = {
 
 
 def cell_line_in_file_from_sign(cell_sign, file):
-    for cell_line, sign in cell_sign_dict.items():
+    for sign, cell_line in cell_sign_dict.items():
         if cell_line in file and cell_sign == sign:
             return True
     if cell_sign == 'Other':
@@ -34,7 +34,6 @@ def main(states_sign, b_penalty):
         dfs = []
         for file in os.listdir(heatmap_dir):
             if not cell_line_in_file_from_sign(cell_sign, file):
-                print(file, cell_sign)
                 continue
             try:
                 dfs.append(pd.read_table(os.path.join(heatmap_dir, file), header=None, comment='#'))
