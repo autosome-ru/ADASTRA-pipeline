@@ -15,10 +15,13 @@ cell_sign_dict = {
 
 
 def cell_line_in_file_from_sign(cell_sign, file):
+    check_other = True
     for sign, cell_line in cell_sign_dict.items():
-        if cell_line in file and cell_sign == sign:
-            return True
-    if cell_sign == 'Other':
+        if cell_line in file:
+            if cell_sign == sign:
+                return True
+            check_other = False
+    if check_other and cell_sign == 'Other':
         return True
     else:
         return False
@@ -27,7 +30,7 @@ def cell_line_in_file_from_sign(cell_sign, file):
 def main(states_sign, b_penalty):
     model = 'CAIC@{}@{}'.format(states_sign, b_penalty)
     print(model)
-    for cell_sign in ('K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
+    for cell_sign in ('Other',):#('K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
         print(cell_sign)
         states = get_states(states_sign)
         heatmap_dir = os.path.join(get_heatmap_data_path(), model + '_tables/')
