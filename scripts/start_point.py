@@ -5,7 +5,7 @@ Usage:
             adastra init_dirs
             adastra aggregation_dict
             adastra make_paths --mode <mode>
-            adastra badmaps_params
+            adastra badmaps_params [only_cosmic]
             adastra aggregation_params --for <for>
             adastra annotation_params
             adastra correlation_params
@@ -21,6 +21,7 @@ Usage:
             adastra aggregation --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path>
             adastra cosmic_correlation --base <path>
+            adastra collect_roc [cell_line_wise] --group <group>
             adastra join_correlation_threads
             adastra collect_release_stats
             adastra weights_to_df
@@ -50,6 +51,7 @@ Options:
     --type=<type>               Peak type
     --base=<path>               Path to file to annotate
     --group=<group>             Name of badmap group
+
     --suffix=<suffix>           Suffix for stats file
     --cell-type=<name>          Cell type name
     --motif-len=<int>           Length of the motif
@@ -60,7 +62,7 @@ import time
 from docopt import docopt
 from babachi import BADEstimation
 
-from .HELPERS.helpers import segmentation_states
+from .HELPERS.helpers import get_states
 from .HELPERS.paths import create_merged_vcf_path_function, create_badmaps_path_function
 
 
@@ -83,7 +85,7 @@ def main():
         main(args['--mode'])
     elif args['badmaps_params']:
         from .PARAMETERS.make_params_bad_estimation import main
-        main()
+        main(args['only_cosmic'])
     elif args['annotation_params']:
         from .PARAMETERS.make_params_annotation import main
         main()
@@ -104,25 +106,35 @@ def main():
         main(args['--base'])
     elif args['vcf_merge']:
         from .BADcalling.VCFMerger import main
-        main(args['--group'])
+        bad_group, states_set, b_penalty = args['--group'].split(',')
+        main(bad_group)
     elif args['bad_call']:
-        bad_group = args['--group']
+        bad_group, states_set, b_penalty = args['--group'].split(',')
         t = time.clock()
         with open(create_merged_vcf_path_function(bad_group)) as m_vcf:
             snps_collection, chromosomes_order, _ = BADEstimation.parse_input_file(m_vcf, allele_reads_tr=5)
             GS = BADEstimation.GenomeSegmentator(
                 snps_collection=snps_collection,
                 chromosomes_order=chromosomes_order,
-                out=create_badmaps_path_function(bad_group),
-                states=segmentation_states,
-                b_penalty=4,
+                out=create_badmaps_path_function(bad_group,
+                                                 states_set=states_set,
+                                                 b_penalty=b_penalty),
+                states=get_states(states_set),
+                b_penalty=convert_string_to_int(b_penalty),
                 verbose=True,
                 allele_reads_tr=5,
                 segmentation_mode='corrected'
             )
             GS.estimate_BAD()
         print('Total time: {} s'.format(time.clock() - t))
-
+    elif args['collect_roc']:
+        states_set, b_penalty = args['--group'].split(',')
+        if args['cell_line_wise']:
+            from .Qcontrol.collect_cell_line_wise_data_for_ROC import main
+            main(states_set, convert_string_to_int(b_penalty))
+        else:
+            from .Qcontrol.collect_data_for_ROC import main
+            main(states_set, convert_string_to_int(b_penalty))
     elif args['bad_annotation']:
         from .ASBcalling.BAD_annotation import main
         main(args['--base'])
@@ -158,10 +170,10 @@ def main():
         main()
     elif args['extract_sarus_data']:
         from .SARUSannotation.extract_sarus_data import main
-        main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
+        main(args['--name'], convert_string_to_int(args['--motif-len']))
     elif args['annotate_table_with_sarus']:
         from .SARUSannotation.annotate_table_with_sarus import main
-        main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
+        main(args['--name'], convert_string_to_int(args['--motif-len']))
     elif args['annotate_with_phenotypes']:
         from .PARSEphenotypes.asb_gwas_eqtl import main
         main()
@@ -176,8 +188,8 @@ def main():
         main()
 
 
-def convert_motif_len_to_int(motif_len_string):
-    if not motif_len_string:
+def convert_string_to_int(string):
+    if not string:
         return None
     else:
-        return int(motif_len_string)
+        return int(string)

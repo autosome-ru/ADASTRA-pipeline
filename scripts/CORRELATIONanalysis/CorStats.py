@@ -56,6 +56,7 @@ def correlation_with_cosmic(SNP_objects, mode, method='normal',
                             cosmic_names=None):
     if cosmic_names is None:
         cosmic_names = {}
+    print(heatmap_data_file)
     heatmap = None if heatmap_data_file is None else open(heatmap_data_file, 'w')
     cosmic_segments = []
     with open(cosmic_path, 'r') as cosmic_file:
@@ -223,13 +224,14 @@ def main(file_name):
             model = get_name_by_dir(snp_dir, naive_modes)
 
             if re.match(r'^CAIC@.+@.+$', model) is not None:
-                print(model.split('@')[1])
+                # print(model.split('@')[1])
                 states = get_states(model.split('@')[1])
             else:
                 states = get_states('')
             reader.states = states
 
             reader.SNP_path = os.path.join(snp_dir, file_name)
+            # print('snps path: {}'.format(reader.SNP_path))
 
             new_dir = snp_dir[:-1] + '_filtered' if snp_dir.endswith('/') else snp_dir + '_filtered'
             if not os.path.isdir(new_dir):
