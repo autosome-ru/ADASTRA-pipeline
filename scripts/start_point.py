@@ -29,6 +29,7 @@ Usage:
             adastra annotate_with_phenotypes
             adastra extract_context
             adastra count_p <exp> <aligns>
+            adastra count_snps
             adastra -h | --help
 
 Arguments:
@@ -170,6 +171,9 @@ def main():
     elif args['count_p']:
         from .ASBcalling.NBpcounter import manual
         manual(args['<exp>'], args['<aligns>'])
+    elif args['count_snps']:
+        from .Qcontrol.check_annotated_tables import main
+        main()
 
 
 def convert_motif_len_to_int(motif_len_string):
