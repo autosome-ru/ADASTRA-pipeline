@@ -28,6 +28,8 @@ def get_color(row):
         return 'C3'
     elif row['#cell_line'] == '22RV1__prostate_carcinoma_':
         return 'C4'
+    elif row['#cell_line'] == 'HCT-116__colon_carcinoma_':
+        return 'C5'
     else:
         return "C0"
 
@@ -49,9 +51,16 @@ def get_cl(row, name, model):
         if row['#cell_line'] != '22RV1__prostate_carcinoma_':
             row[model] = 0
             row["delta_tau"] = 0
+    elif name == 'HCT116':
+        if row['#cell_line'] != 'HCT-116__colon_carcinoma_':
+            row[model] = 0
+            row["delta_tau"] = 0
     elif name == "other":
         if row['#cell_line'] == "MCF7__Invasive_ductal_breast_carcinoma_" or \
-                row['#cell_line'] == 'K562__myelogenous_leukemia_' or row['#cell_line'] == 'A549__lung_carcinoma_':
+                row['#cell_line'] == 'K562__myelogenous_leukemia_' or \
+                row['#cell_line'] == 'A549__lung_carcinoma_' or \
+                row['#cell_line'] == '22RV1__prostate_carcinoma_' or \
+                row['#cell_line'] == 'HCT-116__colon_carcinoma_':
             row[model] = 0
             row["delta_tau"] = 0
     return row
@@ -83,7 +92,7 @@ def get_rect(dataframe: pd.DataFrame, col_name):
 sns.set(font_scale=1.4, style="ticks", font="lato",
         # palette=('#56B4E9', '#009E73', '#F0E442'))
         # palette=('#7570b3', '#d95f02', '#1b9e77'))
-        palette=('#56B4E9', '#E69F00', '#009E73', '#D55E00', '#CC79A7'))
+        palette=('#56B4E9', '#E69F00', '#009E73', '#D55E00', '#CC79A7', '#F0E442'))
         # palette=('#1f77b4', '#2ca02c', '#ff7f0e'))
 sns.set_style({"xtick.direction": "in", "ytick.direction": "in"})
 plt.rcParams['font.weight'] = "medium"
@@ -103,11 +112,12 @@ a = 0.3
 a1 = 0.8
 states = []
 mults = []
-k562 = []
-mcf7 = []
-a549 = []
-rv1 = []
-other = []
+k562 = {}
+mcf7 = {}
+a549 = {}
+rv1 = {}
+hct116 = {}
+other = {}
 for sig in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_6'):
     for mult in [3, 4, 5]:
         print(sig, mult)
@@ -125,12 +135,13 @@ for sig in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_
         df = df.sort_values(model, axis=0, ascending=False)
         df["delta_tau"] = df[model] - df["cor_by_snp_probe_CGH"]
 
-        df = df[df[model] != 0]
+        # df = df[df[model] != 0]
 
         df_k562 = df.apply(lambda x: get_cl(x, "K562", model), axis=1)
         df_mcf7 = df.apply(lambda x: get_cl(x, "MCF7", model), axis=1)
         df_a549 = df.apply(lambda x: get_cl(x, "A549", model), axis=1)
         df_22rv1 = df.apply(lambda x: get_cl(x, "22RV1", model), axis=1)
+        df_hct116 = df.apply(lambda x: get_cl(x, "HCT116", model), axis=1)
         df_other = df.apply(lambda x: get_cl(x, "other", model), axis=1)
 
         # # Draw 3 colors for cell lines vs cosmic
@@ -178,15 +189,28 @@ for sig in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_
         print('MCF7: {:.3f}'.format(np.mean(df_mcf7[(df_mcf7[model] != 0) & (df_mcf7[model] != 0.01)][model])))
         print('A549: {:.3f}'.format(np.mean(df_a549[(df_a549[model] != 0) & (df_a549[model] != 0.01)][model])))
         print('22RV1: {:.3f}'.format(np.mean(df_22rv1[(df_a549[model] != 0) & (df_22rv1[model] != 0.01)][model])))
+        print('HCT116: {:.3f}'.format(np.mean(df_hct116[(df_hct116[model] != 0) & (df_hct116[model] != 0.01)][model])))
         print('Other: {:.3f}'.format(np.mean(df_other[(df_other[model] != 0) & (df_other[model] != 0.01)][model])))
 
         states.append(sig)
         mults.append(mult)
-        k562.append(np.quantile(df_k562[(df_k562[model] != 0) & (df_k562[model] != 0.01)][model], 0.75))
-        mcf7.append(np.quantile(df_mcf7[(df_mcf7[model] != 0) & (df_mcf7[model] != 0.01)][model], 0.75))
-        a549.append(np.quantile(df_a549[(df_a549[model] != 0) & (df_a549[model] != 0.01)][model], 0.75))
-        rv1.append(np.quantile(df_a549[(df_22rv1[model] != 0) & (df_22rv1[model] != 0.01)][model], 0.75))
-        other.append(np.quantile(df_other[(df_other[model] != 0) & (df_other[model] != 0.01)][model], 0.75))
+        for st_dict, dfx in zip(
+            [k562,
+             mcf7,
+             a549,
+             rv1,
+             hct116,
+             other],
+            [df_k562,
+             df_mcf7,
+             df_a549,
+             df_22rv1,
+             df_hct116,
+             df_other]
+        ):
+            st_dict.setdefault('small', []).append(np.quantile(dfx[(dfx[model] != 0) & (dfx[model] != 0.01) & (dfx['total_snps'] < 2000)][model], 0.75))
+            st_dict.setdefault('med', []).append(np.quantile(dfx[(dfx[model] != 0) & (dfx[model] != 0.01) & (dfx['total_snps'] >= 2000) & (df['total_snps'] < 60000)][model], 0.75))
+            st_dict.setdefault('big', []).append(np.quantile(dfx[(dfx[model] != 0) & (dfx[model] != 0.01) & (dfx['total_snps'] >= 60000)][model], 0.75))
         #
         # ax.grid(True)
         # ax.legend()
@@ -206,6 +230,7 @@ for sig in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_
         df_mcf7 = df[df['color'] == 'C2']
         df_a549 = df[df['color'] == 'C3']
         df_22rv1 = df[df['color'] == 'C4']
+        df_hct116 = df[df['color'] == 'C5']
         df_other = df[df['color'] == 'C0']
 
         field = 'total_snps'
@@ -220,6 +245,8 @@ for sig in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_
                         linewidth=0, alpha=0.7, color='C3', label='A549')
         sc5 = plt.scatter(y=df_22rv1[model], x=df_22rv1[field], zorder=1,
                         linewidth=0, alpha=0.7, color='C4', label='22RV1')
+        sc6 = plt.scatter(y=df_hct116[model], x=df_hct116[field], zorder=1,
+                        linewidth=0, alpha=0.7, color='C5', label='HCT116')
         sns.lineplot(x=[-1, 1], y=[-1, 1], color='#505050')
         ax.axvline(x=0, color='#505050', linestyle='--')
         ax.axhline(y=0, color='#505050', linestyle='--')
@@ -229,6 +256,8 @@ for sig in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_
         ax.set_xscale('log')
         ax.set_xlim(100, 20000000)
         ax.set_ylim(-0.5, 1)
+        ax.axvline(x=2000, color='#50505050', ls='--')
+        ax.axvline(x=60000, color='#50505050', ls='--')
         ax.grid(True)
 
         ax.set_ylabel("Kendall's τ (Segmentation, COSMIC)")
@@ -242,11 +271,24 @@ for sig in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_
 df = pd.DataFrame({
     'States': states,
     'Multiplier': mults,
-    'K562_Q3': k562,
-    'MCF7_Q3': mcf7,
-    'A549_Q3': a549,
-    '22RV1_Q3': rv1,
-    'Other': other,
+    'K562_small_Q3': k562['small'],
+    'MCF7_small_Q3': mcf7['small'],
+    'A549_small_Q3': a549['small'],
+    '22RV1_small_Q3': rv1['small'],
+    'HCT116_small_Q3': hct116['small'],
+    'Other_small_Q3': other['small'],
+    'K562_med_Q3': k562['med'],
+    'MCF7_med_Q3': mcf7['med'],
+    'A549_med_Q3': a549['med'],
+    '22RV1_med_Q3': rv1['med'],
+    'HCT116_med_Q3': hct116['med'],
+    'Other_med_Q3': other['med'],
+    'K562_big_Q3': k562['big'],
+    'MCF7_big_Q3': mcf7['big'],
+    'A549_big_Q3': a549['big'],
+    '22RV1_big_Q3': rv1['big'],
+    'HCT116_big_Q3': hct116['big'],
+    'Other_big_Q3': other['big'],
 })
 
 df.to_csv(os.path.expanduser('D:\Sashok/Desktop/susan_BAD/stats.tsv'), sep='\t', index=False)

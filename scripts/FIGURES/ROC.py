@@ -70,9 +70,14 @@ plt.rcParams['axes.xmargin'] = 0
 plt.rcParams['axes.ymargin'] = 0
 plt.rcParams["legend.framealpha"] = 0.4
 
+stats = {}
+all_states, all_labels, _ = get_states('full_6')
+
 for state_s in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_6'):
     for CAIC in range(3, 6):
         model = 'CAIC@{}@{}'.format(state_s, CAIC)
+        stats.setdefault('states', []).append(state_s)
+        stats.setdefault('multiplier', []).append(CAIC)
         print(model)
         states, labels, colors = get_states(state_s)
         sns.set_palette(colors)
@@ -106,7 +111,8 @@ for state_s in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'f
         # Global_precision = {}
 
         for BAD in states:
-            t[BAD] = t[BAD][t[BAD]['BAD'].isin(states) & t[BAD]['COSMIC'].isin(states)]
+            t[BAD] = t[BAD][t[BAD]['COSMIC'] <= 6]
+            # t[BAD] = t[BAD][t[BAD]['BAD'].isin(states) & t[BAD]['COSMIC'].isin(states)]
         l = len(states)
 
         P = {}
@@ -134,26 +140,26 @@ for state_s in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'f
 
         # s[((s['COSMIC'] == BAD) & (s['BAD'] == BAD)) | ((s['COSMIC'] != BAD) & (s['BAD'] != BAD))]['counts'].sum() / All)
 
-        # P[tr] R[tr]
-        for metric, label in (Precision, 'Precision'), (Recall, 'Recall'):
-            fig, ax = plt.subplots()
-            for BAD in states:
-                plt.plot([tr for tr in x[BAD] if 100 >= tr >= -100], [metric[BAD][tr] for tr in x[BAD] if 100 >= tr >= -100],
-                         label='{:.2f}'.format(BAD))
-            # plt.plot(x, [Global_precision[tr] for tr in x], label='All', color='black')
-            # ax.axhline(y=((l - 1) ** 2 + 1) / ((l - 1) ** 2 + 1 + 2 * (l - 1)), color='black', linestyle='--')
-            if label == 'Precision':
-                ax.axhline(y=1 / l, color='black', linestyle='--')
-            ax.axvline(x=0, color='black', linestyle='--')
-
-            ax.legend(loc='lower right')
-            ax.grid(True)
-            ax.set_ylim(0, 1)
-            ax.set_xlabel('SNP qual >= x')
-            ax.set_ylabel(label)
-
-            plt.savefig(os.path.expanduser('D:\Sashok\Desktop/AC_5/AS_Figure_5_{}_{}.png'.format(label, model)), dpi=300)
-            plt.close(fig)
+        # # P[tr] R[tr]
+        # for metric, label in (Precision, 'Precision'), (Recall, 'Recall'):
+        #     fig, ax = plt.subplots()
+        #     for BAD in states:
+        #         plt.plot([tr for tr in x[BAD] if 100 >= tr >= -100], [metric[BAD][tr] for tr in x[BAD] if 100 >= tr >= -100],
+        #                  label='{:.2f}'.format(BAD))
+        #     # plt.plot(x, [Global_precision[tr] for tr in x], label='All', color='black')
+        #     # ax.axhline(y=((l - 1) ** 2 + 1) / ((l - 1) ** 2 + 1 + 2 * (l - 1)), color='black', linestyle='--')
+        #     if label == 'Precision':
+        #         ax.axhline(y=1 / l, color='black', linestyle='--')
+        #     ax.axvline(x=0, color='black', linestyle='--')
+        #
+        #     ax.legend(loc='lower right')
+        #     ax.grid(True)
+        #     ax.set_ylim(0, 1)
+        #     ax.set_xlabel('SNP qual >= x')
+        #     ax.set_ylabel(label)
+        #
+        #     plt.savefig(os.path.expanduser('D:\Sashok\Desktop/AC_5/AS_Figure_5_{}_{}.png'.format(label, model)), dpi=300)
+        #     plt.close(fig)
 
         actual_seg_tr = dict(zip(states, [min(x for x in Recall[BAD].keys() if x >= 0) for BAD in states]))
 
@@ -174,6 +180,7 @@ for state_s in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'f
         ax.set_xlabel('Recall')
         ax.set_ylabel('Precision')
         ax.set_yticks([0.2, 0.4, 0.6, 0.8, 1.0])
+        ax.set_title('PR {}@CAIC{}'.format(state_s, CAIC))
 
         # Shrink current axis by 20%
         box = ax.get_position()
@@ -208,6 +215,7 @@ for state_s in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'f
         ax.set_xlabel('FPR')
         ax.set_ylabel('TPR')
         ax.set_yticks([0.2, 0.4, 0.6, 0.8, 1.0])
+        ax.set_title('ROC {}@CAIC{}'.format(state_s, CAIC))
 
         # Shrink current axis by 20%
         box = ax.get_position()
@@ -223,3 +231,14 @@ for state_s in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'f
 
         # plt.show()
         plt.close(fig)
+
+        for BAD, label in zip(all_states, all_labels):
+            if label in labels:
+                stats.setdefault('Recall@ALL@BAD={}'.format(label), []).append(Recall[BAD][actual_seg_tr[BAD]])
+                stats.setdefault('Precision@ALL@BAD={}'.format(label), []).append(Precision[BAD][actual_seg_tr[BAD]])
+            else:
+                stats.setdefault('Recall@ALL@BAD={}'.format(label), []).append(None)
+                stats.setdefault('Precision@ALL@BAD={}'.format(label), []).append(None)
+
+df = pd.DataFrame(stats)
+df.to_csv(os.path.expanduser('D:\Sashok/Desktop/AC_5/all_stats.tsv'), sep='\t', index=False)
