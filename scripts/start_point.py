@@ -12,8 +12,8 @@ Usage:
             adastra sort_params
             adastra check_pos_peaks --peak <path> --out <path> --type <type>
             adastra annotate_peaks --base <path>
-            adastra vcf_merge --group <group>
-            adastra bad_call --group <group>
+            adastra vcf_merge [validation] --group <group>
+            adastra bad_call [validation] --group <group>
             adastra bad_annotation --base <path>
             adastra collect_ref_bias [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin
@@ -106,26 +106,46 @@ def main():
         main(args['--base'])
     elif args['vcf_merge']:
         from .BADcalling.VCFMerger import main
-        bad_group, states_set, b_penalty = args['--group'].split(',')
-        main(bad_group)
+        if args['validation']:
+            bad_group, states_set, b_penalty = args['--group'].split(',')
+            main(bad_group)
+        else:
+            main(args['--group'])
     elif args['bad_call']:
-        bad_group, states_set, b_penalty = args['--group'].split(',')
-        t = time.clock()
-        with open(create_merged_vcf_path_function(bad_group)) as m_vcf:
-            snps_collection, chromosomes_order, _ = BADEstimation.parse_input_file(m_vcf, allele_reads_tr=5)
-            GS = BADEstimation.GenomeSegmentator(
-                snps_collection=snps_collection,
-                chromosomes_order=chromosomes_order,
-                out=create_badmaps_path_function(bad_group,
-                                                 states_set=states_set,
-                                                 b_penalty=b_penalty),
-                states=get_states(states_set),
-                b_penalty=convert_string_to_int(b_penalty),
-                verbose=True,
-                allele_reads_tr=5,
-                segmentation_mode='corrected'
-            )
-            GS.estimate_BAD()
+        if args['validation']:
+            bad_group, states_set, b_penalty = args['--group'].split(',')
+            t = time.clock()
+            with open(create_merged_vcf_path_function(bad_group)) as m_vcf:
+                snps_collection, chromosomes_order, _ = BADEstimation.parse_input_file(m_vcf, allele_reads_tr=5)
+                GS = BADEstimation.GenomeSegmentator(
+                    snps_collection=snps_collection,
+                    chromosomes_order=chromosomes_order,
+                    out=create_badmaps_path_function(bad_group,
+                                                     states_set=states_set,
+                                                     b_penalty=b_penalty),
+                    states=get_states(states_set),
+                    b_penalty=convert_string_to_int(b_penalty),
+                    verbose=True,
+                    allele_reads_tr=5,
+                    segmentation_mode='corrected'
+                )
+                GS.estimate_BAD()
+        else:
+            bad_group = args['--group']
+            t = time.clock()
+            with open(create_merged_vcf_path_function(bad_group)) as m_vcf:
+                snps_collection, chromosomes_order, _ = BADEstimation.parse_input_file(m_vcf, allele_reads_tr=5)
+                GS = BADEstimation.GenomeSegmentator(
+                    snps_collection=snps_collection,
+                    chromosomes_order=chromosomes_order,
+                    out=create_badmaps_path_function(bad_group),
+                    states=get_states(),
+                    b_penalty=4,
+                    verbose=True,
+                    allele_reads_tr=5,
+                    segmentation_mode='corrected'
+                )
+                GS.estimate_BAD()
         print('Total time: {} s'.format(time.clock() - t))
     elif args['collect_roc']:
         states_set, b_penalty = args['--group'].split(',')

@@ -346,7 +346,7 @@ class UnpackBadSegments:
                    [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
 
 
-def get_states(states_sign):
+def get_states(states_sign=None):
     if states_sign == 'int_5':
         states = [1, 2, 3, 4, 5]
     elif states_sign == 'int_6':
