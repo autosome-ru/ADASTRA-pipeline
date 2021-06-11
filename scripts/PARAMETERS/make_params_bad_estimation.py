@@ -9,9 +9,7 @@ out_path = os.path.join(parallel_parameters_path, 'BE_parameters.cfg')
 
 
 def in_cosmic(cell_line_name, cosmic_names):
-    if cell_line_name == '22RV1__prostate_carcinoma_@GSE120738':
-        return False
-    if cell_line_name.split('@')[0] in cosmic_names:
+    if cell_line_name == 'K562__myelogenous_leukemia_':
         return True
     return False
 

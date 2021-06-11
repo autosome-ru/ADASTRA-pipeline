@@ -144,7 +144,12 @@ def main():
                     verbose=True,
                     allele_reads_tr=5,
                     segmentation_mode='corrected',
-                    prior={}  # FIXME
+                    prior={1: 0.31571694271757944,
+                           2: 0.5529423747242688,
+                           3: 0.11217384187090691,
+                           4: 0.002553053406456442,
+                           5: 0.006207533865403063,
+                           6: 0.010406253415385364}  # K562
                 )
                 GS.estimate_BAD()
         print('Total time: {} s'.format(time.clock() - t))
