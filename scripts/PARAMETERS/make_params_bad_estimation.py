@@ -9,7 +9,7 @@ out_path = os.path.join(parallel_parameters_path, 'BE_parameters.cfg')
 
 
 def in_cosmic(cell_line_name, cosmic_names):
-    if cell_line_name == 'K562__myelogenous_leukemia_':
+    if 'K562__myelogenous_leukemia_' in cell_line_name:
         return True
     return False
 
