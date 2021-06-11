@@ -30,19 +30,19 @@ def main(only_cosmic=False):
                     break
             if is_empty:
                 continue
-            if only_cosmic:
-                with open(os.path.join(parallel_parameters_path, 'BE_states_parameters.cfg'), 'w') as f:
-                    for caic in range(3, 6):
-                        for state_sign in (
-                                'int_6',
-                                'full_5_and_6',
-                                'full_6_but_1.33',
-                                'full_6_but_2.5',
-                                'full_6'
-                        ):
-                            file.write("{},{},{}\n".format(key, state_sign, caic))
-            else:
-                file.write(key + '\n')
+            # if only_cosmic: FIXME
+            #     with open(os.path.join(parallel_parameters_path, 'BE_states_parameters.cfg'), 'w') as f:
+            #         for caic in range(3, 6):
+            #             for state_sign in (
+            #                     'int_6',
+            #                     'full_5_and_6',
+            #                     'full_6_but_1.33',
+            #                     'full_6_but_2.5',
+            #                     'full_6'
+            #             ):
+            #                 file.write("{},{},{}\n".format(key, state_sign, caic))
+            # else:
+            file.write(key + '\n')
 
 
 if __name__ == '__main__':
