@@ -143,7 +143,8 @@ def main():
                     b_penalty=4,
                     verbose=True,
                     allele_reads_tr=5,
-                    segmentation_mode='corrected'
+                    segmentation_mode='corrected',
+                    prior={}  # FIXME
                 )
                 GS.estimate_BAD()
         print('Total time: {} s'.format(time.clock() - t))
