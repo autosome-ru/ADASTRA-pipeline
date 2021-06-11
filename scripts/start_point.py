@@ -157,7 +157,11 @@ def main():
                 GS.estimate_BAD()
         print('Total time: {} s'.format(time.clock() - t))
     elif args['collect_roc']:
-        states_set, b_penalty = args['--group'].split(',')
+        if ',' in args['--group']:  # FIXME
+            states_set, b_penalty = args['--group'].split(',')
+        else:
+            states_set = 'all_6'
+            b_penalty = None
         if args['cell_line_wise']:
             from .Qcontrol.collect_cell_line_wise_data_for_ROC import main
             main(states_set, convert_string_to_int(b_penalty))

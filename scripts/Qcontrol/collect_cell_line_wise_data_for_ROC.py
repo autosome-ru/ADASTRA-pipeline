@@ -28,7 +28,10 @@ def cell_line_in_file_from_sign(cell_sign, file):
 
 
 def main(states_sign, b_penalty):
-    model = 'CAIC@{}@{}'.format(states_sign, b_penalty)
+    if b_penalty is not None:
+        model = 'CAIC@{}@{}'.format(states_sign, b_penalty)
+    else:
+        model = 'CAIC'
     print(model)
     for cell_sign in ('K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
         print(cell_sign)
