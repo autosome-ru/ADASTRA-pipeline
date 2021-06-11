@@ -128,6 +128,7 @@ for cell_sign in cells:
         if ALL != sum_vals:
             print('asd', ALL, sum_vals)
         snps_list = [SNPS_DIST[x] / ALL for x in states_to_draw]
+        print(dict(zip(states_to_draw, snps_list)))
 
         all_colors_dict = {state: color for state, color in zip(all_states, all_colors)}
         all_labels_dict = {state: label for state, label in zip(all_states, all_labels)}
