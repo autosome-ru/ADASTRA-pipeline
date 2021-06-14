@@ -118,8 +118,8 @@ a549 = {}
 rv1 = {}
 hct116 = {}
 other = {}
-for sig in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_6'):
-    for mult in [3, 4, 5]:
+for sig in ('int_6',):#, 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_6'):
+    for mult in [4]:
         print(sig, mult)
         model = "cor_by_snp_CAIC@{}@{}".format(sig, mult)
 
@@ -266,6 +266,39 @@ for sig in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_
         plt.title('{}@{:.1f}'.format(sig, mult))
 
         plt.savefig(os.path.expanduser('D:\Sashok/Desktop/susan_BAD/cor_plot@{}@{:.1f}.png'.format(sig, mult)), dpi=300)
+        plt.close(fig)
+
+        # Draw scatter vs COSMIC
+        fig, ax = plt.subplots(figsize=(5, 5))
+        fig.tight_layout(pad=2)
+
+        sns.scatterplot(x=model, y="cor_by_snp_probe_CGH", zorder=10,
+                        data=df[df['color'] == 'C1'], linewidth=0, alpha=0.7, color='C1', label='K562')
+        sns.scatterplot(x=model, y="cor_by_snp_probe_CGH", zorder=10,
+                        data=df[df['color'] == 'C2'], linewidth=0, alpha=0.7, color='C2', label='MCF7')
+        sns.scatterplot(x=model, y="cor_by_snp_probe_CGH", zorder=10,
+                        data=df[df['color'] == 'C3'], linewidth=0, alpha=0.7, color='C3', label='A549')
+        sns.scatterplot(x=model, y="cor_by_snp_probe_CGH", zorder=10,
+                        data=df[df['color'] == 'C4'], linewidth=0, alpha=0.7, color='C4', label='22RRV1')
+        sns.scatterplot(x=model, y="cor_by_snp_probe_CGH", zorder=10,
+                        data=df[df['color'] == 'C5'], linewidth=0, alpha=0.7, color='C5', label='HCT116')
+        sns.scatterplot(x=model, y="cor_by_snp_probe_CGH", zorder=10,
+                        data=df[df['color'] == 'C0'], linewidth=0, alpha=0.7, color='C0', label='Other')
+        sns.lineplot(x=[-1, 1], y=[-1, 1], color='#505050')
+        ax.axvline(x=0, color='#505050', linestyle='--')
+        ax.axhline(y=0, color='#505050', linestyle='--')
+        ax.legend(loc='lower left')
+        ax.set_xticks([-0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
+        ax.set_yticks([-0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
+        ax.set_xlim(-0.5, 1)
+        ax.set_ylim(-0.5, 1)
+        ax.grid(True)
+
+        ax.set_ylabel("Kendall's τ (aCGH Varma et al., COSMIC)")
+        ax.set_xlabel("Kendall's τ (Segmentation, COSMIC)")
+
+        plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter@{}@{:.1f}.png.png".format(sig, mult)), dpi=300)
+        # plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter@{}@{:.1f}.png.svg"), dpi=300)
         plt.close(fig)
 
 df = pd.DataFrame({

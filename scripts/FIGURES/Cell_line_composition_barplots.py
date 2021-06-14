@@ -64,7 +64,7 @@ plt.rcParams['font.weight'] = "medium"
 plt.rcParams['axes.labelweight'] = 'medium'
 plt.rcParams['figure.titleweight'] = 'medium'
 plt.rcParams['axes.titleweight'] = 'medium'
-plt.rcParams['figure.figsize'] = 16, 10
+plt.rcParams['figure.figsize'] = 8, 10*2/3
 plt.rcParams["legend.framealpha"] = 0.5
 plt.rcParams['axes.xmargin'] = 0
 plt.rcParams['axes.ymargin'] = 0
@@ -74,15 +74,17 @@ cells = ('ALL', 'K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other')
 markers = ('s', '*', 'v', '1', 'o')
 state_ss = ['int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_6']
 short_s = dict(zip(state_ss, ['int_6', 'full_5\nand_6', 'full_6\nbut_1.33', 'full_6\nbut_2.5', 'full_6']))
+state_ss = ['full_5_and_6']
 short_s['COSMIC'] = 'COSMIC'
 # colors = ('#E69F00', '#009E73', '#D55E00', '#CC79A7', '#F0E442', '#56B4E9')
 all_states, all_labels, all_colors = get_states('full_6')
-for cell_sign in cells:
+for cell_sign in ['K562']:#cells:
     print(cell_sign)
-    fig, (*axs,) = plt.subplots((len(state_ss) + 1)//2, 2)
-    axs = [ax for tup in axs for ax in tup]
+    fig, (*axs,) = plt.subplots(2, 1)
+    # axs = [ax for tup in axs for ax in tup]
     for state_s, ax in zip(['COSMIC'] + state_ss, axs):
-        model = 'CAIC@{}@{}'.format(state_s if state_s != 'COSMIC' else 'full_6', 4)
+        # model = 'CAIC@{}@{}'.format(state_s if state_s != 'COSMIC' else 'full_6', 4)
+        model='CAIC'
         print(model)
         states, labels, colors = get_states(state_s if state_s != 'COSMIC' else 'full_6')
         # sns.set_palette(colors)
@@ -107,6 +109,14 @@ for cell_sign in cells:
                 SNPS_DIST[BAD] = t[1][(t[1]['COSMIC'] == BAD) & (t[1]['threshold'] == min_tr[1])]['counts'].sum()
             ALL = t[1][t[1]['threshold'] == min_tr[1]]['counts'].sum()
 
+            #!!!
+            print(SNPS_DIST[6])
+            SNPS_DIST[6] = t[1][(t[1]['COSMIC'] >= 6) & (t[1]['threshold'] == min_tr[1])]['counts'].sum()
+            print(SNPS_DIST[6])
+            for x in SNPS_DIST.keys():
+                if x > 6:
+                    SNPS_DIST[x] = 0
+
             states_to_draw = sorted(list(SNPS_DIST.keys()))
 
             sum_vals = sum(SNPS_DIST.values())
@@ -118,16 +128,18 @@ for cell_sign in cells:
                 zip(*[(state, y) for state, y in zip(states_to_draw, snps_list) if y >= 0.005 or state in all_states])
         else:
             actual_seg_tr = dict(
-                zip(states, [min(x for x in list(t[BAD]['threshold'].unique()) if x >= 0) for BAD in states]))
+                zip(states, [min((x for x in list(t[BAD]['threshold'].unique()) if x >= 0), default=0) for BAD in states]))
             for BAD in states:
                 SNPS_DIST[BAD] = t[BAD][t[BAD]['threshold'] == actual_seg_tr[BAD]]['counts'].sum()
 
             ALL = sum(SNPS_DIST[BAD] for BAD in states)
 
-        sum_vals = sum(SNPS_DIST.values())
-        if ALL != sum_vals:
-            print('asd', ALL, sum_vals)
-        snps_list = [SNPS_DIST[x] / ALL for x in states_to_draw]
+            sum_vals = sum(SNPS_DIST.values())
+            if ALL != sum_vals:
+                print('asd', ALL, sum_vals)
+            snps_list = [SNPS_DIST[x] / ALL for x in states_to_draw]
+
+        print(dict(zip(states_to_draw, snps_list)), sum(snps_list))
 
         all_colors_dict = {state: color for state, color in zip(all_states, all_colors)}
         all_labels_dict = {state: label for state, label in zip(all_states, all_labels)}
@@ -143,4 +155,5 @@ for cell_sign in cells:
         # if state_s == 'COSMIC':
         #     ax.set_title('BAD distribution on SNPs\n{}'.format(cell_sign))
     plt.suptitle('BAD distribution on SNPs\n{}'.format(cell_sign))
+    print('D:\Sashok\Desktop/PR_SUM/Dist_{}.png'.format(cell_sign))
     plt.savefig(os.path.expanduser('D:\Sashok\Desktop/PR_SUM/Dist_{}.png'.format(cell_sign)), dpi=300)

@@ -77,9 +77,13 @@ for state_s in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'f
         stats.setdefault('states', []).append(state_s)
         stats.setdefault('multiplier', []).append(CAIC)
 
-for cell_sign in ('ALL', 'K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
-    for state_s in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_6'):
-        for CAIC in range(4, 5):
+for cell_sign in ('K562',):#('ALL', 'K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
+    for state_s in ('full_5_and_6', ):#('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_6'):
+        for CAIC in (4,):#range(4, 5):
+# for i in range(1):
+            # cell_sign = 'K562'
+            # model = 'CAIC'
+            # state_s = 'full_5_and_6'
             model = 'CAIC@{}@{}'.format(state_s, CAIC)
             print(model)
             states, labels, colors = get_states(state_s)
@@ -169,7 +173,12 @@ for cell_sign in ('ALL', 'K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
             #     plt.savefig(os.path.expanduser('D:\Sashok\Desktop/AC_5/AS_Figure_5_{}_{}.png'.format(label, model)), dpi=300)
             #     plt.close(fig)
             #
-            actual_seg_tr = dict(zip(states, [min(x for x in Recall[BAD].keys() if x >= 0) for BAD in states]))
+            actual_seg_tr = dict(zip(states, [min((x for x in Recall[BAD].keys() if x >= 0), default=0) for BAD in states]))
+            best_tr, pr = zip(*[max(((tr, Recall[BAD][tr]*Precision[BAD][tr]) for tr in x[BAD]), key=lambda a: a[1], default=(0, 0)) for BAD in states])
+            print(best_tr)
+            best_seg_tr = dict(zip(states, best_tr))
+            for BAD in states:
+                print('BAD: {:.2f}, tr: {:.5f}, Prec: {:.3f}, Rec: {:.3f}'.format(BAD, best_seg_tr[BAD], Precision[BAD][best_seg_tr[BAD]], Recall[BAD][best_seg_tr[BAD]]))
 
             # PR-curve
             fig, ax = plt.subplots()
@@ -178,6 +187,8 @@ for cell_sign in ('ALL', 'K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
                                              key=lambda z: z[0]))
                 AUC = np.trapz(x=x_list, y=y_list)
                 # print('AUPRC for {:.2f}: {:.3f}'.format(BAD, AUC))
+                if 0 not in Precision[BAD]:
+                    continue
                 print('Prec. {:.3f}, Rec. {:.3f} for {:.2f}'.format(Precision[BAD][0], Recall[BAD][0], BAD))
                 ax.plot(x_list, y_list, label='{:.2f}'.format(BAD))
                 ax.scatter([Recall[BAD][actual_seg_tr[BAD]]], [Precision[BAD][actual_seg_tr[BAD]]],
@@ -213,6 +224,8 @@ for cell_sign in ('ALL', 'K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
                                              key=lambda z: z[0]))
                 AUC = np.trapz(x=x_list, y=y_list)
                 print('AUROC for {:.2f}: {:.3f}'.format(BAD, AUC))
+                if 0 not in Precision[BAD]:
+                    continue
                 ax.plot(x_list, y_list, label='{:.2f}'.format(BAD))
                 ax.scatter([FPR[BAD][actual_seg_tr[BAD]]], [Recall[BAD][actual_seg_tr[BAD]]],
                            s=50, zorder=10, alpha=0.7, lw=0)
@@ -241,6 +254,8 @@ for cell_sign in ('ALL', 'K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
             plt.close(fig)
 
             for BAD, label in zip(all_states, all_labels):
+                if 0 not in Precision[BAD]:
+                    continue
                 if label in labels:
                     stats.setdefault('Recall@{}@BAD={}'.format(cell_sign, label), []).append(Recall[BAD][actual_seg_tr[BAD]])
                     stats.setdefault('Precision@{}@BAD={}'.format(cell_sign, label), []).append(
