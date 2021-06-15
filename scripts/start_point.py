@@ -159,7 +159,7 @@ def main():
         if ',' in args['--group']:  # FIXME
             states_set, b_penalty = args['--group'].split(',')
         else:
-            states_set = 'all_6'
+            states_set = 'int_6'
             b_penalty = None
         if args['cell_line_wise']:
             from .Qcontrol.collect_cell_line_wise_data_for_ROC import main
