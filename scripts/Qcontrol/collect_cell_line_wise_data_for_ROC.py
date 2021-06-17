@@ -41,6 +41,8 @@ def main(states_sign, b_penalty):
         for file in os.listdir(heatmap_dir):
             if not cell_line_in_file_from_sign(cell_sign, file):
                 continue
+            if 'GSE120738' in file: #FIXME
+                continue
             try:
                 dfs.append(pd.read_table(os.path.join(heatmap_dir, file), header=None, comment='#'))
             except pd.errors.EmptyDataError:
