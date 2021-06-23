@@ -165,8 +165,8 @@ for sig in ('int_6',):#, 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'f
         #
         # ax.grid(True)
         # ax.legend()
-        # ax.set_ylabel("Kendall's τ (Segmentation, COSMIC)")
-        # ax.set_xlabel("Dataset groups sorted by τ")
+        # ax.set_ylabel("Kendall's tau (Segmentation, COSMIC)")
+        # ax.set_xlabel("Dataset groups sorted by tau")
         # ax.set_ylim(-0.4, 1)
         #
         # plt.title('{}@{:.1f}'.format(sig, mult))
@@ -215,7 +215,7 @@ for sig in ('int_6',):#, 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'f
         # ax.grid(True)
         # ax.legend()
         # ax.set_ylabel("Dataset groups count")
-        # ax.set_xlabel("Kendall's τ (Segmentation, COSMIC)")
+        # ax.set_xlabel("Kendall's tau (Segmentation, COSMIC)")
         #
         # plt.title('{}@{:.1f}'.format(sig, mult))
         #
@@ -260,10 +260,10 @@ for sig in ('int_6',):#, 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'f
         ax.axvline(x=60000, color='#50505050', ls='--')
         ax.grid(True)
 
-        ax.set_ylabel("Kendall's τ (Segmentation, COSMIC)")
+        ax.set_ylabel("Kendall's tau (Segmentation, COSMIC)")
         ax.set_xlabel("Number of SNPs in a group of datasets")
 
-        plt.title('{}@{:.1f}'.format(sig, mult))
+        # plt.title('{}@{:.1f}'.format(sig, mult))
 
         plt.savefig(os.path.expanduser('D:\Sashok/Desktop/susan_BAD/cor_plot@{}@{:.1f}.png'.format(sig, mult)), dpi=300)
         plt.close(fig)
@@ -294,8 +294,8 @@ for sig in ('int_6',):#, 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'f
         ax.set_ylim(-0.5, 1)
         ax.grid(True)
 
-        ax.set_ylabel("Kendall's τ (aCGH Varma et al., COSMIC)")
-        ax.set_xlabel("Kendall's τ (Segmentation, COSMIC)")
+        ax.set_ylabel("Kendall's tau (aCGH Varma et al., COSMIC)")
+        ax.set_xlabel("Kendall's tau (Segmentation, COSMIC)")
 
         plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter@{}@{:.1f}.png.png".format(sig, mult)), dpi=300)
         # plt.savefig(os.path.expanduser("~/AC_9/Figure_AS_9_scatter@{}@{:.1f}.png.svg"), dpi=300)
