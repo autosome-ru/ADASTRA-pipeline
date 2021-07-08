@@ -21,6 +21,7 @@ Usage:
             adastra aggregation --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path>
             adastra cosmic_correlation --base <path>
+            adastra filter_badmaps
             adastra join_correlation_threads
             adastra collect_release_stats
             adastra weights_to_df
@@ -88,6 +89,9 @@ def main():
         main()
     elif args['correlation_params']:
         from .PARAMETERS.make_params_correlation import main
+        main()
+    elif args['filter_badmaps']:
+        from .Qcontrol.badmaps_filter import main
         main()
     elif args['aggregation_params']:
         from .PARAMETERS.make_params_aggregation import main

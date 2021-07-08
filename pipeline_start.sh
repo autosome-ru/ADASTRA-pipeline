@@ -87,6 +87,11 @@ if [ "$stage_index" -le 4 ]; then
     echo 'Correlation analysis failed'
     exit 1
   fi
+  if ! adastra filter_badmaps
+  then
+    echo 'BAD maps filter failed'
+    exit 1
+  fi
   if ! bash "$scripts_path"/BAD_annotation.sh "$njobs"
   then
     echo 'BAD annotation failed'
