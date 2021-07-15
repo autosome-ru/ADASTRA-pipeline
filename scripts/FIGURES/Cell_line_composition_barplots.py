@@ -74,19 +74,19 @@ cells = ('ALL', 'K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other')
 markers = ('s', '*', 'v', '1', 'o')
 state_ss = ['int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_6']
 short_s = dict(zip(state_ss, ['int_6', 'full_5\nand_6', 'full_6\nbut_1.33', 'full_6\nbut_2.5', 'full_6']))
-state_ss = ['full_5_and_6']
+state_ss = ['int_6']
 short_s['COSMIC'] = 'COSMIC'
 # colors = ('#E69F00', '#009E73', '#D55E00', '#CC79A7', '#F0E442', '#56B4E9')
 all_states, all_labels, all_colors = get_states('full_6')
-for cell_sign in ['K562']:#cells:
+for cell_sign in cells:
     print(cell_sign)
     fig, (*axs,) = plt.subplots(2, 1)
     # axs = [ax for tup in axs for ax in tup]
     for state_s, ax in zip(['COSMIC'] + state_ss, axs):
         # model = 'CAIC@{}@{}'.format(state_s if state_s != 'COSMIC' else 'full_6', 4)
-        model='CAIC'
+        model = 'CAIC'
         print(model)
-        states, labels, colors = get_states(state_s if state_s != 'COSMIC' else 'full_6')
+        states, labels, colors = get_states(state_s if state_s != 'COSMIC' else 'int_6')
         # sns.set_palette(colors)
         t = {}
         min_tr = {}
@@ -94,10 +94,11 @@ for cell_sign in ['K562']:#cells:
         for BAD in states:
             if cell_sign == 'ALL':
                 t[BAD] = pd.read_table(os.path.expanduser(
-                    'D:\Sashok\Desktop/counts/counts_deltaqm_{}_{:.2f}.tsv'.format(model, BAD)))
+                    # '~\Desktop/counts/counts_deltaqm_{}_{:.2f}.tsv'.format(model, BAD)))
+                    '~\Desktop/counts/counts_deltaqm_CAIC_{:.2f}.tsv'.format(BAD)))
             else:
                 t[BAD] = pd.read_table(os.path.expanduser(
-                    'D:\Sashok\Desktop/counts/counts_deltaqm_{}_{}_{:.2f}.tsv'.format(cell_sign, model, BAD)))
+                    '~\Desktop/counts/counts_deltaqm_{}_{}_{:.2f}.tsv'.format(cell_sign, model, BAD)))
             t[BAD].replace(1.3333333333333337, 4 / 3, inplace=True)
             min_tr[BAD] = t[BAD]['threshold'].min()
             max_tr[BAD] = t[BAD]['threshold'].max()
@@ -109,23 +110,33 @@ for cell_sign in ['K562']:#cells:
                 SNPS_DIST[BAD] = t[1][(t[1]['COSMIC'] == BAD) & (t[1]['threshold'] == min_tr[1])]['counts'].sum()
             ALL = t[1][t[1]['threshold'] == min_tr[1]]['counts'].sum()
 
-            #!!!
-            print(SNPS_DIST[6])
-            SNPS_DIST[6] = t[1][(t[1]['COSMIC'] >= 6) & (t[1]['threshold'] == min_tr[1])]['counts'].sum()
-            print(SNPS_DIST[6])
-            for x in SNPS_DIST.keys():
-                if x > 6:
-                    SNPS_DIST[x] = 0
+            # #!!!
+            # print(SNPS_DIST[6])
+            # SNPS_DIST[6] = t[1][(t[1]['COSMIC'] >= 6) & (t[1]['threshold'] == min_tr[1])]['counts'].sum()
+            # print(SNPS_DIST[6])
+            # for x in SNPS_DIST.keys():
+            #     if x > 6:
+            #         SNPS_DIST[x] = 0
 
             states_to_draw = sorted(list(SNPS_DIST.keys()))
 
             sum_vals = sum(SNPS_DIST.values())
             if ALL != sum_vals:
                 print('asd', ALL, sum_vals)
-            snps_list = [SNPS_DIST[x] / ALL for x in states_to_draw]
+            # snps_list = [SNPS_DIST[x] / ALL for x in states_to_draw]
+            snps_list = [SNPS_DIST[x] for x in states_to_draw]
 
             states_to_draw, snps_list = \
                 zip(*[(state, y) for state, y in zip(states_to_draw, snps_list) if y >= 0.005 or state in all_states])
+            print(ALL)
+            # sum = 0
+            # for state, snps in zip(states_to_draw, snps_list):
+            #     if state in (1, 2, 3, 4, 5, 6):
+            #         sum += snps
+            #         print('{:.1f}'.format(sum/ALL*100))
+            # print(dict(zip(states_to_draw, snps_list)), sum(snps_list))
+
+
         else:
             actual_seg_tr = dict(
                 zip(states, [min((x for x in list(t[BAD]['threshold'].unique()) if x >= 0), default=0) for BAD in states]))
@@ -137,9 +148,15 @@ for cell_sign in ['K562']:#cells:
             sum_vals = sum(SNPS_DIST.values())
             if ALL != sum_vals:
                 print('asd', ALL, sum_vals)
-            snps_list = [SNPS_DIST[x] / ALL for x in states_to_draw]
+            # snps_list = [SNPS_DIST[x] / ALL for x in states_to_draw]
+            snps_list = [SNPS_DIST[x] for x in states_to_draw]
+            summ = 0
+            for state, snps in zip(states_to_draw, snps_list):
+                if state in (1, 2, 3, 4, 5, 6):
+                    summ += snps
+                    print('{:.1f}'.format(summ/ALL*100))
+            print(dict(zip(states_to_draw, snps_list)), sum(snps_list))
 
-        print(dict(zip(states_to_draw, snps_list)), sum(snps_list))
 
         all_colors_dict = {state: color for state, color in zip(all_states, all_colors)}
         all_labels_dict = {state: label for state, label in zip(all_states, all_labels)}
@@ -155,5 +172,5 @@ for cell_sign in ['K562']:#cells:
         # if state_s == 'COSMIC':
         #     ax.set_title('BAD distribution on SNPs\n{}'.format(cell_sign))
     plt.suptitle('BAD distribution on SNPs\n{}'.format(cell_sign))
-    print('D:\Sashok\Desktop/PR_SUM/Dist_{}.png'.format(cell_sign))
-    plt.savefig(os.path.expanduser('D:\Sashok\Desktop/PR_SUM/Dist_{}.png'.format(cell_sign)), dpi=300)
+    print('~\Desktop/PR_SUM/Dist_{}.png'.format(cell_sign))
+    plt.savefig(os.path.expanduser('~\Desktop/PR_SUM/Dist_{}.png'.format(cell_sign)), dpi=300)

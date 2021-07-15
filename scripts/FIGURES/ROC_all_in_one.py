@@ -79,101 +79,114 @@ for state_s in ('int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'f
 
 markers = ('s', '*', 'v', '1', 'o')
 state_ss = ['int_6', 'full_5_and_6', 'full_6_but_1.33', 'full_6_but_2.5', 'full_6']
+cells = ('ALL', 'K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other')
 # markers = ('s', 'o')
 # state_ss = ['int_6', 'full_6']
-for cell_sign in ('ALL', 'K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
+for cell_sign in cells:
+    # cell_sign = 'ALL'
     fig, ax = plt.subplots()
-    for state_s, marker in zip(state_ss, markers):
-        # for CAIC in range(3, 6):
-        for CAIC in range(4, 5):
-            model = 'CAIC@{}@{}'.format(state_s, CAIC)
-            print(model)
-            states, labels, colors = get_states(state_s)
-            # sns.set_palette(colors)
-            print(states)
-            t = {}
-            min_tr = {}
-            max_tr = {}
-            for BAD in states:
-                if cell_sign == 'ALL':
-                    t[BAD] = pd.read_table(os.path.expanduser(
-                        'D:\Sashok\Desktop/counts/counts_deltaqm_{}_{:.2f}.tsv'.format(model, BAD)))
-                else:
-                    t[BAD] = pd.read_table(os.path.expanduser(
-                        'D:\Sashok\Desktop/counts/counts_deltaqm_{}_{}_{:.2f}.tsv'.format(cell_sign, model, BAD)))
-                t[BAD].replace(1.3333333333333337, 4 / 3, inplace=True)
-                min_tr[BAD] = t[BAD]['threshold'].min()
-                max_tr[BAD] = t[BAD]['threshold'].max()
-            # for x in t['COSMIC'].unique():
-            #     print(x, t[t['COSMIC'] == x]['counts'].sum())
+    marker = 's'
+    state_s = 'int_6'
 
-            # x = [x for x in range(101)] + [x for x in range(110, 201, 10)]
+    # model = 'CAIC@{}@{}'.format(state_s, CAIC)
+    model = 'CAIC'
+    print(model)
+    print(cell_sign)
+    states, labels, colors = get_states(state_s)
+    # sns.set_palette(colors)
+    print(states)
+    t = {}
+    min_tr = {}
+    max_tr = {}
+    for BAD in states:
+        if cell_sign == 'ALL':
+            t[BAD] = pd.read_table(os.path.expanduser(
+                '~\Desktop/counts/counts_deltaqm_{}_{:.2f}.tsv'.format(model, BAD)))
+        else:
+            t[BAD] = pd.read_table(os.path.expanduser(
+                '~\Desktop/counts/counts_deltaqm_{}_{}_{:.2f}.tsv'.format(cell_sign, model, BAD)))
+        t[BAD].replace(1.3333333333333337, 4 / 3, inplace=True)
+        min_tr[BAD] = t[BAD]['threshold'].min()
+        max_tr[BAD] = t[BAD]['threshold'].max()
+    # for x in t['COSMIC'].unique():
+    #     print(x, t[t['COSMIC'] == x]['counts'].sum())
 
-            TP = {}
-            FP = {}
-            Precision = {}  # TP / (TP + FP)
-            Recall = {}  # TPR = TP / P
-            FPR = {}  # FP / N
-            for BAD in states:
-                TP[BAD] = {}
-                FP[BAD] = {}
-                Precision[BAD] = {}
-                Recall[BAD] = {}
-                FPR[BAD] = {}
+    # x = [x for x in range(101)] + [x for x in range(110, 201, 10)]
 
-            # All = {}
-            # Global_precision = {}
+    TP = {}
+    FP = {}
+    Precision = {}  # TP / (TP + FP)
+    Recall = {}  # TPR = TP / P
+    FPR = {}  # FP / N
+    for BAD in states:
+        TP[BAD] = {}
+        FP[BAD] = {}
+        Precision[BAD] = {}
+        Recall[BAD] = {}
+        FPR[BAD] = {}
 
-            for BAD in states:
-                t[BAD] = t[BAD][t[BAD]['COSMIC'] <= 6]
-            #     t[BAD] = t[BAD][t[BAD]['BAD'].isin(states) & t[BAD]['COSMIC'].isin(states)]
-            l = len(states)
+    # All = {}
+    # Global_precision = {}
 
-            P = {}
-            N = {}
-            for BAD in states:
-                P[BAD] = t[BAD][(t[BAD]['COSMIC'] == BAD) & (t[BAD]['threshold'] == min_tr[BAD])]['counts'].sum()
-                N[BAD] = t[BAD][(t[BAD]['COSMIC'] != BAD) & (t[BAD]['threshold'] == min_tr[BAD])]['counts'].sum()
-            ALL = sum(P[BAD] for BAD in states)
+    for BAD in states:
+        t[BAD] = t[BAD][t[BAD]['COSMIC'] <= 6]
+    #     t[BAD] = t[BAD][t[BAD]['BAD'].isin(states) & t[BAD]['COSMIC'].isin(states)]
+    l = len(states)
 
-            x = {}
-            s = {}
+    P = {}
+    N = {}
+    for BAD in states:
+        P[BAD] = t[BAD][(t[BAD]['COSMIC'] == BAD) & (t[BAD]['threshold'] == min_tr[BAD])]['counts'].sum()
+        N[BAD] = t[BAD][(t[BAD]['COSMIC'] != BAD) & (t[BAD]['threshold'] == min_tr[BAD])]['counts'].sum()
+    ALL = sum(P[BAD] for BAD in states)
 
-            for BAD in states:
-                x[BAD] = sorted(list(t[BAD]['threshold'].unique()))
-                for tr in x[BAD]:
-                    s[BAD] = t[BAD][t[BAD]['threshold'] == tr].copy()
-                    # print(tr, BAD)
-                    TP[BAD][tr] = s[BAD][(s[BAD]['COSMIC'] == BAD) & (s[BAD]['BAD'] == BAD)]['counts'].sum()
-                    FP[BAD][tr] = s[BAD][(s[BAD]['COSMIC'] != BAD) & (s[BAD]['BAD'] == BAD)]['counts'].sum()
-                    Precision[BAD][tr] = TP[BAD][tr] / (TP[BAD][tr] + FP[BAD][tr])
-                    Recall[BAD][tr] = TP[BAD][tr] / P[BAD]
-                    FPR[BAD][tr] = FP[BAD][tr] / N[BAD]
-                # All[tr] = s['counts'].sum()
-                # Global_precision[tr] = s[s['BAD'] == s['COSMIC']]['counts'].sum() / All[tr]
+    x = {}
+    s = {}
 
-            actual_seg_tr = dict(zip(states, [min(x for x in Recall[BAD].keys() if x >= 0) for BAD in states]))
+    for BAD in states:
+        x[BAD] = sorted(list(t[BAD]['threshold'].unique()))
+        for tr in x[BAD]:
+            s[BAD] = t[BAD][t[BAD]['threshold'] == tr].copy()
+            # print(tr, BAD)
+            TP[BAD][tr] = s[BAD][(s[BAD]['COSMIC'] == BAD) & (s[BAD]['BAD'] == BAD)]['counts'].sum()
+            FP[BAD][tr] = s[BAD][(s[BAD]['COSMIC'] != BAD) & (s[BAD]['BAD'] == BAD)]['counts'].sum()
+            Precision[BAD][tr] = TP[BAD][tr] / (TP[BAD][tr] + FP[BAD][tr])
+            Recall[BAD][tr] = TP[BAD][tr] / P[BAD]
+            FPR[BAD][tr] = FP[BAD][tr] / N[BAD]
+        # All[tr] = s['counts'].sum()
+        # Global_precision[tr] = s[s['BAD'] == s['COSMIC']]['counts'].sum() / All[tr]
 
-            # PR-curve
-            for i, (BAD, color) in enumerate(zip(states, colors)):
-                x_list, y_list = zip(*sorted(zip([Recall[BAD][tr] for tr in x[BAD]], [Precision[BAD][tr] for tr in x[BAD]]),
-                                             key=lambda z: z[0]))
-                AUC = np.trapz(x=x_list, y=y_list)
-                # print('AUPRC for {:.2f}: {:.3f}'.format(BAD, AUC))
-                print('Prec. {:.3f}, Rec. {:.3f} for {:.2f}'.format(Precision[BAD][0], Recall[BAD][0], BAD))
-                ax.plot(x_list, y_list, alpha=0.15, color=color)
-                # ax.plot(x_list, y_list, label='{:.2f}'.format(BAD))
-                ax.scatter([Recall[BAD][actual_seg_tr[BAD]]], [Precision[BAD][actual_seg_tr[BAD]]],
-                           s=20*CAIC, zorder=10, alpha=0.5, marker=marker, color=color)
+    actual_seg_tr = dict(zip(states, [min(x for x in Recall[BAD].keys() if x >= 0) for BAD in states]))
 
-            for BAD, label in zip(all_states, all_labels):
-                if label in labels:
-                    stats.setdefault('Recall@{}@BAD={}'.format(cell_sign, label), []).append(Recall[BAD][actual_seg_tr[BAD]])
-                    stats.setdefault('Precision@{}@BAD={}'.format(cell_sign, label), []).append(
-                        Precision[BAD][actual_seg_tr[BAD]])
-                else:
-                    stats.setdefault('Recall@{}@BAD={}'.format(cell_sign, label), []).append(None)
-                    stats.setdefault('Precision@{}@BAD={}'.format(cell_sign, label), []).append(None)
+
+    # ROC-curve
+    for BAD in states:
+        x_list, y_list = zip(*sorted(zip([FPR[BAD][tr] for tr in x[BAD]], [Recall[BAD][tr] for tr in x[BAD]]),
+                                     key=lambda z: z[0]))
+        AUC = np.trapz(x=x_list, y=y_list)
+        print('AUROC for {:.2f}: {:.3f}'.format(BAD, AUC))
+
+
+    # PR-curve
+    for i, (BAD, color) in enumerate(zip(states, colors)):
+        x_list, y_list = zip(*sorted(zip([Recall[BAD][tr] for tr in x[BAD]], [Precision[BAD][tr] for tr in x[BAD]]),
+                                     key=lambda z: z[0]))
+        AUC = np.trapz(x=x_list, y=y_list)
+        print('AUPRC for {:.2f}: {:.3f}'.format(BAD, AUC))
+        print('Prec. {:.3f}, Rec. {:.3f} for {:.2f}'.format(Precision[BAD][0], Recall[BAD][0], BAD))
+        ax.plot(x_list, y_list, alpha=0.15, color=color)
+        # ax.plot(x_list, y_list, label='{:.2f}'.format(BAD))
+        ax.scatter([Recall[BAD][actual_seg_tr[BAD]]], [Precision[BAD][actual_seg_tr[BAD]]],
+                   s=50, zorder=10, alpha=0.7, lw=0)
+
+    for BAD, label in zip(all_states, all_labels):
+        if label in labels:
+            stats.setdefault('Recall@{}@BAD={}'.format(cell_sign, label), []).append(Recall[BAD][actual_seg_tr[BAD]])
+            stats.setdefault('Precision@{}@BAD={}'.format(cell_sign, label), []).append(
+                Precision[BAD][actual_seg_tr[BAD]])
+        else:
+            stats.setdefault('Recall@{}@BAD={}'.format(cell_sign, label), []).append(None)
+            stats.setdefault('Precision@{}@BAD={}'.format(cell_sign, label), []).append(None)
 
     ax.grid(True)
     ax.set_xlim(0, 1)
@@ -197,10 +210,10 @@ for cell_sign in ('ALL', 'K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
                        labels=all_labels + state_ss, ncol=2, handles=legend_elements, handlelength=1)
     legend.get_frame().set_edgecolor('black')
 
-    plt.savefig(os.path.expanduser('D:\Sashok\Desktop/PR_SUM/PR_SUM_{}.png'.format(cell_sign)), dpi=300)
-    # plt.savefig(os.path.expanduser('D:\Sashok\Desktop/AC_5/Figure_AS_5_PR_{}.svg'.format(model)), dpi=300)
+    plt.savefig(os.path.expanduser('~\Desktop/PR_SUM/PR_SUM_{}.png'.format(cell_sign)), dpi=300)
+    # plt.savefig(os.path.expanduser('~\Desktop/AC_5/Figure_AS_5_PR_{}.svg'.format(model)), dpi=300)
     plt.close(fig)
 
 # print(stats)
 # df = pd.DataFrame(stats)
-# df.to_csv(os.path.expanduser('D:\Sashok/Desktop/AC_5/cell_wise_stats.tsv'), sep='\t', index=False)
+# df.to_csv(os.path.expanduser('~/Desktop/AC_5/cell_wise_stats.tsv'), sep='\t', index=False)

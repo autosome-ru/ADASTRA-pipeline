@@ -39,7 +39,7 @@ def get_cell(row):
     return 'Other'
 
 
-df = pd.read_table(os.path.expanduser("D:\Sashok/Desktop/susan_BAD/cor_stats_test.tsv"))
+df = pd.read_table(os.path.expanduser("~/Desktop/susan_BAD/cor_stats_test.tsv"))
 df['cell'] = df.apply(get_cell, axis=1)
 for state_s in state_ss:
     for i in range(3, 6):
@@ -74,5 +74,5 @@ ax.set_xlabel("Number of SNPs in a group of datasets")
 
 plt.title('SNP count distribution')
 
-plt.savefig(os.path.expanduser('D:\Sashok/Desktop/susan_BAD/snp_dist.png'), dpi=300)
+plt.savefig(os.path.expanduser('~/Desktop/susan_BAD/snp_dist.png'), dpi=300)
 plt.close(fig)
