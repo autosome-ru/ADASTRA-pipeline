@@ -70,9 +70,9 @@ ax.axvline(x=60000, color='#50505050', ls='--')
 ax.grid(True)
 
 ax.set_ylabel("Cumulative number of SNPs")
-ax.set_xlabel("Number of SNPs in a group of datasets")
+ax.set_xlabel("Number of SNVs in a group of datasets")
 
-plt.title('SNP count distribution')
+plt.title('SNV count distribution')
 
 plt.savefig(os.path.expanduser('~/Desktop/susan_BAD/snp_dist.png'), dpi=300)
 plt.close(fig)
