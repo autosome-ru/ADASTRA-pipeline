@@ -53,6 +53,10 @@ def create_merged_vcf_path_function(name):
     return os.path.join(badmaps_path, 'merged_vcfs', name + ".tsv")
 
 
+def get_excluded_badmaps_list_path():
+    return os.path.join(get_release_stats_path(), 'excluded_badmaps.tsv')
+
+
 def get_sarus_dir():
     return os.path.join(results_path, 'Sarus')
 

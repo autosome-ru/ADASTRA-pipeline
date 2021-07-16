@@ -21,7 +21,6 @@ Usage:
             adastra aggregation --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path>
             adastra cosmic_correlation --base <path>
-            adastra filter_badmaps
             adastra join_correlation_threads
             adastra collect_release_stats
             adastra weights_to_df
@@ -30,6 +29,7 @@ Usage:
             adastra annotate_with_phenotypes
             adastra extract_context
             adastra count_p <exp> <aligns>
+            adastra filter_badmaps
             adastra -h | --help
 
 Arguments:
@@ -89,9 +89,6 @@ def main():
         main()
     elif args['correlation_params']:
         from .PARAMETERS.make_params_correlation import main
-        main()
-    elif args['filter_badmaps']:
-        from .Qcontrol.badmaps_filter import main
         main()
     elif args['aggregation_params']:
         from .PARAMETERS.make_params_aggregation import main
@@ -174,6 +171,9 @@ def main():
     elif args['count_p']:
         from .ASBcalling.NBpcounter import manual
         manual(args['<exp>'], args['<aligns>'])
+    elif args['filter_badmaps']:
+        from .Qcontrol.badmaps_filter import main
+        main()
 
 
 def convert_motif_len_to_int(motif_len_string):

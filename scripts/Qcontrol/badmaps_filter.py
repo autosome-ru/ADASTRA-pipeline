@@ -1,16 +1,12 @@
-import json
-import sys
-
 import pandas as pd
 from pandas.errors import EmptyDataError
 import os
 import numpy as np
-from scipy.stats import percentileofscore
-
-from scipy.stats import levene
+from scipy.stats import percentileofscore, levene
 import statsmodels.stats.multitest
-from scipy import stats as st
 
+from scripts.HELPERS.helpers import pack
+from scripts.HELPERS.paths import get_correlation_path, get_excluded_badmaps_list_path
 
 big_cell_lines = [
     'K562__myelogenous_leukemia_',
@@ -41,16 +37,15 @@ def open_dfs(df, concat=True):
     res_dfs = []
     for index, row in df.iterrows():
         path = get_path(row)
-        print(path)
         try:
             tmp_df = pd.read_table(path, comment='#', header=None)
         except EmptyDataError:
             continue
         tmp_df.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(b) for b in
                                                                 [1, 2, 3, 4, 5, 6]] + ['snps', 'cov',
-                                                                                                       'dataset',
-                                                                                                       'seg_id',
-                                                                                                       'p_value']
+                                                                                       'dataset',
+                                                                                       'seg_id',
+                                                                                       'p_value']
         group = row['#cell_line'] + '@' + row['cells']
         if not concat:
             tmp_df['cov'] = tmp_df['ref'] + tmp_df['alt']
@@ -73,7 +68,7 @@ def open_dfs(df, concat=True):
         res_df['cov'] = res_df['ref'] + res_df['alt']
         res_df['max'] = res_df[['ref', 'alt']].max(axis=1)
         res_df['min'] = res_df[['ref', 'alt']].min(axis=1)
-        res_df['es'] = -np.log2(res_df['max']/res_df['min']/res_df['BAD'])
+        res_df['es'] = -np.log2(res_df['max'] / res_df['min'] / res_df['BAD'])
         return res_df
     else:
         return res_dfs
@@ -90,21 +85,21 @@ def update_dist(dist, another_dist):
 
 def normalize_dist(dist):
     sumr = sum(dist.values())
-    return {key: value/sumr for key, value in dist.items()}
+    return {key: value / sumr for key, value in dist.items()}
 
 
 def construct_dist_for_cov(cov_df, test_cov_df, metric, norm=False):
-    #для данного покрытия строит квантильное распределение
+    # для данного покрытия строит квантильное распределение
     dist = {}
     for value in cov_df[metric].unique():
-        q = percentileofscore(cov_df[metric], value, kind='mean')/100
+        q = percentileofscore(cov_df[metric], value, kind='mean') / 100
         dist[q] = len(test_cov_df[test_cov_df[metric] == value].index)
     if norm:
         dist = normalize_dist(dist)
     return dist
 
 
-def construct_total_dist(cov_dfs, cov_dfs_test, metric, min_tr, max_tr, norm=False):
+def construct_total_dist(cov_dfs, cov_dfs_test, min_tr, max_tr, metric='es', norm=False):
     total_dist = {}
     covs = []
     total_number_of_snps = sum(len(x.index) for x in cov_dfs_test.values())
@@ -114,7 +109,10 @@ def construct_total_dist(cov_dfs, cov_dfs_test, metric, min_tr, max_tr, norm=Fal
         if cov in cov_dfs_test:
             if len(cov_dfs_test[cov].index) >= max(0.0005 * total_number_of_snps, 50):
                 covs.append(cov)
-                dist = construct_dist_for_cov(cov_dfs[cov], cov_dfs_test[cov], metric, norm=norm)
+                dist = construct_dist_for_cov(cov_dfs[cov],
+                                              cov_dfs_test[cov],
+                                              metric,
+                                              norm=norm)
                 total_dist = update_dist(total_dist, dist)
     args = sorted(list(total_dist.keys()))
     vals = [total_dist[x] for x in args]
@@ -126,10 +124,15 @@ def transform_dist_to_list(dist):
     return f(*([k] * round(v) for k, v in dist.items()))
 
 
+def make_dataset(cell_line, lab):
+    return '{}@{}'.format(cell_line, lab)
+
+
 def main():
-    main_df = find_ref_datasets('~/DataChipInt/BADmaps/Correlation/cor_stats_test.tsv')
+    correlation_file_path = os.path.join(get_correlation_path(), 'cor_stats_test.tsv')
+    main_df = find_ref_datasets(correlation_file_path)
     res_df = open_dfs(main_df)
-    print('i concat')
+    print('DFs concatenated')
 
     cov_dfs = {cell_line: {} for cell_line in big_cell_lines + ['Other']}
     for cell_line in big_cell_lines + ['Other']:
@@ -141,9 +144,9 @@ def main():
             cov_dfs[cell_line][cov] = cell_df[cell_df['cov'] == cov].copy()
         print('i split')
 
-    cor_df_test = find_test_datasets('~/DataChipInt/BADmaps/Correlation/cor_stats_test.tsv')
+    cor_df_test = find_test_datasets(correlation_file_path)
     test_dfs = open_dfs(cor_df_test, concat=False)
-    print('i concat test')
+    print('Test concatenated')
 
     min_tr, max_tr = 20, 75
 
@@ -156,16 +159,22 @@ def main():
         cell_line = dataset.split('@')[0]
         if cell_line not in big_cell_lines:
             cell_line = 'Other'
-        args, vals, covs = construct_total_dist(cov_dfs[cell_line], cov_dfs_test, 'p_value' if col == 'pval' else 'es' if col == 'es' else None, min_tr=min_tr, max_tr=max_tr, norm=norm)
-        results.append({'args': args, 'vals': vals, 'covs': covs, 'dataset': dataset, 'snps': len(dataset_df.index)})
+        args, vals, covs = construct_total_dist(
+            cov_dfs[cell_line],
+            cov_dfs_test,
+            min_tr=min_tr,
+            max_tr=max_tr,
+        )
+        results.append(
+            {
+                'args': args,
+                'vals': vals,
+                'covs': covs,
+                'dataset': dataset,
+                'snps': len(dataset_df.index)
+            })
 
-    with open(os.path.expanduser('~/cov_result_{}_all_005{}_{}{}.json').format(col, '_norm' if norm else '', min_tr, max_tr), 'w') as f:
-        json.dump(results, f)
-
-    with open('D:\\Sashok\\Desktop\\cov_result_{}_all{}{}.json'.format(column, proc, suf), 'r') as f:
-        ds = json.load(f)
-
-    cors = pd.read_table('D:\\Sashok\\Desktop\\cor_stats_chip.tsv')
+    cors = pd.read_table(correlation_file_path)
 
     ref_dists = {x: {} for x in big_cell_lines + ['Other']}
     ref_vars = {x: {} for x in big_cell_lines + ['Other']}
@@ -176,11 +185,13 @@ def main():
     all_lines = []
     all_sizes = []
 
-    for d in ds:
+    for d in results:
         if d['args']:
             line, cells = d['dataset'].split('@')
             dist = dict(zip(d['args'], d['vals']))
-            cor = cors[(cors['#cell_line'] == line) & (cors['cells'] == cells)]['cor_by_snp_CAIC'].tolist()
+            cor = cors[
+                (cors['#cell_line'] == line)
+                & (cors['cells'] == cells)]['cor_by_snp_CAIC'].tolist()
             assert len(cor) == 1
             cor = cor[0]
             if cor > 0.75:
@@ -189,7 +200,7 @@ def main():
                 else:
                     ref_dists[line] = update_dist(ref_dists[line], dist)
 
-    for d in ds:
+    for d in results:
         if d['args']:
             dist = dict(zip(d['args'], d['vals']))
             line, cells = d['dataset'].split('@')
@@ -202,16 +213,14 @@ def main():
             all_lines.append(line)
             all_sizes.append(snps)
 
-    _, all_fdr, _, _ = statsmodels.stats.multitest.multipletests(all_metrics, alpha=0.05, method='fdr_bh')
+    _, all_fdr, _, _ = statsmodels.stats.multitest.multipletests(
+        all_metrics, alpha=0.05, method='fdr_bh')
 
-    total_snps = sum(all_sizes)
-    bad_sizes = 0
-    for m, s, li, ce, var in zip(all_fdr, all_sizes, all_lines, all_cells, all_vars):
-        # if ce in ['GSE70751', 'GSE120738', 'GSE104399']:
-        if m < 10**(-5) and var[0]**2 - var[1]**2 > 0.05:
-            print(li, ce, m, s, var[0]**2 - var[1]**2) #BAD DATASETS
-            bad_sizes += s
-    print(bad_sizes/total_snps * 100) #% of bad
+    with open(get_excluded_badmaps_list_path(), 'w') as out:
+        out.write(pack(['#Cell_line', 'Lab', 'Size', 'dataset_es_var', 'ref_es_var', 'FDR']))
+        for fdr, size, line, ce, var in zip(all_fdr, all_sizes, all_lines, all_cells, all_vars):
+            out.write(pack([line, ce, size, var[0] ** 2, var[1] ** 2, fdr]))
+            # if fdr < 10 ** (-5) and var[0] ** 2 - var[1] ** 2 > 0.05:
 
 
 if __name__ == '__main__':
