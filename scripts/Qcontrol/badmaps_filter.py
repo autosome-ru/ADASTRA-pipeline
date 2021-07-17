@@ -206,6 +206,8 @@ def main():
             line, cells = d['dataset'].split('@')
             snps = d['snps']
             flat_dist = transform_dist_to_list(dist)
+            if not flat_dist:
+                continue
             stat, p = levene(flat_dist, ref_dists[line if line in big_cell_lines else 'Other'])
             all_vars.append((np.nanstd(flat_dist), ref_vars[line if line in big_cell_lines else 'Other']))
             all_metrics.append(p)
