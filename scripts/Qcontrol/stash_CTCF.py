@@ -5,7 +5,7 @@ from zipfile import ZipFile
 
 alignments_path = os.path.expanduser('~/AlignmentsChip')
 master_list = pd.read_table('~/Configs/master-chip.txt')
-master_list = master_list[master_list['Antibody'] == 'CTCF_HUMAN']
+master_list = master_list[master_list['ANTIBODY'] == 'CTCF_HUMAN']
 master_list.to_csv('~/Configs/CTCF_master.tsv', sep='\t', index=False)
 with ZipFile(os.path.expanduser('~/CTCF_dump.zip'), 'w') as zipObj2:
     for index, row in master_list.iterrows():
