@@ -122,7 +122,10 @@ def main():
                 b_penalty=convert_string_to_int(b_penalty),
                 verbose=True,
                 allele_reads_tr=5,
-                segmentation_mode='corrected'
+                segmentation_mode='corrected',
+                min_seg_snps=3,
+                min_seg_bp=1000,
+                post_seg_filter=0,
             )
             GS.estimate_BAD()
         print('Total time: {} s'.format(time.clock() - t))
