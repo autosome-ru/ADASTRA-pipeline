@@ -19,7 +19,7 @@ setup(
         'requests>=2.24.0',
         'statsmodels>=0.11.1',
         'scipy>=1.4.1',
-        'babachi>=1.4.0'
+        'babachi>=1.5.0'
     ],
     python_requires='>=3.6',
 )
