@@ -339,11 +339,11 @@ class UnpackBadSegments:
 
         if UnpackBadSegments.counter is not None:
             UnpackBadSegments.counter += 1
-            return [line[0], int(line[1]), int(line[2]), float(line[3]), UnpackBadSegments.counter] + \
-                   [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
+            return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[5]), int(line[6]),
+                    UnpackBadSegments.counter] + [dict(zip(states, line[7: 7 + len(states)]))]
         else:
-            return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
-                   [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
+            return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[5]),
+                    int(line[6])] + [dict(zip(states, line[7: 7 + len(states)]))]
 
 
 def get_states(states_sign):
