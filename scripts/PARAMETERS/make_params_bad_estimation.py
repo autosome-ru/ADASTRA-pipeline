@@ -16,6 +16,12 @@ def in_cosmic(cell_line_name, cosmic_names):
     return False
 
 
+def is_good(cell_line_name):
+    if cell_line_name == '22RV1__prostate_carcinoma_@GSE120738':
+        return False
+    return True
+
+
 def main(only_cosmic=False):
     cosmic_names, _ = read_synonims()
     with open(badmaps_dict_path, 'r') as read_file:
@@ -25,6 +31,8 @@ def main(only_cosmic=False):
         for key in keys:
             if only_cosmic and not in_cosmic(key, cosmic_names):
                 continue
+            elif not is_good(key):
+                continue
             is_empty = True
             for value in d[key]:
                 if os.path.isfile(value + get_ending('vcf')):
@@ -32,15 +40,15 @@ def main(only_cosmic=False):
                     break
             if is_empty:
                 continue
-            if only_cosmic:
-                with open(os.path.join(parallel_parameters_path, 'BE_states_parameters.cfg'), 'w') as f:
-                    for caic in range(2, 10):
-                        for state_sign in (
-                                'int_6',
-                        ):
-                            file.write("{},{},{}\n".format(key, state_sign, caic))
-            else:
-                file.write(key + '\n')
+            # if only_cosmic:  # FIXME
+            with open(os.path.join(parallel_parameters_path, 'BE_states_parameters.cfg'), 'w') as f:
+                for caic in range(2, 10):
+                    for state_sign in (
+                            'int_6',
+                    ):
+                        file.write("{},{},{}\n".format(key, state_sign, caic))
+            # else:
+            #     file.write(key + '\n')
 
 
 if __name__ == '__main__':
