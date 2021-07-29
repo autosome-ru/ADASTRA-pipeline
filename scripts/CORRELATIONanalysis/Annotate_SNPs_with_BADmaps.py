@@ -71,7 +71,8 @@ def main(file_name):
 
         with open(table_path, 'r') as table, open(badmaps_file_path, 'r') as BADmap_file, open(out_path, 'w') as out:
             out.write('#' + str(datasetsn) + '@' + lab + '@' + ','.join(al_list) + '\n')
-            for chrom, pos, ref, alt, filename, in_intersection, segment_BAD, segment_id, Qual, segn, sumcov \
+            for chrom, pos, ref, alt, filename, in_intersection, segment_BAD, segment_snps, segment_snp_ids,\
+                    segment_sumcov, segment_id, Qual \
                     in Intersection(table, BADmap_file,
                                     unpack_segments_function=lambda x: u.unpack_bad_segments(x, states),
                                     unpack_snp_function=unpack_snps,
@@ -80,7 +81,7 @@ def main(file_name):
                     continue
                 p_value = get_p_value(ref + alt, 1 / (segment_BAD + 1), min(ref, alt))
                 out.write(pack([chrom, pos, ref, alt, segment_BAD] +
-                               [Qual[x] for x in Qual] + [segn, sumcov] +
+                               [Qual[x] for x in Qual] + [segment_snp_ids, segment_sumcov] +
                                [filename, segment_id, p_value]))
 
 
