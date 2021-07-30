@@ -87,9 +87,34 @@ if [ "$stage_index" -le 4 ]; then
     echo 'Correlation analysis failed'
     exit 1
   fi
-  if ! adastra filter_badmaps
+  if ! adastra create_badmaps_filter
   then
-    echo 'BAD maps filter failed'
+    echo 'BAD maps filter creation failed'
+    exit 1
+  fi
+  if ! adastra apply_badmaps_filter
+  then
+    echo 'BAD maps filter application failed'
+    exit 1
+  fi
+    if ! bash "$scripts_path"/bad_map_est.sh "$njobs" --merge --remake
+  then
+    echo 'BAD estimation failed (iteration 2)'
+    exit 1
+  fi
+  if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --annotate --remake
+  then
+    echo 'Correlation analysis failed (iteration 2)'
+    exit 1
+  fi
+  if ! adastra create_badmaps_filter --remake
+  then
+    echo 'BAD maps filter creation failed (iteration 2)'
+    exit 1
+  fi
+  if ! adastra apply_badmaps_filter --remake
+  then
+    echo 'BAD maps filter application failed (iteration 2)'
     exit 1
   fi
   if ! bash "$scripts_path"/BAD_annotation.sh "$njobs"

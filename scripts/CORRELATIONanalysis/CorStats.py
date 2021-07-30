@@ -5,7 +5,6 @@ import sys
 from scipy.stats import kendalltau
 import numpy as np
 import pandas as pd
-from shutil import copy2
 import errno
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos, get_states, \
     test_percentiles_list, cover_procentiles_list
@@ -134,17 +133,9 @@ def get_p_value_tails_weights(percentiles_list, df):
     return list(len(df[df['p_value'] <= p / 100].index) / total for p in percentiles_list)
 
 
-def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, file_name, model):
-    badmap_path = os.path.join(get_badmaps_path_by_validity(), model, file_name.replace('.tsv', '.badmap.tsv'))
-    new_badmap_path = os.path.join(valid_badmaps_path, model, file_name.replace('.tsv', '.badmap.tsv'))
-
+def filter_segments_or_datasets(snps_path, states, percentiles_list):
     with open(snps_path, 'r') as out:
-        header_comment = out.readline()
         if not out.readline():
-            with open(new_path, 'w') as out2:
-                out2.write(header_comment)
-            assert os.path.isfile(badmap_path)
-            copy2(badmap_path, new_badmap_path)
             return ['NaN'] * (len(percentiles_list) + len(cover_procentiles_list)), '{}'
     out_table = pd.read_table(snps_path, header=None, comment='#')
     out_table.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in states] + ['snps_n',
@@ -154,7 +145,6 @@ def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, f
                                                                                                            'p_value']
     quals = get_p_value_quantiles(test_percentiles_list, out_table)
     p_tails = get_p_value_tails_weights(test_percentiles_list, out_table)
-    valid = np.quantile(out_table['p_value'], 0.05) >= 0.05
     cover_list = out_table['ref'] + out_table['alt']
     q_var = [np.quantile(cover_list, q/100) for q in cover_procentiles_list]
 
@@ -172,26 +162,11 @@ def filter_segments_or_datasets(snps_path, states, new_path, percentiles_list, f
             'cover_quals': {'CQ{}'.format(q): np.quantile(cover_list, q/100) for q in cover_procentiles_list},
         }
 
-    with open(new_path, 'w') as out:
-        out.write(header_comment)
-
-    if valid:
-        out_table.to_csv(new_path, header=False, index=False, sep='\t', mode='a')
-        assert os.path.isfile(badmap_path)
-        copy2(badmap_path, new_badmap_path)
-    else:
-        with open(badmap_path) as src, open(new_badmap_path, 'w') as dst:
-            header = src.readline()
-            dst.write(header)
-
     return quals + p_tails + q_var, datasets_info
 
 
-def main(file_name):
+def main(file_name, remake=False):
     print(file_name)
-
-    if not os.path.isdir(valid_badmaps_path):
-        os.mkdir(valid_badmaps_path)
 
     out_path = os.path.join(correlation_path, file_name + '.thread')
 
@@ -231,17 +206,15 @@ def main(file_name):
 
             reader.SNP_path = os.path.join(snp_dir, file_name)
 
-            new_dir = snp_dir[:-1] + '_filtered' if snp_dir.endswith('/') else snp_dir + '_filtered'
-            if not os.path.isdir(new_dir):
-                os.mkdir(new_dir)
-            new_path = os.path.join(new_dir, file_name)
+            if remake:
+                new_dir = snp_dir[:-1] + '_filtered' if snp_dir.endswith('/') else snp_dir + '_filtered'
+                if not os.path.isdir(new_dir):
+                    os.mkdir(new_dir)
+                new_path = os.path.join(new_dir, file_name)
+                reader.SNP_path = new_path
 
-            if not os.path.isdir(os.path.join(valid_badmaps_path, model)):
-                os.mkdir(os.path.join(valid_badmaps_path, model))
-
-            quality_scores[model], datasets_info[model] = filter_segments_or_datasets(reader.SNP_path, states, new_path,
-                                                                test_percentiles_list, file_name, model)
-            reader.SNP_path = new_path
+            quality_scores[model], datasets_info[model] = filter_segments_or_datasets(reader.SNP_path, states,
+                                                                test_percentiles_list)
 
             heatmap_data_dir = os.path.join(heatmap_data_path, model + '_tables/')
             if not os.path.isdir(heatmap_data_dir):

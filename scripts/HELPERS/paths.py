@@ -1,6 +1,6 @@
 import os
 from .paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
-    cl_dict_path, configs_path, results_path
+    cl_dict_path, configs_path, results_path, badmaps_dict_path
 
 
 def get_ending(for_what):
@@ -53,8 +53,16 @@ def create_merged_vcf_path_function(name):
     return os.path.join(badmaps_path, 'merged_vcfs', name + ".tsv")
 
 
-def get_excluded_badmaps_list_path():
-    return os.path.join(get_release_stats_path(), 'excluded_badmaps.tsv')
+def get_excluded_badmaps_list_path(remake=False):
+    return os.path.join(get_release_stats_path(), 'excluded_badmaps_{}.tsv'.format(2 if remake else 1))
+
+
+def get_correlation_file_path(remake=False):
+    return os.path.join(get_correlation_path(), 'cor_stats{}.tsv'.format('' if remake else '_test'))
+
+
+def get_new_badmaps_dict_path():
+    return os.path.join(os.path.dirname(badmaps_dict_path), 'bad_datasets_dict.json')
 
 
 def get_sarus_dir():

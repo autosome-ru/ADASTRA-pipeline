@@ -6,7 +6,7 @@ from scipy.stats import percentileofscore, levene
 import statsmodels.stats.multitest
 
 from scripts.HELPERS.helpers import pack
-from scripts.HELPERS.paths import get_correlation_path, get_excluded_badmaps_list_path
+from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path
 
 big_cell_lines = [
     'K562__myelogenous_leukemia_',
@@ -28,15 +28,15 @@ def find_test_datasets(cor_stats_path):
     return df
 
 
-def get_path(row):
-    return os.path.expanduser('~/DataChipInt/BADmaps/Correlation/CAIC_tables/'
+def get_path(row, remake=False):
+    return os.path.expanduser('~/DataChipInt/BADmaps/Correlation/CAIC_tables{}/'.format('_filtered' if remake else '')
                               + row['#cell_line'] + '@' + row['cells'] + '.tsv')
 
 
-def open_dfs(df, concat=True):
+def open_dfs(df, concat=True, remake=False):
     res_dfs = []
     for index, row in df.iterrows():
-        path = get_path(row)
+        path = get_path(row, remake=remake)
         try:
             tmp_df = pd.read_table(path, comment='#', header=None)
         except EmptyDataError:
@@ -128,8 +128,8 @@ def make_dataset(cell_line, lab):
     return '{}@{}'.format(cell_line, lab)
 
 
-def main():
-    correlation_file_path = os.path.join(get_correlation_path(), 'cor_stats_test.tsv')
+def main(remake=False):
+    correlation_file_path = get_correlation_file_path(remake=remake)
     main_df = find_ref_datasets(correlation_file_path)
     res_df = open_dfs(main_df)
     print('DFs concatenated')
@@ -218,7 +218,7 @@ def main():
     _, all_fdr, _, _ = statsmodels.stats.multitest.multipletests(
         all_metrics, alpha=0.05, method='fdr_bh')
 
-    with open(get_excluded_badmaps_list_path(), 'w') as out:
+    with open(get_excluded_badmaps_list_path(remake=remake), 'w') as out:
         out.write(pack(['#Cell_line', 'Lab', 'Size', 'dataset_es_var', 'ref_es_var', 'FDR']))
         for fdr, size, line, ce, var in zip(all_fdr, all_sizes, all_lines, all_cells, all_vars):
             out.write(pack([line, ce, size, var[0] ** 2, var[1] ** 2, fdr]))
