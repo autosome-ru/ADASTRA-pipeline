@@ -1,3 +1,5 @@
+import json
+
 import pandas as pd
 from pandas.errors import EmptyDataError
 import os
@@ -215,7 +217,10 @@ def main(remake=False):
             try:
                 stat, p = levene(flat_dist, ref_dist)
             except:
-                print('Still smth is wrong with {}@{}, {}'.format(line, cells, dist))
+                print('Still smth is wrong with {}@{}, {}'.format(line, cells, len(flat_dist)))
+                with open(os.path.expanduser('~/debug.json'), 'w') as f:
+                    json.dump({'ref': ref_dist, 'test': flat_dist}, f)
+                raise
             all_vars.append((np.nanstd(flat_dist), ref_vars[line if line in big_cell_lines else 'Other']))
             all_metrics.append(p)
             all_cells.append(cells)
