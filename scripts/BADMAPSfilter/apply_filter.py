@@ -27,7 +27,7 @@ def remake_badmaps_dict(bad_dataset_list):
     with open(badmaps_dict_path, 'r') as f:
         old_dict = json.load(f)
     new_dict = {}
-    for dataset, aligns in old_dict.items:
+    for dataset, aligns in old_dict.items():
         if dataset in bad_dataset_list and len(aligns) > 1:
             for align in aligns:
                 new_dict[dataset.split('@')[0] + '@' + os.path.basename(align)] = [align]

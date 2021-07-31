@@ -87,11 +87,11 @@ if [ "$stage_index" -le 4 ]; then
 #    echo 'Correlation analysis failed'
 #    exit 1
 #  fi
-  if ! adastra create_badmaps_filter
-  then
-    echo 'BAD maps filter creation failed'
-    exit 1
-  fi
+#  if ! adastra create_badmaps_filter
+#  then
+#    echo 'BAD maps filter creation failed'
+#    exit 1
+#  fi
   if ! adastra apply_badmaps_filter
   then
     echo 'BAD maps filter application failed'
