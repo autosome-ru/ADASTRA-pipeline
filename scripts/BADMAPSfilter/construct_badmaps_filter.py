@@ -202,6 +202,9 @@ def main(remake=False):
                 else:
                     ref_dists[line] = update_dist(ref_dists[line], dist)
 
+    for key in ref_dists:
+        ref_dists[key] = transform_dist_to_list(ref_dists[key])
+
     for d in results:
         if d['args']:
             dist = dict(zip(d['args'], d['vals']))
@@ -214,13 +217,7 @@ def main(remake=False):
             if not ref_dist or len(ref_dist) == 0:
                 print('Empty ref dist for {}'.format(line))
                 exit(1)
-            try:
-                stat, p = levene(flat_dist, ref_dist)
-            except:
-                print('Still smth is wrong with {}@{}, {}'.format(line, cells, len(flat_dist)))
-                with open(os.path.expanduser('~/debug.json'), 'w') as f:
-                    json.dump({'ref': ref_dist, 'test': flat_dist}, f)
-                raise
+            stat, p = levene(flat_dist, ref_dist)
             all_vars.append((np.nanstd(flat_dist), ref_vars[line if line in big_cell_lines else 'Other']))
             all_metrics.append(p)
             all_cells.append(cells)
