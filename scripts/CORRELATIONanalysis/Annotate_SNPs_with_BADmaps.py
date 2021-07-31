@@ -56,7 +56,7 @@ def main(file_name, remake=False):
             states = get_states(mode.split('@')[1])
         else:
             states = get_states('')
-        out_dir = os.path.join(correlation_path, mode + 'tables{}'.format('_filtered' if remake else ''))
+        out_dir = os.path.join(correlation_path, mode + '_tables{}'.format('_filtered' if remake else ''))
         if not os.path.isdir(out_dir):
             try:
                 os.mkdir(out_dir)
