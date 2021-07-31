@@ -206,12 +206,16 @@ def main(remake=False):
             line, cells = d['dataset'].split('@')
             snps = d['snps']
             flat_dist = transform_dist_to_list(dist)
-            if not flat_dist:
+            ref_dist = ref_dists[line if line in big_cell_lines else 'Other']
+            if not flat_dist or len(flat_dist) == 0:
                 continue
-            if not ref_dists[line if line in big_cell_lines else 'Other']:
+            if not ref_dist or len(ref_dist) == 0:
                 print('Empty ref dist for {}'.format(line))
                 exit(1)
-            stat, p = levene(flat_dist, ref_dists[line if line in big_cell_lines else 'Other'])
+            try:
+                stat, p = levene(flat_dist, ref_dist)
+            except:
+                print('Still smth is wrong with {}@{}, {}'.format(line, cells, dist))
             all_vars.append((np.nanstd(flat_dist), ref_vars[line if line in big_cell_lines else 'Other']))
             all_metrics.append(p)
             all_cells.append(cells)
