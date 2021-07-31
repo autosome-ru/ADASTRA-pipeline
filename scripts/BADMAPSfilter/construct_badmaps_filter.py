@@ -204,6 +204,7 @@ def main(remake=False):
 
     for key in ref_dists:
         ref_dists[key] = transform_dist_to_list(ref_dists[key])
+        ref_vars[key] = np.nanstd(ref_dists[key])
 
     for d in results:
         if d['args']:
