@@ -47,7 +47,7 @@ def copy_good_badmaps(bad_dataset_list):
                 lines = src.readlines()
             if len(lines) <= 1:
                 continue
-
+            print(new_badmap_path)
             copy2(badmap_path, new_badmap_path)
 
 

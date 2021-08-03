@@ -12,8 +12,8 @@ Usage:
             adastra sort_params
             adastra check_pos_peaks --peak <path> --out <path> --type <type>
             adastra annotate_peaks --base <path>
-            adastra vcf_merge --group <group>
-            adastra bad_call --group <group>
+            adastra vcf_merge [--remake] --group <group>
+            adastra bad_call [--remake] --group <group>
             adastra bad_annotation --base <path>
             adastra collect_ref_bias [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin
@@ -21,7 +21,7 @@ Usage:
             adastra aggregation --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path> [--remake]
             adastra cosmic_correlation --base <path> [--remake]
-            adastra join_correlation_threads
+            adastra join_correlation_threads [--remake]
             adastra collect_release_stats
             adastra weights_to_df
             adastra extract_sarus_data --name <name> --motif-len <int>
