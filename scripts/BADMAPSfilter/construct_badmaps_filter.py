@@ -31,7 +31,7 @@ def find_test_datasets(cor_stats_path):
 
 
 def get_path(row, remake=False):
-    return os.path.expanduser('~/DataChipInt/BADmaps/Correlation/CAIC_tables{}/'.format('_filtered' if remake else '')
+    return os.path.expanduser('/CAIC_tables{}/'.format('_filtered' if remake else '')
                               + row['#cell_line'] + '@' + row['cells'] + '.tsv')
 
 
@@ -175,6 +175,12 @@ def main(remake=False):
                 'dataset': dataset,
                 'snps': len(dataset_df.index)
             })
+
+    with open(os.path.expanduser('~/cov_result_debug_pipeline.json'), 'w') as f:
+        json.dump(results, f)
+
+    with open(os.path.expanduser('~/cov_result_3007_es_all_005_2075.json')) as f:
+        results = json.load(f)
 
     cors = pd.read_table(correlation_file_path)
 
