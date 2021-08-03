@@ -36,6 +36,7 @@ def remake_badmaps_dict(bad_dataset_list):
 
 def copy_good_badmaps(bad_dataset_list):
     for dataset in os.listdir(get_badmaps_path_by_validity(valid=False)):
+        print(dataset)
         if dataset.split('.')[0] not in bad_dataset_list:
             badmap_path = os.path.join(get_badmaps_path_by_validity(), 'CAIC', dataset + '.badmap.tsv')
             new_badmap_path = os.path.join(get_badmaps_path_by_validity(valid=True), 'CAIC', dataset + '.badmap.tsv')
@@ -62,9 +63,11 @@ def main(remake=False):
     bad_dataset_list = get_bad_dataset_list(remake=remake)
     print('Filtered {} datasets'.format(len(bad_dataset_list)))
     if not remake:
+        print('iteration 1')
         new_dict = remake_badmaps_dict(bad_dataset_list)
         with open(get_new_badmaps_dict_path(), 'w') as f:
             json.dump(new_dict, f)
         copy_good_badmaps(bad_dataset_list)
     else:
+        print('iteration 2')
         delete_bad_badmaps(bad_dataset_list)
