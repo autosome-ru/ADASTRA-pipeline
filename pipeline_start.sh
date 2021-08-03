@@ -82,11 +82,11 @@ if [ "$stage_index" -le 4 ]; then
     echo 'BAD estimation failed'
     exit 1
   fi
-  if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --annotate
-  then
-    echo 'Correlation analysis failed'
-    exit 1
-  fi
+#   if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --annotate
+#   then
+#     echo 'Correlation analysis failed'
+#     exit 1
+#   fi
   if ! bash "$scripts_path"/BAD_annotation.sh "$njobs"
   then
     echo 'BAD annotation failed'
