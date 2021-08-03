@@ -8,7 +8,7 @@ from scipy.stats import percentileofscore, levene
 import statsmodels.stats.multitest
 
 from scripts.HELPERS.helpers import pack
-from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path
+from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path, get_correlation_path
 
 big_cell_lines = [
     'K562__myelogenous_leukemia_',
@@ -31,7 +31,7 @@ def find_test_datasets(cor_stats_path):
 
 
 def get_path(row, remake=False):
-    return os.path.expanduser('/CAIC_tables{}/'.format('_filtered' if remake else '')
+    return os.path.join(get_correlation_path(), 'CAIC_tables{}/'.format('_filtered' if remake else '')
                               + row['#cell_line'] + '@' + row['cells'] + '.tsv')
 
 
