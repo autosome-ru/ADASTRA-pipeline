@@ -14,7 +14,7 @@ def get_bad_dataset_list(log_fdr_tr=5, var_diff_tr=0.05, remake=False):
         (filter_df['FDR'] <= 10 ** -log_fdr_tr) &
         (filter_df['dataset_es_var'] - filter_df['ref_es_var'] >= var_diff_tr)
     ]
-    return filter_df.apply(lambda row: '{}@{}'.format(row['#Cell_line'], row['Lab']), axis=1)
+    return filter_df.apply(lambda row: '{}@{}'.format(row['#Cell_line'], row['Lab']), axis=1).tolist()
 
 
 def remake_badmaps_dict(bad_dataset_list):
