@@ -82,11 +82,11 @@ def pack_line(config_dict, component_name):
     elif component_name == 'master_list_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'pwms_path':
-        return construct_line(component_name, config_dict[component_name])
+        return construct_line(component_name, config_dict.get(component_name, ''))
     elif component_name == 'sarus_path':
-        return construct_line(component_name, config_dict[component_name])
+        return construct_line(component_name, config_dict.get(component_name, ''))
     elif component_name == 'thresholds_path':
-        return construct_line(component_name, config_dict[component_name])
+        return construct_line(component_name, config_dict.get(component_name, ''))
     elif component_name == 'dbsnp_vcf_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'scripts_path':
@@ -97,17 +97,17 @@ def pack_line(config_dict, component_name):
         return construct_line(component_name, os.path.join(config_dict['scripts_path'], 'Configs',
                                                            'parallel_configs'))
     elif component_name == 'repeats_path':
-        return construct_line(component_name, config_dict[component_name])
+        return construct_line(component_name, config_dict.get(component_name, ''))
     elif component_name == 'intervals_path':
-        return construct_line(component_name, config_dict[component_name])
+        return construct_line(component_name, config_dict.get(component_name, ''))
     elif component_name == 'genome_path':
         return construct_line(component_name, config_dict[component_name])
     elif component_name == 'synonyms_path':
-        return construct_line(component_name, config_dict[component_name])
+        return construct_line(component_name, config_dict.get(component_name, ''))
     elif component_name == 'cosmic_path':
-        return construct_line(component_name, config_dict[component_name])
+        return construct_line(component_name, config_dict.get(component_name, ''))
     elif component_name == 'cgh_path':
-        return construct_line(component_name, config_dict[component_name])
+        return construct_line(component_name, config_dict.get(component_name, ''))
     raise AssertionError(component_name, 'is not in valid arguments, check Config.cfg file')
 
 
@@ -130,7 +130,7 @@ def read_cfg_file(cfg_file):
     with open(os.path.join(config_dict['scripts_path'],
                            'HELPERS', 'soft_configs.cfg'), 'w') as out:
         for component_name in used_soft_list:
-            out.write(construct_line(component_name, config_dict[component_name]))
+            out.write(construct_line(component_name, config_dict.get(component_name, '')))
 
 
 if __name__ == '__main__':
