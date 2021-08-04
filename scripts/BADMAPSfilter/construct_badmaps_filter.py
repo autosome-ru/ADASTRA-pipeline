@@ -146,7 +146,7 @@ def main(remake=False):
         print('i split')
 
     cor_df_test = find_test_datasets(correlation_file_path)
-    test_dfs = open_dfs(cor_df_test, concat=False)
+    test_dfs = open_dfs(cor_df_test, remake=remake, concat=False)
     print('Test concatenated')
 
     min_tr, max_tr = 20, 75
