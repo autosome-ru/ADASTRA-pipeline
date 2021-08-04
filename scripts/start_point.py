@@ -14,7 +14,7 @@ Usage:
             adastra annotate_peaks --base <path>
             adastra vcf_merge [--remake] --group <group>
             adastra bad_call [--remake] --group <group>
-            adastra bad_annotation --base <path>
+            adastra bad_annotation [--remade] --base <path>
             adastra collect_ref_bias [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin
             adastra neg_bin_p --base <path>
@@ -131,7 +131,7 @@ def main():
 
     elif args['bad_annotation']:
         from .ASBcalling.BAD_annotation import main
-        main(args['--base'])
+        main(args['--base'], remade=args['--remade'])
     elif args['collect_ref_bias']:
         from .FITnoise.collect_ref_bias_statistics import main
         if not args['stats']:

@@ -5,7 +5,8 @@ import json
 import os
 
 from scripts.HELPERS.paths_for_components import badmaps_dict_path
-from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_new_badmaps_dict_path, get_badmaps_path_by_validity
+from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_new_badmaps_dict_path, \
+    get_badmaps_path_by_validity, get_merged_badmaps_dict_path
 
 
 def get_bad_dataset_list(log_fdr_tr=5, var_diff_tr=0.05, remake=False):
@@ -17,21 +18,29 @@ def get_bad_dataset_list(log_fdr_tr=5, var_diff_tr=0.05, remake=False):
     return filter_df.apply(lambda row: '{}@{}'.format(row['#Cell_line'], row['Lab']), axis=1).tolist()
 
 
+def read_json(file):
+    with open(file, 'r') as f:
+        return json.load(f)
+
+
 def remake_badmaps_dict(bad_dataset_list):
     """
     :param bad_dataset_list: names of bad datasets <cell_line>@<lab>
-    :return: modified badmaps dict
+    :return: modified badmaps dict and updated old dict
     Select dataset groups from original badmaps dict with poor quality (higher than usual ES variance)
     and split them into separate datasets for subsequent BAD calling at iter 2
     """
-    with open(badmaps_dict_path, 'r') as f:
-        old_dict = json.load(f)
+    old_dict = read_json(badmaps_dict_path)
     new_dict = {}
+    merged_dict = {}
     for dataset, aligns in old_dict.items():
         if dataset in bad_dataset_list and len(aligns) > 1:
             for align in aligns:
                 new_dict[dataset.split('@')[0] + '@' + os.path.basename(align)] = [align]
-    return new_dict
+                merged_dict[dataset.split('@')[0] + '@' + os.path.basename(align)] = [align]
+        else:
+            merged_dict[dataset] = aligns
+    return new_dict, merged_dict
 
 
 def copy_good_badmaps(bad_dataset_list):
@@ -53,9 +62,9 @@ def copy_good_badmaps(bad_dataset_list):
 
 
 def delete_bad_badmaps(bad_dataset_list):
-    dir = get_badmaps_path_by_validity(valid=True)
+    dir = os.path.join(get_badmaps_path_by_validity(valid=True), 'CAIC')
     for dataset in os.listdir(dir):
-        if dataset.split('.')[0] not in bad_dataset_list:
+        if dataset.split('.')[0] in bad_dataset_list:
             os.remove(os.path.join(dir, dataset))
             continue
         remove = False
@@ -71,9 +80,11 @@ def main(remake=False):
     print('Filtered {} datasets'.format(len(bad_dataset_list)))
     if not remake:
         print('iteration 1')
-        new_dict = remake_badmaps_dict(bad_dataset_list)
+        new_dict, merged_dict = remake_badmaps_dict(bad_dataset_list)
         with open(get_new_badmaps_dict_path(), 'w') as f:
             json.dump(new_dict, f)
+        with open(get_merged_badmaps_dict_path(), 'w') as f:
+            json.dump(merged_dict, f)
         copy_good_badmaps(bad_dataset_list)
     else:
         print('iteration 2')
