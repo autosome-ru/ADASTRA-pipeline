@@ -131,52 +131,49 @@ def make_dataset(cell_line, lab):
 
 def main(remake=False):
     correlation_file_path = get_correlation_file_path(remake=remake)
-    # main_df = find_ref_datasets(correlation_file_path)
-    # res_df = open_dfs(main_df)
-    # print('DFs concatenated')
-    #
-    # cov_dfs = {cell_line: {} for cell_line in big_cell_lines + ['Other']}
-    # for cell_line in big_cell_lines + ['Other']:
-    #     if cell_line == 'Other':
-    #         cell_df = res_df[~res_df['cell_line'].isin(big_cell_lines)]
-    #     else:
-    #         cell_df = res_df[res_df['cell_line'] == cell_line]
-    #     for cov in cell_df['cov'].unique():
-    #         cov_dfs[cell_line][cov] = cell_df[cell_df['cov'] == cov].copy()
-    #     print('i split')
-    #
-    # cor_df_test = find_test_datasets(correlation_file_path)
-    # test_dfs = open_dfs(cor_df_test, concat=False)
-    # print('Test concatenated')
-    #
-    # min_tr, max_tr = 20, 75
-    #
-    # results = []
-    # for dataset, dataset_df in test_dfs:
-    #     cov_dfs_test = {}
-    #     for cov in dataset_df['cov'].unique():
-    #         cov_dfs_test[cov] = dataset_df[dataset_df['cov'] == cov].copy()
-    #     print('i split test {}'.format(dataset))
-    #     cell_line = dataset.split('@')[0]
-    #     if cell_line not in big_cell_lines:
-    #         cell_line = 'Other'
-    #     args, vals, covs = construct_total_dist(
-    #         cov_dfs[cell_line],
-    #         cov_dfs_test,
-    #         min_tr=min_tr,
-    #         max_tr=max_tr,
-    #     )
-    #     results.append(
-    #         {
-    #             'args': args,
-    #             'vals': vals,
-    #             'covs': covs,
-    #             'dataset': dataset,
-    #             'snps': len(dataset_df.index)
-    #         })
+    main_df = find_ref_datasets(correlation_file_path)
+    res_df = open_dfs(main_df)
+    print('DFs concatenated')
 
-    with open(os.path.expanduser('~/cov_result_3007_es_all_005_2075.json')) as f:
-        results = json.load(f)
+    cov_dfs = {cell_line: {} for cell_line in big_cell_lines + ['Other']}
+    for cell_line in big_cell_lines + ['Other']:
+        if cell_line == 'Other':
+            cell_df = res_df[~res_df['cell_line'].isin(big_cell_lines)]
+        else:
+            cell_df = res_df[res_df['cell_line'] == cell_line]
+        for cov in cell_df['cov'].unique():
+            cov_dfs[cell_line][cov] = cell_df[cell_df['cov'] == cov].copy()
+        print('i split')
+
+    cor_df_test = find_test_datasets(correlation_file_path)
+    test_dfs = open_dfs(cor_df_test, concat=False)
+    print('Test concatenated')
+
+    min_tr, max_tr = 20, 75
+
+    results = []
+    for dataset, dataset_df in test_dfs:
+        cov_dfs_test = {}
+        for cov in dataset_df['cov'].unique():
+            cov_dfs_test[cov] = dataset_df[dataset_df['cov'] == cov].copy()
+        print('i split test {}'.format(dataset))
+        cell_line = dataset.split('@')[0]
+        if cell_line not in big_cell_lines:
+            cell_line = 'Other'
+        args, vals, covs = construct_total_dist(
+            cov_dfs[cell_line],
+            cov_dfs_test,
+            min_tr=min_tr,
+            max_tr=max_tr,
+        )
+        results.append(
+            {
+                'args': args,
+                'vals': vals,
+                'covs': covs,
+                'dataset': dataset,
+                'snps': len(dataset_df.index)
+            })
 
     cors = pd.read_table(correlation_file_path)
 
