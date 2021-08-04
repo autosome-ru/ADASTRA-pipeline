@@ -196,7 +196,11 @@ def main(remake=False):
             cor = cors[
                 (cors['#cell_line'] == line)
                 & (cors['cells'] == cells)]['cor_by_snp_CAIC'].tolist()
-            assert len(cor) == 1
+            try:
+                assert len(cor) == 1
+            except AssertionError:
+                print(len(cor))
+                raise
             cor = cor[0]
             if cor > 0.75:
                 if line not in big_cell_lines:
