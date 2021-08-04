@@ -34,7 +34,7 @@ def main(key, remade=True):
         u = UnpackBadSegments(None)
         for chr, pos, ID, ref, alt, ref_c, alt_c, repeat_type, in_callers, \
             in_intersection, segment_BAD, segment_snps, segment_snp_ids,\
-                    segment_sumcov, segment_id, Qual in \
+                    segment_sumcov, Qual in \
                 Intersection(table_file, badmap_file, write_segment_args=True, write_intersect=True,
                              unpack_snp_function=lambda x: unpack(x, use_in='Pcounter'),
                              unpack_segments_function=lambda x: u.unpack_bad_segments(x, segmentation_states)):
