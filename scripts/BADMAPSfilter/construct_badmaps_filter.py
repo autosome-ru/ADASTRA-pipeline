@@ -132,7 +132,7 @@ def make_dataset(cell_line, lab):
 def main(remake=False):
     correlation_file_path = get_correlation_file_path(remake=remake)
     main_df = find_ref_datasets(correlation_file_path)
-    res_df = open_dfs(main_df)
+    res_df = open_dfs(main_df, remake=remake)
     print('DFs concatenated')
 
     cov_dfs = {cell_line: {} for cell_line in big_cell_lines + ['Other']}
