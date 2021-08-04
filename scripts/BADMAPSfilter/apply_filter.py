@@ -57,6 +57,13 @@ def delete_bad_badmaps(bad_dataset_list):
     for dataset in os.listdir(dir):
         if dataset.split('.')[0] not in bad_dataset_list:
             os.remove(os.path.join(dir, dataset))
+            continue
+        remove = False
+        with open(os.path.join(dir, dataset)) as f:
+            if len(f.readlines()) <= 1:
+                remove = True
+        if remove:
+            os.remove(os.path.join(dir, dataset))
 
 
 def main(remake=False):
