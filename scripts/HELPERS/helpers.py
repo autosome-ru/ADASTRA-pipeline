@@ -479,3 +479,10 @@ def check_and_create_dir(dir_name):
         if os.path.isfile(dir_name):
             raise AssertionError("Can't create dir {} (file with such name exists)".format(dir_name))
         os.mkdir(dir_name)
+
+
+def split_ext_recursive(path):
+    ext = True
+    while ext:
+        path, ext = os.path.splitext(path)
+    return path

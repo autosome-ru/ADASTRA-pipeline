@@ -4,9 +4,9 @@ Usage:
             adastra sort_cols
             adastra init_dirs
             adastra aggregation_dict
-            adastra make_paths --mode <mode>
+            adastra make_paths [--remade] --mode <mode>
             adastra badmaps_params [--remake]
-            adastra aggregation_params --for <for>
+            adastra aggregation_params [--remade] --for <for>
             adastra annotation_params
             adastra correlation_params [--remake]
             adastra sort_params
@@ -15,7 +15,7 @@ Usage:
             adastra vcf_merge [--remake] --group <group>
             adastra bad_call [--remake] --group <group>
             adastra bad_annotation [--remade] --base <path>
-            adastra collect_ref_bias [stats] [--suffix <suffix>] [--cell-type <name>]
+            adastra collect_ref_bias [--remade] [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin
             adastra neg_bin_p --base <path>
             adastra aggregation --for <for> --name <name>
@@ -81,7 +81,7 @@ def main():
         main()
     elif args['make_paths']:
         from .PARAMETERS.make_exp_paths_from_master_list import main
-        main(args['--mode'])
+        main(args['--mode'], remade=args['--remade'])
     elif args['badmaps_params']:
         from .PARAMETERS.make_params_bad_estimation import main
         main(args['--remake'])
@@ -93,7 +93,7 @@ def main():
         main(args['--remake'])
     elif args['aggregation_params']:
         from .PARAMETERS.make_params_aggregation import main
-        main(args['--for'])
+        main(args['--for'], remade=args['--remade'])
     elif args['sort_params']:
         from .PARAMETERS.sort_params import main
         main()
@@ -135,9 +135,9 @@ def main():
     elif args['collect_ref_bias']:
         from .FITnoise.collect_ref_bias_statistics import main
         if not args['stats']:
-            main()
+            main(remade=args['--remade'])
         else:
-            main(args['--cell-type'], args['--suffix'], True)
+            main(args['--cell-type'], args['--suffix'], in_stats=True, remade=args['--remade'])
     elif args['fit_neg_bin']:
         from .FITnoise.fit_negative_binom_with_weights import main
         main()

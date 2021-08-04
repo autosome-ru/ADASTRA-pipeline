@@ -170,8 +170,6 @@ def count_p_adjusted(ref_c, alt_c, BADs):
 
 def main(base_path):
     table_BAD = base_path + get_ending("BAD")
-    if not os.path.isfile(table_BAD):
-        exit(0)
     output = base_path + get_ending("p-value")
     print('Now counting P-value for {}'.format(table_BAD))
     df_with_BAD = pd.read_table(table_BAD)
