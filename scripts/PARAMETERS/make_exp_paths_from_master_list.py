@@ -18,6 +18,7 @@ def is_valid(path, reverse_dict, remade=True):
     badmap_file_path = create_badmaps_path_function(badmap_file_name, valid=remade)
     if not os.path.isfile(badmap_file_path):
         return False
+    return True
 
 
 def main(for_what, remade=True):
