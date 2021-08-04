@@ -102,7 +102,7 @@ if [ "$stage_index" -le 4 ]; then
     echo 'BAD estimation failed (iteration 2)'
     exit 1
   fi
-  if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --annotate --remake
+  if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --correlation --remake  # FIXME
   then
     echo 'Correlation analysis failed (iteration 2)'
     exit 1

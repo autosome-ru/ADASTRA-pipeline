@@ -32,9 +32,13 @@ if [ "$flag" == --bad-call ] || [ "$flag" == --annotate ]; then
 fi
 
 if [ "$flag" == --bad-call ] || [ "$flag" == --annotate ] || [ "$flag" == --correlation ]; then
-
-  adastra correlation_params
-  parallel --jobs "$njobs" adastra cosmic_correlation --base :::: "$parallel_parameters_path"/CS_parameters.cfg
-
-  adastra join_correlation_threads
+  if [ "$redo" == --remake ]; then
+    adastra correlation_params --remake
+    parallel --jobs "$njobs" adastra cosmic_correlation --remake --base :::: "$parallel_parameters_path"/CS_parameters.cfg
+    adastra join_correlation_threads --remake
+  else
+    adastra correlation_params
+    parallel --jobs "$njobs" adastra cosmic_correlation --base :::: "$parallel_parameters_path"/CS_parameters.cfg
+    adastra join_correlation_threads
+  fi
 fi

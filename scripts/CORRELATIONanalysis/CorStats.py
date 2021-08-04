@@ -2,6 +2,8 @@ import json
 import os
 import re
 import sys
+
+from pandas.errors import EmptyDataError
 from scipy.stats import kendalltau
 import numpy as np
 import pandas as pd
@@ -137,7 +139,10 @@ def filter_segments_or_datasets(snps_path, states, percentiles_list):
     with open(snps_path, 'r') as out:
         if not out.readline():
             return ['NaN'] * (len(percentiles_list) + len(cover_procentiles_list)), '{}'
-    out_table = pd.read_table(snps_path, header=None, comment='#')
+    try:
+        out_table = pd.read_table(snps_path, header=None, comment='#')
+    except EmptyDataError:
+        return ['NaN'] * (len(percentiles_list) + len(cover_procentiles_list)), '{}'
     out_table.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in states] + ['snps_n',
                                                                                                            'sumcov',
                                                                                                            'dataset',

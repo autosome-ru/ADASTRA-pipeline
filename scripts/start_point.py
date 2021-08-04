@@ -20,7 +20,7 @@ Usage:
             adastra neg_bin_p --base <path>
             adastra aggregation --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path> [--remake]
-            adastra cosmic_correlation --base <path> [--remake]
+            adastra cosmic_correlation [--remake] --base <path>
             adastra join_correlation_threads [--remake]
             adastra collect_release_stats
             adastra weights_to_df
