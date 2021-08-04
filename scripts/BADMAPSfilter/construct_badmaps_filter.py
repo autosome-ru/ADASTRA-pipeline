@@ -200,6 +200,7 @@ def main(remake=False):
                 assert len(cor) == 1
             except AssertionError:
                 print(len(cor))
+                print(line, cells)
                 raise
             cor = cor[0]
             if cor > 0.75:
