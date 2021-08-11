@@ -4,25 +4,11 @@ import pandas as pd
 from pandas.errors import EmptyDataError
 import os
 import numpy as np
-from scipy.stats import percentileofscore, levene
+from scipy.stats import levene
 import statsmodels.stats.multitest
 
 from scripts.HELPERS.helpers import pack
 from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path, get_correlation_path
-
-big_cell_lines = [
-    'K562__myelogenous_leukemia_',
-    'MCF7__Invasive_ductal_breast_carcinoma_',
-    'A549__lung_carcinoma_',
-    '22RV1__prostate_carcinoma_',
-    'HCT-116__colon_carcinoma_',
-]
-
-
-def find_ref_datasets(cor_stats_path):
-    df = pd.read_table(cor_stats_path)
-    df = df[df['cor_by_snp_CAIC'] > 0.75]
-    return df
 
 
 def find_test_datasets(cor_stats_path):
@@ -85,35 +71,21 @@ def update_dist(dist, another_dist):
     return dist
 
 
-def normalize_dist(dist):
-    sumr = sum(dist.values())
-    return {key: value / sumr for key, value in dist.items()}
-
-
-def construct_dist_for_cov(cov_df, test_cov_df, metric, norm=False):
-    # для данного покрытия строит квантильное распределение
+def construct_dist_for_cov(test_cov_df):
     dist = {}
-    for value in cov_df[metric].unique():
-        dist[value] = len(test_cov_df[test_cov_df[metric] == value].index)
-    if norm:
-        dist = normalize_dist(dist)
+    for value in test_cov_df['es'].unique():
+        dist[value] = len(test_cov_df[test_cov_df['es'] == value].index)
     return dist
 
 
-def construct_total_dist(cov_dfs, cov_dfs_test, min_tr, max_tr, metric='es', norm=False):
+def construct_total_dist(cov_dfs_test, min_tr, max_tr):
     total_dist = {}
     covs = []
-    total_number_of_snps = sum(len(x.index) for x in cov_dfs_test.values())
     for cov in range(min_tr, max_tr + 1):
-        if cov not in cov_dfs:
-            continue
         if cov in cov_dfs_test:
-            if len(cov_dfs_test[cov].index) >= max(0.0005 * total_number_of_snps, 50):
+            if len(cov_dfs_test[cov].index) >= 50:
                 covs.append(cov)
-                dist = construct_dist_for_cov(cov_dfs[cov],
-                                              cov_dfs_test[cov],
-                                              metric,
-                                              norm=norm)
+                dist = construct_dist_for_cov(cov_dfs_test[cov])
                 total_dist = update_dist(total_dist, dist)
     args = sorted(list(total_dist.keys()))
     vals = [total_dist[x] for x in args]
@@ -131,20 +103,6 @@ def make_dataset(cell_line, lab):
 
 def main(remake=False):
     correlation_file_path = get_correlation_file_path(remake=remake)
-    main_df = find_ref_datasets(correlation_file_path)
-    res_df = open_dfs(main_df, remake=remake)
-    print('DFs concatenated')
-
-    cov_dfs = {cell_line: {} for cell_line in big_cell_lines + ['Other']}
-    for cell_line in big_cell_lines + ['Other']:
-        if cell_line == 'Other':
-            cell_df = res_df[~res_df['cell_line'].isin(big_cell_lines)]
-        else:
-            cell_df = res_df[res_df['cell_line'] == cell_line]
-        for cov in cell_df['cov'].unique():
-            cov_dfs[cell_line][cov] = cell_df[cell_df['cov'] == cov].copy()
-        print('i split')
-
     cor_df_test = find_test_datasets(correlation_file_path)
     test_dfs = open_dfs(cor_df_test, remake=remake, concat=False)
     print('Test concatenated')
@@ -156,26 +114,54 @@ def main(remake=False):
         cov_dfs_test = {}
         for cov in dataset_df['cov'].unique():
             cov_dfs_test[cov] = dataset_df[dataset_df['cov'] == cov].copy()
-        print('i split test {}'.format(dataset))
-        cell_line = dataset.split('@')[0]
-        if cell_line not in big_cell_lines:
-            cell_line = 'Other'
-        args, vals, covs = construct_total_dist(
-            cov_dfs[cell_line],
-            cov_dfs_test,
-            min_tr=min_tr,
-            max_tr=max_tr,
-        )
-        results.append(
-            {
-                'args': args,
-                'vals': vals,
-                'covs': covs,
-                'dataset': dataset,
-                'snps': len(dataset_df.index)
-            })
+        print('Split test {}'.format(dataset))
+        args, vals, covs = construct_total_dist(cov_dfs_test, min_tr=min_tr, max_tr=max_tr)
+        results.append({'args': args, 'vals': vals, 'covs': covs, 'dataset': dataset, 'snps': len(dataset_df.index)})
 
     cors = pd.read_table(correlation_file_path)
+
+    if not remake:
+        # collect_stats
+        cell_line_data = {}
+        for d in results:
+            if d['args']:
+                line, cells = d['dataset'].split('@')
+                cor = cors[(cors['#cell_line'] == line) & (cors['cells'] == cells)]['cor_by_snp_CAIC'].tolist()
+                assert len(cor) == 1
+                cor = cor[0]
+                if not pd.isna(cor):
+                    cell_line_data.setdefault(line, {
+                        'correlations': [],
+                        'cells': [],
+                        'snps': []
+                    })
+                    cell_line_data[line]['correlations'].append(cor)
+                    cell_line_data[line]['cells'].append(cells)
+                    cell_line_data[line]['snps'].append(sum(d['vals']))
+
+        # construct big cell lines
+        big_cell_lines = set()
+        cell_line_reference = {}
+        for line, data in cell_line_data.items():
+            if len(data['correlations']) < 4:
+                continue
+            cor_treshold = np.quantile(data['correlations'], 0.75)
+            datasets = [(cells, cor, snps) for cells, cor, snps in
+                        zip(data['cells'], data['correlations'], data['snps']) if cor >= cor_treshold]
+            snps = sum(x[2] for x in datasets)
+            if snps >= 25000:
+                cell_line_reference[line] = [x[0] for x in datasets]
+                big_cell_lines.add(line)
+    else:
+        prev_excluded = pd.read_table(get_excluded_badmaps_list_path(remake=remake))
+        big_cell_lines = set()
+        cell_line_reference = {}
+        for index, row in prev_excluded.iterrows():
+            if row['is_ref']:
+                big_cell_lines.add(row['#cell_line'])
+                cell_line_reference.setdefault(row['#cell_line'], []).append(row['sample'])
+
+    big_cell_lines = list(big_cell_lines)
 
     ref_dists = {x: {} for x in big_cell_lines + ['Other']}
     ref_vars = {x: {} for x in big_cell_lines + ['Other']}
@@ -185,26 +171,16 @@ def main(remake=False):
     all_cells = []
     all_lines = []
     all_sizes = []
+    all_is_ref = []
 
     for d in results:
         if d['args']:
             line, cells = d['dataset'].split('@')
             dist = dict(zip(d['args'], d['vals']))
-            cor = cors[
-                (cors['#cell_line'] == line)
-                & (cors['cells'] == cells)]['cor_by_snp_CAIC'].tolist()
-            try:
-                assert len(cor) == 1
-            except AssertionError:
-                print(len(cor))
-                print(line, cells)
-                raise
-            cor = cor[0]
-            if cor > 0.75:
-                if line not in big_cell_lines:
-                    ref_dists['Other'] = update_dist(ref_dists['Other'], dist)
-                else:
+            if line in big_cell_lines:
+                if cells in cell_line_reference[line]:
                     ref_dists[line] = update_dist(ref_dists[line], dist)
+                    ref_dists['Other'] = update_dist(ref_dists[line], dist)
 
     for key in ref_dists:
         ref_dists[key] = transform_dist_to_list(ref_dists[key])
@@ -223,20 +199,22 @@ def main(remake=False):
                 print('Empty ref dist for {}'.format(line))
                 exit(1)
             stat, p = levene(flat_dist, ref_dist)
+            assert not pd.isna(p)
             all_vars.append((np.nanstd(flat_dist), ref_vars[line if line in big_cell_lines else 'Other']))
             all_metrics.append(p)
             all_cells.append(cells)
             all_lines.append(line)
             all_sizes.append(snps)
+            all_is_ref.append(True if line in big_cell_lines and cells in cell_line_reference[line] else False)
 
     _, all_fdr, _, _ = statsmodels.stats.multitest.multipletests(
         all_metrics, alpha=0.05, method='fdr_bh')
 
     with open(get_excluded_badmaps_list_path(remake=remake), 'w') as out:
-        out.write(pack(['#Cell_line', 'Lab', 'Size', 'dataset_es_var', 'ref_es_var', 'FDR']))
-        for fdr, size, line, ce, var in zip(all_fdr, all_sizes, all_lines, all_cells, all_vars):
-            out.write(pack([line, ce, size, var[0] ** 2, var[1] ** 2, fdr]))
-            # if fdr < 10 ** (-5) and var[0] ** 2 - var[1] ** 2 > 0.05:
+        out.write(pack(['#cell_line', 'sample', 'size', 'dataset_es_var', 'ref_es_var', 'fdr', 'is_ref']))
+        for fdr, size, line, ce, var, ref in zip(all_fdr, all_sizes, all_lines, all_cells, all_vars, all_is_ref):
+            out.write(pack([line, ce, size, var[0] ** 2, var[1] ** 2, fdr, ref]))
+            # if fdr < 10 ** (-50) and var[0] ** 2 - var[1] ** 2 > 0.1 and not ref:
 
 
 if __name__ == '__main__':

@@ -9,13 +9,14 @@ from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_new_badmap
     get_badmaps_path_by_validity, get_merged_badmaps_dict_path
 
 
-def get_bad_dataset_list(log_fdr_tr=5, var_diff_tr=0.05, remake=False):
+def get_bad_dataset_list(log_fdr_tr=50, var_diff_tr=0.1, remake=False):
     filter_df = pd.read_table(get_excluded_badmaps_list_path(remake=remake))
     filter_df = filter_df[
-        (filter_df['FDR'] <= 10 ** -log_fdr_tr) &
-        (filter_df['dataset_es_var'] - filter_df['ref_es_var'] >= var_diff_tr)
+        (filter_df['fdr'] <= 10 ** -log_fdr_tr) &
+        (filter_df['dataset_es_var'] - filter_df['ref_es_var'] >= var_diff_tr) &
+        ~(filter_df['is_ref'])
     ]
-    return filter_df.apply(lambda row: '{}@{}'.format(row['#Cell_line'], row['Lab']), axis=1).tolist()
+    return filter_df.apply(lambda row: '{}@{}'.format(row['#cell_line'], row['sample']), axis=1).tolist()
 
 
 def read_json(file):
