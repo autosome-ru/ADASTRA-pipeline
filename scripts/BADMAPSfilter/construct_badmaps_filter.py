@@ -156,7 +156,7 @@ def main(remake=False):
                 cell_line_reference[line] = [x[0] for x in datasets]
                 big_cell_lines.add(line)
     else:
-        prev_excluded = pd.read_table(get_excluded_badmaps_list_path(remake=remake))
+        prev_excluded = pd.read_table(get_excluded_badmaps_list_path(remake=False))
         big_cell_lines = set()
         cell_line_reference = {}
         for index, row in prev_excluded.iterrows():
