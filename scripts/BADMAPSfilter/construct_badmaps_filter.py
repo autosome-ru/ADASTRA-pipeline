@@ -7,7 +7,7 @@ import numpy as np
 from scipy.stats import levene
 import statsmodels.stats.multitest
 
-from scripts.HELPERS.helpers import pack
+from scripts.HELPERS.helpers import pack, segmentation_states
 from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path, get_correlation_path
 
 
@@ -30,7 +30,7 @@ def open_dfs(df, concat=True, remake=False):
         except EmptyDataError:
             continue
         tmp_df.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(b) for b in
-                                                                [1, 2, 3, 4, 5, 6]] + ['snps', 'cov',
+                                                               segmentation_states] + ['snps', 'cov',
                                                                                        'dataset',
                                                                                        'seg_id',
                                                                                        'p_value']
@@ -118,6 +118,9 @@ def main(remake=False):
         args, vals, covs = construct_total_dist(cov_dfs_test, min_tr=min_tr, max_tr=max_tr)
         results.append({'args': args, 'vals': vals, 'covs': covs, 'dataset': dataset, 'snps': len(dataset_df.index)})
 
+    with open(os.path.expanduser('~/cov_res_debug.json'), 'w') as f:
+        json.dump(results, f)
+
     cors = pd.read_table(correlation_file_path)
 
     if not remake:
@@ -185,6 +188,8 @@ def main(remake=False):
     for key in ref_dists:
         ref_dists[key] = transform_dist_to_list(ref_dists[key])
         ref_vars[key] = np.nanstd(ref_dists[key])
+
+    print(ref_vars)
 
     for d in results:
         if d['args']:
