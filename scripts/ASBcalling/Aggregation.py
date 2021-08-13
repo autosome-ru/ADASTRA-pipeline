@@ -97,7 +97,7 @@ def main(what_for, key_name):
                             continue
                         else:
                             raise
-                    if p_ref == '.' or ID == '.':
+                    if np.isnan(p_ref) or ID == '.':
                         continue
                     cov = ref_c + alt_c
 

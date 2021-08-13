@@ -19,6 +19,12 @@ def count_p(ref_c, alt_c, BADs):
     for i in range(N):
         # if (i+1) % 1000 == 0:
         #     print(i+1)
+        if BADs[i] == 6.0:
+            p_ref[i] = np.nan
+            p_alt[i] = np.nan
+            es_ref[i] = np.nan
+            es_alt[i] = np.nan
+            continue
         if ref_c[i] > 500:
             r = ref_c[i]
             w = 1

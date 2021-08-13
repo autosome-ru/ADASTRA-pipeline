@@ -107,16 +107,16 @@ if [ "$stage_index" -le 4 ]; then
 #    echo 'Correlation analysis failed (iteration 2)'
 #    exit 1
 #  fi
-  if ! adastra create_badmaps_filter --remake
-  then
-    echo 'BAD maps filter creation failed (iteration 2)'
-    exit 1
-  fi
-  if ! adastra apply_badmaps_filter --remake
-  then
-    echo 'BAD maps filter application failed (iteration 2)'
-    exit 1
-  fi
+#  if ! adastra create_badmaps_filter --remake
+#  then
+#    echo 'BAD maps filter creation failed (iteration 2)'
+#    exit 1
+#  fi
+#  if ! adastra apply_badmaps_filter --remake
+#  then
+#    echo 'BAD maps filter application failed (iteration 2)'
+#    exit 1
+#  fi
   if ! bash "$scripts_path"/BAD_annotation.sh "$njobs" --remade
   then
     echo 'BAD annotation failed'
