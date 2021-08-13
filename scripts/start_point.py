@@ -126,6 +126,7 @@ def main():
                 min_seg_snps=3,
                 min_seg_bp=0,
             )
+
             GS.estimate_BAD()
         print('Total time: {} s'.format(time.clock() - t))
 
