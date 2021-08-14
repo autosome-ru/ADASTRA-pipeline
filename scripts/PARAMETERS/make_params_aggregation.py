@@ -23,7 +23,7 @@ def main(what_for, remade=True):
         for key in sorted(d.keys()):
             is_empty = True
             for value in d[key]:
-                if os.path.isfile(value) and is_valid(split_ext_recursive(value), rev_d):
+                if os.path.isfile(value) and is_valid(split_ext_recursive(value), rev_d, remade=remade):
                     is_empty = False
             if is_empty:
                 continue
