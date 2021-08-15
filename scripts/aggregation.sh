@@ -7,7 +7,7 @@ indicator=$2
 remade=$3
 
 if [ "$indicator" == "--forCL" ];then
-  if [ "$remade" == --remade ]; then
+  if [ "$remade" == "--remade" ]; then
     adastra aggregation_params --remade --for CL
   else
     adastra aggregation_params --for CL
@@ -15,7 +15,7 @@ if [ "$indicator" == "--forCL" ];then
   parallel --jobs "$njobs" adastra aggregation --for CL --name :::: "$parallel_parameters_path"/Agr_parameters.cfg
 fi
 if [ "$indicator" == "--forTF" ];then
-  if [ "$remade" == --remade ]; then
+  if [ "$remade" == "--remade" ]; then
     adastra aggregation_params --remade --for TF
   else
     adastra aggregation_params --for TF
