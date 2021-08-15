@@ -4,21 +4,11 @@ import pandas as pd
 import os.path
 import sys
 
-from scripts.ASBcalling.BAD_annotation import make_reverse_dict
-from scripts.HELPERS.helpers import dtype_dict
-from scripts.HELPERS.paths import get_ending, create_path_from_master_list_df, get_merged_badmaps_dict_path, \
-    create_badmaps_path_function
-from scripts.HELPERS.paths_for_components import parallel_parameters_path, badmaps_dict_path, master_list_path
+from scripts.HELPERS.helpers import dtype_dict, make_reverse_dict, is_valid
+from scripts.HELPERS.paths import get_ending, create_path_from_master_list_df, get_merged_badmaps_dict_path
+from scripts.HELPERS.paths_for_components import parallel_parameters_path, master_list_path
 
 out_path = os.path.join(parallel_parameters_path, 'exp_paths.cfg')
-
-
-def is_valid(path, reverse_dict, remade=True):
-    badmap_file_name = reverse_dict[path]
-    badmap_file_path = create_badmaps_path_function(badmap_file_name, valid=remade)
-    if not os.path.isfile(badmap_file_path):
-        return False
-    return True
 
 
 def main(for_what, remade=True):

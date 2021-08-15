@@ -2,11 +2,9 @@ import json
 import sys
 import os.path
 
-from scripts.ASBcalling.BAD_annotation import make_reverse_dict
 from scripts.HELPERS.paths import get_aggregation_dict_path, get_merged_badmaps_dict_path
 from scripts.HELPERS.paths_for_components import parallel_parameters_path
-from scripts.HELPERS.helpers import check_if_in_expected_args, split_ext_recursive
-from scripts.PARAMETERS.make_exp_paths_from_master_list import is_valid
+from scripts.HELPERS.helpers import check_if_in_expected_args, split_ext_recursive, make_reverse_dict, is_valid
 
 out_path = os.path.join(parallel_parameters_path, 'Agr_parameters.cfg')
 

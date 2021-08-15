@@ -3,7 +3,7 @@ import numpy as np
 import os
 from .paths_for_components import master_list_path, configs_path, synonyms_path
 
-from .paths import create_neg_bin_weights_path_function
+from .paths import create_neg_bin_weights_path_function, create_badmaps_path_function
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem', 'macs2', 'macs2-nomodel']
 
@@ -486,3 +486,20 @@ def split_ext_recursive(path):
     while ext:
         path, ext = os.path.splitext(path)
     return path
+
+
+def make_reverse_dict(dictionary):
+    new_dict = {}
+    for key in dictionary:
+        paths = dictionary[key]
+        for path in paths:
+            new_dict[path] = key
+    return new_dict
+
+
+def is_valid(path, reverse_dict, remade=True):
+    badmap_file_name = reverse_dict[path]
+    badmap_file_path = create_badmaps_path_function(badmap_file_name, valid=remade)
+    if not os.path.isfile(badmap_file_path):
+        return False
+    return True
