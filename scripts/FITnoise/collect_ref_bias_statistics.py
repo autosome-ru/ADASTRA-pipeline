@@ -1,11 +1,10 @@
 import json
 import os.path
 import pandas as pd
-
-from scripts.HELPERS.helpers import dtype_dict, segmentation_states, make_reverse_dict, is_valid
-from scripts.HELPERS.paths import create_path_from_master_list_df, create_neg_bin_stats_path_function, \
-    get_merged_badmaps_dict_path
 from scripts.HELPERS.paths_for_components import master_list_path
+from scripts.HELPERS.helpers import make_reverse_dict, is_valid, segmentation_states, dtype_dict
+from scripts.HELPERS.paths import get_merged_badmaps_dict_path, create_path_from_master_list_df, \
+    create_neg_bin_stats_path_function
 
 
 def collect_fixed_alt_statistics(master_df, key_name=None, BAD=None, suffix='', remade=True):
