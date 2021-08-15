@@ -1,9 +1,8 @@
-import os
 import sys
 import numpy as np
 import pandas as pd
 from scipy import stats as st
-from scripts.HELPERS.helpers import read_weights
+from scripts.HELPERS.helpers import read_weights, get_results_file
 from scripts.HELPERS.paths import get_ending
 
 r_dict, w_dict, gof_dict = read_weights()
@@ -175,8 +174,8 @@ def count_p_adjusted(ref_c, alt_c, BADs):
 
 
 def main(base_path):
-    table_BAD = base_path + get_ending("BAD")
-    output = base_path + get_ending("p-value")
+    table_BAD = get_results_file(base_path, 'BAD')
+    output = get_results_file(base_path, 'p-value')
     print('Now counting P-value for {}'.format(table_BAD))
     df_with_BAD = pd.read_table(table_BAD)
     p_ref, p_alt, es_ref, es_alt = count_p(np.array(df_with_BAD["ref_read_counts"], dtype=np.int_),

@@ -2,7 +2,7 @@ import string
 import numpy as np
 import os
 from .paths_for_components import master_list_path, configs_path, synonyms_path, badmaps_dict_path
-from .paths import create_neg_bin_weights_path_function, create_badmaps_path_function
+from .paths import create_neg_bin_weights_path_function, create_badmaps_path_function, get_dir_by_stage, get_ending
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem', 'macs2', 'macs2-nomodel']
 
@@ -509,3 +509,9 @@ def get_merged_badmaps_dict_path(remade=True):
         return os.path.join(os.path.dirname(badmaps_dict_path), 'complete_badmaps_dict.json')
     else:
         return badmaps_dict_path
+
+
+def get_results_file(path, stage='BAD'):
+    return os.path.join(get_dir_by_stage(stage), os.path.basename(os.path.splitext(path)[0]) + get_ending('BAD'))
+
+

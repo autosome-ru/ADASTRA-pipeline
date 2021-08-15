@@ -11,6 +11,8 @@ def main():
 
     # Dirs for ASBcalling
     check_and_create_dir(results_path)
+    check_and_create_dir(os.path.join(results_path, 'BAD_annotations'))
+    check_and_create_dir(os.path.join(results_path, 'Pvalue_annotations'))
     print(results_path)
     check_and_create_dir(os.path.join(results_path, 'Sarus'))
     check_and_create_dir(get_release_stats_path())

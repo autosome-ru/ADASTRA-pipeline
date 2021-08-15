@@ -14,15 +14,16 @@ def main(what_for, remade=True):
     check_if_in_expected_args(what_for)
     aggregation_dict_path = get_aggregation_dict_path(what_for)
     with open(get_merged_badmaps_dict_path(remade=remade), "r") as read_file:
-        d = json.load(read_file)
-        rev_d = make_reverse_dict(d)
+        rev_d = make_reverse_dict(json.load(read_file))
     with open(aggregation_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     with open(out_path, 'w') as file:
         for key in sorted(d.keys()):
             is_empty = True
             for value in d[key]:
-                if os.path.isfile(value) and is_valid(split_ext_recursive(value), rev_d, remade=remade):
+                if os.path.isfile(value) and is_valid(split_ext_recursive(value),
+                                                      rev_d,
+                                                      remade=remade):
                     is_empty = False
             if is_empty:
                 continue

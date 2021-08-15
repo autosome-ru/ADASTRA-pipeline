@@ -2,6 +2,12 @@ import os
 from .paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
     cl_dict_path, configs_path, results_path, badmaps_dict_path
 
+stage_dict = {
+    'BAD': 'BAD_annotations',
+    'p-value': 'Pvalue_annotations',
+    'Sarus': 'Sarus'
+}
+
 
 def get_ending(for_what):
     if for_what == "vcf":
@@ -18,7 +24,10 @@ def get_ending(for_what):
 
 
 def create_path_from_master_list_df(row, for_what='base'):
-    return os.path.join(alignments_path, row['#EXP'], row['ALIGNS'] + get_ending(for_what))
+    if for_what in stage_dict:
+        return os.path.join(get_dir_by_stage(for_what), row['ALIGNS'] + get_ending(for_what))
+    else:
+        return os.path.join(alignments_path, row['#EXP'], row['ALIGNS'] + get_ending(for_what))
 
 
 def get_release_stats_path():
@@ -102,3 +111,7 @@ def get_aggregation_dict_path(what_for):
     if aggregation_dict_path is None:
         raise ValueError("Incorrect usage of open_aggregation_dict function")
     return aggregation_dict_path
+
+
+def get_dir_by_stage(stage):
+    return os.path.join(results_path, stage_dict[stage])
