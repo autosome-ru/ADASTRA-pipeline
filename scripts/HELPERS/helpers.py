@@ -2,7 +2,6 @@ import string
 import numpy as np
 import os
 from .paths_for_components import master_list_path, configs_path, synonyms_path
-
 from .paths import create_neg_bin_weights_path_function, create_badmaps_path_function
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem', 'macs2', 'macs2-nomodel']
