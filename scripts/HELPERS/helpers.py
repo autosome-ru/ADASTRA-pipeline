@@ -502,3 +502,10 @@ def is_valid(path, reverse_dict, remade=True):
     if not os.path.isfile(badmap_file_path):
         return False
     return True
+
+
+def get_merged_badmaps_dict_path(remade=True):
+    if remade:
+        return os.path.join(os.path.dirname(badmaps_dict_path), 'complete_badmaps_dict.json')
+    else:
+        return badmaps_dict_path

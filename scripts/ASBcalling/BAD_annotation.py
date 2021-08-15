@@ -1,8 +1,8 @@
 import json
 import sys
-from scripts.HELPERS.paths import create_badmaps_path_function, get_ending, get_merged_badmaps_dict_path
+from scripts.HELPERS.paths import create_badmaps_path_function, get_ending
 from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, UnpackBadSegments, segmentation_states, \
-    make_reverse_dict
+    make_reverse_dict, get_merged_badmaps_dict_path
 
 
 def main(key, remade=True):

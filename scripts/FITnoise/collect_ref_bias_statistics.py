@@ -2,8 +2,9 @@ import json
 import os.path
 import pandas as pd
 from scripts.HELPERS.paths_for_components import master_list_path
-from scripts.HELPERS.helpers import make_reverse_dict, is_valid, segmentation_states, dtype_dict
-from scripts.HELPERS.paths import get_merged_badmaps_dict_path, create_path_from_master_list_df, \
+from scripts.HELPERS.helpers import make_reverse_dict, is_valid, segmentation_states, dtype_dict, \
+    get_merged_badmaps_dict_path
+from scripts.HELPERS.paths import create_path_from_master_list_df, \
     create_neg_bin_stats_path_function
 
 

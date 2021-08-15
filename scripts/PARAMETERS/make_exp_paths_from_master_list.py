@@ -4,8 +4,8 @@ import pandas as pd
 import os.path
 import sys
 
-from scripts.HELPERS.helpers import dtype_dict, make_reverse_dict, is_valid
-from scripts.HELPERS.paths import get_ending, create_path_from_master_list_df, get_merged_badmaps_dict_path
+from scripts.HELPERS.helpers import dtype_dict, make_reverse_dict, is_valid, get_merged_badmaps_dict_path
+from scripts.HELPERS.paths import get_ending, create_path_from_master_list_df
 from scripts.HELPERS.paths_for_components import parallel_parameters_path, master_list_path
 
 out_path = os.path.join(parallel_parameters_path, 'exp_paths.cfg')

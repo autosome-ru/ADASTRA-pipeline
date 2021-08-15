@@ -6,7 +6,8 @@ import os
 
 from scripts.HELPERS.paths_for_components import badmaps_dict_path
 from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_new_badmaps_dict_path, \
-    get_badmaps_path_by_validity, get_merged_badmaps_dict_path
+    get_badmaps_path_by_validity
+from scripts.HELPERS.helpers import get_merged_badmaps_dict_path
 
 
 def get_bad_dataset_list(log_fdr_tr=50, var_diff_tr=0.1, remake=False):

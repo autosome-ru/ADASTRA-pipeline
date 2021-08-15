@@ -65,13 +65,6 @@ def get_new_badmaps_dict_path():
     return os.path.join(os.path.dirname(badmaps_dict_path), 'bad_datasets_dict.json')
 
 
-def get_merged_badmaps_dict_path(remade=True):
-    if remade:
-        return os.path.join(os.path.dirname(badmaps_dict_path), 'complete_badmaps_dict.json')
-    else:
-        return badmaps_dict_path
-
-
 def get_sarus_dir():
     return os.path.join(results_path, 'Sarus')
 
