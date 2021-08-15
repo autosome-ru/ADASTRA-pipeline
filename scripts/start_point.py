@@ -18,7 +18,7 @@ Usage:
             adastra collect_ref_bias [--remade] [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin
             adastra neg_bin_p --base <path>
-            adastra aggregation --for <for> --name <name>
+            adastra aggregation [--remade] --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path> [--remake]
             adastra cosmic_correlation [--remake] --base <path>
             adastra join_correlation_threads [--remake]
@@ -147,7 +147,7 @@ def main():
         main(args['--base'])
     elif args['aggregation']:
         from .ASBcalling.Aggregation import main
-        main(args['--for'], args['--name'])
+        main(args['--for'], args['--name'], remade=args['--remade'])
     elif args['annotate_snps_for_correlation']:
         from .CORRELATIONanalysis.Annotate_SNPs_with_BADmaps import main
         main(args['--base'], remake=args['--remake'])

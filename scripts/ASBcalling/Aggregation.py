@@ -9,7 +9,7 @@ import pandas as pd
 from collections import OrderedDict
 from scripts.HELPERS.paths_for_components import results_path, tf_dict_path, cl_dict_path
 from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, \
-    expected_args
+    expected_args, get_merged_badmaps_dict_path, make_reverse_dict, is_valid, split_ext_recursive
 from scripts.HELPERS.paths import get_result_table_path
 
 with open(cl_dict_path, "r") as read_file:
@@ -71,10 +71,14 @@ def get_noise(k, n, weight):
     return weight * max(k - n / 2, 0) / (1 / 2 * (n - 5 - n // 2) * (n // 2 - 4))
 
 
-def main(what_for, key_name):
+def main(what_for, key_name, remade=True):
     check_if_in_expected_args(what_for)
 
     table_path = get_result_table_path(what_for, key_name)
+
+    with open(get_merged_badmaps_dict_path(remade=remade), "r") as read_file:
+        d = json.load(read_file)
+        rev_d = make_reverse_dict(d)
 
     tables = []
     if what_for == "CL":
@@ -84,7 +88,7 @@ def main(what_for, key_name):
     print('Reading datasets for {} {}'.format(what_for, key_name))
     common_snps = dict()
     for table in tables:
-        if os.path.isfile(table):
+        if os.path.isfile(table) and is_valid(split_ext_recursive(table), rev_d, remade=remade):
             table_name = get_name(table)
             another_agr = get_another_agr(table, what_for)
             with open(table, 'r') as file:
