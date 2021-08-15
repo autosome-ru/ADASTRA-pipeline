@@ -96,6 +96,8 @@ def main(what_for, key_name):
                         if line.startswith('#'):
                             continue
                         else:
+                            print(table)
+                            print(line)
                             raise
                     if np.isnan(p_ref) or ID == '.':
                         continue
