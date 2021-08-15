@@ -21,7 +21,7 @@ def collect_fixed_alt_statistics(master_df, key_name=None, BAD=None, suffix='', 
             if row['CELLS'] not in key_name:  # <------
                 continue
         base_path = create_path_from_master_list_df(row)
-        if not is_valid(base_path, rev_d):
+        if not is_valid(base_path, rev_d, remade=remade):
             continue
         bad_table_path = create_path_from_master_list_df(row, 'BAD')
         if not os.path.isfile(bad_table_path):
@@ -57,11 +57,11 @@ def main(cell_line=None, suffix='', in_stats=False, remade=True):
     master_df = master_df[master_df['EXP_TYPE'] != 'chip_control']
     if in_stats:
         if not cell_line:
-            collect_fixed_alt_statistics(master_df, BAD=None)
+            collect_fixed_alt_statistics(master_df, BAD=None, remade=remade)
         else:
             for bad in [None] + segmentation_states:
-                collect_fixed_alt_statistics(master_df, BAD=bad, key_name=cell_line, suffix=suffix)
+                collect_fixed_alt_statistics(master_df, BAD=bad, key_name=cell_line, suffix=suffix, remade=remade)
     else:
         for bad in segmentation_states:
-            collect_fixed_alt_statistics(master_df, BAD=bad)
+            collect_fixed_alt_statistics(master_df, BAD=bad, remade=remade)
 
