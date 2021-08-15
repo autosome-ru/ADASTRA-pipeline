@@ -54,7 +54,7 @@ def collect_fixed_alt_statistics(master_df, key_name=None, BAD=None, suffix='', 
 
 def main(cell_line=None, suffix='', in_stats=False, remade=True):
     master_df = pd.read_table(master_list_path, dtype=dtype_dict)
-    master_df = master_df[master_df['EXP_TYPE'] != 'chip_control']
+    master_df = master_df[~master_df['EXP_TYPE'].isin(['chip_control', 'chipexo_control'])]
     if in_stats:
         if not cell_line:
             collect_fixed_alt_statistics(master_df, BAD=None, remade=remade)
