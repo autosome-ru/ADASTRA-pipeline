@@ -100,7 +100,6 @@ def main(what_for, key_name, remade=True):
                         if line.startswith('#'):
                             continue
                         else:
-                            print(table)
                             raise
                     if np.isnan(p_ref) or ID == '.':
                         continue
