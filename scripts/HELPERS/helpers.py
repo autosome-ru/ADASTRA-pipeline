@@ -274,7 +274,11 @@ def unpack(line, use_in):
     quals = list(map(float, line_split[9 + difference:9 + difference + len(segmentation_states)]))
     quals_dict = dict(zip(segmentation_states, quals))
     difference += len(segmentation_states)
-    seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
+    try:
+        seg_c, sum_cov = map(int, line_split[9 + difference:11 + difference])
+    except ValueError:
+        print(line)
+        raise
     p_ref, p_alt = map(check_float, line_split[11 + difference:13 + difference])
     es_ref, es_alt = map(check_float, line_split[13 + difference:15 + difference])
     if use_in == "Aggregation":
