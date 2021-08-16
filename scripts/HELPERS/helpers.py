@@ -14,7 +14,7 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
 Nucleotides = {'A', 'T', 'G', 'C'}
 expected_args = {"CL": "TF", "TF": "CL"}
 
-segmentation_states = [1, 4/3, 1.5, 2, 2.5, 3, 4, 5, 6]
+segmentation_states = [1, 1.33, 1.5, 2, 2.5, 3, 4, 5, 6]
 # segmentation_states = [1, 2, 3, 4, 5, 6]
 
 master_list_header = '#EXP	TF_UNIPROT_ID	ANTIBODY	TREATMENT	SPECIE	CELL_ID	CELLS	EXP_TYPE	CONTROL	' \
