@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 
-from scripts.HELPERS.helpers import check_if_in_expected_args, remove_punctuation, dtype_dict
+from scripts.HELPERS.helpers import check_if_in_expected_args, remove_punctuation, dtype_dict, get_results_file
 from scripts.HELPERS.paths import create_path_from_master_list_df, get_aggregation_dict_path
 from scripts.HELPERS.paths_for_components import master_list_path
 
@@ -14,6 +14,7 @@ def makedict(what_for):
     master_df['path'] = master_df.apply(lambda x: create_path_from_master_list_df(x, for_what='p-value'), axis=1)
 
     for index, row in master_df.iterrows():
+        row['path'] = get_results_file(row['path'], 'p-value')
         if what_for == "TF":
             try:
                 d[row['TF_UNIPROT_NAME']].append(row['path'])

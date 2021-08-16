@@ -2,12 +2,12 @@ import json
 import sys
 from scripts.HELPERS.paths import create_badmaps_path_function, get_ending
 from scripts.HELPERS.helpers import callers_names, unpack, pack, Intersection, UnpackBadSegments, segmentation_states, \
-    make_reverse_dict, get_merged_badmaps_dict_path
+    make_reverse_dict, get_merged_badmaps_dict_path, get_results_file
 
 
 def main(key, remade=True):
     table_annotated = key + get_ending("annotation")
-    output = key + get_ending("BAD")
+    output = get_results_file(key, 'BAD')
 
     with open(get_merged_badmaps_dict_path(remade=remade), "r") as read_file:
         d = json.load(read_file)
