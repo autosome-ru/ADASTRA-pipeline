@@ -3,7 +3,7 @@
 njobs=$1
 flag=$2
 start_script_path="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-apply_filter=0
+apply_filter=1
 
 previous_pwd=$PWD
 cd $start_script_path
