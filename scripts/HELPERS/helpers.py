@@ -511,7 +511,8 @@ def get_merged_badmaps_dict_path(remade=True):
         return badmaps_dict_path
 
 
-def get_results_file(path, stage='BAD'):
-    return os.path.join(get_dir_by_stage(stage), os.path.basename(os.path.splitext(path)[0]) + get_ending('BAD'))
+def get_results_file(path, stage='BAD', inc_ext=True):
+    return os.path.join(get_dir_by_stage(stage), os.path.basename(os.path.splitext(path)[0])
+                        + (get_ending('BAD') if inc_ext else ''))
 
 
