@@ -9,7 +9,7 @@ import pandas as pd
 from collections import OrderedDict
 from scripts.HELPERS.paths_for_components import results_path, tf_dict_path, cl_dict_path
 from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, \
-    expected_args, get_merged_badmaps_dict_path, make_reverse_dict, is_valid, split_ext_recursive
+    expected_args, get_merged_badmaps_dict_path, make_reverse_dict, is_valid, split_ext_recursive, get_results_file
 from scripts.HELPERS.paths import get_result_table_path
 
 with open(cl_dict_path, "r") as read_file:
@@ -77,8 +77,8 @@ def main(what_for, key_name, remade=True):
     table_path = get_result_table_path(what_for, key_name)
 
     with open(get_merged_badmaps_dict_path(remade=remade), "r") as read_file:
-        d = json.load(read_file)
-        rev_d = make_reverse_dict(d)
+        old_rev_d = make_reverse_dict(json.load(read_file))
+        rev_d = {get_results_file(k, 'p-value', False): v for k, v in old_rev_d.items()}
 
     tables = []
     if what_for == "CL":
