@@ -28,10 +28,12 @@ used_vars_list = [
 used_soft_list = [
     'Java',
     'python3',
+    'python',
     'Bedtools',
     'PICARD',
     'GATK',
-    'JavaParameters'
+    'JavaParameters',
+    'Samtools'
 ]
 
 

@@ -28,7 +28,7 @@ if ! [ -f $OUT/genome-norm.fasta ]; then
       exit 1
   fi
 
-  if ! samtools faidx "$OUT/genome-norm.fasta"
+  if ! $Samtools faidx "$OUT/genome-norm.fasta"
   then
       echo "Failed to index fasta"
       exit 1

@@ -25,14 +25,14 @@ if [  -f "$BamPath/$BamName.bam.bai" ]; then
 fi	
 echo "Index file for $BamPath/$BamName"
 
-if ! samtools index "$BamPath/$BamName.bam"
+if ! $Samtools index "$BamPath/$BamName.bam"
 then
         echo "Failed to index bam"
         exit 1
 fi
 
 echo "Cutting bam.."
-if ! samtools view -b "$BamPath/$BamName.bam" \
+if ! $Samtools view -b "$BamPath/$BamName.bam" \
 	chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 \
 	chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY > "$OutPath/${BamName}_chop.bam"
 then
