@@ -123,7 +123,7 @@ def main():
                 atomic_region_size=600,
                 chr_filter=100,
                 subchr_filter=3,
-                min_seg_snps=0,
+                min_seg_snps=3,
                 min_seg_bp=0,
             )
 
