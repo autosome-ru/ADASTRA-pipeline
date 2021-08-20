@@ -124,7 +124,7 @@ def main():
                 chr_filter=100,
                 subchr_filter=3,
                 min_seg_snps=3,
-                min_seg_bp=0,
+                min_seg_bp=1000,
             )
 
             GS.estimate_BAD()
