@@ -69,7 +69,7 @@ if [ "$stage_index" -le 2 ]; then
 fi
 
 if [ "$stage_index" -le 3 ]; then
-  if ! bash "$scripts_path/"annotation_with_peaks.sh "$njobs"
+  if ! bash "$scripts_path/"annotate_with_peaks.sh "$njobs"
   then
     echo 'Peak annotation failed'
     exit 1
