@@ -18,15 +18,17 @@ def main(base_path):
     sorted_lines = [[chromosome, pos, ID, REF, ALT, R, A] for ((chromosome, pos, ID, REF, ALT), (R, A)) in exp.items()]
     sorted_lines = sorted(sorted_lines, key=lambda x: x[1])
     sorted_lines = sorted(sorted_lines, key=lambda x: x[0])
-    with open(repeats_path, "r") as repeats_buffer:
-        new_arr = []
-        for chromosome, pos, ID, REF, ALT, R, A, in_repeats, repeat_type \
-                in Intersection(sorted_lines, repeats_buffer, write_intersect=True, write_segment_args=True):
-            if in_repeats and ID == ".":
-                continue
-            new_arr.append([chromosome, pos, ID, REF, ALT, R, A, repeat_type])
+    if os.path.exists(repeats_path):
+        with open(repeats_path, "r") as repeats_buffer:
+            new_arr = []
+            for chromosome, pos, ID, REF, ALT, R, A, in_repeats, repeat_type \
+                    in Intersection(sorted_lines, repeats_buffer, write_intersect=True, write_segment_args=True):
+                if in_repeats and ID == ".":
+                    continue
+                new_arr.append([chromosome, pos, ID, REF, ALT, R, A, repeat_type])
         sorted_lines = new_arr
-
+    else:
+        sorted_lines = [x + [''] for x in sorted_lines]
     for peak_type in callers_names:
         new_arr = []
         caller_path = make_sorted_caller_path(base_path, peak_type)
