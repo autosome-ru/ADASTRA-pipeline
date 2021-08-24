@@ -76,7 +76,7 @@ if ! $Java $JavaParameters -jar "$GATK" \
 	BaseRecalibrator \
 	-R "$FA" \
 	-I "$OutPath/${BamName}_ready.bam" \
-	-known-sites "$dbsnp_vcf_path" \
+	--known-sites "$dbsnp_vcf_path" \
 	-O "$OutPath/${BamName}.table"
 then
     echo "Failed to make base recalibration"
