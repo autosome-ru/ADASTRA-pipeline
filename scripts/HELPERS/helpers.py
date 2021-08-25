@@ -183,7 +183,7 @@ def make_dict_from_vcf(vcf, vcf_dict):
             vcf_dict[(chromosome, pos, ID, REF, ALT)] = (R, A)
 
 
-def make_list_from_vcf(vcf, file_name=None, filter_no_rs=False):
+def make_list_from_vcf(vcf, file_name=None, filter_no_rs=True):
     vcf_list = []
     for line in vcf:
         if line[0] == '#':
