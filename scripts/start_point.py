@@ -26,7 +26,7 @@ Usage:
             adastra weights_to_df
             adastra extract_sarus_data --name <name> --motif-len <int>
             adastra annotate_table_with_sarus --name <name> --motif-len <int>
-            adastra annotate_with_phenotypes
+            adastra annotate_with_phenotypes [--dir <path>]
             adastra extract_context
             adastra count_p <exp> <aligns>
             adastra create_badmaps_filter [--remake]
@@ -54,6 +54,7 @@ Options:
     --suffix=<suffix>           Suffix for stats file
     --cell-type=<name>          Cell type name
     --motif-len=<int>           Length of the motif
+    --dir=<path>                Path to directory
     --uniprot-file=<path>       Path to file with uniprot conversion
 """
 import time
@@ -171,7 +172,7 @@ def main():
         main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
     elif args['annotate_with_phenotypes']:
         from .PARSEphenotypes.asb_gwas_eqtl import main
-        main()
+        main(args['--dir'] if args['--dir'] else None)
     elif args['extract_context']:
         from .Qcontrol.extract_context import main
         main()

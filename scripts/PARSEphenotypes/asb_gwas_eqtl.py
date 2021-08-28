@@ -407,8 +407,9 @@ def Add_eQTL(qtlfiles, transqtl, tfclfile, output_path):
     print('{} is successfully created'.format(output_path))
 
 
-def main():
-    phenotypes_dir = '/home/abramov/phenotypes'
+def main(phenotypes_dir=None):
+    if phenotypes_dir is None:
+        phenotypes_dir = '/home/abramov/phenotypes'
     release_TF_path = get_result_dir_path('TF')
     release_CL_path = get_result_dir_path('CL')
     outp_path = os.path.join(get_release_stats_path(), 'phenotypes_stats.tsv')
