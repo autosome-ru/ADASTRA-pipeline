@@ -3,7 +3,7 @@ import os
 import sys
 import json
 
-from scripts.HELPERS.paths import get_ending, create_merged_vcf_path_function
+from scripts.HELPERS.paths import get_ending, create_merged_vcf_path_function, get_new_badmaps_dict_path
 from scripts.HELPERS.paths_for_components import badmaps_dict_path
 from scripts.HELPERS.helpers import make_dict_from_vcf, make_list_from_vcf
 
@@ -38,8 +38,8 @@ def merge_vcfs_as_independent_snps(out_file_name, in_files):
             out.write('\t'.join(map(str, [chr, pos, ID, REF, ALT, R, A, filename])) + '\n')
 
 
-def main(key):
-    with open(badmaps_dict_path, 'r') as read_file:
+def main(key, remake=False):
+    with open(get_new_badmaps_dict_path() if remake else badmaps_dict_path, 'r') as read_file:
         d = json.loads(read_file.readline())
     mode = 'independent'
 

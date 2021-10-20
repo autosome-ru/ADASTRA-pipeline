@@ -1,9 +1,8 @@
 import string
 import numpy as np
 import os
-from .paths_for_components import master_list_path, configs_path, synonyms_path
-
-from .paths import create_neg_bin_weights_path_function
+from .paths_for_components import master_list_path, configs_path, synonyms_path, badmaps_dict_path
+from .paths import create_neg_bin_weights_path_function, create_badmaps_path_function, get_dir_by_stage, get_ending
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem', 'macs2', 'macs2-nomodel']
 
@@ -15,7 +14,9 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
 Nucleotides = {'A', 'T', 'G', 'C'}
 expected_args = {"CL": "TF", "TF": "CL"}
 
-segmentation_states = [1, 4/3, 3 / 2, 2, 2.5, 3, 4, 5, 6]
+# segmentation_states = [1, 4/3, 1.5, 2, 2.5, 3, 4, 5, 6]
+segmentation_states = [1, 2, 3, 4, 5, 6]
+# segmentation_states = [1, 2, 2.5, 3, 4, 5, 6]
 
 master_list_header = '#EXP	TF_UNIPROT_ID	ANTIBODY	TREATMENT	SPECIE	CELL_ID	CELLS	EXP_TYPE	CONTROL	' \
                      'READS	ALIGNS	PEAKS	GEO	ENCODE	WG_ENCODE	READS_ALIGNED   DOWNLOAD_PATH   TF_UNIPROT_ID'
@@ -182,7 +183,7 @@ def make_dict_from_vcf(vcf, vcf_dict):
             vcf_dict[(chromosome, pos, ID, REF, ALT)] = (R, A)
 
 
-def make_list_from_vcf(vcf, file_name=None, filter_no_rs=False):
+def make_list_from_vcf(vcf, file_name=None, filter_no_rs=True):
     vcf_list = []
     for line in vcf:
         if line[0] == '#':
@@ -339,30 +340,30 @@ class UnpackBadSegments:
 
         if UnpackBadSegments.counter is not None:
             UnpackBadSegments.counter += 1
-            return [line[0], int(line[1]), int(line[2]), float(line[3]), UnpackBadSegments.counter] + \
-                   [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
+            return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[5]), int(line[6]),
+                    UnpackBadSegments.counter] + [dict(zip(states, line[7: 7 + len(states)]))]
         else:
-            return [line[0], int(line[1]), int(line[2]), float(line[3])] + \
-                   [dict(zip(states, line[4: 4 + len(states)]))] + line[(4 + len(states)):]
+            return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[5]),
+                    int(line[6])] + [dict(zip(states, line[7: 7 + len(states)]))]
 
 
 def get_states(states_sign):
-    if states_sign == 'all_but_1.33_2.5':
-        states = [1, 2, 3, 4, 5, 6, 1.5]
-    elif states_sign == '123456':
-        states = [1, 2, 3, 4, 5, 6]
-    elif states_sign == '12345':
+    if states_sign == 'int_5':
         states = [1, 2, 3, 4, 5]
-    elif states_sign == 'all_but_1.33':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
-    elif states_sign == 'all_but_2.5':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3]
-    elif states_sign == 'all':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3, 2.5]
-    elif states_sign == 'all_5':
+    elif states_sign == 'int_6':
+        states = [1, 2, 3, 4, 5, 6]
+    elif states_sign == 'full_5':
         states = [1, 2, 3, 4, 5, 1.5]
-    else:
+    elif states_sign == 'full_5_and_6':
+        states = [1, 2, 3, 4, 5, 6, 1.5]
+    elif states_sign == 'full_6_but_1.33':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
+    elif states_sign == 'full_6_but_2.5':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3]
+    elif states_sign == 'full_6':
         states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3, 2.5]
+    else:
+        states = segmentation_states
     return sorted(states)
 
 
@@ -479,3 +480,41 @@ def check_and_create_dir(dir_name):
         if os.path.isfile(dir_name):
             raise AssertionError("Can't create dir {} (file with such name exists)".format(dir_name))
         os.mkdir(dir_name)
+
+
+def split_ext_recursive(path):
+    ext = True
+    while ext:
+        path, ext = os.path.splitext(path)
+    return path
+
+
+def make_reverse_dict(dictionary):
+    new_dict = {}
+    for key in dictionary:
+        paths = dictionary[key]
+        for path in paths:
+            new_dict[path] = key
+    return new_dict
+
+
+def is_valid(path, reverse_dict, remade=True):
+    badmap_file_name = reverse_dict[path]
+    badmap_file_path = create_badmaps_path_function(badmap_file_name, valid=remade)
+    if not os.path.isfile(badmap_file_path):
+        return False
+    return True
+
+
+def get_merged_badmaps_dict_path(remade=True):
+    if remade:
+        return os.path.join(os.path.dirname(badmaps_dict_path), 'complete_badmaps_dict.json')
+    else:
+        return badmaps_dict_path
+
+
+def get_results_file(path, stage='BAD', inc_ext=True):
+    return os.path.join(get_dir_by_stage(stage), os.path.basename(os.path.splitext(path)[0])
+                        + (get_ending('BAD') if inc_ext else ''))
+
+

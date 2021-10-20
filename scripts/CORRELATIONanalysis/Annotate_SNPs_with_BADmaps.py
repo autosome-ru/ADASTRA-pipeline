@@ -22,7 +22,7 @@ def get_p_value(n, p, x):
     return (cdf(x) - cdf(4) + cdf(n-5) - cdf(n-x-1)) / (cdf(n-5) - cdf(4)) if x < n/2 else 1
 
 
-def main(file_name):
+def main(file_name, remake=False):
     correlation_path = get_correlation_path()
     with open(badmaps_dict_path, 'r') as file:
         aligns_by_cell_type = json.loads(file.readline().strip())
@@ -56,22 +56,24 @@ def main(file_name):
             states = get_states(mode.split('@')[1])
         else:
             states = get_states('')
-        if not os.path.isdir(os.path.join(correlation_path, mode + '_tables')):
+        out_dir = os.path.join(correlation_path, mode + '_tables{}'.format('_filtered' if remake else ''))
+        if not os.path.isdir(out_dir):
             try:
-                os.mkdir(os.path.join(correlation_path, mode + '_tables'))
+                os.mkdir(out_dir)
             except OSError as exc:
                 if exc.errno != errno.EEXIST:
                     raise
                 pass
-        badmaps_file_path = os.path.join(get_badmaps_path_by_validity(), mode, name + '@' + lab + '.badmap.tsv')
-        out_path = os.path.join(correlation_path, mode + '_tables', name + '@' + lab + '.tsv')
+        badmaps_file_path = os.path.join(get_badmaps_path_by_validity(valid=remake), mode, name + '@' + lab + '.badmap.tsv')
+        out_path = os.path.join(out_dir, name + '@' + lab + '.tsv')
         print(out_path)
 
         u = UnpackBadSegments(0)
 
         with open(table_path, 'r') as table, open(badmaps_file_path, 'r') as BADmap_file, open(out_path, 'w') as out:
             out.write('#' + str(datasetsn) + '@' + lab + '@' + ','.join(al_list) + '\n')
-            for chrom, pos, ref, alt, filename, in_intersection, segment_BAD, segment_id, Qual, segn, sumcov \
+            for chrom, pos, ref, alt, filename, in_intersection, segment_BAD, segment_snps, segment_snp_ids,\
+                    segment_sumcov, segment_id, Qual \
                     in Intersection(table, BADmap_file,
                                     unpack_segments_function=lambda x: u.unpack_bad_segments(x, states),
                                     unpack_snp_function=unpack_snps,
@@ -80,7 +82,7 @@ def main(file_name):
                     continue
                 p_value = get_p_value(ref + alt, 1 / (segment_BAD + 1), min(ref, alt))
                 out.write(pack([chrom, pos, ref, alt, segment_BAD] +
-                               [Qual[x] for x in Qual] + [segn, sumcov] +
+                               [Qual[x] for x in Qual] + [segment_snp_ids, segment_sumcov] +
                                [filename, segment_id, p_value]))
 
 

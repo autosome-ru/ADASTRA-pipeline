@@ -3,6 +3,7 @@
 njobs=$1
 flag=$2
 start_script_path="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+apply_filter=0
 
 previous_pwd=$PWD
 cd $start_script_path
@@ -69,7 +70,7 @@ if [ "$stage_index" -le 2 ]; then
 fi
 
 if [ "$stage_index" -le 3 ]; then
-  if ! bash "$scripts_path/"annotate_with_peaks.sh "$njobs"
+  if ! bash "$scripts_path/"annotation.sh "$njobs"
   then
     echo 'Peak annotation failed'
     exit 1
@@ -82,24 +83,71 @@ if [ "$stage_index" -le 4 ]; then
     echo 'BAD estimation failed'
     exit 1
   fi
-#   if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --annotate
-#   then
-#     echo 'Correlation analysis failed'
-#     exit 1
-#   fi
-  if ! bash "$scripts_path"/BAD_annotation.sh "$njobs"
+  if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --annotate
   then
-    echo 'BAD annotation failed'
+    echo 'Correlation analysis failed'
     exit 1
+  fi
+  if [ "$apply_filter" -eq 1 ]; then
+    if ! adastra create_badmaps_filter
+    then
+      echo 'BAD maps filter creation failed'
+      exit 1
+    fi
+    if ! adastra apply_badmaps_filter
+    then
+      echo 'BAD maps filter application failed'
+      exit 1
+    fi
+    if ! bash "$scripts_path"/bad_map_est.sh "$njobs" --merge --remake
+    then
+      echo 'BAD estimation failed (iteration 2)'
+      exit 1
+    fi
+    if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --annotate --remake
+    then
+      echo 'Correlation analysis failed (iteration 2)'
+      exit 1
+    fi
+    if ! adastra create_badmaps_filter --remake
+    then
+      echo 'BAD maps filter creation failed (iteration 2)'
+      exit 1
+    fi
+    if ! adastra apply_badmaps_filter --remake
+    then
+      echo 'BAD maps filter application failed (iteration 2)'
+      exit 1
+    fi
+    if ! bash "$scripts_path"/BAD_annotation.sh "$njobs" --remade
+    then
+      echo 'BAD annotation failed'
+      exit 1
+    fi
+  else
+    if ! bash "$scripts_path"/BAD_annotation.sh "$njobs"
+      then
+        echo 'BAD annotation failed'
+        exit 1
+    fi
   fi
 fi
 
 if [ "$stage_index" -le 5 ]; then
-  if ! adastra collect_ref_bias
-  then
-    echo 'Collect statistics failed'
-    exit 1
+  if [ "$apply_filter" -eq 1 ]; then
+    if ! adastra collect_ref_bias --remade
+    then
+      echo 'Collect statistics failed'
+      exit 1
+    fi
+  else
+    if ! adastra collect_ref_bias
+    then
+      echo 'Collect statistics failed'
+      exit 1
+    fi
   fi
+
   if ! adastra fit_neg_bin
   then
     echo 'Fit negative binom failed'
@@ -108,23 +156,44 @@ if [ "$stage_index" -le 5 ]; then
 fi
 
 if [ "$stage_index" -le 6 ]; then
-  if ! bash "$scripts_path"/p_value_count.sh "$njobs"
-  then
-    echo 'P-value computation failed'
-    exit 1
+  if [ "$apply_filter" -eq 1 ]; then
+    if ! bash "$scripts_path"/p_value_count.sh "$njobs" --remade
+    then
+      echo 'P-value computation failed'
+      exit 1
+    fi
+  else
+    if ! bash "$scripts_path"/p_value_count.sh "$njobs"
+    then
+      echo 'P-value computation failed'
+      exit 1
+    fi
   fi
 fi
 
 if [ "$stage_index" -le 7 ]; then
-  if ! bash "$scripts_path"/aggregation.sh "$njobs" --forTF
-  then
-    echo 'TF aggregation failed'
-    exit 1
-  fi
-  if ! bash "$scripts_path"/aggregation.sh "$njobs" --forCL
-  then
-    echo 'CL aggregation failed'
-    exit 1
+  if [ "$apply_filter" -eq 1 ]; then
+    if ! bash "$scripts_path"/aggregation.sh "$njobs" --forTF --remade
+    then
+      echo 'TF aggregation failed'
+      exit 1
+    fi
+    if ! bash "$scripts_path"/aggregation.sh "$njobs" --forCL --remade
+    then
+      echo 'CL aggregation failed'
+      exit 1
+    fi
+  else
+    if ! bash "$scripts_path"/aggregation.sh "$njobs" --forTF
+    then
+      echo 'TF aggregation failed'
+      exit 1
+    fi
+    if ! bash "$scripts_path"/aggregation.sh "$njobs" --forCL
+    then
+      echo 'CL aggregation failed'
+      exit 1
+    fi
   fi
 fi
 

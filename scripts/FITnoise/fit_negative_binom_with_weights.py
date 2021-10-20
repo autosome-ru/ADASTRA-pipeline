@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-from scipy import optimize
-from scipy import stats as st
+from scipy import optimize, stats as st
 from scripts.HELPERS.helpers import segmentation_states
 from scripts.HELPERS.paths import create_neg_bin_stats_path_function, create_neg_bin_weights_path_function
 

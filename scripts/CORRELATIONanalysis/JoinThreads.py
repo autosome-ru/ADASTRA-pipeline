@@ -1,18 +1,16 @@
 import os
 
 from scripts.HELPERS.helpers import test_percentiles_list, cover_procentiles_list
-from scripts.HELPERS.paths import get_correlation_path
-
-
-correlation_path = get_correlation_path()
-out_path = os.path.join(correlation_path, 'cor_stats_test.tsv')
+from scripts.HELPERS.paths import get_correlation_path, get_correlation_file_path
 
 
 def get_name_by_dir(dir_name):
     return dir_name[:dir_name.rfind('_')].split('/')[-1]
 
 
-def main():
+def main(remake=False):
+    correlation_path = get_correlation_path()
+    out_path = get_correlation_file_path(remake=remake)
     snp_dirs = []
     for file_name in sorted(os.listdir(correlation_path)):
         snp_dir = os.path.join(correlation_path, file_name)

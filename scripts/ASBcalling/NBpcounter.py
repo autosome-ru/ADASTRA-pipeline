@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import pandas as pd
 from scipy import stats as st
-from scripts.HELPERS.helpers import read_weights
+from scripts.HELPERS.helpers import read_weights, get_results_file
 from scripts.HELPERS.paths import get_ending
 
 r_dict, w_dict, gof_dict = read_weights()
@@ -18,6 +18,12 @@ def count_p(ref_c, alt_c, BADs):
     for i in range(N):
         # if (i+1) % 1000 == 0:
         #     print(i+1)
+        # if BADs[i] == 6.0:
+        #     p_ref[i] = np.nan
+        #     p_alt[i] = np.nan
+        #     es_ref[i] = np.nan
+        #     es_alt[i] = np.nan
+        #     continue
         if ref_c[i] > 500:
             r = ref_c[i]
             w = 1
@@ -168,8 +174,8 @@ def count_p_adjusted(ref_c, alt_c, BADs):
 
 
 def main(base_path):
-    table_BAD = base_path + get_ending("BAD")
-    output = base_path + get_ending("p-value")
+    table_BAD = get_results_file(base_path, 'BAD')
+    output = get_results_file(base_path, 'p-value')
     print('Now counting P-value for {}'.format(table_BAD))
     df_with_BAD = pd.read_table(table_BAD)
     p_ref, p_alt, es_ref, es_alt = count_p(np.array(df_with_BAD["ref_read_counts"], dtype=np.int_),
