@@ -7,7 +7,7 @@ import os
 from scripts.HELPERS.paths_for_components import badmaps_dict_path
 from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_new_badmaps_dict_path, \
     get_badmaps_path_by_validity
-from scripts.HELPERS.helpers import get_merged_badmaps_dict_path
+from scripts.HELPERS.helpers import get_merged_badmaps_dict_path, default_model
 
 
 def get_bad_dataset_list(log_fdr_tr=50, var_diff_tr=0.1, remake=False):
@@ -83,7 +83,7 @@ def main(remake=False):
     if not remake:
         print('iteration 1')
         new_dict, merged_dict = remake_badmaps_dict(bad_dataset_list)
-        with open(get_new_badmaps_dict_path(), 'w') as f:
+        with open(get_new_badmaps_dict_path(default_model), 'w') as f:
             json.dump(new_dict, f)
         with open(get_merged_badmaps_dict_path(), 'w') as f:
             json.dump(merged_dict, f)

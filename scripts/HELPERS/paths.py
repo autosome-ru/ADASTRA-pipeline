@@ -2,7 +2,6 @@ import errno
 import os
 from .paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
     cl_dict_path, configs_path, results_path, badmaps_dict_path
-from . import helpers
 
 stage_dict = {
     'BAD': 'BAD_annotations',
@@ -83,8 +82,8 @@ def get_correlation_file_path(remake=False):
     return os.path.join(get_correlation_path(), 'cor_stats{}.tsv'.format('' if remake else '_test'))
 
 
-def get_new_badmaps_dict_path(model=helpers.default_model):
-    return os.path.join(os.path.dirname(badmaps_dict_path), 'bad_datasets_dict_{}.json'.fromat(model))
+def get_new_badmaps_dict_path(model):
+    return os.path.join(os.path.dirname(badmaps_dict_path), 'bad_datasets_dict_{}.json'.format(model))
 
 
 def get_sarus_dir():
