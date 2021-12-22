@@ -7,7 +7,8 @@ import errno
 
 
 from scripts.HELPERS.paths_for_components import badmaps_path, badmaps_dict_path
-from scripts.HELPERS.helpers import Intersection, pack, UnpackBadSegments, get_states
+from scripts.HELPERS.helpers import Intersection, pack, UnpackBadSegments, get_babachi_models_list, \
+    get_states_from_model_name
 from scripts.HELPERS.paths import get_badmaps_path_by_validity, get_correlation_path
 
 
@@ -27,10 +28,7 @@ def main(file_name, remake=False):
     with open(badmaps_dict_path, 'r') as file:
         aligns_by_cell_type = json.loads(file.readline().strip())
 
-    modes = []
-    for dir_name in sorted(os.listdir(get_badmaps_path_by_validity())):
-        if os.path.isdir(os.path.join(get_badmaps_path_by_validity(), dir_name)):
-            modes.append(dir_name)
+    modes = get_babachi_models_list(remake=remake)
 
     try:
         assert os.path.isfile(os.path.join(badmaps_path, 'merged_vcfs', file_name))
@@ -52,10 +50,7 @@ def main(file_name, remake=False):
 
     table_path = os.path.join(badmaps_path, 'merged_vcfs', file_name)
     for mode in modes:
-        if re.match(r'^CAIC@.+@.+$', mode) is not None:
-            states = get_states(mode.split('@')[1])
-        else:
-            states = get_states('')
+        states = get_states_from_model_name(mode)
         out_dir = os.path.join(correlation_path, mode + '_tables{}'.format('_filtered' if remake else ''))
         if not os.path.isdir(out_dir):
             try:
@@ -80,7 +75,8 @@ def main(file_name, remake=False):
                                     write_intersect=True, write_segment_args=True):
                 if not in_intersection:
                     continue
-                p_value = get_p_value(ref + alt, 1 / (segment_BAD + 1), min(ref, alt))
+                # p_value = get_p_value(ref + alt, 1 / (segment_BAD + 1), min(ref, alt))
+                p_value = 0.5  # FIXME
                 out.write(pack([chrom, pos, ref, alt, segment_BAD] +
                                [Qual[x] for x in Qual] + [segment_snp_ids, segment_sumcov] +
                                [filename, segment_id, p_value]))

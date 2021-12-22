@@ -29,8 +29,8 @@ Usage:
             adastra annotate_with_phenotypes [--dir <path>]
             adastra extract_context
             adastra count_p <exp> <aligns>
-            adastra create_badmaps_filter [--remake]
-            adastra apply_badmaps_filter [--remake]
+            adastra create_badmaps_filter
+            adastra apply_badmaps_filter
             adastra -h | --help
 
 Arguments:
@@ -62,7 +62,7 @@ import time
 from docopt import docopt
 from babachi import BADEstimation
 
-from .HELPERS.helpers import segmentation_states
+from .HELPERS.helpers import get_states
 from .HELPERS.paths import create_merged_vcf_path_function, create_badmaps_path_function
 
 
@@ -106,18 +106,22 @@ def main():
         main(args['--base'])
     elif args['vcf_merge']:
         from .BADcalling.VCFMerger import main
-        main(args['--group'], args['--remake'])
+        bad_group, states_set, b_penalty = args['--group'].split(',')
+        main(bad_group)
     elif args['bad_call']:
-        bad_group = args['--group']
+        bad_group, states_set, b_penalty = args['--group'].split(',')
         t = time.clock()
         with open(create_merged_vcf_path_function(bad_group)) as m_vcf:
             snps_collection, chromosomes_order, _ = BADEstimation.parse_input_file(m_vcf, allele_reads_tr=5)
             GS = BADEstimation.GenomeSegmentator(
                 snps_collection=snps_collection,
                 chromosomes_order=chromosomes_order,
-                out=create_badmaps_path_function(bad_group, valid=args['--remake']),
-                states=segmentation_states,
-                b_penalty=4,
+                out=create_badmaps_path_function(bad_group,
+                                                 valid=args['--remake'],
+                                                 states_set=states_set,
+                                                 b_penalty=b_penalty),
+                states=get_states(states_set),
+                b_penalty=convert_string_to_int(b_penalty),
                 verbose=True,
                 allele_reads_tr=5,
                 segmentation_mode='corrected',
@@ -130,7 +134,14 @@ def main():
 
             GS.estimate_BAD()
         print('Total time: {} s'.format(time.clock() - t))
-
+    elif args['collect_roc']:
+        states_set, b_penalty = args['--group'].split(',')
+        if args['cell_line_wise']:
+            from .Qcontrol.collect_cell_line_wise_data_for_ROC import main
+            main(states_set, convert_string_to_int(b_penalty))
+        else:
+            from .Qcontrol.collect_data_for_ROC import main
+            main(states_set, convert_string_to_int(b_penalty))
     elif args['bad_annotation']:
         from .ASBcalling.BAD_annotation import main
         main(args['--base'], remade=args['--remade'])
@@ -166,10 +177,10 @@ def main():
         main()
     elif args['extract_sarus_data']:
         from .SARUSannotation.extract_sarus_data import main
-        main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
+        main(args['--name'], convert_string_to_int(args['--motif-len']))
     elif args['annotate_table_with_sarus']:
         from .SARUSannotation.annotate_table_with_sarus import main
-        main(args['--name'], convert_motif_len_to_int(args['--motif-len']))
+        main(args['--name'], convert_string_to_int(args['--motif-len']))
     elif args['annotate_with_phenotypes']:
         from .PARSEphenotypes.asb_gwas_eqtl import main
         main(args['--dir'] if args['--dir'] else None)
@@ -181,14 +192,14 @@ def main():
         manual(args['<exp>'], args['<aligns>'])
     elif args['create_badmaps_filter']:
         from scripts.BADMAPSfilter.construct_badmaps_filter import main
-        main(args['--remake'])
+        main(20, 50)
     elif args['apply_badmaps_filter']:
         from scripts.BADMAPSfilter.apply_filter import main
-        main(args['--remake'])
+        main()
 
 
-def convert_motif_len_to_int(motif_len_string):
-    if not motif_len_string:
+def convert_string_to_int(string):
+    if not string:
         return None
     else:
-        return int(motif_len_string)
+        return int(string)

@@ -1,8 +1,10 @@
+import re
 import string
 import numpy as np
 import os
 from .paths_for_components import master_list_path, configs_path, synonyms_path, badmaps_dict_path
-from .paths import create_neg_bin_weights_path_function, create_badmaps_path_function, get_dir_by_stage, get_ending
+from .paths import create_neg_bin_weights_path_function, create_badmaps_path_function, get_dir_by_stage, get_ending, \
+    get_correlation_path, get_badmaps_path_by_validity
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem', 'macs2', 'macs2-nomodel']
 
@@ -10,6 +12,9 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
          145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
          101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
          156040895, 57227415]
+
+caic_values = [3, 4, 5]
+states_sets = ['int_6', 'full_6']
 
 Nucleotides = {'A', 'T', 'G', 'C'}
 expected_args = {"CL": "TF", "TF": "CL"}
@@ -25,6 +30,12 @@ dtype_dict = {name: str if name != 'READS_ALIGNED' else np.float_ for name in ma
 
 test_percentiles_list = [1, 3, 5, 7, 10, 20, 50]
 cover_procentiles_list = [25, 50, 75]
+
+default_model = 'CAIC@full_6@4'
+
+
+def get_models_list():
+    return ['CAIC@{}@{}'.format(states_set, caic) for states_set in states_sets for caic in caic_values]
 
 
 class ChromPos:
@@ -367,6 +378,14 @@ def get_states(states_sign):
     return sorted(states)
 
 
+def get_states_from_model_name(mode):
+    if re.match(r'^CAIC@.+@.+$', mode) is not None:
+        states = get_states(mode.split('@')[1])
+    else:
+        states = get_states('')
+    return states
+
+
 class CorrelationReader:
     CGH_path = ''
     SNP_path = ''
@@ -518,3 +537,19 @@ def get_results_file(path, stage='BAD', inc_ext=True):
                         + (get_ending('BAD') if inc_ext else ''))
 
 
+def get_snp_dirs_in_correlation_for_corstats():
+    snp_dirs = []
+    correlation_path = get_correlation_path()
+    for f_name in sorted(os.listdir(correlation_path)):
+        snp_dir = os.path.join(correlation_path, f_name)
+        if f_name.endswith('_tables') and os.path.isdir(snp_dir):
+            snp_dirs.append(snp_dir)
+    return snp_dirs
+
+
+def get_babachi_models_list(remake=False):
+    modes = []
+    for dir_name in sorted(os.listdir(get_badmaps_path_by_validity(valid=remake))):
+        if os.path.isdir(os.path.join(get_badmaps_path_by_validity(valid=remake), dir_name)):
+            modes.append(dir_name)
+    return modes

@@ -7,8 +7,10 @@ import numpy as np
 from scipy.stats import levene
 import statsmodels.stats.multitest
 
-from scripts.HELPERS.helpers import pack, segmentation_states
+from scripts.HELPERS.helpers import pack, segmentation_states, get_babachi_models_list, get_states_from_model_name
 from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path, get_correlation_path
+
+from scipy import stats as st
 
 
 def find_test_datasets(cor_stats_path):
@@ -34,12 +36,12 @@ def open_dfs(df, concat=True, remake=False):
                                                                                        'dataset',
                                                                                        'seg_id',
                                                                                        'p_value']
-        group = row['#cell_line'] + '@' + row['cells']
+        group = make_dataset(row['#cell_line'], row['cells'])
         if not concat:
             tmp_df['cov'] = tmp_df['ref'] + tmp_df['alt']
             tmp_df['max'] = tmp_df[['ref', 'alt']].max(axis=1)
             tmp_df['min'] = tmp_df[['ref', 'alt']].min(axis=1)
-            tmp_df['es'] = -np.log2(tmp_df['max'] / tmp_df['min'] / tmp_df['BAD'])
+            # tmp_df['es'] = -np.log2(tmp_df['max'] / tmp_df['min'] / tmp_df['BAD'])
             if res_dfs is None:
                 res_dfs = [(group, tmp_df)]
             else:
@@ -56,171 +58,101 @@ def open_dfs(df, concat=True, remake=False):
         res_df['cov'] = res_df['ref'] + res_df['alt']
         res_df['max'] = res_df[['ref', 'alt']].max(axis=1)
         res_df['min'] = res_df[['ref', 'alt']].min(axis=1)
-        res_df['es'] = -np.log2(res_df['max'] / res_df['min'] / res_df['BAD'])
+        # res_df['es'] = -np.log2(res_df['max'] / res_df['min'] / res_df['BAD'])
         return res_df
     else:
         return res_dfs
-
-
-def update_dist(dist, another_dist):
-    for k, v in another_dist.items():
-        if k in dist:
-            dist[k] += v
-        else:
-            dist[k] = v
-    return dist
-
-
-def construct_dist_for_cov(test_cov_df):
-    dist = {}
-    for value in test_cov_df['es'].unique():
-        dist[value] = len(test_cov_df[test_cov_df['es'] == value].index)
-    return dist
-
-
-def construct_total_dist(cov_dfs_test, min_tr, max_tr):
-    total_dist = {}
-    covs = []
-    for cov in range(min_tr, max_tr + 1):
-        if cov in cov_dfs_test:
-            if len(cov_dfs_test[cov].index) >= 50:
-                covs.append(cov)
-                dist = construct_dist_for_cov(cov_dfs_test[cov])
-                total_dist = update_dist(total_dist, dist)
-    args = sorted(list(total_dist.keys()))
-    vals = [total_dist[x] for x in args]
-    return args, vals, covs
-
-
-def transform_dist_to_list(dist):
-    f = lambda *x: sum(x, [])
-    return f(*([k] * round(v) for k, v in dist.items()))
 
 
 def make_dataset(cell_line, lab):
     return '{}@{}'.format(cell_line, lab)
 
 
-def main(remake=False):
-    correlation_file_path = get_correlation_file_path(remake=remake)
+def collect_stats_df(df, BAD):
+    out_t = df[df['BAD'] == BAD].groupby(['ref', 'alt']).size().reset_index(name='counts')
+    out_t.fillna(0, inplace=True)
+    out_t.columns = ['ref', 'alt', 'counts']
+    return out_t
+
+
+def rmsea_gof(stat, df, norm):
+    if norm <= 1:
+        return 0
+    else:
+        # if max(stat - df, 0) / (df * (norm - 1)) < 0:
+        #     print(stat, df)
+        score = np.sqrt(max(stat - df, 0) / (df * (norm - 1)))
+    return score
+
+
+def calculate_gof(counts_array, expected, norm, number_of_params):
+    observed = counts_array.copy()
+
+    idxs = (observed != 0) & (expected != 0)
+    if idxs.sum() <= number_of_params + 1:
+        return 0
+    df = idxs.sum() - 1 - number_of_params
+    stat = np.sum(observed[idxs] * (np.log(observed[idxs]) - np.log(expected[idxs]))) * 2
+    return rmsea_gof(stat, df, norm)
+
+
+def make_binom_density(cov, BAD, allele_tr):
+    b1 = st.binom(cov, 1 / (BAD + 1))
+    b2 = st.binom(cov, BAD / (BAD + 1))
+    pdf1 = b1.pdf
+    pdf2 = b2.pdf
+    cdf = lambda x: 0.5 * (b1.cdf(x) + b2.cfd(x))
+    sf = lambda x: 0.5 * (b1.sf(x) + b2.sf(x))
+    norm = cdf(cov - allele_tr) + sf(allele_tr - 1) - 1
+
+    res = np.array(cov + 1, dtype=np.int_)
+    for i in range(allele_tr, cov - allele_tr + 1):
+        res[i] = 0.5 * (pdf1(i) + pdf2(i))
+    return res / norm
+
+
+def main(min_cov, max_cov):
+    modes = get_babachi_models_list(remake=False)
+    correlation_file_path = get_correlation_file_path(remake=False)
     cor_df_test = find_test_datasets(correlation_file_path)
-    test_dfs = open_dfs(cor_df_test, remake=remake, concat=False)
-    print('Test concatenated')
-
-    min_tr, max_tr = 20, 75
-
-    results = []
-    for dataset, dataset_df in test_dfs:
-        cov_dfs_test = {}
-        for cov in dataset_df['cov'].unique():
-            cov_dfs_test[cov] = dataset_df[dataset_df['cov'] == cov].copy()
-        print('Split test {}'.format(dataset))
-        args, vals, covs = construct_total_dist(cov_dfs_test, min_tr=min_tr, max_tr=max_tr)
-        results.append({'args': args, 'vals': vals, 'covs': covs, 'dataset': dataset, 'snps': len(dataset_df.index)})
-
-    with open(os.path.expanduser('~/cov_res_debug.json'), 'w') as f:
-        json.dump(results, f)
-
+    test_dfs = open_dfs(cor_df_test, remake=False, concat=False)
     cors = pd.read_table(correlation_file_path)
+    print('Test concatenated')
+    for mode in modes:
+        states = get_states_from_model_name(mode)
 
-    if not remake:
-        # collect_stats
-        cell_line_data = {}
-        for d in results:
-            if d['args']:
-                line, cells = d['dataset'].split('@')
-                cor = cors[(cors['#cell_line'] == line) & (cors['cells'] == cells)]['cor_by_snp_CAIC'].tolist()
+        with open(get_excluded_badmaps_list_path(model=mode, remake=False), 'w') as out:
+            out.write(pack(['#cell_line', 'sample', 'correlation'] + ['RMSEA_GOF_BAD{:.2f}'.format(state) for state in states] +
+                           ['NUM_TESTED_SNPS_BAD{:.2f}'.format(state) for state in states]))
+
+            for dataset, dataset_df in test_dfs:
+                cell_line, lab = dataset.split('@')
+                cor = cors[(cors['#cell_line'] == cell_line) & (cors['cells'] == lab)]['cor_by_snp_{}'.format(mode)].tolist()
                 assert len(cor) == 1
                 cor = cor[0]
-                if not pd.isna(cor):
-                    cell_line_data.setdefault(line, {
-                        'correlations': [],
-                        'cells': [],
-                        'snps': []
-                    })
-                    cell_line_data[line]['correlations'].append(cor)
-                    cell_line_data[line]['cells'].append(cells)
-                    cell_line_data[line]['snps'].append(sum(d['vals']))
 
-        # construct big cell lines
-        big_cell_lines = set()
-        cell_line_reference = {}
-        for line, data in cell_line_data.items():
-            if len(data['correlations']) < 4:
-                continue
-            cor_treshold = np.quantile(data['correlations'], 0.75)
-            datasets = [(cells, cor, snps) for cells, cor, snps in
-                        zip(data['cells'], data['correlations'], data['snps']) if cor >= cor_treshold]
-            snps = sum(x[2] for x in datasets)
-            if snps >= 25000:
-                cell_line_reference[line] = [x[0] for x in datasets]
-                big_cell_lines.add(line)
-    else:
-        prev_excluded = pd.read_table(get_excluded_badmaps_list_path(remake=False))
-        big_cell_lines = set()
-        cell_line_reference = {}
-        for index, row in prev_excluded.iterrows():
-            if row['is_ref']:
-                big_cell_lines.add(row['#cell_line'])
-                cell_line_reference.setdefault(row['#cell_line'], []).append(row['sample'])
+                gofs = {}
+                tested_snps = {}
+                for BAD in states:
+                    stats = collect_stats_df(dataset_df, BAD)
+                    counts_arrays = []
+                    expected_arrays = []
+                    for cov in range(min_cov, max_cov + 1):
+                        counts_array = np.zeros(cov + 1, dtype=np.int_)
+                        for ref in range(5, cov - 5 + 1):
+                            counts_array[ref] = stats[(stats['ref'] == ref) & (stats['alt'] == cov - ref)]
+                        counts_arrays.append(counts_array)
+                        expected_arrays.append(make_binom_density(cov, BAD, 5) * counts_array.sum())
+                    observed = np.concatenate(counts_arrays)
+                    expected = np.concatenate(expected_arrays)
+                    norm = observed.sum()
+                    tested_snps[BAD] = norm
+                    gofs[BAD] = calculate_gof(observed, expected, observed.sum(), 1)
 
-    big_cell_lines = list(big_cell_lines)
-
-    ref_dists = {x: {} for x in big_cell_lines + ['Other']}
-    ref_vars = {x: {} for x in big_cell_lines + ['Other']}
-
-    all_vars = []
-    all_metrics = []
-    all_cells = []
-    all_lines = []
-    all_sizes = []
-    all_is_ref = []
-
-    for d in results:
-        if d['args']:
-            line, cells = d['dataset'].split('@')
-            dist = dict(zip(d['args'], d['vals']))
-            if line in big_cell_lines:
-                if cells in cell_line_reference[line]:
-                    ref_dists[line] = update_dist(ref_dists[line], dist)
-                    ref_dists['Other'] = update_dist(ref_dists[line], dist)
-
-    for key in ref_dists:
-        ref_dists[key] = transform_dist_to_list(ref_dists[key])
-        ref_vars[key] = np.nanstd(ref_dists[key])
-
-    print(ref_vars)
-
-    for d in results:
-        if d['args']:
-            dist = dict(zip(d['args'], d['vals']))
-            line, cells = d['dataset'].split('@')
-            snps = d['snps']
-            flat_dist = transform_dist_to_list(dist)
-            ref_dist = ref_dists[line if line in big_cell_lines else 'Other']
-            if not flat_dist or len(flat_dist) == 0:
-                continue
-            if not ref_dist or len(ref_dist) == 0:
-                print('Empty ref dist for {}'.format(line))
-                exit(1)
-            stat, p = levene(flat_dist, ref_dist)
-            assert not pd.isna(p)
-            all_vars.append((np.nanstd(flat_dist), ref_vars[line if line in big_cell_lines else 'Other']))
-            all_metrics.append(p)
-            all_cells.append(cells)
-            all_lines.append(line)
-            all_sizes.append(snps)
-            all_is_ref.append(True if line in big_cell_lines and cells in cell_line_reference[line] else False)
-
-    _, all_fdr, _, _ = statsmodels.stats.multitest.multipletests(
-        all_metrics, alpha=0.05, method='fdr_bh')
-
-    with open(get_excluded_badmaps_list_path(remake=remake), 'w') as out:
-        out.write(pack(['#cell_line', 'sample', 'size', 'dataset_es_var', 'ref_es_var', 'fdr', 'is_ref']))
-        for fdr, size, line, ce, var, ref in zip(all_fdr, all_sizes, all_lines, all_cells, all_vars, all_is_ref):
-            out.write(pack([line, ce, size, var[0] ** 2, var[1] ** 2, fdr, ref]))
-            # if fdr < 10 ** (-50) and var[0] ** 2 - var[1] ** 2 > 0.1 and not ref:
+                out.write(pack([cell_line, lab, cor] +
+                               [gofs[BAD] for BAD in states] +
+                               [tested_snps[BAD] for BAD in states]))
 
 
 if __name__ == '__main__':
-    main()
+    main(20, 50)

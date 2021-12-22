@@ -1,6 +1,8 @@
+import errno
 import os
 from .paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
     cl_dict_path, configs_path, results_path, badmaps_dict_path
+import helpers
 
 stage_dict = {
     'BAD': 'BAD_annotations',
@@ -54,24 +56,35 @@ def get_badmaps_path_by_validity(valid=False):
     return os.path.join(badmaps_path, 'valid' if valid else 'raw')
 
 
-def create_badmaps_path_function(name, valid=False):
-    return os.path.join(get_badmaps_path_by_validity(valid), 'CAIC', name + ".badmap.tsv")
+def create_badmaps_path_function(name, states_set=None, b_penalty=None, valid=False):
+    if states_set is not None or b_penalty is not None:
+        badmaps_dir = os.path.join(get_badmaps_path_by_validity(valid), 'CAIC@{}@{}'.format(states_set, b_penalty))
+    else:
+        badmaps_dir = os.path.join(get_badmaps_path_by_validity(valid), 'CAIC')
+    if not os.path.isdir(badmaps_dir):
+        try:
+            os.mkdir(badmaps_dir)
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                raise
+            pass
+    return os.path.join(badmaps_dir, name + ".badmap.tsv")
 
 
 def create_merged_vcf_path_function(name):
     return os.path.join(badmaps_path, 'merged_vcfs', name + ".tsv")
 
 
-def get_excluded_badmaps_list_path(remake=False):
-    return os.path.join(get_release_stats_path(), 'excluded_badmaps_{}.tsv'.format(2 if remake else 1))
+def get_excluded_badmaps_list_path(model, remake=False):  #FIXME
+    return os.path.join(get_release_stats_path(), 'excluded_badmaps_{}_{}.tsv'.format(2 if remake else 1, model))
 
 
 def get_correlation_file_path(remake=False):
     return os.path.join(get_correlation_path(), 'cor_stats{}.tsv'.format('' if remake else '_test'))
 
 
-def get_new_badmaps_dict_path():
-    return os.path.join(os.path.dirname(badmaps_dict_path), 'bad_datasets_dict.json')
+def get_new_badmaps_dict_path(model=helpers.default_model):
+    return os.path.join(os.path.dirname(badmaps_dict_path), 'bad_datasets_dict_{}.json'.fromat(model))
 
 
 def get_sarus_dir():
