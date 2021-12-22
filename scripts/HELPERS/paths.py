@@ -2,7 +2,7 @@ import errno
 import os
 from .paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
     cl_dict_path, configs_path, results_path, badmaps_dict_path
-import helpers
+from . import helpers
 
 stage_dict = {
     'BAD': 'BAD_annotations',
