@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import errno
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos, get_states, \
-    test_percentiles_list, cover_procentiles_list
+    test_percentiles_list, cover_procentiles_list, get_snp_dirs_in_correlation_for_corstats
 from scripts.HELPERS.paths_for_components import cgh_path, cosmic_path, badmaps_path
 from scripts.HELPERS.paths import get_correlation_path, get_heatmap_data_path, get_badmaps_path_by_validity
 
@@ -175,13 +175,8 @@ def main(file_name, remake=False):
 
     out_path = os.path.join(correlation_path, file_name + '.thread')
 
-    snp_dirs = []
+    snp_dirs = get_snp_dirs_in_correlation_for_corstats()
     naive_modes = ['naive']
-
-    for f_name in sorted(os.listdir(correlation_path)):
-        snp_dir = os.path.join(correlation_path, f_name)
-        if f_name.endswith('_tables') and os.path.isdir(snp_dir):
-            snp_dirs.append(snp_dir)
 
     reader = CorrelationReader()
     reader.CGH_path = cgh_path

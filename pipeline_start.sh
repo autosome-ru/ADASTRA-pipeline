@@ -3,7 +3,7 @@
 njobs=$1
 flag=$2
 start_script_path="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-apply_filter=0
+apply_filter=1
 
 previous_pwd=$PWD
 cd $start_script_path
@@ -107,16 +107,6 @@ if [ "$stage_index" -le 4 ]; then
     if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --annotate --remake
     then
       echo 'Correlation analysis failed (iteration 2)'
-      exit 1
-    fi
-    if ! adastra create_badmaps_filter --remake
-    then
-      echo 'BAD maps filter creation failed (iteration 2)'
-      exit 1
-    fi
-    if ! adastra apply_badmaps_filter --remake
-    then
-      echo 'BAD maps filter application failed (iteration 2)'
       exit 1
     fi
     if ! bash "$scripts_path"/BAD_annotation.sh "$njobs" --remade
