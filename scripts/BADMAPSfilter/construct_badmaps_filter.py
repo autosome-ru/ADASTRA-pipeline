@@ -32,7 +32,7 @@ def open_dfs(df, model, concat=True, remake=False):
         except EmptyDataError:
             continue
         tmp_df.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(b) for b in
-                                                               segmentation_states] + ['snps', 'cov',
+                                                               get_states_from_model_name(model)] + ['snps', 'cov',
                                                                                        'dataset',
                                                                                        'seg_id',
                                                                                        'p_value']
