@@ -167,11 +167,8 @@ def main(min_cov, max_cov, n_jobs):
     correlation_file_path = get_correlation_file_path(remake=False)
     cors = pd.read_table(correlation_file_path)
 
-    def mode_process_init(mode):
-        init_process_for_mode(mode, cors)
-
     pool = Pool(processes=5)
-    test_dfs_lists = pool.map(mode_process_init, modes)
+    test_dfs_lists = pool.map(init_process_for_mode, ((mode, cors) for mode in modes))
 
     def dataset_process(mode, dataset, dataset_df):
         process_for_dataset(mode, dataset, dataset_df, cors, min_cov, max_cov)
