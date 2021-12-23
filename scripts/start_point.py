@@ -30,12 +30,12 @@ Usage:
             adastra annotate_with_phenotypes [--dir <path>]
             adastra extract_context
             adastra count_p <exp> <aligns>
-            adastra create_badmaps_filter
+            adastra create_badmaps_filter [--njobs <int>]
             adastra apply_badmaps_filter
             adastra -h | --help
 
 Arguments:
-    <mode>     Name of the mode [default: badmaps]
+    <mode>     Name of the mode
     <name>     Name of params(TF or CL)
     <type>     Peak type (gem, sissrs, peaks, cpics)
     <path>     Path to file
@@ -44,7 +44,7 @@ Arguments:
 
 Options:
     -h, --help                  Show help.
-    --mode=<mode>               Mode for make_paths
+    --mode=<mode>               Mode for make_paths [default: badmaps]
     --name=<name>               Name of TF or CL
     --for=<for>                 TF or CL
     --peak=<path>               Path to peak file
@@ -57,6 +57,7 @@ Options:
     --motif-len=<int>           Length of the motif
     --dir=<path>                Path to directory
     --uniprot-file=<path>       Path to file with uniprot conversion
+    --njobs=<int>               Number of parallel processes [default: 1]
 """
 import time
 
@@ -193,7 +194,7 @@ def main():
         manual(args['<exp>'], args['<aligns>'])
     elif args['create_badmaps_filter']:
         from scripts.BADMAPSfilter.construct_badmaps_filter import main
-        main(20, 50)
+        main(20, 50, int(args['--njobs']))
     elif args['apply_badmaps_filter']:
         from scripts.BADMAPSfilter.apply_filter import main
         main()

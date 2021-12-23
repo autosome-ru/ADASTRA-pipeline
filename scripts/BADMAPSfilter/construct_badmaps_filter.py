@@ -1,5 +1,4 @@
 import json
-from multiprocessing import Process
 
 import pandas as pd
 from pandas.errors import EmptyDataError
@@ -12,6 +11,7 @@ from scripts.HELPERS.helpers import pack, segmentation_states, get_babachi_model
 from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path, get_correlation_path
 
 from scipy import stats as st
+from joblib import Parallel, delayed
 
 
 def find_test_datasets(cor_stats_path):
@@ -112,7 +112,7 @@ def make_binom_density(cov, BAD, allele_tr):
     return res / norm
 
 
-def process_for_mode(mode, cors, min_cov, max_cov):
+def init_process_for_mode(mode, cors):
     test_dfs = open_dfs(cors, mode, remake=False, concat=False)
     print('Test concatenated {}'.format(mode))
     states = get_states_from_model_name(mode)
@@ -122,56 +122,56 @@ def process_for_mode(mode, cors, min_cov, max_cov):
             pack(['#cell_line', 'sample', 'correlation'] + ['RMSEA_GOF_BAD{:.2f}'.format(state) for state in states] +
                  ['NUM_TESTED_SNPS_BAD{:.2f}'.format(state) for state in states]))
 
-        for dataset, dataset_df in test_dfs:
-            cell_line, lab = dataset.split('@')
-            cor = cors[(cors['#cell_line'] == cell_line) & (cors['cells'] == lab)][
-                'cor_by_snp_{}'.format(mode)].tolist()
-            assert len(cor) == 1
-            cor = cor[0]
-
-            gofs = {}
-            tested_snps = {}
-            for BAD in states:
-                stats = collect_stats_df(dataset_df, BAD)
-                counts_arrays = []
-                expected_arrays = []
-                for cov in range(min_cov, max_cov + 1):
-                    counts_array = np.zeros(cov + 1, dtype=np.int_)
-                    for ref in range(5, cov - 5 + 1):
-                        counts = stats[(stats['ref'] == ref) & (stats['alt'] == cov - ref)]['counts'].to_list()
-                        if len(counts) == 1:
-                            counts_array[ref] = counts[0]
-                        elif len(counts) > 1:
-                            print(counts)
-                    counts_arrays.append(counts_array)
-                    expected_arrays.append(make_binom_density(cov, BAD, 5) * counts_array.sum())
-                observed = np.concatenate(counts_arrays)
-                expected = np.concatenate(expected_arrays)
-                norm = observed.sum()
-                tested_snps[BAD] = norm
-                gofs[BAD] = calculate_gof(observed, expected, observed.sum(), 1)
-
-            out.write(pack([cell_line, lab, cor] +
-                           [gofs[BAD] for BAD in states] +
-                           [tested_snps[BAD] for BAD in states]))
+    return test_dfs
 
 
-def main(min_cov, max_cov):
+def process_for_dataset(mode, dataset, dataset_df, cors, min_cov, max_cov):
+    states = get_states_from_model_name(mode)
+    cell_line, lab = dataset.split('@')
+    cor = cors[(cors['#cell_line'] == cell_line) & (cors['cells'] == lab)][
+        'cor_by_snp_{}'.format(mode)].tolist()
+    assert len(cor) == 1
+    cor = cor[0]
+
+    gofs = {}
+    tested_snps = {}
+    for BAD in states:
+        stats = collect_stats_df(dataset_df, BAD)
+        counts_arrays = []
+        expected_arrays = []
+        for cov in range(min_cov, max_cov + 1):
+            counts_array = np.zeros(cov + 1, dtype=np.int_)
+            for ref in range(5, cov - 5 + 1):
+                counts = stats[(stats['ref'] == ref) & (stats['alt'] == cov - ref)]['counts'].to_list()
+                if len(counts) == 1:
+                    counts_array[ref] = counts[0]
+                elif len(counts) > 1:
+                    print(counts)
+            counts_arrays.append(counts_array)
+            expected_arrays.append(make_binom_density(cov, BAD, 5) * counts_array.sum())
+        observed = np.concatenate(counts_arrays)
+        expected = np.concatenate(expected_arrays)
+        norm = observed.sum()
+        tested_snps[BAD] = norm
+        gofs[BAD] = calculate_gof(observed, expected, observed.sum(), 1)
+
+    with open(get_excluded_badmaps_list_path(model=mode, remake=False), 'a') as out:
+        out.write(pack([cell_line, lab, cor] +
+                       [gofs[BAD] for BAD in states] +
+                       [tested_snps[BAD] for BAD in states]))
+
+
+def main(min_cov, max_cov, n_jobs):
     modes = get_babachi_models_list(remake=False)
     correlation_file_path = get_correlation_file_path(remake=False)
     cors = pd.read_table(correlation_file_path)
 
-    mode_process = lambda mode: process_for_mode(mode, cors, min_cov, max_cov)
+    mode_process_init = lambda mode: init_process_for_mode(mode, cors)
+    test_dfs_lists = Parallel(n_jobs=len(modes))(delayed(mode_process_init)(mode) for mode in modes)
 
-    processes = {
-        mode: Process(target=mode_process, args=(mode,))
-        for mode in modes
-    }
-    for mode in modes:
-        processes[mode].start()
-    for mode in modes:
-        processes[mode].join()
+    def dataset_process(mode, dataset, dataset_df):
+        process_for_dataset(mode, dataset, dataset_df, cors, min_cov, max_cov)
 
-
-if __name__ == '__main__':
-    main(20, 50)
+    Parallel(n_jobs=n_jobs, verbose=10)(delayed(dataset_process)(mode, dataset, dataset_df)
+                       for mode, test_dfs in zip(modes, test_dfs_lists)
+                       for dataset, dataset_df in test_dfs_lists)

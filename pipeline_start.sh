@@ -89,7 +89,7 @@ if [ "$stage_index" -le 4 ]; then
 #    exit 1
 #  fi
   if [ "$apply_filter" -eq 1 ]; then
-    if ! adastra create_badmaps_filter
+    if ! adastra create_badmaps_filter --njobs "$njobs"
     then
       echo 'BAD maps filter creation failed'
       exit 1
