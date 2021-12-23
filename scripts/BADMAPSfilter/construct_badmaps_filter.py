@@ -113,7 +113,8 @@ def make_binom_density(cov, BAD, allele_tr):
     return res / norm
 
 
-def init_process_for_mode(mode, cors):
+def init_process_for_mode(args):
+    mode, cors = args
     test_dfs = open_dfs(cors, mode, remake=False, concat=False)
     print('Test concatenated {}'.format(mode))
     states = get_states_from_model_name(mode)
