@@ -19,7 +19,8 @@ setup(
         'requests>=2.24.0',
         'statsmodels>=0.11.1',
         'scipy>=1.4.1',
-        'babachi>=1.5.6'
+        'babachi>=1.5.6',
+        'joblib>=1.0.1'
     ],
     python_requires='>=3.6',
 )
