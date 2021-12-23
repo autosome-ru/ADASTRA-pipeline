@@ -100,8 +100,8 @@ def calculate_gof(counts_array, expected, norm, number_of_params):
 def make_binom_density(cov, BAD, allele_tr):
     b1 = st.binom(cov, 1 / (BAD + 1))
     b2 = st.binom(cov, BAD / (BAD + 1))
-    pdf1 = b1.pdf
-    pdf2 = b2.pdf
+    pdf1 = b1.pmf
+    pdf2 = b2.pmf
     cdf = lambda x: 0.5 * (b1.cdf(x) + b2.cdf(x))
     sf = lambda x: 0.5 * (b1.sf(x) + b2.sf(x))
     norm = cdf(cov - allele_tr) + sf(allele_tr - 1) - 1
