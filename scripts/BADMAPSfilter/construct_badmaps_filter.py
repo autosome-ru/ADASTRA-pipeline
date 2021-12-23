@@ -18,15 +18,15 @@ def find_test_datasets(cor_stats_path):
     return df
 
 
-def get_path(row, remake=False):
-    return os.path.join(get_correlation_path(), 'CAIC_tables{}/'.format('_filtered' if remake else '')
+def get_path(row, model, remake=False):
+    return os.path.join(get_correlation_path(), '{}_tables{}/'.format(model, '_filtered' if remake else '')
                               + row['#cell_line'] + '@' + row['cells'] + '.tsv')
 
 
-def open_dfs(df, concat=True, remake=False):
+def open_dfs(df, model, concat=True, remake=False):
     res_dfs = []
     for index, row in df.iterrows():
-        path = get_path(row, remake=remake)
+        path = get_path(row, model, remake=remake)
         try:
             tmp_df = pd.read_table(path, comment='#', header=None)
         except EmptyDataError:
@@ -115,10 +115,11 @@ def main(min_cov, max_cov):
     modes = get_babachi_models_list(remake=False)
     correlation_file_path = get_correlation_file_path(remake=False)
     cor_df_test = find_test_datasets(correlation_file_path)
-    test_dfs = open_dfs(cor_df_test, remake=False, concat=False)
     cors = pd.read_table(correlation_file_path)
-    print('Test concatenated')
+
     for mode in modes:
+        test_dfs = open_dfs(cor_df_test, mode, remake=False, concat=False)
+        print('Test concatenated {}'.format(mode))
         states = get_states_from_model_name(mode)
 
         with open(get_excluded_badmaps_list_path(model=mode, remake=False), 'w') as out:
