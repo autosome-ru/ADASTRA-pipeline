@@ -1,4 +1,5 @@
 import json
+from multiprocessing import Process, Pool
 
 import pandas as pd
 from pandas.errors import EmptyDataError
@@ -167,7 +168,9 @@ def main(min_cov, max_cov, n_jobs):
     cors = pd.read_table(correlation_file_path)
 
     mode_process_init = lambda mode: init_process_for_mode(mode, cors)
-    test_dfs_lists = Parallel(n_jobs=len(modes))(delayed(mode_process_init)(mode) for mode in modes)
+
+    pool = Pool(processes=5)
+    test_dfs_lists = pool.map(mode_process_init, modes)
 
     def dataset_process(mode, dataset, dataset_df):
         process_for_dataset(mode, dataset, dataset_df, cors, min_cov, max_cov)
