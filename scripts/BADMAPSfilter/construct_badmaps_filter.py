@@ -102,7 +102,7 @@ def make_binom_density(cov, BAD, allele_tr):
     b2 = st.binom(cov, BAD / (BAD + 1))
     pdf1 = b1.pdf
     pdf2 = b2.pdf
-    cdf = lambda x: 0.5 * (b1.cdf(x) + b2.cfd(x))
+    cdf = lambda x: 0.5 * (b1.cdf(x) + b2.cdf(x))
     sf = lambda x: 0.5 * (b1.sf(x) + b2.sf(x))
     norm = cdf(cov - allele_tr) + sf(allele_tr - 1) - 1
 
