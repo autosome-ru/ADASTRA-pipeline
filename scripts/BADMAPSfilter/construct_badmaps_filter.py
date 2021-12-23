@@ -138,7 +138,7 @@ def process_for_mode(mode, cors, min_cov, max_cov):
                 for cov in range(min_cov, max_cov + 1):
                     counts_array = np.zeros(cov + 1, dtype=np.int_)
                     for ref in range(5, cov - 5 + 1):
-                        counts_array[ref] = stats[(stats['ref'] == ref) & (stats['alt'] == cov - ref)].tolist()[0]
+                        counts_array[ref] = stats[(stats['ref'] == ref) & (stats['alt'] == cov - ref)]['counts']
                     counts_arrays.append(counts_array)
                     expected_arrays.append(make_binom_density(cov, BAD, 5) * counts_array.sum())
                 observed = np.concatenate(counts_arrays)
