@@ -106,7 +106,7 @@ def make_binom_density(cov, BAD, allele_tr):
     sf = lambda x: 0.5 * (b1.sf(x) + b2.sf(x))
     norm = cdf(cov - allele_tr) + sf(allele_tr - 1) - 1
 
-    res = np.array(cov + 1, dtype=np.int_)
+    res = np.zeros(cov + 1, dtype=np.int_)
     for i in range(allele_tr, cov - allele_tr + 1):
         res[i] = 0.5 * (pdf1(i) + pdf2(i))
     return res / norm
