@@ -24,6 +24,7 @@ Usage:
             adastra join_correlation_threads [--remake]
             adastra collect_release_stats
             adastra weights_to_df
+            adastra collect_roc [cell_line_wise] --group <group>
             adastra extract_sarus_data --name <name> --motif-len <int>
             adastra annotate_table_with_sarus --name <name> --motif-len <int>
             adastra annotate_with_phenotypes [--dir <path>]
