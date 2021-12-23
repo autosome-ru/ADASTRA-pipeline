@@ -29,7 +29,7 @@ master_list_header = '#EXP	TF_UNIPROT_ID	ANTIBODY	TREATMENT	SPECIE	CELL_ID	CELLS
 dtype_dict = {name: str if name != 'READS_ALIGNED' else np.float_ for name in master_list_header.split('\t')}
 
 test_percentiles_list = [1, 3, 5, 7, 10, 20, 50]
-cover_procentiles_list = [25, 50, 75]
+cover_percentiles_list = [25, 50, 75]
 
 default_model = 'CAIC@full_6@4'
 

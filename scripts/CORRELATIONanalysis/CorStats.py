@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import errno
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos, get_states, \
-    test_percentiles_list, cover_procentiles_list, get_snp_dirs_in_correlation_for_corstats
+    test_percentiles_list, cover_percentiles_list, get_snp_dirs_in_correlation_for_corstats
 from scripts.HELPERS.paths_for_components import cgh_path, cosmic_path, badmaps_path
 from scripts.HELPERS.paths import get_correlation_path, get_heatmap_data_path, get_badmaps_path_by_validity
 
@@ -138,11 +138,11 @@ def get_p_value_tails_weights(percentiles_list, df):
 def filter_segments_or_datasets(snps_path, states, percentiles_list):
     with open(snps_path, 'r') as out:
         if not out.readline():
-            return ['NaN'] * (len(percentiles_list) + len(cover_procentiles_list)), '{}'
+            return ['NaN'] * (len(percentiles_list) * 2 + len(cover_percentiles_list)), '{}'
     try:
         out_table = pd.read_table(snps_path, header=None, comment='#')
     except EmptyDataError:
-        return ['NaN'] * (len(percentiles_list) + len(cover_procentiles_list)), '{}'
+        return ['NaN'] * (len(percentiles_list) * 2 + len(cover_percentiles_list)), '{}'
     out_table.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(BAD) for BAD in states] + ['snps_n',
                                                                                                            'sumcov',
                                                                                                            'dataset',
@@ -151,7 +151,7 @@ def filter_segments_or_datasets(snps_path, states, percentiles_list):
     quals = get_p_value_quantiles(test_percentiles_list, out_table)
     p_tails = get_p_value_tails_weights(test_percentiles_list, out_table)
     cover_list = out_table['ref'] + out_table['alt']
-    q_var = [np.quantile(cover_list, q/100) for q in cover_procentiles_list]
+    q_var = [np.quantile(cover_list, q/100) for q in cover_percentiles_list]
 
     datasets_info = {}
     for dataset in out_table['dataset'].unique():
@@ -164,7 +164,7 @@ def filter_segments_or_datasets(snps_path, states, percentiles_list):
             'cover': sum(cover_list),
             'quals': {'Q{}'.format(pr): q for pr, q in zip(test_percentiles_list, quals)},
             'p_tails': {'P{}'.format(p): len(table[table['p_value'] <= p / 100].index) / total for p in percentiles_list},
-            'cover_quals': {'CQ{}'.format(q): np.quantile(cover_list, q/100) for q in cover_procentiles_list},
+            'cover_quals': {'CQ{}'.format(q): np.quantile(cover_list, q/100) for q in cover_percentiles_list},
         }
 
     return quals + p_tails + q_var, datasets_info

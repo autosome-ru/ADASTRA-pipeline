@@ -1,6 +1,6 @@
 import os
 
-from scripts.HELPERS.helpers import test_percentiles_list, cover_procentiles_list
+from scripts.HELPERS.helpers import test_percentiles_list, cover_percentiles_list
 from scripts.HELPERS.paths import get_correlation_path, get_correlation_file_path
 
 
@@ -31,9 +31,9 @@ def main(remake=False):
                                  ['P{}_{}'.format(percentile, get_name_by_dir(snp_dir)) for
                                   percentile in test_percentiles_list] +
                                  ['CQ{}_{}'.format(percentile, get_name_by_dir(snp_dir)) for
-                                  percentile in cover_procentiles_list]
+                                  percentile in cover_percentiles_list]
                                  for snp_dir in snp_dirs] +
-                                [['datasets_info']]
+                                [['datasets_info_{}'.format(model)] for model in snp_dirs]
                                 )) + '\n')
 
         for file_name in os.listdir(correlation_path):
