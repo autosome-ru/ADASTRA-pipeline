@@ -44,9 +44,9 @@ def open_dfs(df, model, concat=True, remake=False):
             tmp_df['min'] = tmp_df[['ref', 'alt']].min(axis=1)
             # tmp_df['es'] = -np.log2(tmp_df['max'] / tmp_df['min'] / tmp_df['BAD'])
             if res_dfs is None:
-                res_dfs = [(group, tmp_df)]
+                res_dfs = [(group, tmp_df.to_dict())]
             else:
-                res_dfs.append((group, tmp_df))
+                res_dfs.append((group, tmp_df.to_dict()))
         else:
             tmp_df['group'] = group
             tmp_df['cell_line'] = row['#cell_line']
@@ -172,6 +172,6 @@ def main(min_cov, max_cov, n_jobs):
     def dataset_process(mode, dataset, dataset_df):
         process_for_dataset(mode, dataset, dataset_df, cors, min_cov, max_cov)
 
-    Parallel(n_jobs=n_jobs, verbose=10)(delayed(dataset_process)(mode, dataset, dataset_df)
+    Parallel(n_jobs=n_jobs, verbose=10)(delayed(dataset_process)(mode, dataset, pd.DataFrame(dataset_df))
                        for mode, test_dfs in zip(modes, test_dfs_lists)
                        for dataset, dataset_df in test_dfs_lists)
