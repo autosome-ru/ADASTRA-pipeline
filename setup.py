@@ -20,7 +20,8 @@ setup(
         'statsmodels>=0.11.1',
         'scipy>=1.4.1',
         'babachi>=1.5.6',
-        'joblib>=1.0.1'
+        'joblib>=1.0.1',
+        'tqdm>=4.62.3'
     ],
     python_requires='>=3.6',
 )

@@ -8,6 +8,8 @@ import numpy as np
 from scipy.stats import levene
 import statsmodels.stats.multitest
 
+from tqdm import tqdm
+
 from scripts.HELPERS.helpers import pack, segmentation_states, get_babachi_models_list, get_states_from_model_name
 from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path, get_correlation_path, \
     get_release_stats_path
@@ -189,7 +191,7 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
                        [tested_snps[BAD] for BAD in states]))
 
 
-def main(min_cov, max_cov, n_jobs, collect_stats=False):
+def main(min_cov, max_cov, n_jobs, collect_stats=True):
     modes = get_babachi_models_list(remake=False)
     correlation_file_path = get_correlation_file_path(remake=False)
     cors = pd.read_table(correlation_file_path)
@@ -218,7 +220,7 @@ def main(min_cov, max_cov, n_jobs, collect_stats=False):
         datasets_lists = []
         for mode in modes:
             list_for_mode = []
-            for index, row in cors.iterrows():
+            for index, row in tqdm(cors.iterrows()):
                 ok, dataset, _ = get_data_from_cor_row(row, mode)
                 if ok:
                     list_for_mode.append(dataset)
