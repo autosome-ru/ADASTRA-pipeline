@@ -159,7 +159,7 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
     gofs = {}
     tested_snps = {}
     for BAD in states:
-        stats = pd.DataFrame(stats_for_bads_dict[BAD])
+        stats = pd.DataFrame(stats_for_bads_dict[str(BAD)], dtype=np.int_)
         counts_arrays = []
         expected_arrays = []
         for cov in range(min_cov, max_cov + 1):
@@ -184,7 +184,7 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
                        [tested_snps[BAD] for BAD in states]))
 
 
-def main(min_cov, max_cov, n_jobs, collect_stats=True):
+def main(min_cov, max_cov, n_jobs, collect_stats=False):
     modes = get_babachi_models_list(remake=False)
     correlation_file_path = get_correlation_file_path(remake=False)
     cors = pd.read_table(correlation_file_path)
