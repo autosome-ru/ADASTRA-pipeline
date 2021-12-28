@@ -157,6 +157,7 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
 
     stats_dir = os.path.join(get_release_stats_path(), 'filter_stats')
     file_name = '{}_{}_stats.json'.format(dataset, mode)
+    print(file_name)
     with open(os.path.join(stats_dir, file_name)) as file:
         stats_for_bads_dict = json.load(file)
 
