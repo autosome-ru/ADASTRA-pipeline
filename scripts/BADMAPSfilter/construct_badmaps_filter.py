@@ -145,7 +145,11 @@ def init_process_for_mode(args):
 
 def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
     states = get_states_from_model_name(mode)
-    cell_line, lab = dataset.split('@')
+    try:
+        cell_line, lab = dataset.split('@')
+    except Exception:
+        print(dataset)
+        raise
     cor = cors[(cors['#cell_line'] == cell_line) & (cors['cells'] == lab)][
         'cor_by_snp_{}'.format(mode)].tolist()
     assert len(cor) == 1
