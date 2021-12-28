@@ -9,7 +9,8 @@ from scipy.stats import levene
 import statsmodels.stats.multitest
 
 from scripts.HELPERS.helpers import pack, segmentation_states, get_babachi_models_list, get_states_from_model_name
-from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path, get_correlation_path
+from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path, get_correlation_path, \
+    get_release_stats_path
 
 from scipy import stats as st
 from joblib import Parallel, delayed
@@ -25,29 +26,41 @@ def get_path(row, model, remake=False):
                               + row['#cell_line'] + '@' + row['cells'] + '.tsv')
 
 
+def get_data_from_cor_row(row, model, remake=False):
+    group = make_dataset(row['#cell_line'], row['cells'])
+    path = get_path(row, model, remake=remake)
+    try:
+        tmp_df = pd.read_table(path, comment='#', header=None)
+    except EmptyDataError:
+        return False, None, None
+    return True, group, tmp_df
+
+
 def open_dfs(df, model, concat=True, remake=False):
     res_dfs = []
     for index, row in df.iterrows():
-        path = get_path(row, model, remake=remake)
-        try:
-            tmp_df = pd.read_table(path, comment='#', header=None)
-        except EmptyDataError:
-            continue
+        group, tmp_df = get_data_from_cor_row(row, model, remake=False)
+        states = get_states_from_model_name(model)
         tmp_df.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(b) for b in
-                                                               get_states_from_model_name(model)] + ['snps', 'cov',
+                                                               states] + ['snps', 'cov',
                                                                                        'dataset',
                                                                                        'seg_id',
                                                                                        'p_value']
-        group = make_dataset(row['#cell_line'], row['cells'])
         if not concat:
             tmp_df['cov'] = tmp_df['ref'] + tmp_df['alt']
             tmp_df['max'] = tmp_df[['ref', 'alt']].max(axis=1)
             tmp_df['min'] = tmp_df[['ref', 'alt']].min(axis=1)
             # tmp_df['es'] = -np.log2(tmp_df['max'] / tmp_df['min'] / tmp_df['BAD'])
+
+            stats = {
+                BAD: collect_stats_df(tmp_df, BAD).to_dict()
+                for BAD in states
+            }
+
             if res_dfs is None:
-                res_dfs = [(group, tmp_df.to_dict())]
+                res_dfs = [(group, stats)]
             else:
-                res_dfs.append((group, tmp_df.to_dict()))
+                res_dfs.append((group, stats))
         else:
             tmp_df['group'] = group
             tmp_df['cell_line'] = row['#cell_line']
@@ -56,6 +69,7 @@ def open_dfs(df, model, concat=True, remake=False):
             else:
                 res_dfs.append(tmp_df)
     if concat:
+        # FIXME collect stats here too
         res_df = pd.concat(res_dfs)
         res_df['cov'] = res_df['ref'] + res_df['alt']
         res_df['max'] = res_df[['ref', 'alt']].max(axis=1)
@@ -127,7 +141,7 @@ def init_process_for_mode(args):
     return test_dfs
 
 
-def process_for_dataset(mode, dataset, dataset_df, cors, min_cov, max_cov):
+def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
     states = get_states_from_model_name(mode)
     cell_line, lab = dataset.split('@')
     cor = cors[(cors['#cell_line'] == cell_line) & (cors['cells'] == lab)][
@@ -135,10 +149,15 @@ def process_for_dataset(mode, dataset, dataset_df, cors, min_cov, max_cov):
     assert len(cor) == 1
     cor = cor[0]
 
+    stats_dir = os.path.join(get_release_stats_path(), 'filter_stats')
+    file_name = '{}_{}_stats.json'.format(dataset, mode)
+    with open(os.path.join(stats_dir, file_name)) as file:
+        stats_for_bads_dict = json.load(file)
+
     gofs = {}
     tested_snps = {}
     for BAD in states:
-        stats = collect_stats_df(dataset_df, BAD)
+        stats = pd.DataFrame(stats_for_bads_dict[BAD])
         counts_arrays = []
         expected_arrays = []
         for cov in range(min_cov, max_cov + 1):
@@ -163,17 +182,43 @@ def process_for_dataset(mode, dataset, dataset_df, cors, min_cov, max_cov):
                        [tested_snps[BAD] for BAD in states]))
 
 
-def main(min_cov, max_cov, n_jobs):
+def main(min_cov, max_cov, n_jobs, collect_stats=True):
     modes = get_babachi_models_list(remake=False)
     correlation_file_path = get_correlation_file_path(remake=False)
     cors = pd.read_table(correlation_file_path)
+    stats_dir = os.path.join(get_release_stats_path(), 'filter_stats')
 
-    pool = Pool(processes=5)
-    test_dfs_lists = pool.map(init_process_for_mode, ((mode, cors) for mode in modes))
+    if collect_stats:
+        pool = Pool(processes=5)
+        test_dfs_lists = pool.map(
+            init_process_for_mode, ((mode, cors) for mode in modes)
+        )
 
-    def dataset_process(mode, dataset, dataset_df):
-        process_for_dataset(mode, dataset, dataset_df, cors, min_cov, max_cov)
+        if not os.path.isdir(stats_dir):
+            os.mkdir(stats_dir)
+        for mode, test_dfs in zip(modes, test_dfs_lists):
+            for dataset, stats in test_dfs:
+                file_name = '{}_{}_stats.json'.format(dataset, mode)
+                with open(os.path.join(stats_dir, file_name), 'w') as file:
+                    json.dump(stats, file, indent=2)
+        datasets_lists = [
+            [dataset for dataset, _ in test_dfs]
+            for test_dfs in test_dfs_lists
+        ]
 
-    Parallel(n_jobs=n_jobs, verbose=10)(delayed(dataset_process)(mode, dataset, pd.DataFrame(dataset_df))
-                       for mode, test_dfs in zip(modes, test_dfs_lists)
-                       for dataset, dataset_df in test_dfs)
+    else:
+        datasets_lists = []
+        for mode in modes:
+            list_for_mode = []
+            for index, row in cors.iterrows():
+                ok, dataset, _ = get_data_from_cor_row(row, mode)
+                if ok:
+                    list_for_mode.append(mode)
+            datasets_lists.append(list_for_mode)
+
+    def dataset_process(mode, dataset):
+        process_for_dataset(mode, dataset, cors, min_cov, max_cov)
+
+    Parallel(n_jobs=n_jobs, verbose=10)(delayed(dataset_process)(mode, dataset)
+                       for mode, datasets in zip(modes, datasets_lists)
+                       for dataset in datasets)
