@@ -219,7 +219,7 @@ def main(min_cov, max_cov, n_jobs, collect_stats=False):
             for index, row in cors.iterrows():
                 ok, dataset, _ = get_data_from_cor_row(row, mode)
                 if ok:
-                    list_for_mode.append(mode)
+                    list_for_mode.append(dataset)
             datasets_lists.append(list_for_mode)
 
     def dataset_process(mode, dataset):
