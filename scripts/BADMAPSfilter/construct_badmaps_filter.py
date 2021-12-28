@@ -226,6 +226,7 @@ def main(min_cov, max_cov, n_jobs, collect_stats=False):
     def dataset_process(mode, dataset):
         process_for_dataset(mode, dataset, cors, min_cov, max_cov)
 
+    print('Preprocessing finished')
     Parallel(n_jobs=n_jobs, verbose=10)(delayed(dataset_process)(mode, dataset)
                        for mode, datasets in zip(modes, datasets_lists)
                        for dataset in datasets)
