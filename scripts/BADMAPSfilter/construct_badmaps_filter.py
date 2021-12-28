@@ -195,6 +195,7 @@ def main(min_cov, max_cov, n_jobs, collect_stats=False):
     cors = pd.read_table(correlation_file_path)
     stats_dir = os.path.join(get_release_stats_path(), 'filter_stats')
 
+    print('Preprocessing started')
     if collect_stats:
         pool = Pool(processes=5)
         test_dfs_lists = pool.map(
