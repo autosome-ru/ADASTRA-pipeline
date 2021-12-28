@@ -176,4 +176,4 @@ def main(min_cov, max_cov, n_jobs):
 
     Parallel(n_jobs=n_jobs, verbose=10)(delayed(dataset_process)(mode, dataset, pd.DataFrame(dataset_df))
                        for mode, test_dfs in zip(modes, test_dfs_lists)
-                       for dataset, dataset_df in test_dfs_lists)
+                       for dataset, dataset_df in test_dfs)
