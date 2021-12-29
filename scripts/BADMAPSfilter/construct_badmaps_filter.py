@@ -110,9 +110,11 @@ def calculate_gof(counts_array, expected, norm, number_of_params):
 
     idxs = (observed != 0) & (expected != 0)
     if idxs.sum() <= number_of_params + 1:
+        print('0')
         return 0
     df = idxs.sum() - 1 - number_of_params
     stat = np.sum(observed[idxs] * (np.log(observed[idxs]) - np.log(expected[idxs]))) * 2
+    print('stat', stat)
     return rmsea_gof(stat, df, norm)
 
 
