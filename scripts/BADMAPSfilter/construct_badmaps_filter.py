@@ -128,7 +128,7 @@ def make_binom_density(cov, BAD, allele_tr):
     res = np.zeros(cov + 1, dtype=np.float_)
     for i in range(allele_tr, cov - allele_tr + 1):
         res[i] = 0.5 * (pdf1(i) + pdf2(i))
-    return res * norm
+    return res / norm
 
 
 def init_process_for_mode(args):
