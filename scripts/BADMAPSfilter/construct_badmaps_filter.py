@@ -110,11 +110,9 @@ def calculate_gof(counts_array, expected, norm, number_of_params):
 
     idxs = (observed != 0) & (expected != 0)
     if idxs.sum() <= number_of_params + 1:
-        print('0')
         return 0
     df = idxs.sum() - 1 - number_of_params
     stat = np.sum(observed[idxs] * (np.log(observed[idxs]) - np.log(expected[idxs]))) * 2
-    print('stat', stat)
     return rmsea_gof(stat, df, norm)
 
 
@@ -127,10 +125,10 @@ def make_binom_density(cov, BAD, allele_tr):
     sf = lambda x: 0.5 * (b1.sf(x) + b2.sf(x))
     norm = cdf(cov - allele_tr) + sf(allele_tr - 1) - 1
 
-    res = np.zeros(cov + 1, dtype=np.int_)
+    res = np.zeros(cov + 1, dtype=np.float_)
     for i in range(allele_tr, cov - allele_tr + 1):
         res[i] = 0.5 * (pdf1(i) + pdf2(i))
-    return res / norm
+    return res * norm
 
 
 def init_process_for_mode(args):
@@ -185,7 +183,7 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
         expected = np.concatenate(expected_arrays)
         norm = observed.sum()
         tested_snps[BAD] = norm
-        gofs[BAD] = calculate_gof(observed, expected, observed.sum(), 1)
+        gofs[BAD] = calculate_gof(observed, expected, norm, 1)
 
     with open(get_excluded_badmaps_list_path(model=mode, remake=False), 'a') as out:
         out.write(pack([cell_line, lab, cor] +
