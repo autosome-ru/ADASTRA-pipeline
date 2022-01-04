@@ -5,14 +5,13 @@ import pandas as pd
 from pandas.errors import EmptyDataError
 import os
 import numpy as np
-from scipy.stats import levene
-import statsmodels.stats.multitest
+
 
 from tqdm import tqdm
-
-from scripts.HELPERS.helpers import pack, segmentation_states, get_babachi_models_list, get_states_from_model_name
+from scripts.HELPERS.helpers import pack, get_models_list, get_states_from_model_name
 from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path, get_correlation_path, \
     get_release_stats_path
+
 
 from scipy import stats as st
 from joblib import Parallel, delayed
@@ -38,50 +37,55 @@ def get_data_from_cor_row(row, model, remake=False):
     return True, group, tmp_df
 
 
-def open_dfs(df, model, concat=True, remake=False):
+def open_dfs(df, model, remake=False):
     res_dfs = []
+    states = get_states_from_model_name(model)
+    global_stats = {'all': {
+                BAD: [] for BAD in states
+            }}
     for index, row in df.iterrows():
         ok, group, tmp_df = get_data_from_cor_row(row, model, remake=remake)
         if not ok:
             continue
-        states = get_states_from_model_name(model)
         tmp_df.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(b) for b in
                                                                states] + ['snps', 'cov',
                                                                                        'dataset',
                                                                                        'seg_id',
                                                                                        'p_value']
-        if not concat:
-            tmp_df['cov'] = tmp_df['ref'] + tmp_df['alt']
-            tmp_df['max'] = tmp_df[['ref', 'alt']].max(axis=1)
-            tmp_df['min'] = tmp_df[['ref', 'alt']].min(axis=1)
-            # tmp_df['es'] = -np.log2(tmp_df['max'] / tmp_df['min'] / tmp_df['BAD'])
+        tmp_df['cov'] = tmp_df['ref'] + tmp_df['alt']
+        tmp_df['max'] = tmp_df[['ref', 'alt']].max(axis=1)
+        tmp_df['min'] = tmp_df[['ref', 'alt']].min(axis=1)
+        # tmp_df['es'] = -np.log2(tmp_df['max'] / tmp_df['min'] / tmp_df['BAD'])
 
-            stats = {
-                BAD: collect_stats_df(tmp_df, BAD).to_dict()
-                for BAD in states
+        stats_dfs = {
+            BAD: collect_stats_df(tmp_df, BAD)
+            for BAD in states
+        }
+
+        stats_for_dataset = {
+            BAD: stats_dfs[BAD].to_dict()
+            for BAD in states
+        }
+
+        if row['#cell_line'] not in global_stats:
+            global_stats[row['#cell_line']] = {
+                BAD: [] for BAD in states
             }
+        for BAD in states:
+            global_stats[row['#cell_line']][BAD].append(stats_dfs[BAD])
+            global_stats['all'][BAD].append(stats_dfs[BAD])
 
-            if res_dfs is None:
-                res_dfs = [(group, stats)]
-            else:
-                res_dfs.append((group, stats))
-        else:
-            tmp_df['group'] = group
-            tmp_df['cell_line'] = row['#cell_line']
-            if res_dfs is None:
-                res_dfs = [tmp_df]
-            else:
-                res_dfs.append(tmp_df)
-    if concat:
-        # FIXME collect stats here too
-        res_df = pd.concat(res_dfs)
-        res_df['cov'] = res_df['ref'] + res_df['alt']
-        res_df['max'] = res_df[['ref', 'alt']].max(axis=1)
-        res_df['min'] = res_df[['ref', 'alt']].min(axis=1)
-        # res_df['es'] = -np.log2(res_df['max'] / res_df['min'] / res_df['BAD'])
-        return res_df
-    else:
-        return res_dfs
+        res_dfs.append((group, stats_for_dataset))
+
+    for key in global_stats:
+        res_dfs.append(
+            (key, {
+                BAD: pd.concat(global_stats[key][BAD]).groupby(['ref', 'alt']).sum().reset_index().to_dict()
+                for BAD in states
+            })
+        )
+
+    return res_dfs
 
 
 def make_dataset(cell_line, lab):
@@ -192,7 +196,7 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
 
 
 def main(min_cov, max_cov, n_jobs, collect_stats=True):
-    modes = get_babachi_models_list(remake=False)
+    modes = get_models_list()
     correlation_file_path = get_correlation_file_path(remake=False)
     cors = pd.read_table(correlation_file_path)
     stats_dir = os.path.join(get_release_stats_path(), 'filter_stats')

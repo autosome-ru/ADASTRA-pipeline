@@ -3,7 +3,7 @@ import os.path
 
 from scripts.HELPERS.paths import get_ending, get_new_badmaps_dict_path
 from scripts.HELPERS.paths_for_components import parallel_parameters_path, badmaps_dict_path
-from scripts.HELPERS.helpers import read_synonims, caic_values, states_sets, default_model
+from scripts.HELPERS.helpers import read_synonims, default_model, get_models_list
 
 out_path = os.path.join(parallel_parameters_path, 'BE_parameters.cfg')
 
@@ -36,9 +36,8 @@ def main(only_cosmic=False, remake=False):
                     break
             if is_empty:
                 continue
-            for caic in caic_values:
-                for state_sign in states_sets:
-                    file.write("{},{},{}\n".format(key, state_sign, caic))
+            for model in get_models_list():
+                file.write("{},{}\n".format(key, model))
 
 
 if __name__ == '__main__':

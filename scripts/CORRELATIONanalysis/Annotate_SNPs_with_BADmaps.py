@@ -7,8 +7,7 @@ import errno
 
 
 from scripts.HELPERS.paths_for_components import badmaps_path, badmaps_dict_path
-from scripts.HELPERS.helpers import Intersection, pack, UnpackBadSegments, get_babachi_models_list, \
-    get_states_from_model_name
+from scripts.HELPERS.helpers import Intersection, pack, UnpackBadSegments, get_states_from_model_name, get_models_list
 from scripts.HELPERS.paths import get_badmaps_path_by_validity, get_correlation_path
 
 
@@ -28,7 +27,7 @@ def main(file_name, remake=False):
     with open(badmaps_dict_path, 'r') as file:
         aligns_by_cell_type = json.loads(file.readline().strip())
 
-    modes = get_babachi_models_list(remake=remake)
+    modes = get_models_list()
 
     try:
         assert os.path.isfile(os.path.join(badmaps_path, 'merged_vcfs', file_name))

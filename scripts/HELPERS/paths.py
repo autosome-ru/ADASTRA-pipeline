@@ -1,5 +1,5 @@
-import errno
 import os
+
 from .paths_for_components import alignments_path, badmaps_path, tf_dict_path, \
     cl_dict_path, configs_path, results_path, badmaps_dict_path
 
@@ -53,21 +53,6 @@ def get_heatmap_data_path():
 
 def get_badmaps_path_by_validity(valid=False):
     return os.path.join(badmaps_path, 'valid' if valid else 'raw')
-
-
-def create_badmaps_path_function(name, states_set=None, b_penalty=None, valid=False):
-    if states_set is not None or b_penalty is not None:
-        badmaps_dir = os.path.join(get_badmaps_path_by_validity(valid), 'CAIC@{}@{}'.format(states_set, b_penalty))
-    else:
-        badmaps_dir = os.path.join(get_badmaps_path_by_validity(valid), 'CAIC')
-    if not os.path.isdir(badmaps_dir):
-        try:
-            os.mkdir(badmaps_dir)
-        except OSError as exc:
-            if exc.errno != errno.EEXIST:
-                raise
-            pass
-    return os.path.join(badmaps_dir, name + ".badmap.tsv")
 
 
 def create_merged_vcf_path_function(name):

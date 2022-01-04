@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import numpy as np
 
-from scripts.HELPERS.helpers import get_states
+from scripts.HELPERS.helpers import get_states, get_model_name_from_params, get_params_from_model_name
 from scripts.HELPERS.paths import get_heatmap_data_path
 
 cell_sign_dict = {
@@ -27,8 +27,8 @@ def cell_line_in_file_from_sign(cell_sign, file):
         return False
 
 
-def main(states_sign, b_penalty):
-    model = 'CAIC@{}@{}'.format(states_sign, b_penalty)
+def main(model):
+    states_sign = get_params_from_model_name(model)['states_set']
     print(model)
     for cell_sign in ('K562', 'MCF7', 'A549', 'HCT116', '22RV1', 'Other'):
         print(cell_sign)
