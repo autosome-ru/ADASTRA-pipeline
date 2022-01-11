@@ -42,6 +42,26 @@ minimum_ploidy = {
 }
 
 
+def get_states(states_sign):
+    if states_sign == 'int_5':
+        states = [1, 2, 3, 4, 5]
+    elif states_sign == 'int_6':
+        states = [1, 2, 3, 4, 5, 6]
+    elif states_sign == 'full_5':
+        states = [1, 2, 3, 4, 5, 1.5]
+    elif states_sign == 'full_5_and_6':
+        states = [1, 2, 3, 4, 5, 6, 1.5]
+    elif states_sign == 'full_6_but_1.33':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
+    elif states_sign == 'full_6_but_2.5':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3]
+    elif states_sign == 'full_6':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3, 2.5]
+    else:
+        states = segmentation_states
+    return sorted(states)
+
+
 default_params = {
     'states_set': 'full_6',
     'b_penalty': 4,
@@ -423,26 +443,6 @@ class UnpackBadSegments:
         else:
             return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[5]),
                     int(line[6])] + [dict(zip(states, line[7: 7 + len(states)]))]
-
-
-def get_states(states_sign):
-    if states_sign == 'int_5':
-        states = [1, 2, 3, 4, 5]
-    elif states_sign == 'int_6':
-        states = [1, 2, 3, 4, 5, 6]
-    elif states_sign == 'full_5':
-        states = [1, 2, 3, 4, 5, 1.5]
-    elif states_sign == 'full_5_and_6':
-        states = [1, 2, 3, 4, 5, 6, 1.5]
-    elif states_sign == 'full_6_but_1.33':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
-    elif states_sign == 'full_6_but_2.5':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3]
-    elif states_sign == 'full_6':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3, 2.5]
-    else:
-        states = segmentation_states
-    return sorted(states)
 
 
 class CorrelationReader:
