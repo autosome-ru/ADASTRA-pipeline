@@ -155,8 +155,7 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
     try:
         cell_line, lab = dataset.split('@')
     except Exception:
-        print(dataset)
-        raise
+        raise ValueError(dataset)
     cor = cors[(cors['#cell_line'] == cell_line) & (cors['cells'] == lab)][
         'cor_by_snp_{}'.format(mode)].tolist()
     assert len(cor) == 1
