@@ -1,3 +1,5 @@
+import errno
+
 import pandas as pd
 import os
 import numpy as np
@@ -56,4 +58,11 @@ def main(model):
                 sum_df = sum_df.append(df_counts)
 
         res_dir = os.path.join(get_release_stats_path(), 'roc_data')
+        if not os.path.isdir(res_dir):
+            try:
+                os.mkdir(res_dir)
+            except OSError as exc:
+                if exc.errno != errno.EEXIST:
+                    raise
+                pass
         sum_df.to_csv(os.path.join(res_dir, 'counts_deltaqm_{}_{:.2f}.tsv'.format(model, BAD)), index=False, sep='\t')
