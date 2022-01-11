@@ -73,7 +73,7 @@ def get_params_from_model_name(model):
 
 
 def get_states_from_model_name(mode):
-    return get_params_from_model_name(mode)['states_set']
+    return get_states(get_params_from_model_name(mode)['states_set'])
 
 
 segmentation_states = get_states_from_model_name(default_model)
