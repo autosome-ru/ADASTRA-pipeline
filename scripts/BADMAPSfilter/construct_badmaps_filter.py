@@ -81,6 +81,7 @@ def open_dfs(df, model, remake=False):
         res_dfs.append(
             (key, {
                 BAD: pd.concat(global_stats[key][BAD]).groupby(['ref', 'alt']).sum().reset_index().to_dict()
+                if global_stats[key][BAD] != [] else {'ref': [], 'alt': [], 'counts': []}
                 for BAD in states
             })
         )
