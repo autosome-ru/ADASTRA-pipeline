@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from scripts.HELPERS.helpers import get_states, get_params_from_model_name
-from scripts.HELPERS.paths import get_heatmap_data_path
+from scripts.HELPERS.paths import get_heatmap_data_path, get_release_stats_path
 
 
 def main(model):
@@ -55,5 +55,5 @@ def main(model):
             else:
                 sum_df = sum_df.append(df_counts)
 
-        res_dir = os.path.expanduser('~/PARAMETERS/counts/')
+        res_dir = os.path.join(get_release_stats_path(), 'roc_data')
         sum_df.to_csv(os.path.join(res_dir, 'counts_deltaqm_{}_{:.2f}.tsv'.format(model, BAD)), index=False, sep='\t')
