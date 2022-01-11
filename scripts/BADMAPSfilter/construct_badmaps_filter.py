@@ -1,4 +1,5 @@
 import json
+import re
 from multiprocessing import Process, Pool
 
 import pandas as pd
@@ -152,14 +153,24 @@ def init_process_for_mode(args):
 
 def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
     states = get_states_from_model_name(mode)
-    try:
+    if re.match(r'^.+@.+$', dataset) is not None:
+        combined_dataset = False
+    else:
+        combined_dataset = True
+
+    if not combined_dataset:
         cell_line, lab = dataset.split('@')
-    except Exception:
-        raise ValueError(dataset)
-    cor = cors[(cors['#cell_line'] == cell_line) & (cors['cells'] == lab)][
-        'cor_by_snp_{}'.format(mode)].tolist()
-    assert len(cor) == 1
-    cor = cor[0]
+        cor = cors[(cors['#cell_line'] == cell_line) & (cors['cells'] == lab)][
+            'cor_by_snp_{}'.format(mode)].tolist()
+        assert len(cor) == 1
+        cor = cor[0]
+    else:
+        cell_line = dataset
+        lab = 'all'
+        if dataset == 'all':
+            cor = np.mean(cors['cor_by_snp_{}'.format(mode)])
+        else:
+            cor = np.mean(cors[cors['#cell_line'] == dataset]['cor_by_snp_{}'.format(mode)])
 
     stats_dir = os.path.join(get_release_stats_path(), 'filter_stats')
     file_name = '{}_{}_stats.json'.format(dataset, mode)
