@@ -218,9 +218,13 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
                     counts_array[ref] = counts[0]
                 elif len(counts) > 1:
                     print(counts)
-            gofs.append(
-                calculate_gof(counts_array, make_binom_density(cov, BAD, 5) * counts_array.sum(), counts_array.sum(), 1)
-            )
+            try:
+                gofs.append(
+                    calculate_gof(counts_array, make_binom_density(cov, BAD, 5) * counts_array.sum(), counts_array.sum(), 1)
+                )
+            except KeyError:
+                print('here', cov, dataset, mode)
+                raise
         gofs[BAD] = np.mean(gofs)
         sds[BAD] = np.std(gofs)
 
