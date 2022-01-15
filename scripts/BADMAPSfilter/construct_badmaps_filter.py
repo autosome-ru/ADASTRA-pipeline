@@ -210,6 +210,7 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
     for BAD in states:
         stats = pd.DataFrame(stats_for_bads_dict[str(BAD)], dtype=np.int_)
         gofs = []
+        total_observed = 0
         for cov in range(min_cov, max_cov + 1):
             counts_array = np.zeros(cov + 1, dtype=np.int_)
             for ref in range(5, cov - 5 + 1):
@@ -218,14 +219,13 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
                     counts_array[ref] = counts[0]
                 elif len(counts) > 1:
                     print(counts)
-            try:
+                obs = counts_array.sum()
+                total_observed += obs
                 gofs.append(
-                    calculate_gof(counts_array, make_binom_density(cov, BAD, 5) * counts_array.sum(), counts_array.sum(), 1)
+                    calculate_gof(counts_array, make_binom_density(cov, BAD, 5) * counts_array.sum(), obs, 1)
                 )
-            except KeyError:
-                print('here', cov, dataset, mode)
-                raise
         gofs[BAD] = np.mean(gofs)
+        tested_snps[BAD] = total_observed
         sds[BAD] = np.std(gofs)
 
     with open(get_excluded_badmaps_list_path(model=mode, remake=False), 'a') as out:
