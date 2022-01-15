@@ -237,7 +237,6 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
 
 def main(min_cov, max_cov, n_jobs, collect_stats=True):
     modes = get_models_list()
-    print(modes, len(modes))
     correlation_file_path = get_correlation_file_path(remake=False)
     cors = pd.read_table(correlation_file_path)
     stats_dir = os.path.join(get_release_stats_path(), 'filter_stats')
