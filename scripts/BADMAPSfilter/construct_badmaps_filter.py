@@ -243,7 +243,7 @@ def main(min_cov, max_cov, n_jobs, collect_stats=True):
 
     print('Preprocessing started')
     if collect_stats:
-        pool = Pool(processes=5)
+        pool = Pool(processes=min(10, n_jobs))
         test_dfs_lists = pool.map(
             init_process_for_mode, ((mode, cors) for mode in modes)
         )
