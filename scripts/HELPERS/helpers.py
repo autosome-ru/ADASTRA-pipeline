@@ -14,12 +14,12 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
          101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
          156040895, 57227415]
 
-# caic_values = [3, 4, 5]
-caic_values = [4]
-# states_sets = ['int_6', 'full_6']
-states_sets = ['full_6']
-priors = ['geometric_0.98', 'geometric_0.995']
-# priors = ['geometric_0.93', 'geometric_0.95', 'geometric_0.97', 'geometric_0.99']
+caic_values = [3, 4, 5]
+# caic_values = [4]
+states_sets = ['int_6', 'full_6']
+# states_sets = ['full_6']
+# priors = []
+priors = ['uniform', 'geometric_0.97', 'geometric_0.98', 'geometric_0.99',  'geometric_0.995']
 
 Nucleotides = {'A', 'T', 'G', 'C'}
 expected_args = {"CL": "TF", "TF": "CL"}
