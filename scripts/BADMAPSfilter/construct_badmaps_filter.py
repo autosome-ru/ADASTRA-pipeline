@@ -226,7 +226,7 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
                 )
         gofs[BAD] = np.mean(cov_gofs)
         tested_snps[BAD] = total_observed
-        sds[BAD] = np.std(gofs)
+        sds[BAD] = np.std(cov_gofs)
 
     with open(get_excluded_badmaps_list_path(model=mode, remake=False), 'a') as out:
         out.write(pack([cell_line, lab, cor] +
