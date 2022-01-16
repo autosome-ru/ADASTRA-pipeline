@@ -209,7 +209,7 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
     sds = {}
     for BAD in states:
         stats = pd.DataFrame(stats_for_bads_dict[str(BAD)], dtype=np.int_)
-        gofs = []
+        cov_gofs = []
         total_observed = 0
         for cov in range(min_cov, max_cov + 1):
             counts_array = np.zeros(cov + 1, dtype=np.int_)
@@ -221,10 +221,10 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
                     print(counts)
                 obs = counts_array.sum()
                 total_observed += obs
-                gofs.append(
+                cov_gofs.append(
                     calculate_gof(counts_array, make_binom_density(cov, BAD, 5) * counts_array.sum(), obs, 1)
                 )
-        gofs[BAD] = np.mean(gofs)
+        gofs[BAD] = np.mean(cov_gofs)
         tested_snps[BAD] = total_observed
         sds[BAD] = np.std(gofs)
 
