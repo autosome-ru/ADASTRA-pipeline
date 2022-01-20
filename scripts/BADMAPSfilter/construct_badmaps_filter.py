@@ -147,7 +147,10 @@ def init_process_for_mode(args):
         out.write(
             pack(['#cell_line', 'sample', 'correlation'] + ['RMSEA_GOF_BAD{:.2f}'.format(state) for state in states] +
                  ['RMSEA_STD_BAD{:.2f}'.format(state) for state in states] +
-                 ['NUM_TESTED_SNPS_BAD{:.2f}'.format(state) for state in states]))
+                 ['NUM_TESTED_SNPS_BAD{:.2f}'.format(state) for state in states] +
+                 ['NUM_TOTAL_SNPS_BAD{:.2f}'.format(state) for state in states] +
+                 ['COVER_REF_BAD{:.2f}'.format(state) for state in states] +
+                 ['COVER_ALT_SNPS_BAD{:.2f}'.format(state) for state in states]))
 
     return test_dfs
 
@@ -206,6 +209,9 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
     # mean RMSEA
     gofs = {}
     tested_snps = {}
+    total_snps = {}
+    total_ref_cover = {}
+    total_alt_cover = {}
     sds = {}
     for BAD in states:
         stats = pd.DataFrame(stats_for_bads_dict[str(BAD)], dtype=np.int_)
@@ -226,13 +232,19 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
                 )
         gofs[BAD] = np.mean(cov_gofs)
         tested_snps[BAD] = total_observed
+        total_snps[BAD] = stats['counts'].sum()
+        total_ref_cover[BAD] = (stats['ref'] * stats['counts']).sum()
+        total_alt_cover = (stats['alt'] * stats['counts']).sum()
         sds[BAD] = np.std(cov_gofs)
 
     with open(get_excluded_badmaps_list_path(model=mode, remake=False), 'a') as out:
         out.write(pack([cell_line, lab, cor] +
                        [gofs[BAD] for BAD in states] +
                        [sds[BAD] for BAD in states] +
-                       [tested_snps[BAD] for BAD in states]))
+                       [tested_snps[BAD] for BAD in states] +
+                       [total_snps[BAD] for BAD in states] +
+                       [total_ref_cover[BAD] for BAD in states] +
+                       [total_alt_cover[BAD] for BAD in states]))
 
 
 def main(min_cov, max_cov, n_jobs, collect_stats=True):
