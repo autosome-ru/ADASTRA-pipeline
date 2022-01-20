@@ -234,7 +234,7 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
         tested_snps[BAD] = total_observed
         total_snps[BAD] = stats['counts'].sum()
         total_ref_cover[BAD] = (stats['ref'] * stats['counts']).sum()
-        total_alt_cover = (stats['alt'] * stats['counts']).sum()
+        total_alt_cover[BAD] = (stats['alt'] * stats['counts']).sum()
         sds[BAD] = np.std(cov_gofs)
 
     with open(get_excluded_badmaps_list_path(model=mode, remake=False), 'a') as out:
