@@ -41,7 +41,7 @@ def get_data_from_cor_row(row, model, remake=False):
 def open_dfs(df, model, remake=False):
     res_dfs = []
     states = get_states_from_model_name(model)
-    global_stats = {'all': {
+    global_stats = {'all@all@all': {
                 BAD: [] for BAD in states
             }}
     for index, row in df.iterrows():
