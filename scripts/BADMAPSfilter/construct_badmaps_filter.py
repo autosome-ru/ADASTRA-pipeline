@@ -69,7 +69,7 @@ def open_dfs(df, model, remake=False):
         }
 
         if row['#cell_line'] not in global_stats:
-            global_stats[row['#cell_line']] = {
+            global_stats[row['#cell_line'] + '@all@all'] = {
                 BAD: [] for BAD in states
             }
         for BAD in states:
