@@ -73,10 +73,22 @@ def open_dfs(df, model, remake=False):
                 BAD: [] for BAD in states
             }
         for BAD in states:
-            global_stats[row['#cell_line']][BAD].append(stats_dfs[BAD])
-            global_stats['all'][BAD].append(stats_dfs[BAD])
+            global_stats[row['#cell_line'] + '@all@all'][BAD].append(stats_dfs[BAD])
+            global_stats['all@all@all'][BAD].append(stats_dfs[BAD])
 
-        res_dfs.append((group, stats_for_dataset))
+        res_dfs.append((group + '@all', stats_for_dataset))
+
+        for dataset in tmp_df['dataset'].unique():
+            stats_dfs_single = {
+                BAD: collect_stats_df(tmp_df[tmp_df['dataset'] == dataset], BAD)
+                for BAD in states
+            }
+
+            stats_for_single_dataset = {
+                BAD: stats_dfs_single[BAD].to_dict()
+                for BAD in states
+            }
+            res_dfs.append((group + '@' + dataset, stats_for_single_dataset))
 
     for key in global_stats:
         res_dfs.append(
@@ -155,29 +167,22 @@ def init_process_for_mode(args):
     return test_dfs
 
 
-def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
+def process_for_dataset(mode, dataset_group, cors, min_cov, max_cov):
     states = get_states_from_model_name(mode)
-    if re.match(r'^.+@.+$', dataset) is not None:
-        combined_dataset = False
-    else:
-        combined_dataset = True
+    cell_line, lab, _ = dataset_group.split('@')
 
-    if not combined_dataset:
-        cell_line, lab = dataset.split('@')
+    if cell_line == 'all':
+        cor = np.mean(cors['cor_by_snp_{}'.format(mode)])
+    elif lab == 'all':
+        cor = np.mean(cors[cors['#cell_line'] == cell_line]['cor_by_snp_{}'.format(mode)])
+    else:
         cor = cors[(cors['#cell_line'] == cell_line) & (cors['cells'] == lab)][
             'cor_by_snp_{}'.format(mode)].tolist()
         assert len(cor) == 1
         cor = cor[0]
-    else:
-        cell_line = dataset
-        lab = 'all'
-        if dataset == 'all':
-            cor = np.mean(cors['cor_by_snp_{}'.format(mode)])
-        else:
-            cor = np.mean(cors[cors['#cell_line'] == dataset]['cor_by_snp_{}'.format(mode)])
 
     stats_dir = os.path.join(get_release_stats_path(), 'filter_stats')
-    file_name = '{}_{}_stats.json'.format(dataset, mode)
+    file_name = '{}_{}_stats.json'.format(dataset_group, mode)
     print(file_name)
     with open(os.path.join(stats_dir, file_name)) as file:
         stats_for_bads_dict = json.load(file)
