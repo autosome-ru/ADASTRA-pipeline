@@ -68,3 +68,25 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+import sys
+import pandas as pd
+import requests
+import json
+from tqdm import tqdm
+
+
+def find_reps(row):
+    url = 'https://www.encodeproject.org/experiments/{}/?format=json'.format(row['ENCODE'])
+    r = requests.get(url)
+    replicas = json.loads(r.text)['replicates']
+    return len(set(x['library']['biosample']['@id'] for x in replicas))
+
+
+def main():
+    tqdm.pandas()
+    df = pd.read_table(sys.argv[1])
+    df['reps'] = df.progress_apply(find_reps, axis=1)
+    df.to_csv(sys.argv[2], sep='\t', index=None)
+
+main()
