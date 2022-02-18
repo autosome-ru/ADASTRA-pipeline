@@ -14,9 +14,12 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
          101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
          156040895, 57227415]
 
-caic_values = [3, 4, 5]
+# caic_values = [3, 4, 5]
+caic_values = [4]
 states_sets = ['int_6', 'full_6']
-priors = ['uniform', 'geometric_0.7', 'geometric_0.8', 'geometric_0.9', 'geometric_0.5']
+# states_sets = ['full_6']
+# priors = []
+priors = ['uniform', 'geometric_0.97', 'geometric_0.98', 'geometric_0.99',  'geometric_0.995']
 
 Nucleotides = {'A', 'T', 'G', 'C'}
 expected_args = {"CL": "TF", "TF": "CL"}
@@ -40,6 +43,26 @@ minimum_ploidy = {
     5: 6,
     6: 7,
 }
+
+
+def get_states(states_sign):
+    if states_sign == 'int_5':
+        states = [1, 2, 3, 4, 5]
+    elif states_sign == 'int_6':
+        states = [1, 2, 3, 4, 5, 6]
+    elif states_sign == 'full_5':
+        states = [1, 2, 3, 4, 5, 1.5]
+    elif states_sign == 'full_5_and_6':
+        states = [1, 2, 3, 4, 5, 6, 1.5]
+    elif states_sign == 'full_6_but_1.33':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
+    elif states_sign == 'full_6_but_2.5':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3]
+    elif states_sign == 'full_6':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3, 2.5]
+    else:
+        states = segmentation_states
+    return sorted(states)
 
 
 default_params = {
@@ -73,7 +96,7 @@ def get_params_from_model_name(model):
 
 
 def get_states_from_model_name(mode):
-    return get_params_from_model_name(mode)['states_set']
+    return get_states(get_params_from_model_name(mode)['states_set'])
 
 
 segmentation_states = get_states_from_model_name(default_model)
@@ -423,26 +446,6 @@ class UnpackBadSegments:
         else:
             return [line[0], int(line[1]), int(line[2]), float(line[3]), int(line[4]), int(line[5]),
                     int(line[6])] + [dict(zip(states, line[7: 7 + len(states)]))]
-
-
-def get_states(states_sign):
-    if states_sign == 'int_5':
-        states = [1, 2, 3, 4, 5]
-    elif states_sign == 'int_6':
-        states = [1, 2, 3, 4, 5, 6]
-    elif states_sign == 'full_5':
-        states = [1, 2, 3, 4, 5, 1.5]
-    elif states_sign == 'full_5_and_6':
-        states = [1, 2, 3, 4, 5, 6, 1.5]
-    elif states_sign == 'full_6_but_1.33':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
-    elif states_sign == 'full_6_but_2.5':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3]
-    elif states_sign == 'full_6':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3, 2.5]
-    else:
-        states = segmentation_states
-    return sorted(states)
 
 
 class CorrelationReader:
