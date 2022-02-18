@@ -9,8 +9,9 @@ from scripts.HELPERS.helpers import remove_punctuation, dtype_dict
 def find_lab(enc):
     r = requests.get('https://www.encodeproject.org/experiments/{}/?format=json'.format(enc))
     lab = json.loads(r.text)['lab']['@id']
-    biosample = json.loads(r.text)['replicates'][0]['library']['biosample']['@id']
-    ret = lab + "_" + biosample
+    replicates = json.loads(r.text)['replicates']
+    biosamples = sorted(list(set(x['library']['biosample']['@id'] for x in replicates)))
+    ret = lab + "_" + ','.join(biosamples)
     return remove_punctuation(ret)
 
 
@@ -34,6 +35,10 @@ def add_record(d, row):
             raise AssertionError('Lab not found')
     elif not pd.isna(row['GEO']):
         key = '{}@{}'.format(row['CELLS'], row['GEO'])
+        # FIXME
+        # manually dissemble miss-annotated prostate_cancer
+        if key == '22RV1__prostate_carcinoma_@GSE120738':
+            key = 'prostate_cancer@{}'.format(row['ALIGNS'])
         add_to_dict(d, key, path)
         return
     elif not pd.isna(row['WG_ENCODE']):
@@ -58,7 +63,7 @@ def make_dict(master_list):
         sorted_value = sorted(list(value))
         d[key] = sorted_value
     with open(badmaps_dict_path, "w") as write_file:
-        json.dump(d, write_file)
+        json.dump(d, write_file, indent=2)
     print("Dictionary Saved")
 
 
