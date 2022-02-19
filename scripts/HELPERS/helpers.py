@@ -15,11 +15,11 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
          156040895, 57227415]
 
 # caic_values = [3, 4, 5]
-caic_values = [4]
-states_sets = ['int_6', 'full_6']
+caic_values = [2, 3, 4, 5, 6]
+states_sets = ['full_6']
 # states_sets = ['full_6']
 # priors = []
-priors = ['uniform', 'geometric_0.97', 'geometric_0.98', 'geometric_0.99',  'geometric_0.995']
+priors = ['geometric_0.99']
 
 Nucleotides = {'A', 'T', 'G', 'C'}
 expected_args = {"CL": "TF", "TF": "CL"}
@@ -109,8 +109,7 @@ def get_models_list():
                                            prior=prior,
                                        )
             for states_set in states_sets for caic in caic_values
-            for prior in (priors if states_set == default_params['states_set'] and caic == default_params['b_penalty']
-                          else ['uniform'])
+            for prior in priors
             ]
 
 
