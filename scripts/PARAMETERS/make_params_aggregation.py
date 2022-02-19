@@ -17,7 +17,7 @@ def main(what_for, remade=True):
         old_rev_d = make_reverse_dict(json.load(read_file))
         rev_d = {get_results_file(k, 'p-value', False): v for k, v in old_rev_d.items()}
     with open(aggregation_dict_path, 'r') as read_file:
-        d = json.loads(read_file.readline())
+        d = json.load(read_file)
     with open(out_path, 'w') as file:
         for key in sorted(d.keys()):
             is_empty = True

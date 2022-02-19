@@ -25,7 +25,7 @@ def get_p_value(n, p, x):
 def main(file_name, remake=False):
     correlation_path = get_correlation_path()
     with open(badmaps_dict_path, 'r') as file:
-        aligns_by_cell_type = json.loads(file.readline().strip())
+        aligns_by_cell_type = json.load(file)
 
     modes = get_models_list()
 

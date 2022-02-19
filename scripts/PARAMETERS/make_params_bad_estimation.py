@@ -19,10 +19,10 @@ def in_cosmic(cell_line_name, cosmic_names):
 def main(only_cosmic=False, remake=False):
     if remake:
         with open(get_new_badmaps_dict_path(default_model), 'r') as read_file:
-            d = json.loads(read_file.readline())
+            d = json.load(read_file)
     else:
         with open(badmaps_dict_path, 'r') as read_file:
-            d = json.loads(read_file.readline())
+            d = json.load(read_file)
     keys = sorted(d.keys())
     cosmic_names, _ = read_synonims()
     with open(out_path, 'w') as file:
