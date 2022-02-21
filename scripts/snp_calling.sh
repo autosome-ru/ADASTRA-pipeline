@@ -10,4 +10,4 @@ if [ ! -f "${dbsnp_vcf_path}.tbi" ]; then
 fi
 
 parallel --delay 600 --jobs "$njobs" \
-bash "$scripts_path/SNPcalling/ProcessLine.sh" :::: "${parallel_parameters_path}/sorted_master_list.tsv"
+adastra process_line --line :::: "${parallel_parameters_path}/sorted_master_list.tsv"

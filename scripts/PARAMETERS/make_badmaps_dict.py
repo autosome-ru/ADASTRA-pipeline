@@ -35,10 +35,6 @@ def add_record(d, row):
             raise AssertionError('Lab not found')
     elif not pd.isna(row['GEO']):
         key = '{}@{}'.format(row['CELLS'], row['GEO'])
-        # FIXME
-        # manually dissemble miss-annotated prostate_cancer
-        if key == '22RV1__prostate_carcinoma_@GSE120738':
-            key = 'prostate_cancer@{}'.format(row['ALIGNS'])
         add_to_dict(d, key, path)
         return
     elif not pd.isna(row['WG_ENCODE']):

@@ -32,24 +32,18 @@ else
     fi
   fi
   echo "Downloading $exp_name"
-
-  if ! bash ${helpers_scripts_path}/DownloadFile.sh "$alignment_download_path" "$alignment_full_path"
-  then
-    echo "Download failed for $exp_name"
-    exit 1
-  else
-    echo 'Downloaded successfully'
-  fi
+#
+#  if ! bash ${helpers_scripts_path}/DownloadFile.sh "$alignment_download_path" "$alignment_full_path"
+#  then
+#    echo "Download failed for $exp_name"
+#    exit 1
+#  else
+#    echo 'Downloaded successfully'
+#  fi
 
 fi
 
 echo "Adding read_groups for $exp_name"
-if ! bash ${snp_calling_scripts_path}AddReadGroups.sh "$alignment_full_path" "$read_groups"
-then
-  echo "Failed AddReadGroups $exp_name"
-  exit 1
-fi
-
 echo "Doing SNPcalling for $exp_name"
 if ! bash ${snp_calling_scripts_path}SNPcalling.sh -Exp "$alignment_full_path" -Out "$out_path"
 then

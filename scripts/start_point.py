@@ -32,6 +32,7 @@ Usage:
             adastra count_p <exp> <aligns>
             adastra create_badmaps_filter [--njobs <int>]
             adastra apply_badmaps_filter
+            adastra process_line --line <line>
             adastra -h | --help
 
 Arguments:
@@ -58,6 +59,7 @@ Options:
     --dir=<path>                Path to directory
     --uniprot-file=<path>       Path to file with uniprot conversion
     --njobs=<int>               Number of parallel processes [default: 1]
+    --line=<line>               Master list line
 """
 import time
 
@@ -198,6 +200,9 @@ def main():
     elif args['apply_badmaps_filter']:
         from scripts.BADMAPSfilter.apply_filter import main
         main()
+    elif args['process_line']:
+        from scripts.SNPcalling.process_line import main
+        main(args['--line'])
 
 
 def convert_string_to_int(string):
