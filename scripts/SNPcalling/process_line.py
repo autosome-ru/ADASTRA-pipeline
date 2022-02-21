@@ -13,13 +13,14 @@ def make_bams_list(gtrd_id):
 
 
 def process_bam(bam, out_path):
-    cmd = ['bash', 'SNPcalling/SNPcalling.sh',
+    cmd = ['bash', '/home/abramov/dnase/ADASTRA-pipeline/scripts/SNPcalling/SNPcalling.sh',
            '-Exp', os.path.join(dnase_bams_path, bam),
            '-Out', out_path]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
     if error:
         print(error)
+
 
 
 def main(master_line):
