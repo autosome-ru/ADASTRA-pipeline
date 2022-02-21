@@ -29,5 +29,7 @@ def main(master_line):
     downloaded_bams = make_bams_map().get(exp_name, None)
     if downloaded_bams is None or len(downloaded_bams) == 1:
         return
+
     for bam in downloaded_bams:
+        print('Processing', bam)
         process_bam(bam, out_path)
