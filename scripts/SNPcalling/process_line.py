@@ -4,7 +4,7 @@ import subprocess
 from scripts.HELPERS.paths_for_components import alignments_path
 
 
-dnase_bams_path = ''
+dnase_bams_path = '/mnt/NAS/home/abramov/raw_alignments.GTRD/dnase'
 
 def make_bams_map():
     result = {}
