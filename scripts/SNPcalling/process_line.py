@@ -24,11 +24,12 @@ def process_bam(bam, out_path):
 
 def main(master_line):
     exp_name, align_name, read_groups, _ = master_line.split('\t')
-    print('Processing', exp_name)
+    print('Processing', align_name)
     out_path = os.path.join(alignments_path)
     downloaded_bams = make_bams_list(align_name)
     if downloaded_bams is None or len(downloaded_bams) < 2:
         return
 
     for bam in downloaded_bams:
+        print('Processing', bam)
         process_bam(bam, out_path)
