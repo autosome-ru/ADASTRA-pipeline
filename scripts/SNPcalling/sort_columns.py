@@ -12,7 +12,7 @@ def main():
     else:
         master_df = master_df[(master_df['DOWNLOAD_PATH'] != 'None') & (master_df['DOWNLOAD_PATH'].notna())]
     master_df = master_df.sort_values(
-        by=['READS_ALIGNED'],
+        by=['ALIGNED_READS'],
         axis=0,
         ascending=False,
         na_position='first')
