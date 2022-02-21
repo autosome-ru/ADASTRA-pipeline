@@ -9,5 +9,5 @@ if [ ! -f "${dbsnp_vcf_path}.tbi" ]; then
 	$Java $JavaParameters  -jar "$GATK" IndexFeatureFile -F ${dbsnp_vcf_path}
 fi
 
-parallel --delay 600 --jobs "$njobs" \
+parallel --jobs "$njobs" \
 adastra process_line --line :::: "${parallel_parameters_path}/sorted_master_list.tsv"
