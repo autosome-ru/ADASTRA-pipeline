@@ -13,7 +13,7 @@ def make_bams_list(gtrd_id):
 
 
 def process_bam(bam, out_path):
-    cmd = ['bash', 'scripts/SNPcalling.sh',
+    cmd = ['bash', 'SNPcalling/SNPcalling.sh',
            '-Exp', os.path.join(dnase_bams_path, bam),
            '-Out', out_path]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
