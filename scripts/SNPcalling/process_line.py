@@ -6,12 +6,11 @@ from scripts.HELPERS.paths_for_components import alignments_path
 
 dnase_bams_path = '/mnt/NAS/home/abramov/raw_alignments.GTRD/dnase'
 
-def make_bams_map():
-    result = {}
-    for file in os.listdir(dnase_bams_path):
-        file_name, _ = os.path.splitext(file)[0].split('_')
-        result.setdefault(file_name, []).append(file)
-    return result
+
+def make_bams_list(gtrd_id):
+    return [file for file in os.listdir(dnase_bams_path)
+            if os.path.splitext(file)[0].split('_')[0] == gtrd_id]
+
 
 def process_bam(bam, out_path):
     cmd = ['bash', 'scripts/SNPcalling.sh',
@@ -27,7 +26,7 @@ def main(master_line):
     exp_name, align_name, read_groups, _ = master_line.split('\t')
     print('Processing', exp_name)
     out_path = os.path.join(alignments_path)
-    downloaded_bams = make_bams_map().get(exp_name, None)
+    downloaded_bams = make_bams_list(exp_name)
     if downloaded_bams is None or len(downloaded_bams) == 1:
         return
 
