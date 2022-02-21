@@ -15,7 +15,7 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
          156040895, 57227415]
 
 # caic_values = [3, 4, 5]
-caic_values = [2, 3, 4, 5, 6]
+caic_values = [4]
 states_sets = ['full_6']
 # states_sets = ['full_6']
 # priors = []
@@ -68,7 +68,7 @@ def get_states(states_sign):
 default_params = {
     'states_set': 'full_6',
     'b_penalty': 4,
-    'prior': 'uniform'
+    'prior': 'geometric_0.99'
 }
 
 
