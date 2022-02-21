@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import errno
 from scripts.HELPERS.helpers import CorrelationReader, Intersection, pack, read_synonims, ChromPos, get_states, \
-    test_percentiles_list, cover_percentiles_list, get_snp_dirs_in_correlation_for_corstats
+    test_percentiles_list, cover_percentiles_list, get_snp_dirs_in_correlation_for_corstats, get_states_from_model_name
 from scripts.HELPERS.paths_for_components import cgh_path, cosmic_path, badmaps_path
 from scripts.HELPERS.paths import get_correlation_path, get_heatmap_data_path, get_badmaps_path_by_validity
 
@@ -19,6 +19,9 @@ valid_badmaps_path = get_badmaps_path_by_validity(True)
 
 
 def get_name_by_dir(dir_name, naive_modes):
+    """
+    ..._tabels -> ...
+    """
     if dir_name in naive_modes:
         return dir_name
     return dir_name[:dir_name.rfind('_')].split('/')[-1]
@@ -197,11 +200,7 @@ def main(file_name, remake=False):
         for snp_dir in snp_dirs:
             model = get_name_by_dir(snp_dir, naive_modes)
 
-            if re.match(r'^CAIC@.+@.+$', model) is not None:
-                print(model.split('@')[1])
-                states = get_states(model.split('@')[1])
-            else:
-                states = get_states('')
+            states = get_states_from_model_name(model)
             reader.states = states
 
             reader.SNP_path = os.path.join(snp_dir, file_name)

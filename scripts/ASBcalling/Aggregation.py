@@ -13,9 +13,9 @@ from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_exp
 from scripts.HELPERS.paths import get_result_table_path
 
 with open(cl_dict_path, "r") as read_file:
-    cell_lines_dict = json.loads(read_file.readline())
+    cell_lines_dict = json.load(read_file)
 with open(tf_dict_path, "r") as read_file:
-    tf_dict = json.loads(read_file.readline())
+    tf_dict = json.load(read_file)
 
 
 def logit_combine_p_values(pvalues):

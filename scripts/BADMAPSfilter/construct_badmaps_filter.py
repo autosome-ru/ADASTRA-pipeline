@@ -1,18 +1,18 @@
 import json
+import re
 from multiprocessing import Process, Pool
 
 import pandas as pd
 from pandas.errors import EmptyDataError
 import os
 import numpy as np
-from scipy.stats import levene
-import statsmodels.stats.multitest
+
 
 from tqdm import tqdm
-
-from scripts.HELPERS.helpers import pack, segmentation_states, get_babachi_models_list, get_states_from_model_name
+from scripts.HELPERS.helpers import pack, get_models_list, get_states_from_model_name
 from scripts.HELPERS.paths import get_excluded_badmaps_list_path, get_correlation_file_path, get_correlation_path, \
     get_release_stats_path
+
 
 from scipy import stats as st
 from joblib import Parallel, delayed
@@ -38,50 +38,68 @@ def get_data_from_cor_row(row, model, remake=False):
     return True, group, tmp_df
 
 
-def open_dfs(df, model, concat=True, remake=False):
+def open_dfs(df, model, remake=False):
     res_dfs = []
+    states = get_states_from_model_name(model)
+    global_stats = {'all@all@all': {
+                BAD: [] for BAD in states
+            }}
     for index, row in df.iterrows():
         ok, group, tmp_df = get_data_from_cor_row(row, model, remake=remake)
         if not ok:
             continue
-        states = get_states_from_model_name(model)
         tmp_df.columns = ['chr', 'pos', 'ref', 'alt', 'BAD'] + ['Q{:.2f}'.format(b) for b in
                                                                states] + ['snps', 'cov',
                                                                                        'dataset',
                                                                                        'seg_id',
                                                                                        'p_value']
-        if not concat:
-            tmp_df['cov'] = tmp_df['ref'] + tmp_df['alt']
-            tmp_df['max'] = tmp_df[['ref', 'alt']].max(axis=1)
-            tmp_df['min'] = tmp_df[['ref', 'alt']].min(axis=1)
-            # tmp_df['es'] = -np.log2(tmp_df['max'] / tmp_df['min'] / tmp_df['BAD'])
+        tmp_df['cov'] = tmp_df['ref'] + tmp_df['alt']
+        tmp_df['max'] = tmp_df[['ref', 'alt']].max(axis=1)
+        tmp_df['min'] = tmp_df[['ref', 'alt']].min(axis=1)
+        # tmp_df['es'] = -np.log2(tmp_df['max'] / tmp_df['min'] / tmp_df['BAD'])
 
-            stats = {
-                BAD: collect_stats_df(tmp_df, BAD).to_dict()
+        stats_dfs = {
+            BAD: collect_stats_df(tmp_df, BAD)
+            for BAD in states
+        }
+
+        stats_for_dataset = {
+            BAD: stats_dfs[BAD].to_dict()
+            for BAD in states
+        }
+
+        if row['#cell_line'] not in global_stats:
+            global_stats[row['#cell_line'] + '@all@all'] = {
+                BAD: [] for BAD in states
+            }
+        for BAD in states:
+            global_stats[row['#cell_line'] + '@all@all'][BAD].append(stats_dfs[BAD])
+            global_stats['all@all@all'][BAD].append(stats_dfs[BAD])
+
+        res_dfs.append((group + '@all', stats_for_dataset))
+
+        for dataset in tmp_df['dataset'].unique():
+            stats_dfs_single = {
+                BAD: collect_stats_df(tmp_df[tmp_df['dataset'] == dataset], BAD)
                 for BAD in states
             }
 
-            if res_dfs is None:
-                res_dfs = [(group, stats)]
-            else:
-                res_dfs.append((group, stats))
-        else:
-            tmp_df['group'] = group
-            tmp_df['cell_line'] = row['#cell_line']
-            if res_dfs is None:
-                res_dfs = [tmp_df]
-            else:
-                res_dfs.append(tmp_df)
-    if concat:
-        # FIXME collect stats here too
-        res_df = pd.concat(res_dfs)
-        res_df['cov'] = res_df['ref'] + res_df['alt']
-        res_df['max'] = res_df[['ref', 'alt']].max(axis=1)
-        res_df['min'] = res_df[['ref', 'alt']].min(axis=1)
-        # res_df['es'] = -np.log2(res_df['max'] / res_df['min'] / res_df['BAD'])
-        return res_df
-    else:
-        return res_dfs
+            stats_for_single_dataset = {
+                BAD: stats_dfs_single[BAD].to_dict()
+                for BAD in states
+            }
+            res_dfs.append((group + '@' + dataset, stats_for_single_dataset))
+
+    for key in global_stats:
+        res_dfs.append(
+            (key, {
+                BAD: pd.concat(global_stats[key][BAD]).groupby(['ref', 'alt']).sum().reset_index().to_dict()
+                if global_stats[key][BAD] != [] else {'ref': [], 'alt': [], 'counts': []}
+                for BAD in states
+            })
+        )
+
+    return res_dfs
 
 
 def make_dataset(cell_line, lab):
@@ -133,42 +151,77 @@ def make_binom_density(cov, BAD, allele_tr):
 
 def init_process_for_mode(args):
     mode, cors = args
-    test_dfs = open_dfs(cors, mode, remake=False, concat=False)
+    test_dfs = open_dfs(cors, mode, remake=False)
     print('Test concatenated {}'.format(mode))
     states = get_states_from_model_name(mode)
 
     with open(get_excluded_badmaps_list_path(model=mode, remake=False), 'w') as out:
         out.write(
             pack(['#cell_line', 'sample', 'correlation'] + ['RMSEA_GOF_BAD{:.2f}'.format(state) for state in states] +
-                 ['NUM_TESTED_SNPS_BAD{:.2f}'.format(state) for state in states]))
+                 ['RMSEA_STD_BAD{:.2f}'.format(state) for state in states] +
+                 ['NUM_TESTED_SNPS_BAD{:.2f}'.format(state) for state in states] +
+                 ['NUM_TOTAL_SNPS_BAD{:.2f}'.format(state) for state in states] +
+                 ['COVER_REF_BAD{:.2f}'.format(state) for state in states] +
+                 ['COVER_ALT_SNPS_BAD{:.2f}'.format(state) for state in states]))
 
     return test_dfs
 
 
-def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
+def process_for_dataset(mode, dataset_group, cors, min_cov, max_cov):
     states = get_states_from_model_name(mode)
-    try:
-        cell_line, lab = dataset.split('@')
-    except Exception:
-        print(dataset)
-        raise
-    cor = cors[(cors['#cell_line'] == cell_line) & (cors['cells'] == lab)][
-        'cor_by_snp_{}'.format(mode)].tolist()
-    assert len(cor) == 1
-    cor = cor[0]
+    cell_line, lab, _ = dataset_group.split('@')
+
+    if cell_line == 'all':
+        cor = np.mean(cors['cor_by_snp_{}'.format(mode)])
+    elif lab == 'all':
+        cor = np.mean(cors[cors['#cell_line'] == cell_line]['cor_by_snp_{}'.format(mode)])
+    else:
+        cor = cors[(cors['#cell_line'] == cell_line) & (cors['cells'] == lab)][
+            'cor_by_snp_{}'.format(mode)].tolist()
+        assert len(cor) == 1
+        cor = cor[0]
 
     stats_dir = os.path.join(get_release_stats_path(), 'filter_stats')
-    file_name = '{}_{}_stats.json'.format(dataset, mode)
+    file_name = '{}_{}_stats.json'.format(dataset_group, mode)
     print(file_name)
     with open(os.path.join(stats_dir, file_name)) as file:
         stats_for_bads_dict = json.load(file)
 
+    # general RMSEA
+    # gofs = {}
+    # tested_snps = {}
+    # for BAD in states:
+    #     stats = pd.DataFrame(stats_for_bads_dict[str(BAD)], dtype=np.int_)
+    #     counts_arrays = []
+    #     expected_arrays = []
+    #     for cov in range(min_cov, max_cov + 1):
+    #         counts_array = np.zeros(cov + 1, dtype=np.int_)
+    #         for ref in range(5, cov - 5 + 1):
+    #             counts = stats[(stats['ref'] == ref) & (stats['alt'] == cov - ref)]['counts'].to_list()
+    #             if len(counts) == 1:
+    #                 counts_array[ref] = counts[0]
+    #             elif len(counts) > 1:
+    #                 print(counts)
+    #         counts_arrays.append(counts_array)
+    #         expected_arrays.append(make_binom_density(cov, BAD, 5) * counts_array.sum())
+    #     observed = np.concatenate(counts_arrays)
+    #     expected = np.concatenate(expected_arrays)
+    #     norm = observed.sum()
+    #     tested_snps[BAD] = norm
+    #     gofs[BAD] = calculate_gof(observed, expected, norm, 1)
+
+
+    # mean RMSEA
     gofs = {}
     tested_snps = {}
+    total_snps = {}
+    total_ref_cover = {}
+    total_alt_cover = {}
+    sds = {}
     for BAD in states:
         stats = pd.DataFrame(stats_for_bads_dict[str(BAD)], dtype=np.int_)
-        counts_arrays = []
-        expected_arrays = []
+        cov_gofs = []
+        total_observed = 0
         for cov in range(min_cov, max_cov + 1):
             counts_array = np.zeros(cov + 1, dtype=np.int_)
             for ref in range(5, cov - 5 + 1):
@@ -177,29 +230,37 @@ def process_for_dataset(mode, dataset, cors, min_cov, max_cov):
                     counts_array[ref] = counts[0]
                 elif len(counts) > 1:
                     print(counts)
-            counts_arrays.append(counts_array)
-            expected_arrays.append(make_binom_density(cov, BAD, 5) * counts_array.sum())
-        observed = np.concatenate(counts_arrays)
-        expected = np.concatenate(expected_arrays)
-        norm = observed.sum()
-        tested_snps[BAD] = norm
-        gofs[BAD] = calculate_gof(observed, expected, norm, 1)
+                obs = counts_array.sum()
+                total_observed += obs
+                cov_gofs.append(
+                    calculate_gof(counts_array, make_binom_density(cov, BAD, 5) * counts_array.sum(), obs, 1)
+                )
+        gofs[BAD] = np.mean(cov_gofs)
+        tested_snps[BAD] = total_observed
+        total_snps[BAD] = stats['counts'].sum()
+        total_ref_cover[BAD] = (stats['ref'] * stats['counts']).sum()
+        total_alt_cover[BAD] = (stats['alt'] * stats['counts']).sum()
+        sds[BAD] = np.std(cov_gofs)
 
     with open(get_excluded_badmaps_list_path(model=mode, remake=False), 'a') as out:
         out.write(pack([cell_line, lab, cor] +
                        [gofs[BAD] for BAD in states] +
-                       [tested_snps[BAD] for BAD in states]))
+                       [sds[BAD] for BAD in states] +
+                       [tested_snps[BAD] for BAD in states] +
+                       [total_snps[BAD] for BAD in states] +
+                       [total_ref_cover[BAD] for BAD in states] +
+                       [total_alt_cover[BAD] for BAD in states]))
 
 
 def main(min_cov, max_cov, n_jobs, collect_stats=True):
-    modes = get_babachi_models_list(remake=False)
+    modes = get_models_list()
     correlation_file_path = get_correlation_file_path(remake=False)
     cors = pd.read_table(correlation_file_path)
     stats_dir = os.path.join(get_release_stats_path(), 'filter_stats')
 
     print('Preprocessing started')
     if collect_stats:
-        pool = Pool(processes=5)
+        pool = Pool(processes=min(len(modes), n_jobs))
         test_dfs_lists = pool.map(
             init_process_for_mode, ((mode, cors) for mode in modes)
         )

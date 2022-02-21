@@ -64,8 +64,8 @@ import time
 from docopt import docopt
 from babachi import BADEstimation
 
-from .HELPERS.helpers import get_states
-from .HELPERS.paths import create_merged_vcf_path_function, create_badmaps_path_function
+from .HELPERS.helpers import get_states, create_badmaps_path_function, get_params_from_model_name, get_prior
+from .HELPERS.paths import create_merged_vcf_path_function
 
 
 def main():
@@ -108,10 +108,11 @@ def main():
         main(args['--base'])
     elif args['vcf_merge']:
         from .BADcalling.VCFMerger import main
-        bad_group, states_set, b_penalty = args['--group'].split(',')
+        bad_group, model = args['--group'].split(',')
         main(bad_group)
     elif args['bad_call']:
-        bad_group, states_set, b_penalty = args['--group'].split(',')
+        bad_group, model = args['--group'].split(',')
+        params = get_params_from_model_name(model)
         t = time.clock()
         with open(create_merged_vcf_path_function(bad_group)) as m_vcf:
             snps_collection, chromosomes_order, _ = BADEstimation.parse_input_file(m_vcf, allele_reads_tr=5)
@@ -120,10 +121,10 @@ def main():
                 chromosomes_order=chromosomes_order,
                 out=create_badmaps_path_function(bad_group,
                                                  valid=args['--remake'],
-                                                 states_set=states_set,
-                                                 b_penalty=b_penalty),
-                states=get_states(states_set),
-                b_penalty=convert_string_to_int(b_penalty),
+                                                 model=model),
+                states=get_states(params['states_set']),
+                b_penalty=convert_string_to_int(params['b_penalty']),
+                prior=get_prior(params['states_set'], params['prior']),
                 verbose=True,
                 allele_reads_tr=5,
                 segmentation_mode='corrected',
@@ -137,13 +138,12 @@ def main():
             GS.estimate_BAD()
         print('Total time: {} s'.format(time.clock() - t))
     elif args['collect_roc']:
-        states_set, b_penalty = args['--group'].split(',')
         if args['cell_line_wise']:
             from .Qcontrol.collect_cell_line_wise_data_for_ROC import main
-            main(states_set, convert_string_to_int(b_penalty))
+            main(args['--group'])
         else:
             from .Qcontrol.collect_data_for_ROC import main
-            main(states_set, convert_string_to_int(b_penalty))
+            main(args['--group'])
     elif args['bad_annotation']:
         from .ASBcalling.BAD_annotation import main
         main(args['--base'], remade=args['--remade'])

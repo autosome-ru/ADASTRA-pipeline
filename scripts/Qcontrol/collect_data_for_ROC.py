@@ -1,14 +1,16 @@
+import errno
+
 import pandas as pd
 import os
 import numpy as np
 
-from scripts.HELPERS.helpers import get_states
-from scripts.HELPERS.paths import get_heatmap_data_path
+from scripts.HELPERS.helpers import get_states, get_params_from_model_name
+from scripts.HELPERS.paths import get_heatmap_data_path, get_release_stats_path
 
 
-def main(states_sign, b_penalty):
-    model = 'CAIC@{}@{}'.format(states_sign, b_penalty)
+def main(model):
     print(model)
+    states_sign = get_params_from_model_name(model)['states_set']
     states = get_states(states_sign)
     heatmap_dir = os.path.join(get_heatmap_data_path(), model + '_tables/')
     dfs = []
@@ -55,5 +57,12 @@ def main(states_sign, b_penalty):
             else:
                 sum_df = sum_df.append(df_counts)
 
-        res_dir = os.path.expanduser('~/PARAMETERS/counts/')
+        res_dir = os.path.join(get_release_stats_path(), 'roc_data')
+        if not os.path.isdir(res_dir):
+            try:
+                os.mkdir(res_dir)
+            except OSError as exc:
+                if exc.errno != errno.EEXIST:
+                    raise
+                pass
         sum_df.to_csv(os.path.join(res_dir, 'counts_deltaqm_{}_{:.2f}.tsv'.format(model, BAD)), index=False, sep='\t')

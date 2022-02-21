@@ -1,9 +1,10 @@
+import errno
 import re
 import string
 import numpy as np
 import os
 from .paths_for_components import master_list_path, configs_path, synonyms_path, badmaps_dict_path
-from .paths import create_neg_bin_weights_path_function, create_badmaps_path_function, get_dir_by_stage, get_ending, \
+from .paths import create_neg_bin_weights_path_function, get_dir_by_stage, get_ending, \
     get_correlation_path, get_badmaps_path_by_validity
 
 callers_names = ['macs', 'sissrs', 'cpics', 'gem', 'macs2', 'macs2-nomodel']
@@ -13,15 +14,15 @@ chr_l = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 15934
          101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
          156040895, 57227415]
 
-caic_values = [3, 4, 5]
-states_sets = ['int_6', 'full_6']
+# caic_values = [3, 4, 5]
+caic_values = [2, 3, 4, 5, 6]
+states_sets = ['full_6']
+# states_sets = ['full_6']
+# priors = []
+priors = ['geometric_0.99']
 
 Nucleotides = {'A', 'T', 'G', 'C'}
 expected_args = {"CL": "TF", "TF": "CL"}
-
-# segmentation_states = [1, 4/3, 1.5, 2, 2.5, 3, 4, 5, 6]
-segmentation_states = [1, 2, 3, 4, 5, 6]
-# segmentation_states = [1, 2, 2.5, 3, 4, 5, 6]
 
 master_list_header = '#EXP	TF_UNIPROT_ID	ANTIBODY	TREATMENT	SPECIE	CELL_ID	CELLS	EXP_TYPE	CONTROL	' \
                      'READS	ALIGNS	PEAKS	GEO	ENCODE	WG_ENCODE	READS_ALIGNED   DOWNLOAD_PATH   TF_UNIPROT_ID'
@@ -31,11 +32,99 @@ dtype_dict = {name: str if name != 'READS_ALIGNED' else np.float_ for name in ma
 test_percentiles_list = [1, 3, 5, 7, 10, 20, 50]
 cover_percentiles_list = [25, 50, 75]
 
-default_model = 'CAIC@full_6@4'
+minimum_ploidy = {
+    1: 2,
+    4/3: 7,
+    3/2: 5,
+    2: 3,
+    5/2: 7,
+    3: 4,
+    4: 5,
+    5: 6,
+    6: 7,
+}
+
+
+def get_states(states_sign):
+    if states_sign == 'int_5':
+        states = [1, 2, 3, 4, 5]
+    elif states_sign == 'int_6':
+        states = [1, 2, 3, 4, 5, 6]
+    elif states_sign == 'full_5':
+        states = [1, 2, 3, 4, 5, 1.5]
+    elif states_sign == 'full_5_and_6':
+        states = [1, 2, 3, 4, 5, 6, 1.5]
+    elif states_sign == 'full_6_but_1.33':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
+    elif states_sign == 'full_6_but_2.5':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3]
+    elif states_sign == 'full_6':
+        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3, 2.5]
+    else:
+        states = segmentation_states
+    return sorted(states)
+
+
+default_params = {
+    'states_set': 'full_6',
+    'b_penalty': 4,
+    'prior': 'uniform'
+}
+
+
+def get_model_name_from_params(**params):
+    return 'CAIC@{}@{}@{}'.format(
+        params['states_set'],
+        params['b_penalty'],
+        params['prior']
+    )
+
+
+default_model = get_model_name_from_params(**default_params)
+
+
+def get_params_from_model_name(model):
+    if re.match(r'^CAIC@.+@.+@.+$', model) is not None:
+        _, states_set, b_penalty, prior = model.strip().split('@')
+        return {
+                'states_set': states_set,
+                'b_penalty': int(b_penalty),
+                'prior': prior
+            }
+    else:
+        raise ValueError(model)
+
+
+def get_states_from_model_name(mode):
+    return get_states(get_params_from_model_name(mode)['states_set'])
+
+
+segmentation_states = get_states_from_model_name(default_model)
 
 
 def get_models_list():
-    return ['CAIC@{}@{}'.format(states_set, caic) for states_set in states_sets for caic in caic_values]
+    return [get_model_name_from_params(
+                                           states_set=states_set,
+                                           b_penalty=caic,
+                                           prior=prior,
+                                       )
+            for states_set in states_sets for caic in caic_values
+            for prior in priors
+            ]
+
+
+def get_prior(states_set, prior):
+    if prior == 'uniform':
+        p = 1
+    elif re.match(r'^geometric_.+$', prior) is not None:
+        p = float(prior.split('_')[1])
+    else:
+        raise ValueError
+    return {
+        state:
+        p ** (minimum_ploidy[state] - 1)
+        for state in get_states(states_set)
+    }
 
 
 class ChromPos:
@@ -358,34 +447,6 @@ class UnpackBadSegments:
                     int(line[6])] + [dict(zip(states, line[7: 7 + len(states)]))]
 
 
-def get_states(states_sign):
-    if states_sign == 'int_5':
-        states = [1, 2, 3, 4, 5]
-    elif states_sign == 'int_6':
-        states = [1, 2, 3, 4, 5, 6]
-    elif states_sign == 'full_5':
-        states = [1, 2, 3, 4, 5, 1.5]
-    elif states_sign == 'full_5_and_6':
-        states = [1, 2, 3, 4, 5, 6, 1.5]
-    elif states_sign == 'full_6_but_1.33':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 2.5]
-    elif states_sign == 'full_6_but_2.5':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3]
-    elif states_sign == 'full_6':
-        states = [1, 2, 3, 4, 5, 1.5, 6, 4 / 3, 2.5]
-    else:
-        states = segmentation_states
-    return sorted(states)
-
-
-def get_states_from_model_name(mode):
-    if re.match(r'^CAIC@.+@.+$', mode) is not None:
-        states = get_states(mode.split('@')[1])
-    else:
-        states = get_states('')
-    return states
-
-
 class CorrelationReader:
     CGH_path = ''
     SNP_path = ''
@@ -538,6 +599,7 @@ def get_results_file(path, stage='BAD', inc_ext=True):
 
 
 def get_snp_dirs_in_correlation_for_corstats():
+    # TODO: use models_list
     snp_dirs = []
     correlation_path = get_correlation_path()
     for f_name in sorted(os.listdir(correlation_path)):
@@ -547,9 +609,13 @@ def get_snp_dirs_in_correlation_for_corstats():
     return snp_dirs
 
 
-def get_babachi_models_list(remake=False):
-    modes = []
-    for dir_name in sorted(os.listdir(get_badmaps_path_by_validity(valid=remake))):
-        if os.path.isdir(os.path.join(get_badmaps_path_by_validity(valid=remake), dir_name)):
-            modes.append(dir_name)
-    return modes
+def create_badmaps_path_function(name, model=default_model, valid=False):
+    badmaps_dir = os.path.join(get_badmaps_path_by_validity(valid), model)
+    if not os.path.isdir(badmaps_dir):
+        try:
+            os.mkdir(badmaps_dir)
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                raise
+            pass
+    return os.path.join(badmaps_dir, name + ".badmap.tsv")

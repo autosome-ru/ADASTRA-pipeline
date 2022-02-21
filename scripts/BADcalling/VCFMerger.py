@@ -40,7 +40,7 @@ def merge_vcfs_as_independent_snps(out_file_name, in_files):
 
 def main(key, remake=False):
     with open(get_new_badmaps_dict_path(default_model) if remake else badmaps_dict_path, 'r') as read_file:
-        d = json.loads(read_file.readline())
+        d = json.load(read_file)
     mode = 'independent'
 
     paths_list = []
