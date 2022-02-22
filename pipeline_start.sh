@@ -78,16 +78,16 @@ if [ "$stage_index" -le 3 ]; then
 fi
 
 if [ "$stage_index" -le 4 ]; then
-#  if ! bash "$scripts_path"/bad_map_est.sh "$njobs" --merge
-#  then
-#    echo 'BAD estimation failed'
-#    exit 1
-#  fi
-#  if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --annotate
-#  then
-#    echo 'Correlation analysis failed'
-#    exit 1
-#  fi
+  if ! bash "$scripts_path"/bad_map_est.sh "$njobs" --merge
+  then
+    echo 'BAD estimation failed'
+    exit 1
+  fi
+  if ! bash "$scripts_path"/correlation_with_cosmic.sh "$njobs" --annotate
+  then
+    echo 'Correlation analysis failed'
+    exit 1
+  fi
   if [ "$apply_filter" -eq 1 ]; then
     if ! adastra create_badmaps_filter --njobs "$njobs"
     then
