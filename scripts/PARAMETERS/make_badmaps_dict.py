@@ -39,6 +39,8 @@ def add_record(d, row):
         # manually dissemble miss-annotated prostate_cancer
         if key == '22RV1__prostate_carcinoma_@GSE120738':
             key = 'prostate_cancer@{}'.format(row['ALIGNS'])
+        elif key == 'cranial_neural_crest_cells@GSE70751':
+            key = 'cranial_neural_crest_cells@{}'.format(row['ALIGNS'])
         add_to_dict(d, key, path)
         return
     elif not pd.isna(row['WG_ENCODE']):
