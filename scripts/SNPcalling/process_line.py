@@ -19,8 +19,7 @@ def process_bam(bam, out_path):
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
     if error:
-        print(error)
-
+        print(error.decode('utf-8'))
 
 
 def main(master_line):
