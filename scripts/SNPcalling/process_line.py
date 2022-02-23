@@ -9,7 +9,7 @@ dnase_bams_path = '/mnt/NAS/home/abramov/raw_alignments.GTRD/dnase'
 
 def make_bams_list(gtrd_id):
     return [file for file in os.listdir(dnase_bams_path)
-            if os.path.splitext(file)[0].split('_')[0] == gtrd_id]
+            if os.path.splitext(file)[0].split('_')[0] == gtrd_id and os.path.splitext(file)[1] == 'bam']
 
 
 def process_bam(bam, out_path):
