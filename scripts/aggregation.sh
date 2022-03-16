@@ -6,6 +6,8 @@ njobs=$1
 indicator=$2
 remade=$3
 
+adastra aggregation_dict
+
 if [ "$indicator" == "--forCL" ];then
   if [ "$remade" == "--remade" ]; then
     adastra aggregation_params --remade --for CL
