@@ -91,8 +91,11 @@ def get_tf_sarus_path(tf_name, for_what='tsv'):
 
 
 def create_neg_bin_stats_path_function(BAD, suffix=''):
-    return os.path.join(get_release_stats_path(), 'bias_stats_BAD{:.1f}{}.tsv'.format(
-            BAD if BAD else 0, suffix))
+    bad_dir = os.path.join(get_release_stats_path(),
+                           'BAD{:.2f}'.format(BAD if BAD else 0))
+    if not os.path.exists(bad_dir):
+        os.mkdir(bad_dir)
+    return os.path.join(bad_dir, 'stats{}.tsv'.format(suffix))
 
 
 def create_neg_bin_weights_path_function(fixed_allele, BAD):
