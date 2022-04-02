@@ -2,11 +2,14 @@ import os
 import subprocess
 
 from scripts.HELPERS.paths import get_release_stats_path
+from scripts.HELPERS.helpers import mixalime_params
 
 
-def main(model='NB_AS'):
+def main():
     in_dir = get_release_stats_path()
-    pr = subprocess.run(['negbin_fit', '-O', in_dir, '-m', model])
+    args = (item for pair in mixalime_params.items() for item in pair)
+    pr = subprocess.run(['negbin_fit', '-O', in_dir, *args])
     err = pr.stderr.decode('utf-8')
     if err:
-        print(err)
+        with open(os.path.join(in_dir, 'mixalime_log.txt'), 'w') as f:
+            f.write(err)

@@ -59,7 +59,6 @@ Options:
     --dir=<path>                Path to directory
     --uniprot-file=<path>       Path to file with uniprot conversion
     --njobs=<int>               Number of parallel processes [default: 1]
-    --model=<model>             Model to fit distribution with [default: NB_AS]
 """
 import time
 
@@ -157,7 +156,7 @@ def main():
             main(args['--cell-type'], args['--suffix'], in_stats=True, remade=args['--remade'])
     elif args['fit_neg_bin']:
         from .FITnoise.fit_dist import main
-        main(args['--model'])
+        main()
     elif args['neg_bin_p']:
         from .ASBcalling.NBpcounter import main
         main(args['--base'])

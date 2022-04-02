@@ -5,7 +5,7 @@ import json
 
 from scripts.HELPERS.paths import get_ending, create_merged_vcf_path_function, get_new_badmaps_dict_path
 from scripts.HELPERS.paths_for_components import badmaps_dict_path
-from scripts.HELPERS.helpers import make_dict_from_vcf, make_list_from_vcf, default_model
+from scripts.HELPERS.helpers import make_dict_from_vcf, make_list_from_vcf, default_babachi_model
 
 
 def merge_vcfs_add_counts(out_file_name, in_files):
@@ -39,7 +39,7 @@ def merge_vcfs_as_independent_snps(out_file_name, in_files):
 
 
 def main(key, remake=False):
-    with open(get_new_badmaps_dict_path(default_model) if remake else badmaps_dict_path, 'r') as read_file:
+    with open(get_new_badmaps_dict_path(default_babachi_model) if remake else badmaps_dict_path, 'r') as read_file:
         d = json.load(read_file)
     mode = 'independent'
 

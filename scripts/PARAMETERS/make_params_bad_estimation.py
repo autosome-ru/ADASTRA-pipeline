@@ -3,7 +3,7 @@ import os.path
 
 from scripts.HELPERS.paths import get_ending, get_new_badmaps_dict_path
 from scripts.HELPERS.paths_for_components import parallel_parameters_path, badmaps_dict_path
-from scripts.HELPERS.helpers import read_synonims, default_model, get_models_list
+from scripts.HELPERS.helpers import read_synonims, default_babachi_model, get_models_list
 
 out_path = os.path.join(parallel_parameters_path, 'BE_parameters.cfg')
 
@@ -18,7 +18,7 @@ def in_cosmic(cell_line_name, cosmic_names):
 
 def main(only_cosmic=False, remake=False):
     if remake:
-        with open(get_new_badmaps_dict_path(default_model), 'r') as read_file:
+        with open(get_new_badmaps_dict_path(default_babachi_model), 'r') as read_file:
             d = json.load(read_file)
     else:
         with open(badmaps_dict_path, 'r') as read_file:

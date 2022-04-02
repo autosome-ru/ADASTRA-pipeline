@@ -65,10 +65,16 @@ def get_states(states_sign):
     return sorted(states)
 
 
-default_params = {
+babachi_params = {
     'states_set': 'full_6',
     'b_penalty': 4,
     'prior': 'geometric_0.99'
+}
+
+mixalime_params = {
+    '-m': 'NB_AS',
+    '-r': 'inf',
+    '-R': 500,
 }
 
 
@@ -80,7 +86,7 @@ def get_model_name_from_params(**params):
     )
 
 
-default_model = get_model_name_from_params(**default_params)
+default_babachi_model = get_model_name_from_params(**babachi_params)
 
 
 def get_params_from_model_name(model):
@@ -99,7 +105,7 @@ def get_states_from_model_name(mode):
     return get_states(get_params_from_model_name(mode)['states_set'])
 
 
-segmentation_states = get_states_from_model_name(default_model)
+segmentation_states = get_states_from_model_name(default_babachi_model)
 
 
 def get_models_list():
@@ -609,7 +615,7 @@ def get_snp_dirs_in_correlation_for_corstats():
     return snp_dirs
 
 
-def create_badmaps_path_function(name, model=default_model, valid=False):
+def create_badmaps_path_function(name, model=default_babachi_model, valid=False):
     badmaps_dir = os.path.join(get_badmaps_path_by_validity(valid), model)
     if not os.path.isdir(badmaps_dir):
         try:
