@@ -16,7 +16,7 @@ Usage:
             adastra bad_call [--remake] --group <group>
             adastra bad_annotation [--remade] --base <path>
             adastra collect_ref_bias [--remade] [stats] [--suffix <suffix>] [--cell-type <name>]
-            adastra fit_neg_bin
+            adastra fit_neg_bin [--model <model>]
             adastra neg_bin_p --base <path>
             adastra aggregation [--remade] --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path> [--remake]
@@ -41,6 +41,7 @@ Arguments:
     <path>     Path to file
     <suffix>   Suffix for stats file
     <int>      Positive integer
+    <model>    Model to fit distribution with
 
 Options:
     -h, --help                  Show help.
@@ -58,6 +59,7 @@ Options:
     --dir=<path>                Path to directory
     --uniprot-file=<path>       Path to file with uniprot conversion
     --njobs=<int>               Number of parallel processes [default: 1]
+    --model=<model>             Model to fit distribution with [default: NB_AS]
 """
 import time
 
@@ -154,8 +156,8 @@ def main():
         else:
             main(args['--cell-type'], args['--suffix'], in_stats=True, remade=args['--remade'])
     elif args['fit_neg_bin']:
-        from .FITnoise.fit_negative_binom_with_weights import main
-        main()
+        from .FITnoise.fit_dist import main
+        main(args['--model'])
     elif args['neg_bin_p']:
         from .ASBcalling.NBpcounter import main
         main(args['--base'])
