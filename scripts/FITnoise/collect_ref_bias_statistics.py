@@ -35,18 +35,18 @@ def collect_fixed_alt_statistics(master_df, key_name=None, BAD=None, suffix='', 
             out_t = pd.DataFrame()
             out_t['alt_counts'] = sum_df['alt_read_counts']
             out_t['ref_counts'] = sum_df['ref_read_counts']
-            out_t = out_t.groupby(['alt_counts', 'ref_counts']).size().reset_index(name='counts')
+            out_t = out_t.groupby(['ref_counts', 'alt_counts']).size().reset_index(name='counts')
             out_t.fillna(0, inplace=True)
         else:
             tmp_df = pd.DataFrame()
             tmp_df['alt_counts'] = sum_df['alt_read_counts']
             tmp_df['ref_counts'] = sum_df['ref_read_counts']
-            tmp_df = tmp_df.groupby(['alt_counts', 'ref_counts']).size().reset_index(name='counts')
+            tmp_df = tmp_df.groupby(['ref_counts', 'alt_counts']).size().reset_index(name='counts')
             tmp_df.fillna(0, inplace=True)
-            out_t = out_t.append(tmp_df).groupby(['alt_counts', 'ref_counts'], as_index=False).sum()
+            out_t = out_t.append(tmp_df).groupby(['ref_counts', 'alt_counts'], as_index=False).sum()
     if out_t is None:
         return
-    out_t.to_csv(create_neg_bin_stats_path_function(BAD, suffix), sep="\t", index=False)
+    out_t.to_csv(create_neg_bin_stats_path_function(BAD, suffix), sep="\t", index=False, header=None)
 
 
 def main(cell_line=None, suffix='', in_stats=False, remade=True):
