@@ -158,7 +158,7 @@ def main():
         main()
     elif args['neg_bin_p']:
         from .ASBcalling.calc_pval import main
-        main(remade=args['--remade'], n_jobs=args['--njobs'])
+        main(remade=args['--remade'], n_jobs=int(args['--njobs']))
     elif args['aggregation']:
         from .ASBcalling.Aggregation import main
         main(args['--for'], args['--name'], remade=args['--remade'])
