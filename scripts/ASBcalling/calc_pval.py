@@ -17,7 +17,7 @@ def create_filename_list_mixalime(badmap, exps, out):
     f_name = os.path.join(out, f'{badmap}.tables.txt')
     with open(f_name, 'w') as f:
         for exp in exps:
-            f.write(f'{exp}{get_ending("annotation")}')
+            f.write(f'{exp}{get_ending("annotation")}\n')
     return f_name
 
 def process_dataset(data):
