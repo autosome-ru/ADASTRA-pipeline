@@ -20,6 +20,8 @@ def create_filename_list_mixalime(badmap, exps, out):
             path = get_results_file(exp, 'BAD')
             if os.path.exists(path):
                 f.write(f'{path}\n')
+            else:
+                print(path)
     return f_name
 
 
