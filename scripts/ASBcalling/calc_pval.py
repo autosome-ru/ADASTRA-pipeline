@@ -15,14 +15,15 @@ def read_badmaps(remade):
 
 def create_filename_list_mixalime(badmap, exps, out):
     f_name = os.path.join(out, f'{badmap}.tables.txt')
-    with open(f_name, 'w') as f:
-        for exp in exps:
-            path = get_results_file(exp, 'BAD')
-            if os.path.exists(path):
-                f.write(f'{path}\n')
-            else:
-                print(path)
-    return f_name
+    files = filter(os.path.exists, [get_results_file(exp, 'BAD') for exp in exps])
+
+    if files:
+        with open(f_name, 'w') as f:
+            for file in files:
+                f.write(f'{file}\n')
+        return f_name
+    else:
+        return None
 
 
 def process_dataset(data):
