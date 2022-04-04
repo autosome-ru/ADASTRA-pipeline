@@ -20,7 +20,6 @@ def create_filename_list_mixalime(badmap, exps, out):
             f.write(f'{exp}{get_ending("annotation")}')
     return f_name
 
-
 def process_dataset(data):
     badmap_name, file_path = data
     print(f'Processing {badmap_name}')
@@ -42,7 +41,7 @@ def main(remade=True, n_jobs=1):
 
     ctx = mp.get_context("forkserver")
     with ctx.Pool(n_jobs) as p:
-        p.map(process_dataset, [(x, files_dict[x]) for x in badmaps.items()])
+        p.map(process_dataset, [(x, files_dict[x]) for x in badmaps])
 
 
 if __name__ == '__main__':
