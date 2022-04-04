@@ -3,7 +3,7 @@ import os
 import subprocess
 import json
 
-from scripts.HELPERS.helpers import get_merged_badmaps_dict_path
+from scripts.HELPERS.helpers import get_merged_badmaps_dict_path, get_results_file
 from scripts.HELPERS.paths import get_release_stats_path, get_ending, get_dir_by_stage
 from scripts.HELPERS.paths_for_components import results_path
 
@@ -17,7 +17,7 @@ def create_filename_list_mixalime(badmap, exps, out):
     f_name = os.path.join(out, f'{badmap}.tables.txt')
     with open(f_name, 'w') as f:
         for exp in exps:
-            path = f'{exp}{get_ending("annotation")}'
+            path = get_results_file(exp, 'BAD')
             if os.path.exists(path):
                 f.write(f'{path}\n')
     return f_name
