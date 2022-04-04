@@ -46,7 +46,7 @@ def collect_fixed_alt_statistics(master_df, key_name=None, BAD=None, suffix='', 
             out_t = out_t.append(tmp_df).groupby(['ref_counts', 'alt_counts'], as_index=False).sum()
     if out_t is None:
         return
-    out_t.to_csv(create_neg_bin_stats_path_function(BAD, suffix), sep="\t", index=False)
+    out_t.to_csv(create_neg_bin_stats_path_function(BAD, suffix), sep="\t", index=False, header=None)
 
 
 def main(cell_line=None, suffix='', in_stats=False, remade=True):
