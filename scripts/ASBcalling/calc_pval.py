@@ -4,7 +4,7 @@ import subprocess
 import json
 
 from scripts.HELPERS.helpers import get_merged_badmaps_dict_path, get_results_file
-from scripts.HELPERS.paths import get_release_stats_path, get_ending, get_dir_by_stage
+from scripts.HELPERS.paths import get_release_stats_path, get_dir_by_stage
 from scripts.HELPERS.paths_for_components import results_path
 
 
@@ -29,8 +29,9 @@ def process_dataset(data):
     badmap_name, file_path = data
     print(f'Processing {badmap_name}')
     out_dir = get_dir_by_stage('p-value')
-    pr = subprocess.run(['calc_pval', '-f', file_path, '-w', get_release_stats_path(),
-                         '-O', out_dir, '-m', 'window'])
+    if file_path is not None:
+        pr = subprocess.run(['calc_pval', '-f', file_path, '-w', get_release_stats_path(),
+                             '-O', out_dir, '-m', 'window'])
 
 
 def main(remade=True, n_jobs=1):
