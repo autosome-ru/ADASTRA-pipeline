@@ -200,7 +200,7 @@ def main(what_for, key_name, remade=True):
                 try:
                     es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
                 except TypeError:
-                    print(ref_effect_size_array, weights)
+                    print(ID, table_names_array, ref_effect_size_array, weights)
                     raise
                 es_mostsig_ref = ref_effect_size_array[int(np.argmax(weights))]
                 idx = int(np.argmax([-x for x in p_ref_array]))
