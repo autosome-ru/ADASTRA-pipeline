@@ -603,7 +603,7 @@ def get_merged_badmaps_dict_path(remade=True):
 
 def get_results_file(path, stage='BAD', inc_ext=True):
     return os.path.join(get_dir_by_stage(stage), os.path.basename(os.path.splitext(path)[0])
-                        + (get_ending('BAD') if inc_ext else ''))
+                        + (get_ending(stage) if inc_ext else ''))
 
 
 def get_snp_dirs_in_correlation_for_corstats():

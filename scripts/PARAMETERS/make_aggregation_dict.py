@@ -7,7 +7,7 @@ from scripts.HELPERS.paths_for_components import master_list_path
 
 
 def makedict(what_for):
-    d = dict()
+    d = {}
     check_if_in_expected_args(what_for)
     master_df = pd.read_table(master_list_path, dtype=dtype_dict)
     master_df = master_df[~master_df['EXP_TYPE'].isin(['chip_control', 'chipexo_control'])]
@@ -26,8 +26,9 @@ def makedict(what_for):
                 d[cell_line].append(row['path'])
             except KeyError:
                 d[cell_line] = [row['path']]
+    print(f'Saving {what_for} dict')
     with open(get_aggregation_dict_path(what_for), "w") as write_file:
-        json.dump(d, write_file)
+        json.dump(d, write_file, indent=2)
 
 
 def main():

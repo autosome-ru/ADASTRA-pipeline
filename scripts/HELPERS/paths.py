@@ -16,7 +16,7 @@ def get_ending(for_what):
     if for_what == "annotation":
         return ".table_annotated"
     if for_what == "p-value":
-        return ".table_p"
+        return ".pvalue_table"
     if for_what == "BAD":
         return ".table_BAD"
     if for_what == 'base':
