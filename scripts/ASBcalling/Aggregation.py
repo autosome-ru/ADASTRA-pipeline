@@ -72,7 +72,11 @@ def get_noise(k, n, weight):
 
 
 def filter_pv_es_lists(p_list, es_list):
-    return zip(*((pv, es) for pv, es in zip(p_list, es_list) if pv != 1))
+    tup = zip(*((pv, es) for pv, es in zip(p_list, es_list) if pv != 1))
+    if tup:
+        return tup
+    else:
+        return (), ()
 
 
 def main(what_for, key_name, remade=True):
