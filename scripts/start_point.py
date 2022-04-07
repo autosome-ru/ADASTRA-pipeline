@@ -17,7 +17,7 @@ Usage:
             adastra bad_annotation [--remade] --base <path>
             adastra collect_ref_bias [--remade] [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin [--model <model>]
-            adastra neg_bin_p --base <path>
+            adastra neg_bin_p [--remade] [--njobs <int>]
             adastra aggregation [--remade] --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path> [--remake]
             adastra cosmic_correlation [--remake] --base <path>
@@ -29,7 +29,6 @@ Usage:
             adastra annotate_table_with_sarus --name <name> --motif-len <int>
             adastra annotate_with_phenotypes [--dir <path>]
             adastra extract_context
-            adastra count_p <exp> <aligns>
             adastra create_badmaps_filter [--njobs <int>]
             adastra apply_badmaps_filter
             adastra -h | --help
@@ -158,8 +157,8 @@ def main():
         from .FITnoise.fit_dist import main
         main()
     elif args['neg_bin_p']:
-        from .ASBcalling.NBpcounter import main
-        main(args['--base'])
+        from .ASBcalling.calc_pval import main
+        main(remade=args['--remade'], n_jobs=int(args['--njobs']))
     elif args['aggregation']:
         from .ASBcalling.Aggregation import main
         main(args['--for'], args['--name'], remade=args['--remade'])
@@ -190,9 +189,6 @@ def main():
     elif args['extract_context']:
         from .Qcontrol.extract_context import main
         main()
-    elif args['count_p']:
-        from .ASBcalling.NBpcounter import manual
-        manual(args['<exp>'], args['<aligns>'])
     elif args['create_badmaps_filter']:
         from scripts.BADMAPSfilter.construct_badmaps_filter import main
         main(20, 50, int(args['--njobs']))

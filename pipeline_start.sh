@@ -145,6 +145,7 @@ if [ "$stage_index" -le 5 ]; then
   fi
 fi
 
+# TODO: adastra neg_bin_p njobs remade
 if [ "$stage_index" -le 6 ]; then
   if [ "$apply_filter" -eq 1 ]; then
     if ! bash "$scripts_path"/p_value_count.sh "$njobs" --remade
