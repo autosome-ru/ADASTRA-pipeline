@@ -76,7 +76,7 @@ def filter_pv_es_lists(p_list, es_list):
     if tup:
         return tup
     else:
-        return (), ()
+        return [], []
 
 
 def main(what_for, key_name, remade=True):
