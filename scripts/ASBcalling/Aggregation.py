@@ -71,6 +71,14 @@ def get_noise(k, n, weight):
     return weight * max(k - n / 2, 0) / (1 / 2 * (n - 5 - n // 2) * (n // 2 - 4))
 
 
+def filter_pv_es_lists(p_list, es_list):
+    tup = tuple(zip(*((pv, es) for pv, es in zip(p_list, es_list) if pv != 1)))
+    if tup:
+        return tup
+    else:
+        return [], []
+
+
 def main(what_for, key_name, remade=True):
     check_if_in_expected_args(what_for)
 
@@ -174,9 +182,9 @@ def main(what_for, key_name, remade=True):
                 p_ref_array.append(p_ref)
                 p_alt_array.append(p_alt)
                 if not np.isnan(es_ref):
-                    ref_effect_size_array.append(es_ref / np.log(2))
+                    ref_effect_size_array.append(es_ref / np.log(2) if not np.isnan(es_ref) else None)
                 if not np.isnan(es_alt):
-                    alt_effect_size_array.append(es_alt / np.log(2))
+                    alt_effect_size_array.append(es_alt / np.log(2) if not np.isnan(es_alt) else None)
                 cover_array.append(cov)
 
                 ref_counts_array.append(ref_c)
@@ -195,10 +203,12 @@ def main(what_for, key_name, remade=True):
             logitp_ref = logit_combine_p_values(p_ref_array)
             logitp_palt = logit_combine_p_values(p_alt_array)
 
-            if ref_effect_size_array:
-                weights = [-1 * np.log10(x) for x in p_ref_array if x != 1]
-                es_mean_ref = np.round(np.average(ref_effect_size_array, weights=weights), 3)
-                es_mostsig_ref = ref_effect_size_array[int(np.argmax(weights))]
+
+            weights, filtered_es = filter_pv_es_lists(p_ref_array, ref_effect_size_array)
+            weights = [-1 * np.log10(x) for x in weights]
+            if filtered_es:
+                es_mean_ref = np.round(np.average(filtered_es, weights=weights), 3)
+                es_mostsig_ref = filtered_es[int(np.argmax(weights))]
                 idx = int(np.argmax([-x for x in p_ref_array]))
                 p_mostsig_ref = p_ref_array[idx]
                 ref_c_mostsig_ref = ref_counts_array[idx]
@@ -212,10 +222,12 @@ def main(what_for, key_name, remade=True):
                 alt_c_mostsig_ref = 'NaN'
                 BAD_mostsig_ref = 'NaN'
 
-            if alt_effect_size_array:
-                weights = [-1 * np.log10(x) for x in p_alt_array if x != 1]
-                es_mean_alt = np.round(np.average(alt_effect_size_array, weights=weights), 3)
-                es_mostsig_alt = alt_effect_size_array[int(np.argmax(weights))]
+
+            weights, filtered_es = filter_pv_es_lists(p_alt_array, alt_effect_size_array)
+            weights = [-1 * np.log10(x) for x in weights]
+            if filtered_es:
+                es_mean_alt = np.round(np.average(filtered_es, weights=weights), 3)
+                es_mostsig_alt = filtered_es[int(np.argmax(weights))]
                 idx = int(np.argmax([-x for x in p_alt_array]))
                 p_mostsig_alt = p_alt_array[idx]
                 ref_c_mostsig_alt = ref_counts_array[idx]
