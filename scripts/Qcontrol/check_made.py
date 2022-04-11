@@ -38,7 +38,9 @@ def main():
         if vcf_df.empty:
             continue
         local_counter = len(vcf_df.index)
-        dict_overall_statistics["raw_SNP_calls"]["CL"].setdefault(row['CELLS'], 0) += local_counter
+        if row['CELLS'] not in dict_overall_statistics["raw_SNP_calls"]["CL"]:
+            dict_overall_statistics["raw_SNP_calls"]["CL"][row['CELLS']] = 0
+        dict_overall_statistics["raw_SNP_calls"]["CL"][row['CELLS']] += local_counter
         annotated_table_path = create_path_from_master_list_df(row, for_what="annotation")
         if not os.path.isfile(annotated_table_path):
             continue
