@@ -97,7 +97,7 @@ def main():
         print('In {} aggregation - {},{} ref and alt ASB events respectively'.format(what_for,
                                                                                      total_fdrs_ref, total_fdrs_alt))
     with open(os.path.join(get_release_stats_path(), "overall_statistics.json"), "w") as json_file:
-        json.dump(dict_overall_statistics, json_file)
+        json.dump(dict_overall_statistics, json_file, indent=2)
 
     with open(os.path.join(get_release_stats_path(), 'convert_cell_lines.json'), 'w') as o:
         d_to_write = {}
