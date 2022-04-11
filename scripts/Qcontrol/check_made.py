@@ -1,6 +1,7 @@
 import os.path
 import json
 import pandas as pd
+from tqdm import tqdm
 
 from scripts.HELPERS.helpers import remove_punctuation, dtype_dict
 from scripts.HELPERS.paths import create_path_from_master_list_df, get_result_table_path, get_result_dir_path, \
@@ -28,7 +29,7 @@ def main():
         os.path.join(get_release_stats_path(), 'not_downloaded.tsv'),
         index=False, sep='\t')
     ml_df = ml_df[ml_df['vcf_path'].apply(os.path.isfile)]
-    for index, row in ml_df.iterrows():
+    for index, row in tqdm(ml_df.iterrows(), total=len(ml_df.index)):
         row['CELLS'] = remove_punctuation(row['CELLS'])
         if row['CELLS'] not in dict_overall_statistics["datasets"]["CL"]:
             dict_overall_statistics["datasets"]["CL"][row['CELLS']] = 0
