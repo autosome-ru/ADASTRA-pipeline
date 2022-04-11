@@ -34,7 +34,7 @@ def main():
             dict_overall_statistics["datasets"]["CL"][row['CELLS']] = 0
         dict_overall_statistics["datasets"]["CL"][row['CELLS']] += 1
         made_experiment_vcfs += 1
-        vcf_df = pd.read_table(row['vcf_path'], header='None', comment='#')
+        vcf_df = pd.read_table(row['vcf_path'], header=None, comment='#')
         if vcf_df.empty:
             continue
         local_counter = len(vcf_df.index)
