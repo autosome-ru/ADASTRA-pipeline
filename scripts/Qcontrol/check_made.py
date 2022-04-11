@@ -13,7 +13,8 @@ def main():
     made_control_vcfs = 0
 
     made_annotated_tables = 0
-    dict_overall_statistics = {"SNP_calls": None, "unique_SNPs": None,
+    dict_overall_statistics = {"SNP_calls": None, 'raw_SNP_calls': None,
+                               "unique_SNPs": None,
                                "unique_asb": None, "datasets": None,
                                "unique_SNPs_rs": None, "unique_asb_rs": None,
                                }
@@ -33,6 +34,11 @@ def main():
             dict_overall_statistics["datasets"]["CL"][row['CELLS']] = 0
         dict_overall_statistics["datasets"]["CL"][row['CELLS']] += 1
         made_experiment_vcfs += 1
+        vcf_df = pd.read_table(row['vcf_path'], header='None', comment='#')
+        if vcf_df.empty:
+            continue
+        local_counter = len(vcf_df.index)
+        dict_overall_statistics["raw_SNP_calls"]["CL"].setdefault(row['CELLS'], 0) += local_counter
         annotated_table_path = create_path_from_master_list_df(row, for_what="annotation")
         if not os.path.isfile(annotated_table_path):
             continue
@@ -92,7 +98,7 @@ def main():
         master_df = pd.read_table(master_list_path, dtype=dtype_dict)
         for key in master_df['CELLS'].tolist():
             d_to_write[key] = remove_punctuation(key)
-        json.dump(d_to_write, o)
+        json.dump(d_to_write, o, indent=2)
 
 
 if __name__ == '__main__':
