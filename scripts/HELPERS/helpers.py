@@ -74,7 +74,7 @@ babachi_params = {
 mixalime_params = {
     '-m': 'window',
     '-r': 'inf',
-    '-R': '500',
+    '-R': 'inf',
     '-s': '1',
     '-w': '10000',
 }
