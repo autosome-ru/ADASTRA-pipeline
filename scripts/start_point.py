@@ -17,7 +17,8 @@ Usage:
             adastra bad_annotation [--remade] --base <path>
             adastra collect_ref_bias [--remade] [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin [--model <model>]
-            adastra neg_bin_p [--remade] [--njobs <int>]
+            adastra mixALime [--remade] [--njobs <int>]
+            adastra neg_bin_p --base <path>
             adastra aggregation [--remade] --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path> [--remake]
             adastra cosmic_correlation [--remake] --base <path>
@@ -156,9 +157,12 @@ def main():
     elif args['fit_neg_bin']:
         from .FITnoise.fit_dist import main
         main()
-    elif args['neg_bin_p']:
+    elif args['mixALime']:
         from .ASBcalling.calc_pval import main
         main(remade=args['--remade'], n_jobs=int(args['--njobs']))
+    elif args['neg_bin_p']:
+        from .ASBcalling.NBpcounter import main
+        main(args['--base'])
     elif args['aggregation']:
         from .ASBcalling.Aggregation import main
         main(args['--for'], args['--name'], remade=args['--remade'])
