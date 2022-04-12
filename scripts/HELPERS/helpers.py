@@ -587,10 +587,11 @@ def make_reverse_dict(dictionary):
 
 
 def is_valid(path, reverse_dict, remade=True):
-    badmap_file_name = reverse_dict[path]
-    badmap_file_path = create_badmaps_path_function(badmap_file_name, valid=remade)
-    if not os.path.isfile(badmap_file_path):
-        return False
+    if remade:
+        badmap_file_name = reverse_dict[path]
+        badmap_file_path = create_badmaps_path_function(badmap_file_name, valid=remade)
+        if not os.path.isfile(badmap_file_path):
+            return False
     return True
 
 
