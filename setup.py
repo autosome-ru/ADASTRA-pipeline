@@ -11,7 +11,7 @@ setup(
     },
     author="Sergey Abramov, Alexandr Boytsov",
     install_requires=[
-        'numpy>=1.18.0',
+        'numpy==1.21.0',
         'pandas>=1.0.4',
         'matplotlib>=3.2.1',
         'seaborn>=0.10.1',
