@@ -60,7 +60,7 @@ Options:
     --dir=<path>                Path to directory
     --uniprot-file=<path>       Path to file with uniprot conversion
     --njobs=<int>               Number of parallel processes [default: 1]
-    --rescale-mode              Mode of weights rescaling in mixALime
+    --rescale-mode=<rescale>              Mode of weights rescaling in mixALime
 """
 import time
 
