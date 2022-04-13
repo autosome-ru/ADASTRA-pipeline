@@ -32,7 +32,7 @@ def process_dataset(data):
     out_dir = get_dir_by_stage('p-value')
     if file_path is not None:
         pr = subprocess.run(['calc_pval', '-f', file_path, '-w', get_release_stats_path(),
-                             '-O', out_dir, '-m', 'window'] + (['--no-rescale'] if not rescale_weights else []))
+                             '-O', out_dir, '-m', 'window', '-d'] + (['--no-rescale'] if not rescale_weights else []))
 
 
 def main(remade=True, n_jobs=1, rescale_weights=True):
