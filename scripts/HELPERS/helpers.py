@@ -81,7 +81,8 @@ babachi_params = {
 
 
 mixalime_params = {
-    '-m': 'NB',
+    '-m': 'slices',
+    '-d': 'NB',
     '-r': 'inf',
     '-R': 'inf',
 }
