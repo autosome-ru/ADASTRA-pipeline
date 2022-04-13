@@ -205,8 +205,8 @@ def main(what_for, key_name, remade=True):
 
 
             weights, filtered_es = filter_pv_es_lists(p_ref_array, ref_effect_size_array)
-            weights = [-1 * np.log10(x) for x in weights]
             if filtered_es:
+                weights = [-1 * np.log10(x) for x in weights]
                 es_mean_ref = np.round(np.average(filtered_es, weights=weights), 3)
                 es_mostsig_ref = filtered_es[int(np.argmax(weights))]
                 idx = int(np.argmax([-x for x in p_ref_array]))
@@ -224,8 +224,9 @@ def main(what_for, key_name, remade=True):
 
 
             weights, filtered_es = filter_pv_es_lists(p_alt_array, alt_effect_size_array)
-            weights = [-1 * np.log10(x) for x in weights]
+            assert all([not np.isnan(x) and not 0 for x in weights])
             if filtered_es:
+                weights = [-1 * np.log10(x) for x in weights]
                 es_mean_alt = np.round(np.average(filtered_es, weights=weights), 3)
                 es_mostsig_alt = filtered_es[int(np.argmax(weights))]
                 idx = int(np.argmax([-x for x in p_alt_array]))
