@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     # FDR
     if FDR:
-        pt = pd.read_table(os.path.expanduser("D:\Sashok/Desktop/BillCipherStats/scatter/{}.tsv".format('all_tfs')))
+        pt = pd.read_table(os.path.expanduser("C:\\Users\\boyts\\OneDrive/Desktop/BillCipherStats/scatter/{}.tsv".format('all_tfs')))
 
         pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) | (pt['motif_log_palt'] >= -np.log10(perf_tr))]
 
@@ -104,13 +104,13 @@ if __name__ == '__main__':
 
         plt.suptitle(title)
 
-        plt.savefig(os.path.expanduser("D:\Sashok/Desktop/BillCipherStats/AS_7/fraction.png"), dpi=300)
+        plt.savefig(os.path.expanduser("C:\\Users\\boyts\\OneDrive/Desktop/BillCipherStats/AS_7/fraction.png"), dpi=300)
         plt.show()
         plt.close(fig)
 
     # ES
     if ES:
-        pt = pd.read_table(os.path.expanduser("D:\Sashok/Desktop/BillCipherStats/scatter/{}.tsv".format('all_tfs')))
+        pt = pd.read_table(os.path.expanduser("C:\\Users\\boyts\\OneDrive/Desktop/BillCipherStats/scatter/{}.tsv".format('all_tfs')))
 
         pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) | (pt['motif_log_palt'] >= -np.log10(perf_tr))]
 
@@ -153,14 +153,14 @@ if __name__ == '__main__':
 
         plt.suptitle(title)
 
-        plt.savefig(os.path.expanduser("D:\Sashok/Desktop/BillCipherStats/AS_7/fraction_es.png"), dpi=300)
+        plt.savefig(os.path.expanduser("C:\\Users\\boyts\\OneDrive/Desktop/BillCipherStats/AS_7/fraction_es.png"), dpi=300)
         plt.show()
         plt.close(fig)
 
     #TF
     if TF:
         for tf_name in 'CTCF_HUMAN', 'ANDR_HUMAN':
-            pt = pd.read_table(os.path.expanduser("D:\Sashok\Desktop\BillCipherStats/scatter/{}.tsv").format(tf_name))
+            pt = pd.read_table(os.path.expanduser("C:\\Users\\boyts\\OneDrive\\Desktop\\BillCipherStats/scatter/{}.tsv").format(tf_name))
 
             pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) | (pt['motif_log_palt'] >= -np.log10(perf_tr))]
 
@@ -183,7 +183,7 @@ if __name__ == '__main__':
                 blue = len(pt[pt['col'] == 'C'].index)
                 red = len(pt[pt['col'] == 'D'].index)
                 grey = len(pt[pt['col'] == 'N'].index)
-                fraction.append(blue / (blue + red))
+                fraction.append(blue / (blue + red) if blue + red else 0)
                 total_number_of_concordant_and_discordant_snps_at_treshold.append(blue + red)
 
             if tf_name == 'CTCF_HUMAN':
@@ -219,6 +219,6 @@ if __name__ == '__main__':
 
             plt.suptitle(title)
 
-            plt.savefig(os.path.expanduser("D:\Sashok/Desktop/BillCipherStats/AS_7/fraction_{}.png".format(tf_name)), dpi=300)
+            plt.savefig(os.path.expanduser("C:\\Users\\boyts\\OneDrive/Desktop/BillCipherStats/AS_7/fraction_{}.png".format(tf_name)), dpi=300)
             plt.show()
             plt.close(fig)

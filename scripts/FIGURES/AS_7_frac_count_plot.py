@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     # FDR
     if FDR:
-        pt = pd.read_table(os.path.expanduser("D:\\Sashok/Desktop/BillCipherStats/scatter/{}.tsv".format('all_tfs')))
+        pt = pd.read_table(os.path.expanduser("C:\\Users\\boyts\OneDrive\Desktop/BillCipherStats/scatter/{}.tsv".format('all_tfs')))
 
         pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) | (pt['motif_log_palt'] >= -np.log10(perf_tr))]
 
@@ -100,13 +100,13 @@ if __name__ == '__main__':
 
         plt.suptitle(title)
 
-        plt.savefig(os.path.expanduser("D:\\Sashok/Desktop/BillCipherStats/AS_7/fraction_count.png"), dpi=300)
+        plt.savefig(os.path.expanduser("C:\\Users\\boyts\OneDrive\Desktop/BillCipherStats/AS_7/fraction_count.png"), dpi=300)
         plt.show()
         plt.close(fig)
 
     # ES
     if ES:
-        pt = pd.read_table(os.path.expanduser("D:\\Sashok/Desktop/BillCipherStats/scatter/{}.tsv".format('all_tfs')))
+        pt = pd.read_table(os.path.expanduser("C:\\Users\\boyts\OneDrive\Desktop/BillCipherStats/scatter/{}.tsv".format('all_tfs')))
 
         pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) | (pt['motif_log_palt'] >= -np.log10(perf_tr))]
 
@@ -149,14 +149,14 @@ if __name__ == '__main__':
 
         plt.suptitle(title)
 
-        plt.savefig(os.path.expanduser("D:\\Sashok/Desktop/BillCipherStats/AS_7/fraction_count_es.png"), dpi=300)
+        plt.savefig(os.path.expanduser("C:\\Users\\boyts\OneDrive\Desktop/BillCipherStats/AS_7/fraction_count_es.png"), dpi=300)
         plt.show()
         plt.close(fig)
 
     #TF
     if TF:
         for tf_name in 'CTCF_HUMAN', 'ANDR_HUMAN':
-            pt = pd.read_table(os.path.expanduser("D:\Sashok\BillCipherStats/scatter/{}.tsv").format(tf_name))
+            pt = pd.read_table(os.path.expanduser("C:\\users\\boyts\\OneDrive\Desktop\BillCipherStats/scatter/{}.tsv").format(tf_name))
 
             pt = pt[(pt['motif_log_pref'] >= -np.log10(perf_tr)) | (pt['motif_log_palt'] >= -np.log10(perf_tr))]
 
@@ -212,6 +212,6 @@ if __name__ == '__main__':
 
             plt.suptitle(title)
 
-            plt.savefig(os.path.expanduser("D:\\Sashok/Desktop/BillCipherStats/AS_7/fraction_count_{}.png".format(tf_name)), dpi=300)
+            plt.savefig(os.path.expanduser("C:\\Users\\boyts\OneDrive\Desktop/BillCipherStats/AS_7/fraction_count_{}.png".format(tf_name)), dpi=300)
             plt.show()
             plt.close(fig)
