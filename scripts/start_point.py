@@ -17,7 +17,7 @@ Usage:
             adastra bad_annotation [--remade] --base <path>
             adastra collect_ref_bias [--remade] [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin [--model <model>]
-            adastra mixALime [--remade] [--njobs <int>] [--no-rescale]
+            adastra mixALime [--remade] [--njobs <int>] [--rescale-mode <rescale>]
             adastra neg_bin_p --base <path>
             adastra aggregation [--remade] --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path> [--remake]
@@ -42,6 +42,7 @@ Arguments:
     <suffix>   Suffix for stats file
     <int>      Positive integer
     <model>    Model to fit distribution with
+    <rescale>  'none', 'single' or 'group'
 
 Options:
     -h, --help                  Show help.
@@ -59,6 +60,7 @@ Options:
     --dir=<path>                Path to directory
     --uniprot-file=<path>       Path to file with uniprot conversion
     --njobs=<int>               Number of parallel processes [default: 1]
+    --rescale-mode              Mode of weights rescaling in mixALime
 """
 import time
 
@@ -161,7 +163,7 @@ def main():
         from .ASBcalling.calc_pval import main
         main(remade=args['--remade'],
              n_jobs=int(args['--njobs']),
-             rescale_weights=not args['--no-rescale'])
+             rescale_mode=args['--rescale-mode'])
     elif args['neg_bin_p']:
         from .ASBcalling.NBpcounter import main
         main(args['--base'])
