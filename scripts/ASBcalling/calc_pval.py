@@ -27,15 +27,16 @@ def create_filename_list_mixalime(badmap, exps, out):
 
 
 def process_dataset(data):
-    badmap_name, file_path, rescale_mode = data
+    badmap_name, file_path, rescale_mode, dist = data
     print(f'Processing {badmap_name}')
     out_dir = get_dir_by_stage('p-value')
     if file_path is not None:
         pr = subprocess.run(['calc_pval', '-f', file_path, '-w', get_release_stats_path(),
+                             '-d', dist,
                              '-O', out_dir, '-m', 'slices', '--deprecated', '--rescale-mode', rescale_mode])
 
 
-def main(remade=True, n_jobs=1, rescale_mode='group'):
+def main(remade=True, n_jobs=1, rescale_mode='group', dist='BetaNB'):
     badmaps = read_badmaps(remade)
     out = os.path.join(results_path, 'pvalue_files')
     if not os.path.exists(out):
@@ -48,7 +49,7 @@ def main(remade=True, n_jobs=1, rescale_mode='group'):
 
     ctx = mp.get_context("forkserver")
     with ctx.Pool(n_jobs) as p:
-        p.map(process_dataset, [(x, files_dict[x], rescale_mode) for x in badmaps])
+        p.map(process_dataset, [(x, files_dict[x], rescale_mode, dist) for x in badmaps])
 
 
 if __name__ == '__main__':
