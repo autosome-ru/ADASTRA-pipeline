@@ -71,21 +71,21 @@ babachi_params = {
     'prior': 'geometric_0.99'
 }
 
-# mixalime_params = {
-#     '-m': 'window',
-#     '-r': 'inf',
-#     '-R': 'inf',
-#     '-s': '1',
-#     '-w': '10000',
-# }
-
-
 mixalime_params = {
-    '-m': 'slices',
-    '-d': 'NB',
+    '-m': 'window',
     '-r': 'inf',
     '-R': 'inf',
+    '-s': '1',
+    '-w': '10000',
 }
+
+
+# mixalime_params = {
+#     '-m': 'slices',
+#     '-d': 'NB',
+#     '-r': 'inf',
+#     '-R': 'inf',
+# }
 
 
 def get_model_name_from_params(**params):

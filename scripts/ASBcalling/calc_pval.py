@@ -33,7 +33,7 @@ def process_dataset(data):
     if file_path is not None:
         pr = subprocess.run(['calc_pval', '-f', file_path, '-w', get_release_stats_path(),
                              '-d', dist,
-                             '-O', out_dir, '-m', 'slices', '--deprecated', '--rescale-mode', rescale_mode])
+                             '-O', out_dir, '-m', 'window', '--deprecated', '--rescale-mode', rescale_mode])
 
 
 def main(remade=True, n_jobs=1, rescale_mode='group', dist='BetaNB'):
