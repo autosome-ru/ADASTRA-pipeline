@@ -22,7 +22,7 @@ def main(for_what, remade=True):
         df_filter = master_df.apply(
             lambda row: os.path.isfile(create_path_from_master_list_df(row, 'BAD'))
                         and is_valid(row['path'], rev_d, remade=remade), axis=1)
-        print(len(df_filter.sum()))
+        print(df_filter.sum())
         master_df = master_df[df_filter]
         master_df['path'].to_csv(out_path, sep='\t', index=False, header=False)
     elif for_what == 'annotation':
