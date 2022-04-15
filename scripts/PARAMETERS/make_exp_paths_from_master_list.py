@@ -19,9 +19,11 @@ def main(for_what, remade=True):
         with open(get_merged_badmaps_dict_path(remade=remade), "r") as read_file:
             d = json.load(read_file)
             rev_d = make_reverse_dict(d)
-        master_df = master_df[master_df.apply(
+        df_filter = master_df.apply(
             lambda row: os.path.isfile(create_path_from_master_list_df(row, 'BAD'))
-                        and is_valid(row['path'], rev_d, remade=remade), axis=1)]
+                        and is_valid(row['path'], rev_d, remade=remade), axis=1)
+        print(len(df_filter.sum()))
+        master_df = master_df[df_filter]
         master_df['path'].to_csv(out_path, sep='\t', index=False, header=False)
     elif for_what == 'annotation':
         master_df[['path', 'PEAKS']].to_csv(out_path, sep='\t', index=False, header=False)
