@@ -16,7 +16,7 @@ Usage:
             adastra bad_call [--remake] --group <group>
             adastra bad_annotation [--remade] --base <path>
             adastra collect_ref_bias [--remade] [stats] [--suffix <suffix>] [--cell-type <name>]
-            adastra fit_neg_bin [--model <model>]
+            adastra fit_neg_bin [--dist <dist>]
             adastra mixALime [--remade --njobs <int> --rescale-mode <rescale> --dist <dist>]
             adastra neg_bin_p --base <path>
             adastra aggregation [--remade] --for <for> --name <name>
@@ -159,7 +159,7 @@ def main():
             main(args['--cell-type'], args['--suffix'], in_stats=True, remade=args['--remade'])
     elif args['fit_neg_bin']:
         from .FITnoise.fit_dist import main
-        main()
+        main(args['--dist'])
     elif args['mixALime']:
         from .ASBcalling.calc_pval import main
         main(remade=args['--remade'],
