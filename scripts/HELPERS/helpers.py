@@ -77,6 +77,7 @@ mixalime_params = {
     '-R': 'inf',
     '-s': '1',
     '-w': '100000',  #FIXME !
+    '-k': '250' #FIXME !
 }
 
 
