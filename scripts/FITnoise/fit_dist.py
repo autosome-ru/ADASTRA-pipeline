@@ -1,12 +1,13 @@
 import os
 import subprocess
-
+import json
 from scripts.HELPERS.paths import get_release_stats_path
-from scripts.HELPERS.helpers import mixalime_params
 
 
 def main(dist):
     in_dir = get_release_stats_path()
+    with open(os.path.join(in_dir, 'mixalime_params.json')) as f:
+        mixalime_params = json.load(f)
     args = (item for pair in mixalime_params.items() for item in pair)
     pr = subprocess.run(['negbin_fit', '-O', in_dir, '-d', dist, *args],
                         check=True,

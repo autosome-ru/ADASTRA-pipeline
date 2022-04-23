@@ -71,14 +71,6 @@ babachi_params = {
     'prior': 'geometric_0.99'
 }
 
-mixalime_params = {
-    '-m': 'window',
-    '-r': 'inf',
-    '-R': 'inf',
-    '-s': '1',
-    '-w': '100000',  #FIXME !
-    '-k': '500' #FIXME !
-}
 
 
 # mixalime_params = {
