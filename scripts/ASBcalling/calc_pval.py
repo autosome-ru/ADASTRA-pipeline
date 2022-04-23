@@ -27,16 +27,19 @@ def create_filename_list_mixalime(badmap, exps, out):
 
 
 def process_dataset(data):
-    badmap_name, file_path, rescale_mode, dist = data
+    badmap_name, file_path, rescale_mode, dist, gof_tr = data
     print(f'Processing {badmap_name}')
+    gof_params = []
+    if gof_tr is not None:
+        gof_params = ['--gof-tr', gof_tr]
     out_dir = get_dir_by_stage('p-value')
     if file_path is not None:
         pr = subprocess.run(['calc_pval', '-f', file_path, '-w', get_release_stats_path(),
-                             '-d', dist,
+                             '-d', dist, *gof_params,
                              '-O', out_dir, '-m', 'window', '--deprecated', '--rescale-mode', rescale_mode])
 
 
-def main(remade=True, n_jobs=1, rescale_mode='group', dist='BetaNB'):
+def main(remade=True, n_jobs=1, rescale_mode='group', dist='BetaNB', gof_tr=None):
     badmaps = read_badmaps(remade)
     out = os.path.join(results_path, 'pvalue_files')
     if not os.path.exists(out):
@@ -49,7 +52,7 @@ def main(remade=True, n_jobs=1, rescale_mode='group', dist='BetaNB'):
 
     ctx = mp.get_context("forkserver")
     with ctx.Pool(n_jobs) as p:
-        p.map(process_dataset, [(x, files_dict[x], rescale_mode, dist) for x in badmaps])
+        p.map(process_dataset, [(x, files_dict[x], rescale_mode, dist, gof_tr) for x in badmaps])
 
 
 if __name__ == '__main__':
