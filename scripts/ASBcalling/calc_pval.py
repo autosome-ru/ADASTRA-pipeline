@@ -31,7 +31,6 @@ def process_dataset(data):
     print(f'Processing {badmap_name}')
     gof_params = []
     if gof_tr is not None:
-        print(gof_tr)
         gof_params = ['--gof-tr', gof_tr]
     out_dir = get_dir_by_stage('p-value')
     if file_path is not None:

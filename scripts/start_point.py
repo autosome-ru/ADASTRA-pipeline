@@ -17,7 +17,7 @@ Usage:
             adastra bad_annotation [--remade] --base <path>
             adastra collect_ref_bias [--remade] [stats] [--suffix <suffix>] [--cell-type <name>]
             adastra fit_neg_bin [--dist <dist>]
-            adastra mixALime [--remade --njobs <int> --rescale-mode <rescale> --dist <dist> --gof-tr <float>]
+            adastra mixALime [--remade --njobs <int> --rescale-mode <rescale> --dist <dist>] [--gof-tr <float>]
             adastra neg_bin_p --base <path>
             adastra aggregation [--remade] --for <for> --name <name>
             adastra annotate_snps_for_correlation --base <path> [--remake]
@@ -62,6 +62,7 @@ Options:
     --njobs=<int>               Number of parallel processes [default: 1]
     --rescale-mode=<rescale>    Mode of weights rescaling in mixALime
     --dist=<dist>               Dist to use. One of NB, BetaNB [default: BetaNB]
+    --gof-tr=<float>            GOF threshold for pval calculation
 """
 import time
 
