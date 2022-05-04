@@ -5,7 +5,7 @@ from scripts.SARUSannotation.extract_sarus_data import main as main_extract
 
 
 def main():
-    all_asbs_df = None
+    all_asbs_dfs_list = []
     for obj in 'TF', 'CL':
         for tf_file in os.listdir(get_result_dir_path(obj)):
             tf_name = os.path.splitext(tf_file)[0]
@@ -17,8 +17,6 @@ def main():
             tf_df['unique'] = '{}@{}{}'.format(tf_df['#chr'],
                                                tf_df['pos'],
                                                tf_df['alt'])
-            if all_asbs_df is None:
-                all_asbs_df = tf_df
-            else:
-                all_asbs_df = all_asbs_df.append(tf_df, ignore_index=True)
+            all_asbs_dfs_list.append(tf_df)
+    all_asbs_df = pd.concat(all_asbs_dfs_list)
     main_extract('all_tfs', 25, all_asbs_df.sort_values(by=['pos', '#chr']))
