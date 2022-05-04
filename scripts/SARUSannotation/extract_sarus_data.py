@@ -29,6 +29,6 @@ def main(tf_name, motif_length, opened_df=None):
     bed_path = get_tf_sarus_path(tf_name, 'tsv')
     bed_df.to_csv(bed_path, sep='\t', index=None)
     out_path = get_tf_sarus_path(tf_name, 'fasta')
-    fasta_buf = subprocess.check_output(['bedtools', 'getfasta', '-fi', FA, '-bed', bed_path])
+    fasta_buf = subprocess.check_output(['bedtools', 'getfasta', '-fi', FA, '-bed', bed_path, '-name'])
     with open(out_path, 'wb') as out:
         out.write(fasta_buf)
