@@ -11,7 +11,7 @@ from scripts.HELPERS.paths_for_components import results_path, tf_dict_path, cl_
 from scripts.HELPERS.helpers import callers_names, unpack, pack, check_if_in_expected_args, \
     expected_args, get_merged_badmaps_dict_path, make_reverse_dict, is_valid, split_ext_recursive, get_results_file
 from scripts.HELPERS.paths import get_result_table_path
-
+from scipy.stats import combine_pvalues
 with open(cl_dict_path, "r") as read_file:
     cell_lines_dict = json.load(read_file)
 with open(tf_dict_path, "r") as read_file:
