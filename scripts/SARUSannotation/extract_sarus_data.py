@@ -8,9 +8,9 @@ def get_name(row):
     return f" {row['ID']}@{row['alt']}"
 
 
-def tf_to_bed(tf_df):
-    tf_df['start'] = tf_df['pos'] - 1
-    tf_df['end'] = tf_df['pos']
+def tf_to_bed(tf_df, motif_length):
+    tf_df['start'] = tf_df['pos'] - 1 - motif_length
+    tf_df['end'] = tf_df['pos'] + motif_length
     tf_df['name'] = tf_df.apply(get_name, axis=1)
     return tf_df[['#chr', 'start', 'end', 'name']]
 
@@ -25,7 +25,7 @@ def main(tf_name, motif_length, opened_df=None):
         tf_df = pd.read_table(tf_path)
     if tf_df.empty:
         exit(0)
-    bed_df = tf_to_bed(tf_df)
+    bed_df = tf_to_bed(tf_df, motif_length)
     bed_path = get_tf_sarus_path(tf_name, 'tsv')
     bed_df.to_csv(bed_path, sep='\t', index=None)
     out_path = get_tf_sarus_path(tf_name, 'fasta')
