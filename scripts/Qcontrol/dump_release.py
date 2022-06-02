@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import sys
 import numpy as np
+from tqdm import tqdm
+
 results_path = sys.argv[1]
 
 
@@ -37,9 +39,12 @@ def get_result_table_path(what_for, string):
 
 def main():
     for obj in 'TF', 'CL':
-        for tf_file in os.listdir(get_result_dir_path(obj)):
+        tf_files = os.listdir(get_result_dir_path(obj))
+        print(f'Doing {obj}')
+        for tf_file in tqdm(tf_files):
             tf_name = os.path.splitext(tf_file)[0]
-            tf_df = pd.read_table(get_result_table_path(obj, tf_name))
+            tf_df = pd.read_table(get_result_table_path(obj, tf_name),
+                                  dtype=None if obj == 'CL' else {'motif_conc': str})
             tf_df = tf_df[tf_df.columns.drop(['logitp_ref',
                                               'logitp_alt',
                                               'median_cover',
@@ -56,7 +61,8 @@ def main():
                                               'es_mostsig_alt',
                                               'p_mostsig_alt'
                                               ])]
-            tf_df.loc['motif_fc'] = tf_df.apply(calc_conc, axis=1)
+            if obj == 'TF':
+                tf_df.loc['motif_fc'] = tf_df.apply(calc_conc, axis=1)
             tf_df = tf_df[(~tf_df['fdrp_bh_ref'].isna()) & (~tf_df['fdrp_bh_alt'].isna())]
             if tf_df.empty:
                 continue
