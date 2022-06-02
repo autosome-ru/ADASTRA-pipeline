@@ -56,7 +56,7 @@ def main():
                                               'es_mostsig_alt',
                                               'p_mostsig_alt'
                                               ])]
-            tf_df['motif_fc'] = tf_df.apply(calc_conc, axis=1)
+            tf_df.loc['motif_fc'] = tf_df.apply(calc_conc, axis=1)
             tf_df = tf_df[(~tf_df['fdrp_bh_ref'].isna()) & (~tf_df['fdrp_bh_alt'].isna())]
             if tf_df.empty:
                 continue
