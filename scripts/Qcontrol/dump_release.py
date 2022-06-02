@@ -12,9 +12,10 @@ def get_result_dir_path(what_for):
 
 
 def calc_conc(row):
-    return get_concordance(row['fdrp_bh_ref'], row['fdrp_bh_alt'],
+    row['motif_conc'] = get_concordance(row['fdrp_bh_ref'], row['fdrp_bh_alt'],
                            row['motif_fc'], row['motif_log_pref'],
                            row['motif_log_palt'])
+    return row
 
 
 def get_concordance(p_val_ref, p_val_alt, motif_fc, motif_pval_ref, motif_pval_alt):
@@ -62,7 +63,7 @@ def main():
                                               'p_mostsig_alt'
                                               ])]
             if obj == 'TF':
-                tf_df.loc['motif_fc'] = tf_df.apply(calc_conc, axis=1)
+                tf_df = tf_df.apply(calc_conc, axis=1)
             tf_df = tf_df[(~tf_df['fdrp_bh_ref'].isna()) & (~tf_df['fdrp_bh_alt'].isna())]
             if tf_df.empty:
                 continue
