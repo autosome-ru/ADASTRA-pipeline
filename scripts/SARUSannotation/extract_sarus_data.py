@@ -13,7 +13,7 @@ def tf_to_bed(df, motif_length):
     df['end'] = df['pos'] + motif_length
     df['name'] = df.apply(get_name, axis=1)
     df = df.explode('name')
-    df['nuc'] = df.apply(lambda x: print(x) and x['alt'] if x['name'].endswith('alt') else x['ref'], axis=1)
+    df['nuc'] = df.apply(lambda x: x['alt'] if x['name'].endswith('alt') else x['ref'], axis=1)
     return df[['#chr', 'start', 'end', 'name', 'nuc']]
 
 
