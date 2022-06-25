@@ -35,8 +35,7 @@ def main(tf_name, motif_length, opened_df=None):
     fasta_buf = subprocess.check_output(['bedtools', 'getfasta', '-fi', FA, '-bed', bed_path, '-name']).decode('utf-8')
     key = None
     with open(out_path, 'w') as out:
-        for line in fasta_buf:
-            print(line)
+        for line in fasta_buf.split('\n'):
             if line.startswith('>'):
                 key = line.strip()
             elif key:
