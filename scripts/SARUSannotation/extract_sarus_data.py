@@ -37,7 +37,7 @@ def main(tf_name, motif_length, opened_df=None):
     with open(out_path, 'w') as out:
         for line in fasta_buf.split('\n'):
             if line.startswith('>'):
-                key = line.strip()
+                key = line.strip()[2:]
             elif key:
                 if line.endswith('ref\n'):
                     assert id_nuc_cor[key] == line[motif_length]
