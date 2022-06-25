@@ -12,7 +12,9 @@ def tf_to_bed(tf_df, motif_length):
     tf_df['start'] = tf_df['pos'] - 1 - motif_length
     tf_df['end'] = tf_df['pos'] + motif_length
     tf_df['name'] = tf_df.apply(get_name, axis=1)
-    return tf_df[['#chr', 'start', 'end', 'name']].explode('name')
+    tf_df = tf_df[['#chr', 'start', 'end', 'name']].explode('name')
+    tf_df['nuc'] = tf_df.apply(lambda x: x['alt'] if x['name'].endswith('alt') else x['ref'] )
+    return tf_df
 
 
 def main(tf_name, motif_length, opened_df=None):
@@ -26,9 +28,20 @@ def main(tf_name, motif_length, opened_df=None):
     if tf_df.empty:
         exit(0)
     bed_df = tf_to_bed(tf_df, motif_length)
+    id_nuc_cor = pd.Series(bed_df['nuc'].values, index=bed_df['name'].values).to_dict()
     bed_path = get_tf_sarus_path(tf_name, 'tsv')
-    bed_df.to_csv(bed_path, sep='\t', index=None)
+    bed_df[['#chr', 'start', 'end', 'name']].to_csv(bed_path, sep='\t', index=None)
     out_path = get_tf_sarus_path(tf_name, 'fasta')
-    fasta_buf = subprocess.check_output(['bedtools', 'getfasta', '-fi', FA, '-bed', bed_path, '-name'])
-    with open(out_path, 'wb') as out:
-        out.write(fasta_buf)
+    fasta_buf = subprocess.check_output(['bedtools', 'getfasta', '-fi', FA, '-bed', bed_path, '-name']).decode('utf-8')
+    key = None
+    with open(out_path, 'w') as out:
+        for line in fasta_buf:
+            if line.startswith('>'):
+                key = line.strip()
+            elif key:
+                if line.endswith('ref\n'):
+                    assert id_nuc_cor[key] == line[motif_length]
+                line = line[:motif_length] + id_nuc_cor[key] + line[motif_length + 1:]
+
+                key = None
+            out.write(line)
