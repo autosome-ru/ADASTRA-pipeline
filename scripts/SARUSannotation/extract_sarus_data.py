@@ -8,13 +8,13 @@ def get_name(row):
     return [f" {row['ID']}@{row['alt']}_{allele}" for allele in ('ref', 'alt')]
 
 
-def tf_to_bed(tf_df, motif_length):
-    tf_df['start'] = tf_df['pos'] - 1 - motif_length
-    tf_df['end'] = tf_df['pos'] + motif_length
-    tf_df['name'] = tf_df.apply(get_name, axis=1)
-    tf_df = tf_df[['#chr', 'start', 'end', 'name']].explode('name')
-    tf_df['nuc'] = tf_df.apply(lambda x: x['alt'] if x['name'].endswith('alt') else x['ref'], axis=1)
-    return tf_df
+def tf_to_bed(df, motif_length):
+    df['start'] = df['pos'] - 1 - motif_length
+    df['end'] = df['pos'] + motif_length
+    df['name'] = df.apply(get_name, axis=1)
+    df = df[['#chr', 'start', 'end', 'name']].explode('name')
+    df['nuc'] = df.apply(lambda x: print(x) and x['alt'] if x['name'].endswith('alt') else x['ref'], axis=1)
+    return df
 
 
 def main(tf_name, motif_length, opened_df=None):
@@ -25,7 +25,6 @@ def main(tf_name, motif_length, opened_df=None):
         tf_df = opened_df
     else:
         tf_df = pd.read_table(tf_path)
-        print(tf_df)
     if tf_df.empty:
         exit(0)
     bed_df = tf_to_bed(tf_df, motif_length)
