@@ -36,12 +36,12 @@ def main(tf_name, motif_length, opened_df=None):
     key = None
     with open(out_path, 'w') as out:
         for line in fasta_buf:
+            print(line)
             if line.startswith('>'):
                 key = line.strip()
             elif key:
                 if line.endswith('ref\n'):
                     assert id_nuc_cor[key] == line[motif_length]
                 line = line[:motif_length] + id_nuc_cor[key] + line[motif_length + 1:]
-
                 key = None
             out.write(line)
