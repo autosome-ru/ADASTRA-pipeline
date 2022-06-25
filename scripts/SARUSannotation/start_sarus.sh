@@ -44,12 +44,11 @@ if [ -d "${pwms_path}/$tf_name"/ ]; then
   else
     echo "NO SNPs found for ${tf_name}"
   fi
-  if [ -f "${sarus_dir_base_path}.fasta" ]; then
-    rm "${sarus_dir_base_path}.fasta"
-  fi
 else
   echo "No PWMs found for $tf_name"
 fi
+
+
 
 if ! adastra annotate_table_with_sarus --name "$tf_name" --motif-len "${motif_len}"
 then
@@ -57,6 +56,9 @@ then
   exit 1
 fi
 
+if [ -f "${sarus_dir_base_path}.fasta" ]; then
+  rm "${sarus_dir_base_path}.fasta"
+fi
 if [ -f "${sarus_dir_base_path}.sarus" ]; then
   rm "${sarus_dir_base_path}.sarus"
 fi
