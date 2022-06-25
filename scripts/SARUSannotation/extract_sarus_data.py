@@ -5,14 +5,14 @@ from scripts.HELPERS.paths import get_tf_sarus_path, get_result_table_path
 
 
 def get_name(row):
-    return f" {row['ID']}@{row['alt']}"
+    return [f" {row['ID']}@{row['alt']}_{allele}" for allele in ('ref', 'alt')]
 
 
 def tf_to_bed(tf_df, motif_length):
     tf_df['start'] = tf_df['pos'] - 1 - motif_length
     tf_df['end'] = tf_df['pos'] + motif_length
     tf_df['name'] = tf_df.apply(get_name, axis=1)
-    return tf_df[['#chr', 'start', 'end', 'name']]
+    return tf_df[['#chr', 'start', 'end', 'name']].explode('name')
 
 
 def main(tf_name, motif_length, opened_df=None):
