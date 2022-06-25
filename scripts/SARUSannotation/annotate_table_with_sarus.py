@@ -55,7 +55,7 @@ def make_dict_from_data(tf_fasta_path, motif_length):
 
 
 def adjust_with_sarus(df_row, dict_of_snps):
-    ID = "{};{}".format(df_row['ID'], df_row['alt'])
+    ID = "{}@{}".format(df_row['ID'], df_row['alt'])
     if len(dict_of_snps) == 0:
 
         result = [None] * 6
