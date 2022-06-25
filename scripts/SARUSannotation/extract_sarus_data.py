@@ -5,7 +5,7 @@ from scripts.HELPERS.paths import get_tf_sarus_path, get_result_table_path
 
 
 def get_name(row):
-    return [f" {row['ID']}@{row['alt']}_{allele}" for allele in ('ref', 'alt')]
+    return [f" {row['ID']}@{row['alt']}@{allele}" for allele in ('ref', 'alt')]
 
 
 def tf_to_bed(df, motif_length):
@@ -37,7 +37,7 @@ def main(tf_name, motif_length, opened_df=None):
     with open(out_path, 'w') as out:
         for line in fasta_buf.split('\n'):
             if line.startswith('>'):
-                key = line.strip()[2:]
+                key = line.strip()[1:]
             elif key:
                 if line.endswith('ref\n'):
                     assert id_nuc_cor[key] == line[motif_length]
