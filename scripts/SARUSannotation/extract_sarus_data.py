@@ -9,8 +9,8 @@ def get_name(row):
 
 
 def tf_to_bed(df, motif_length):
-    df['start'] = df['pos'] - 1 - motif_length
-    df['end'] = df['pos'] + motif_length
+    df['start'] = df['pos'] - motif_length
+    df['end'] = df['pos'] + motif_length - 1
     df['name'] = df.apply(get_name, axis=1)
     df = df.explode('name')
     df['nuc'] = df.apply(lambda x: x['alt'] if x['name'].endswith('alt') else x['ref'], axis=1)
