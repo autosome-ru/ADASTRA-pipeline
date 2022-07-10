@@ -42,7 +42,7 @@ def main(tf_name, motif_length, opened_df=None):
                 assert len(line) == motif_length * 2 - 1
                 middle_index = motif_length - 1
                 if key.endswith('ref'):
-                    assert id_nuc_cor[key] == line[middle_index]
+                    assert id_nuc_cor[key] == line[middle_index].upper()
                 line = line[:middle_index] + id_nuc_cor[key] + line[middle_index + 1:]
                 key = None
             out.write(line + '\n')
