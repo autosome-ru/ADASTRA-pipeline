@@ -39,8 +39,10 @@ def main(tf_name, motif_length, opened_df=None):
             if line.startswith('>'):
                 key = line.strip()[1:]
             elif key:
-                if line.endswith('ref'):
-                    assert id_nuc_cor[key] == line[motif_length]
-                line = line[:motif_length] + id_nuc_cor[key] + line[motif_length + 1:]
+                assert len(line) == motif_length * 2 - 1
+                middle_index = motif_length - 1
+                if key.endswith('ref'):
+                    assert id_nuc_cor[key] == line[middle_index]
+                line = line[:middle_index] + id_nuc_cor[key] + line[middle_index + 1:]
                 key = None
             out.write(line + '\n')
