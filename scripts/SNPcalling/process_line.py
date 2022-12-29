@@ -8,7 +8,7 @@ dnase_bams_path = '/mnt/NAS/home/abramov/raw_alignments.GTRD/faire'
 
 
 def make_bams_list(gtrd_id):
-    print(os.listdir(dnase_bams_path))
+    print([x for x in os.listdir(dnase_bams_path)], gtrd_id)
     return [file for file in os.listdir(dnase_bams_path)
             if os.path.splitext(file)[0] == gtrd_id and os.path.splitext(file)[1] == 'bam']
 
@@ -29,9 +29,9 @@ def main(master_line):
     print('Processing', align_name)
     out_path = os.path.join(alignments_path)
     downloaded_bams = make_bams_list(align_name)
-    print(downloaded_bams)
     if len(downloaded_bams) == 0:
-        return 
+        return
+    print(downloaded_bams)
     for bam in downloaded_bams:
         print('Processing', bam)
         process_bam(bam, out_path)
