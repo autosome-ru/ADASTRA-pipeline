@@ -28,8 +28,6 @@ def main(master_line):
     print('Processing', align_name)
     out_path = os.path.join(alignments_path)
     downloaded_bams = make_bams_list(align_name)
-    if downloaded_bams is None or len(downloaded_bams) < 2:
-        return
 
     for bam in downloaded_bams:
         print('Processing', bam)
