@@ -9,13 +9,14 @@ dnase_bams_path = '/mnt/NAS/home/abramov/raw_alignments.GTRD/faire'
 
 def make_bams_list(gtrd_id):
     return [file for file in os.listdir(dnase_bams_path)
-            if os.path.splitext(file)[0].split('_')[0] == gtrd_id and os.path.splitext(file)[1] == 'bam']
+            if os.path.splitext(file)[0] == gtrd_id and os.path.splitext(file)[1] == 'bam']
 
 
 def process_bam(bam, out_path):
     cmd = ['bash', '/home/abramov/faire/ADASTRA-pipeline/scripts/SNPcalling/SNPcalling.sh',
            '-Exp', os.path.join(dnase_bams_path, bam),
            '-Out', out_path]
+    print(cmd)
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
     if error:
