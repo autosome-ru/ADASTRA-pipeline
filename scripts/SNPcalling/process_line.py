@@ -17,7 +17,6 @@ def process_bam(bam, out_path):
     cmd = ['bash', '/home/abramov/faire/ADASTRA-pipeline/scripts/SNPcalling/SNPcalling.sh',
            '-Exp', os.path.join(dnase_bams_path, bam),
            '-Out', out_path]
-    print(cmd)
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
     if error:
@@ -26,12 +25,8 @@ def process_bam(bam, out_path):
 
 def main(master_line):
     exp_name, align_name, read_groups, _ = master_line.split('\t')
-    print('Processing', align_name)
     out_path = os.path.join(alignments_path)
-    downloaded_bams = make_bams_list(align_name)
-    if len(downloaded_bams) == 0:
-        return
-    print(downloaded_bams)
-    for bam in downloaded_bams:
+    bam = os.path.join(dnase_bams_path, align_name + '.bam')
+    if os.path.exists(bam):
         print('Processing', bam)
         process_bam(bam, out_path)
