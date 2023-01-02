@@ -4,7 +4,7 @@ import subprocess
 from scripts.HELPERS.paths_for_components import alignments_path
 
 
-dnase_bams_path = '/mnt/NAS/home/abramov/raw_alignments.GTRD/faire'
+dnase_bams_path = '/mnt/NAS/home/abramov/raw_alignments.GTRD/'
 
 
 def make_bams_list(gtrd_id):
@@ -27,6 +27,6 @@ def main(master_line):
     exp_name, align_name, read_groups, _ = master_line.split('\t')
     out_path = os.path.join(alignments_path)
     bam = os.path.join(dnase_bams_path, align_name + '.bam')
+    print(bam)
     if os.path.exists(bam):
-        print('Processing', bam)
         process_bam(bam, out_path)
